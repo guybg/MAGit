@@ -49,9 +49,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         if (!(o instanceof FileItem)) return false;
         FileItem fileItem = (FileItem) o;
         return Objects.equals(mName, fileItem.mName) &&
-                mFileType == fileItem.mFileType &&
-                Objects.equals(mLastUpdater, fileItem.mLastUpdater) &&
-                Objects.equals(mCommitDate, fileItem.mCommitDate);
+                mFileType == fileItem.mFileType;
     }
 
     @Override

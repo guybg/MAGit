@@ -1,5 +1,6 @@
 package com.magit.logic.system.objects;
 
+import com.magit.logic.enums.FileType;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyWalker;
@@ -12,15 +13,17 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Commit {
+public class Commit extends FileItem{
     private Sha1 mWorkingCopySha1;
     private List<Sha1> mLastCommits;
     private String mCommitMessage;
     private Date mCommitDate;
     private String mCreator;
     private Boolean firstCommit = true;
+    private Sha1 mSha1Code;
 
-    public Commit(String commitMessage, String creator) {
+    public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
+        super(null, fileType,creator,mCommitDate);
         mCommitMessage = commitMessage;
         mCreator = creator;
         mLastCommits = new ArrayList<>();
@@ -39,10 +42,10 @@ public class Commit {
     }
 
     private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException {
-        WorkingCopyWalker workingCopyWalker = new WorkingCopyWalker(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator);
+        WorkingCopyWalker workingCopyWalker = new WorkingCopyWalker(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator,mCommitDate);
         mWorkingCopySha1 = workingCopyWalker.zipWorkingCopy(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString());
-
-        FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), new Sha1(getFileContent()));
+        mSha1Code = new Sha1(getFileContent());
+        FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mSha1Code);
 
     }
 
@@ -73,5 +76,10 @@ public class Commit {
                 ", mCreator='" + mCreator + '\'' +
                 ", firstCommit=" + firstCommit +
                 '}';
+    }
+
+    @Override
+    public Sha1 getSha1Code() {
+        return mSha1Code;
     }
 }

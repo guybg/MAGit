@@ -16,16 +16,18 @@ import java.util.TreeSet;
 public class WorkingCopyWalker {
     private String mRepositoryDirectoryPath;
     private String mUserName;
+    private Date mCommitDate;
 
-    public WorkingCopyWalker(String repositoryDirectoryPath, String userName) {
+    public WorkingCopyWalker(String repositoryDirectoryPath, String userName, Date commitDate) {
         mRepositoryDirectoryPath = repositoryDirectoryPath;
         mUserName = userName;
+        mCommitDate = commitDate;
     }
 
     public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         walk(repositoryDirectoryPath, directoryFiles);
-        Tree wc = new Tree(FileType.FOLDER, "administrator", new Date(), "wc", directoryFiles);
+        Tree wc = new Tree(FileType.FOLDER, "administrator", mCommitDate, "wc", directoryFiles);
         FileZipper.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
         return wc.getSha1Code();
     }
@@ -43,12 +45,12 @@ public class WorkingCopyWalker {
                     walk(f.getAbsolutePath(), dirFiles);
                     System.out.println("Dir:" + f.getAbsoluteFile());
 
-                    Tree tree = new Tree(FileType.FOLDER, mUserName, new Date(), f.getName(), dirFiles);
+                    Tree tree = new Tree(FileType.FOLDER, mUserName, mCommitDate, f.getName(), dirFiles);
                     directoryFiles.add(tree);
                     FileZipper.zip(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 } else {
                     System.out.println("File:" + f.getAbsoluteFile());
-                    Blob blob = new Blob(f.getName(), FileReader.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, new Date());
+                    Blob blob = new Blob(f.getName(), FileReader.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
                     directoryFiles.add(blob);
                     FileZipper.zip(blob, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 }

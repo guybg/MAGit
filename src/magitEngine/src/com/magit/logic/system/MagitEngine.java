@@ -1,11 +1,13 @@
 package com.magit.logic.system;
 
+import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
 
 import java.io.IOException;
+import java.util.Date;
 
 public class MagitEngine {
 
@@ -23,7 +25,7 @@ public class MagitEngine {
     }
 
     public void commit() throws IOException {
-        Commit commit = new Commit("test", "Guy");
+        Commit commit = new Commit("test", "Guy", FileType.COMMIT,new Date());
         commit.newCommit(mActiveRepository, mActiveBranch);
     }
 }
