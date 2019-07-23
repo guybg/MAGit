@@ -11,7 +11,6 @@ import java.util.SortedSet;
 
 public class Tree extends FileItem {
     private String mName;
-    private String mTreeContent;
     private Sha1 mSha1Code;
     private SortedSet<FileItem> mFiles;
 
@@ -57,7 +56,7 @@ public class Tree extends FileItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mName, mTreeContent, mSha1Code, mFiles);
+        return Objects.hash(mName, mSha1Code, mFiles);
     }
 
 

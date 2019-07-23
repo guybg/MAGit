@@ -1,7 +1,9 @@
 package com.magit.logic.utils.file;
 
+import com.magit.logic.system.objects.Blob;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItem;
+import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.io.IOUtils;
 
@@ -57,6 +59,26 @@ public class FileZipper {
         FileWriter.writeNewFile(Paths.get(destinationPath, fileName).toString(), fileContent);
         return fileContent;
     }
+
+    public static String zipToString(String sourcePath, Sha1 sourceSha1) throws IOException {
+        FileInputStream fis = new FileInputStream(Paths.get(sourcePath, sourceSha1.toString()).toString());
+
+        GZIPInputStream gzis = new GZIPInputStream(fis);
+
+        InputStreamReader reader = new InputStreamReader(gzis);
+        String fileContent = new String(IOUtils.toByteArray(gzis));
+        return fileContent;
+    }
+
+    public static void fileItemToFile(Blob fileItem, String destinationPath, String fileName) throws IOException {
+        FileWriter.writeNewFile(Paths.get(destinationPath, fileName).toString(), fileItem.getFileContent());
+    }
+
+    public static void fileItemToFile(Tree fileItem, String destinationPath, String fileName) {
+        FileWriter.writeNewFolder(Paths.get(destinationPath, fileName).toString());
+    }
+
+
 
     public void zipFile(String zipName) throws IOException {
         mZipName = zipName;

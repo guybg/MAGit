@@ -13,7 +13,7 @@ public class UserInterface {
         try {
             Blob blob = new Blob("test", "test", FileType.FILE, "ME", new Date());
             //FileZipper.unzip("C:\\testZip", new Sha1("test"), "C:\\testZip\\here", "banana.txt");
-            maGitSystem.createNewRepository("testRep7", "/Users/guybergman/Desktop/gitRep");
+            maGitSystem.createNewRepository("testRep7", "C:\\testingRep");
             maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +

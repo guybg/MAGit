@@ -2,6 +2,7 @@ package com.magit.logic.utils.file;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.system.objects.Blob;
+import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItem;
 import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
@@ -26,13 +27,46 @@ public class WorkingCopyWalker {
 
     public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
-        walk(repositoryDirectoryPath, directoryFiles);
+        zipWalk(repositoryDirectoryPath, directoryFiles);
         Tree wc = new Tree(FileType.FOLDER, "administrator", mCommitDate, "wc", directoryFiles);
         FileZipper.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
         return wc.getSha1Code();
     }
 
-    private void walk(String repositoryDirectoryPath, SortedSet<FileItem> directoryFiles) throws IOException {
+
+    //(String sourcePath, Sha1 sourceSha1, String destinationPath, String fileName)
+    public void unzipWorkingCopy(Commit commit, String destenationPath) {
+        Sha1 wc = commit.getmWorkingCopySha1();
+        // unzipWalk(destenationPath, wc,FileType.FOLDER, "WC");
+
+    }
+
+    //  private void unzipWalk(String destinationPath, Sha1 sha1Item, FileType fileType, String fileName){
+    //      File root = new File(destinationPath);
+    //      File[] list = root.listFiles();
+    //      if (list == null) return;
+//
+    //      for (File f : list) {
+    //          if (!f.getName().equals(".magit")) {
+    //              if (f.isDirectory()) { /// <------- problem with f.getName()
+    //                  String check = f.getName();
+    //                  SortedSet<FileItem> dirFiles = new TreeSet<>();
+    //                  unzipWalk(f.getAbsolutePath());
+    //                  System.out.println("Dir:" + f.getAbsoluteFile());
+//
+    //                  Tree tree = new Tree(FileType.FOLDER, mUserName, mCommitDate, f.getName(), dirFiles);
+    //                  directoryFiles.add(tree);
+    //                  FileZipper.zip(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+    //              } else {
+    //                  System.out.println("File:" + f.getAbsoluteFile());
+    //                  Blob blob = new Blob(f.getName(), FileReader.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
+    //                  directoryFiles.add(blob);
+    //                  FileZipper.zip(blob, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+    //              }
+    //          }
+    //      }
+    //  }
+    private void zipWalk(String repositoryDirectoryPath, SortedSet<FileItem> directoryFiles) throws IOException {
         File root = new File(repositoryDirectoryPath);
         File[] list = root.listFiles();
         if (list == null) return;
@@ -42,7 +76,7 @@ public class WorkingCopyWalker {
                 if (f.isDirectory()) { /// <------- problem with f.getName()
                     String check = f.getName();
                     SortedSet<FileItem> dirFiles = new TreeSet<>();
-                    walk(f.getAbsolutePath(), dirFiles);
+                    zipWalk(f.getAbsolutePath(), dirFiles);
                     System.out.println("Dir:" + f.getAbsoluteFile());
 
                     Tree tree = new Tree(FileType.FOLDER, mUserName, mCommitDate, f.getName(), dirFiles);

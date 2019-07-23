@@ -82,4 +82,8 @@ public class Commit extends FileItem{
     public Sha1 getSha1Code() {
         return mSha1Code;
     }
+
+    public Sha1 getmWorkingCopySha1() {
+        return mWorkingCopySha1;
+    }
 }

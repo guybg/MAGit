@@ -15,4 +15,9 @@ public class FileWriter {
         File file = new File(destinationPath);
         FileUtils.writeStringToFile(file, fileContent, StandardCharsets.UTF_8);
     }
+
+    public static void writeNewFolder(String destinationPath) {
+        File file = new File(destinationPath);
+        file.mkdir();
+    }
 }
