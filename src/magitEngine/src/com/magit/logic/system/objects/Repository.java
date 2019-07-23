@@ -73,6 +73,6 @@ public class Repository {
 
     public void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
 
-        FileWriter.writeNewFile(Paths.get(mRepositoryParentFolderLocation, ".magit", "branches, branchName").toString(), newCommit.toString());
+        FileWriter.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
     }
 }

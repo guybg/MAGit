@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class Commit {
     public Commit(String commitMessage, String creator) {
         mCommitMessage = commitMessage;
         mCreator = creator;
+        mLastCommits = new ArrayList<>();
     }
 
     private void loadCommmit() {
@@ -40,21 +42,22 @@ public class Commit {
         WorkingCopyWalker workingCopyWalker = new WorkingCopyWalker(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator);
         mWorkingCopySha1 = workingCopyWalker.zipWorkingCopy(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString());
 
-        FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), new Sha1(getFileContent()));
+        FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), new Sha1(getFileContent()));
 
     }
 
     public String getFileContent() {
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
         String content = "";
-        content = "wc=" + System.lineSeparator() + mWorkingCopySha1;
+        content = "wc=" + System.lineSeparator() + mWorkingCopySha1+ System.lineSeparator();
         content += "lastCommits=" + System.lineSeparator();
         for (Sha1 commit : mLastCommits) {
             content += commit.toString();
             content += System.lineSeparator();
         }
-        content += "commitMessege=" + System.lineSeparator() + mCommitMessage + dateFormat.format(mCommitDate)
-                + "creator=" + System.lineSeparator() + mCreator + System.lineSeparator();
+        content += "commitMessege=" + System.lineSeparator() + mCommitMessage + System.lineSeparator()
+                + "commitDate" + System.lineSeparator() + dateFormat.format(mCommitDate)
+                +System.lineSeparator() + "creator=" + System.lineSeparator() + mCreator + System.lineSeparator();
 
         return content;
     }

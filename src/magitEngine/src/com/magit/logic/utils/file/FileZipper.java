@@ -29,6 +29,8 @@ public class FileZipper {
 
     public static void zip(FileItem fileItem, String destinationPath) throws IOException {
         String s = Paths.get(destinationPath, fileItem.getSha1Code().toString()).toString();
+        File file = new File(destinationPath);
+        file.mkdirs();
         FileOutputStream fos = new FileOutputStream(Paths.get(destinationPath, fileItem.getSha1Code().toString()).toString());
         GZIPOutputStream gzos = new GZIPOutputStream(fos);
         String ss = fileItem.getFileContent();
@@ -37,9 +39,11 @@ public class FileZipper {
     }
 
     public static void zip(Commit commit, String destinationPath, Sha1 sha1) throws IOException {
+        File file = new File(destinationPath);
+        file.mkdirs();
         FileOutputStream fos = new FileOutputStream(Paths.get(destinationPath, sha1.toString()).toString());
         GZIPOutputStream gzos = new GZIPOutputStream(fos);
-        gzos.write(commit.toString().getBytes());
+        gzos.write(commit.getFileContent().getBytes());
         gzos.close();
     }
 
