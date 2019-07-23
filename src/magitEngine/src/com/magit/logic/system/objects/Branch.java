@@ -1,6 +1,7 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.exceptions.IllegalPathException;
+import com.magit.logic.utils.digest.Sha1;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +11,7 @@ import java.nio.file.Paths;
 
 public class Branch {
     private String mBranchName;
-    private String mPointedCommitSha1;
+    private Sha1 mPointedCommitSha1;
 
     public Branch(String mBranchName) {
         this.mBranchName = mBranchName;
@@ -37,5 +38,9 @@ public class Branch {
 
             // throw io exception
         }
+    }
+
+    public String getmBranchName() {
+        return mBranchName;
     }
 }

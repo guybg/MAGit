@@ -9,4 +9,9 @@ public class Sha1 {
         this.mSha1Code = DigestUtils.sha1Hex(input);
     }
 
+
+    @Override
+    public String toString() {
+        return mSha1Code;
+    }
 }
