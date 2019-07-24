@@ -18,7 +18,14 @@ public class Blob extends FileItem {
                 Date mCommitDate) {
         super(mName, mFileType, mLastUpdater, mCommitDate);
         this.mFileContent = mFileContent;
-        this.mSha1Code = new Sha1(mFileContent);
+        this.mSha1Code = new Sha1(mFileContent, false);
+    }
+
+    public Blob(String mName,
+                FileType mFileType,
+                String mLastUpdater,
+                Date mCommitDate) {
+        super(mName, mFileType, mLastUpdater, mCommitDate);
     }
 
     @Override
@@ -32,11 +39,14 @@ public class Blob extends FileItem {
         return super.getmName() + ";" +
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +
+                super.getmName() + ";" +
                 dateFormat.format(super.getmCommitDate());
     }
 
     @Override
     public Sha1 getSha1Code() {
+        if (mSha1Code == null)
+            mSha1Code = new Sha1(getFileContent(), false);
         return mSha1Code;
     }
 

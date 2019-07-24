@@ -25,6 +25,9 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
 
     public abstract String getFileContent();
 
+    public String getmLastUpdater() {
+        return mLastUpdater;
+    }
 
     public String getmName() {
         return mName;
@@ -66,4 +69,5 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
     public int compareTo(FileItem o) {
         return compare(this, o);
     }
+
 }
