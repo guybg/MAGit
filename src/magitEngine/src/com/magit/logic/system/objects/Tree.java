@@ -80,14 +80,35 @@ public class Tree extends FileItem {
         return mSha1Code;
     }
 
+    //  @Override
+    //  public boolean equals(Object o) {
+    //      for(FileItem file: mFiles){
+    //          file.equals()
+    //      }
+    //      return super.equals(o);
+    //  }
+//
+
+
+    // @Override
+    // public int hashCode() {
+    //     return Objects.hash(mName, mSha1Code, mFiles);
+    // }
+
+
     @Override
     public boolean equals(Object o) {
-        return super.equals(o) && this.getSha1Code().equals(((FileItem) o).getSha1Code());
+        if (this == o) return true;
+        if (!(o instanceof Tree)) return false;
+        if (!super.equals(o)) return false;
+        Tree tree = (Tree) o;
+        return Objects.equals(mName, tree.mName) &&
+                Objects.equals(mFiles, tree.mFiles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mName, mSha1Code, mFiles);
+        return Objects.hash(super.hashCode(), mName, mFiles);
     }
 
     public int getNumberOfFiles() {

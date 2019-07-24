@@ -32,7 +32,8 @@ public class WorkingCopyWalker {
     public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         zipWalk(repositoryDirectoryPath, directoryFiles);
-        Tree wc = new Tree(FileType.FOLDER, "administrator", mCommitDate, "wc", directoryFiles);
+        Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
+
         FileZipper.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
         return wc.getSha1Code();
     }

@@ -38,7 +38,12 @@ public class Commit extends FileItem{
         if (firstCommit) {
             generateFirstCommit(mCommitMessage, mCreator, repository, branch);
         }
-        repository.changeBranchPointer("master", new Sha1(getFileContent(), false));
+        /*
+            handle second and on commit
+         */
+
+
+        repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
     }
 
     private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException {
@@ -46,7 +51,6 @@ public class Commit extends FileItem{
         mWorkingCopySha1 = workingCopyWalker.zipWorkingCopy(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString());
         mSha1Code = new Sha1(getFileContent(), false);
         FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mSha1Code);
-
     }
 
     public String getFileContent() {
