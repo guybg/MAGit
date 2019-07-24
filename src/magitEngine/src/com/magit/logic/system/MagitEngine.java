@@ -30,6 +30,7 @@ public class MagitEngine {
         commit.newCommit(mActiveRepository, mActiveBranch);
         //WorkingCopyWalker wcw = new WorkingCopyWalker(Paths.get(mActiveRepository.getmRepositoryParentFolderLocation(), mActiveRepository.getRepositoryName()).toString(), "Guy", commit.getmCommitDate());
         //wcw.unzipWorkingCopy(commit, Paths.get("C:", "testingRep", "testRep8", ".magit", "tmp").toString());
+
     }
 }
 

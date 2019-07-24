@@ -5,7 +5,6 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.Blob;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 
 public class UserInterface {
@@ -14,7 +13,7 @@ public class UserInterface {
         try {
             Blob blob = new Blob("test", "test", FileType.FILE, "ME", new Date());
             //FileZipper.unzip("C:\\testZip", new Sha1("test"), "C:\\testZip\\here", "banana.txt");
-            maGitSystem.createNewRepository("testRep8", "C:\\testingRep");
+            maGitSystem.createNewRepository("testRep7", "C:\\testingRep");
             maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
@@ -24,8 +23,6 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println("oya");
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
     }
 }

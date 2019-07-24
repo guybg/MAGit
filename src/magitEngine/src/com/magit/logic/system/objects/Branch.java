@@ -17,6 +17,11 @@ public class Branch {
         this.mBranchName = mBranchName;
     }
 
+    public Branch(String branchName, String textToSha1) {
+        this.mBranchName = branchName;
+        mPointedCommitSha1 = new Sha1(textToSha1, false);
+    }
+
     public void create(String path) {
         try {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);

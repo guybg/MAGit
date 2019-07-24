@@ -25,6 +25,10 @@ public class Repository {
         this.mBranches = new HashMap<>();
     }
 
+    public void add(String key, Branch value) {
+        this.mBranches.put(key, value);
+    }
+
     public void create() throws IllegalPathException, IOException {
         Boolean validPath = false;
         File repository;
