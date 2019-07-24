@@ -18,7 +18,7 @@ public class Branch {
     }
     public Branch(String branchName, String textToSha1) {
         this.mBranchName = branchName;
-        mPointedCommitSha1 = new Sha1(textToSha1);
+        mPointedCommitSha1 = new Sha1(textToSha1,false);
     }
 
     public void create(String path) {
