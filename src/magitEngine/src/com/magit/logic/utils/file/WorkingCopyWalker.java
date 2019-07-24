@@ -37,22 +37,16 @@ public class WorkingCopyWalker {
         return wc.getSha1Code();
     }
 
-    public FileItem getWorkingCopyTreeFromCommit(Commit commit) throws IOException, ParseException {
+    public Tree getWorkingCopyTreeFromCommit(Commit commit) throws IOException, ParseException {
         Sha1 wcSha1 = commit.getmWorkingCopySha1();
-        String wcContent = FileZipper.zipToString(Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString(), wcSha1);
-        ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileZipper.zipToString(Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString(), commit.getmWorkingCopySha1()));
-        SortedSet<FileItem> files = new TreeSet<>();
-        DateFormat formatter1;
-        formatter1 = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
-        return walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getmCommitDate(), commit.getmName(), files);
+        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getmCommitDate(), commit.getmName());
     }
 
     private FileItem walk(Sha1 sha1Code,
                           FileType mFileType,
                           String mLastUpdater,
                           Date mCommitDate,
-                          String mName,
-                          SortedSet<FileItem> mFiles) throws IOException, ParseException {
+                          String mName) throws IOException, ParseException {
         if (mFileType == FileType.FOLDER) {
             SortedSet<FileItem> files = new TreeSet<>();
             ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileZipper.zipToString(Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString(), sha1Code));
@@ -60,7 +54,7 @@ public class WorkingCopyWalker {
                 DateFormat formatter1;
                 formatter1 = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
                 Date date = formatter1.parse(fileItem[4]);
-                files.add(walk(new Sha1(fileItem[1], true), FileType.valueOf(fileItem[2]), fileItem[3], date, fileItem[0], files));
+                files.add(walk(new Sha1(fileItem[1], true), FileType.valueOf(fileItem[2]), fileItem[3], date, fileItem[0]));
             }
             return new Tree(mName, sha1Code, FileType.FOLDER, mLastUpdater, mCommitDate, files);
 
@@ -71,8 +65,25 @@ public class WorkingCopyWalker {
     }
 
     //(String sourcePath, Sha1 sourceSha1, String destinationPath, String fileName)
-    public void unzipWorkingCopy(Commit commit, String destenationPath) {
-        // Tree tree = getWorkingCopyTreeFromCommit(commit);
+    public void unzipWorkingCopy(Commit commit, String destenationPath) throws IOException, ParseException {
+        Tree wc = getWorkingCopyTreeFromCommit(commit);
+        unzipWalk(wc, destenationPath);
+    }
+
+    private void unzipWalk(FileItem fileItem, String destenationPath) throws IOException {
+        if (fileItem.getmFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {
+            if (fileItem.getmFileType() == FileType.FILE) {
+                FileZipper.fileItemToFile((Blob) fileItem, destenationPath, fileItem.getmName());
+            }
+            return;
+        }
+        if (fileItem.getmName() != null) {
+            FileZipper.fileItemToFile((Tree) fileItem, destenationPath, fileItem.getmName());
+            destenationPath = Paths.get(destenationPath, fileItem.getmName()).toString();
+        }
+        for (FileItem file : ((Tree) fileItem).getmFiles()) {
+            unzipWalk(file, Paths.get(destenationPath).toString());
+        }
 
     }
 

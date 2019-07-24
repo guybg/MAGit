@@ -21,13 +21,6 @@ public class Blob extends FileItem {
         this.mSha1Code = new Sha1(mFileContent, false);
     }
 
-    public Blob(String mName,
-                FileType mFileType,
-                String mLastUpdater,
-                Date mCommitDate) {
-        super(mName, mFileType, mLastUpdater, mCommitDate);
-    }
-
     @Override
     public String getFileContent() {
         return mFileContent;
@@ -39,7 +32,7 @@ public class Blob extends FileItem {
         return super.getmName() + ";" +
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +
-                super.getmName() + ";" +
+                super.getmLastUpdater() + ";" +
                 dateFormat.format(super.getmCommitDate());
     }
 

@@ -4,7 +4,6 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.FileItem;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.file.WorkingCopyWalker;
 
@@ -32,7 +31,8 @@ public class MagitEngine {
         Commit commit = new Commit("test", "Guy", FileType.COMMIT,new Date());
         commit.newCommit(mActiveRepository, mActiveBranch);
         WorkingCopyWalker wcw = new WorkingCopyWalker(Paths.get(mActiveRepository.getmRepositoryParentFolderLocation(), mActiveRepository.getRepositoryName()).toString(), "Guy", commit.getmCommitDate());
-        FileItem wc = wcw.getWorkingCopyTreeFromCommit(commit);
+        wcw.unzipWorkingCopy(commit, Paths.get("C:", "testingRep", "testRep8", ".magit", "tmp").toString());
+
     }
 }
 

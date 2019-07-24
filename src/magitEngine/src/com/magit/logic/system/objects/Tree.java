@@ -90,6 +90,10 @@ public class Tree extends FileItem {
         return Objects.hash(mName, mSha1Code, mFiles);
     }
 
+    public int getNumberOfFiles() {
+        return (mFiles == null) ? 0 : mFiles.size();
+    }
+
     public SortedSet<FileItem> getmFiles() {
         return mFiles;
     }
