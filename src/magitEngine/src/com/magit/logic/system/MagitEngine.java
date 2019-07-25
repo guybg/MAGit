@@ -9,7 +9,7 @@ import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.file.FileReader;
-import com.magit.logic.utils.file.WorkingCopyWalker;
+import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -67,8 +67,8 @@ public class MagitEngine {
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
         StringBuilder commitContent = new StringBuilder();
         String pathToCommit = FileReader.readFile(mActiveRepository.getCommitPath().toString());
-        Commit commitToPresent = Commit.parseCommitContent(Paths.get(pathToCommit.toString()));
-        Tree commitTree = new WorkingCopyWalker(mActiveRepository.getRepositoryPath().toString(),
+        Commit commitToPresent = Commit.parseCommitContent(Paths.get(pathToCommit));
+        Tree commitTree = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 mUserName, commitToPresent.getDate()).getWorkingCopyTreeFromCommit(commitToPresent);
 
         return commitContent.toString();
