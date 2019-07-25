@@ -5,6 +5,7 @@ import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.MagitEngine;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -23,7 +24,7 @@ public class UserInterface {
     final static String PresentCurrentBranchHisoty = "Present Current Branch History";
     final static String Exit = "Exit";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
             //run(maGitSystem);

@@ -16,7 +16,10 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class WorkingCopyUtils {
     private String mRepositoryDirectoryPath;
@@ -101,11 +104,9 @@ public class WorkingCopyUtils {
     }
 
     private static FileItem updateWalk(Tree newWc, Tree oldWc, Tree wc) {
-        Collection<FileItem> trees1 = CollectionUtils.select(newWc.getmFiles(), treePredicate);
-        SortedSet<FileItem> tr1 = new TreeSet<>(trees1);
+        SortedSet<FileItem> tr1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), treePredicate));
         SortedSet<FileItem> bl1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), blobPredicate));
-        Collection<FileItem> trees2 = CollectionUtils.select(oldWc.getmFiles(), treePredicate);
-        SortedSet<FileItem> tr2 = new TreeSet<>(trees2);
+        SortedSet<FileItem> tr2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), treePredicate));
         SortedSet<FileItem> bl2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), blobPredicate));
         SortedSet<FileItem> dif = new TreeSet<>(CollectionUtils.union(CollectionUtils.intersection(bl2, bl1), bl1));
         wc.setmFiles(dif);
