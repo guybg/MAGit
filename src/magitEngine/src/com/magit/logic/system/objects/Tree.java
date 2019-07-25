@@ -2,6 +2,7 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.utils.digest.Sha1;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -51,6 +52,12 @@ public class Tree extends FileItem {
 
     public void addFileItem(FileItem fileItem) {
         mFiles.add(fileItem);
+        this.mSha1Code = new Sha1(getFileContent(), false);
+    }
+
+    public void setmFiles(SortedSet<FileItem> mFiles) {
+        this.mFiles = mFiles;
+        this.mSha1Code = new Sha1(getFileContent(), false);
     }
 
     @Override
@@ -103,12 +110,12 @@ public class Tree extends FileItem {
         if (!super.equals(o)) return false;
         Tree tree = (Tree) o;
         return Objects.equals(mName, tree.mName) &&
-                Objects.equals(mFiles, tree.mFiles);
+                CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), mName, mFiles);
+        return Objects.hash(super.hashCode(), mName);
     }
 
     public int getNumberOfFiles() {
@@ -118,4 +125,5 @@ public class Tree extends FileItem {
     public SortedSet<FileItem> getmFiles() {
         return mFiles;
     }
+
 }

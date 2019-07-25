@@ -1,11 +1,14 @@
 package com.magit.logic.utils.file;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.objects.Blob;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItem;
 import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,29 +16,38 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
-public class WorkingCopyWalker {
+public class WorkingCopyUtils {
     private String mRepositoryDirectoryPath;
     private String mUserName;
     private Date mCommitDate;
+    private static Predicate<FileItem> treePredicate = new Predicate<FileItem>() {
+        @Override
+        public boolean evaluate(FileItem fileItem) {
+            return fileItem.getmFileType() == FileType.FOLDER;
+        }
+    };
+    private static Predicate<FileItem> blobPredicate = new Predicate<FileItem>() {
+        @Override
+        public boolean evaluate(FileItem fileItem) {
+            return fileItem.getmFileType() == FileType.FILE;
+        }
+    };
 
-    public WorkingCopyWalker(String repositoryDirectoryPath, String userName, Date commitDate) {
+    public WorkingCopyUtils(String repositoryDirectoryPath, String userName, Date commitDate) {
         mRepositoryDirectoryPath = repositoryDirectoryPath;
         mUserName = userName;
         mCommitDate = commitDate;
     }
 
-    public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException {
-        SortedSet<FileItem> directoryFiles = new TreeSet<>();
-        zipWalk(repositoryDirectoryPath, directoryFiles);
-        Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
-
-        FileZipper.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
-        return wc.getSha1Code();
+    public static Tree getWcWithOnlyNewchanges(Tree newWc, Tree oldWc) {
+        Tree wc;
+        if (CollectionUtils.isEqualCollection(newWc.getmFiles(), oldWc.getmFiles()))
+            wc = oldWc;
+        else
+            wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getmLastUpdater(), newWc.getmCommitDate(), newWc.getmName(), new TreeSet<>()));
+        return wc;
     }
 
     public Tree getWorkingCopyTreeFromCommit(Commit commit) throws IOException, ParseException {
@@ -88,6 +100,53 @@ public class WorkingCopyWalker {
 
     }
 
+    private static FileItem updateWalk(Tree newWc, Tree oldWc, Tree wc) {
+        Collection<FileItem> trees1 = CollectionUtils.select(newWc.getmFiles(), treePredicate);
+        SortedSet<FileItem> tr1 = new TreeSet<>(trees1);
+        SortedSet<FileItem> bl1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), blobPredicate));
+        Collection<FileItem> trees2 = CollectionUtils.select(oldWc.getmFiles(), treePredicate);
+        SortedSet<FileItem> tr2 = new TreeSet<>(trees2);
+        SortedSet<FileItem> bl2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), blobPredicate));
+        SortedSet<FileItem> dif = new TreeSet<>(CollectionUtils.union(CollectionUtils.intersection(bl2, bl1), bl1));
+        wc.setmFiles(dif);
+        if (tr1.isEmpty()) {
+            if (!bl1.isEmpty()) {
+                return wc;
+            }
+        }
+        for (FileItem tree : tr1) {
+            Boolean isNewFolder = true;
+            for (FileItem tree2 : tr2) {
+                if (tree2.getmName().equals(tree.getmName())) {
+                    String updatater = tree.getmLastUpdater();
+                    Date date = tree.getmCommitDate();
+                    if (CollectionUtils.isEqualCollection(((Tree) tree).getmFiles(), ((Tree) tree2).getmFiles())) {
+                        updatater = tree2.getmLastUpdater();
+                        date = tree2.getmCommitDate();
+                    }
+                    wc.addFileItem(updateWalk((Tree) tree, (Tree) tree2, new Tree(tree.getmFileType(), updatater, date, tree.getmName(), new TreeSet<FileItem>())));
+                    isNewFolder = false;
+                }
+            }
+            if (isNewFolder) {
+                wc.addFileItem(tree);
+                isNewFolder = true;
+            }
+        }
+        return wc;
+    }
+
+    public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException, WorkingCopyIsEmptyException {
+        SortedSet<FileItem> directoryFiles = new TreeSet<>();
+        zipWalk(repositoryDirectoryPath, directoryFiles);
+        Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
+        if (wc.getmFiles().isEmpty()) {
+            throw new WorkingCopyIsEmptyException();
+        }
+        FileZipper.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+        return wc.getSha1Code();
+    }
+
     private void zipWalk(String repositoryDirectoryPath, SortedSet<FileItem> directoryFiles) throws IOException {
         File root = new File(repositoryDirectoryPath);
         File[] list = root.listFiles();
@@ -96,6 +155,7 @@ public class WorkingCopyWalker {
         for (File f : list) {
             if (!f.getName().equals(".magit")) {
                 if (f.isDirectory()) { /// <------- problem with f.getName()
+                    if (f.listFiles().length == 0) continue;
                     String check = f.getName();
                     SortedSet<FileItem> dirFiles = new TreeSet<>();
                     zipWalk(f.getAbsolutePath(), dirFiles);
@@ -113,6 +173,4 @@ public class WorkingCopyWalker {
             }
         }
     }
-
-
 }

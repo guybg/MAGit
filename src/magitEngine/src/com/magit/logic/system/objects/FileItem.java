@@ -57,7 +57,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
 
     @Override
     public int hashCode() {
-        return Objects.hash(mName, mFileType, mLastUpdater, mCommitDate);
+        return Objects.hash(mName, mFileType);
     }
 
     @Override

@@ -1,9 +1,10 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileZipper;
-import com.magit.logic.utils.file.WorkingCopyWalker;
+import com.magit.logic.utils.file.WorkingCopyUtils;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -33,7 +34,7 @@ public class Commit extends FileItem{
 
     }
 
-    public void newCommit(Repository repository, Branch branch) throws IOException {
+    public void newCommit(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
         mCommitDate = new Date();
         if (firstCommit) {
             generateFirstCommit(mCommitMessage, mCreator, repository, branch);
@@ -43,12 +44,13 @@ public class Commit extends FileItem{
          */
 
 
+
         repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
     }
 
-    private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException {
-        WorkingCopyWalker workingCopyWalker = new WorkingCopyWalker(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator,mCommitDate);
-        mWorkingCopySha1 = workingCopyWalker.zipWorkingCopy(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString());
+    private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator, mCommitDate);
+        mWorkingCopySha1 = workingCopyUtils.zipWorkingCopy(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString());
         mSha1Code = new Sha1(getFileContent(), false);
         FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mSha1Code);
     }

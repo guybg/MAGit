@@ -6,6 +6,7 @@ import com.magit.logic.utils.digest.Sha1;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 public class Blob extends FileItem {
     private String mFileContent;
@@ -43,10 +44,17 @@ public class Blob extends FileItem {
         return mSha1Code;
     }
 
-
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), mFileContent);
+    }
     @Override
     public boolean equals(Object o) {
-        return super.equals(o) && this.getSha1Code().equals(((FileItem) o).getSha1Code());
+        if (this == o) return true;
+        if (!(o instanceof Blob)) return false;
+        if (!super.equals(o)) return false;
+        Blob blob = (Blob) o;
+        return super.equals(o) && Objects.equals(mFileContent, blob.mFileContent);
     }
 
 }

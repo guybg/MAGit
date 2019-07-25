@@ -3,6 +3,7 @@ package com.magit.logic.system;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
+import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -65,9 +66,22 @@ public class MagitEngine {
         mActiveBranch = repository.getmBranches().get("master");
     }
 
-    public void commit() throws IOException {
+    public void commit() throws IOException, WorkingCopyIsEmptyException {
         Commit commit = new Commit("test", "Guy", FileType.COMMIT,new Date());
         commit.newCommit(mActiveRepository, mActiveBranch);
+        //testing
+       /* WorkingCopyUtils wcw1 = new WorkingCopyUtils(Paths.get(mActiveRepository.getmRepositoryParentFolderLocation(),mActiveRepository.getRepositoryName()).toString(),"guy", commit.getmCommitDate());
+        try {
+            Commit commit1 = new Commit("test2", "Shlomo", FileType.COMMIT, new Date());
+            commit1.newCommit(mActiveRepository,mActiveBranch);
+            Tree t1 = wcw1.getWorkingCopyTreeFromCommit(commit);
+            Tree t2 = wcw1.getWorkingCopyTreeFromCommit(commit1);
+            Tree t = WorkingCopyUtils.getWcWithOnlyNewchanges(t2,t1);
+            t1.getmFiles().removeAll(t2.getmFiles());
+            //Objects.deepEquals(t1.getmFiles(),t2.getmFiles());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }*/
     }
 }
 
