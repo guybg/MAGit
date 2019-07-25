@@ -3,6 +3,7 @@ package com.magit.logic.system.objects;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileWriter;
 
 import java.io.BufferedWriter;
@@ -15,22 +16,52 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 public class Repository {
+
+    private final String BRANCHES = "branches";
     private String mRepositoryName;
     private String mRepositoryParentFolderLocation;
     private HashMap<String, Branch> mBranches;
+    private Path pathToRepository;
+
+    private Path pathToMagit;
+    private Path pathToHead;
 
     public Repository(String mRepositoryName, String mRepositoryLocation) {
         this.mRepositoryName = mRepositoryName;
         this.mRepositoryParentFolderLocation = mRepositoryLocation;
         this.mBranches = new HashMap<>();
+        this.pathToRepository = Paths.get(mRepositoryName , mRepositoryName);
+        this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
+        this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
     }
 
     public void add(String key, Branch value) {
         this.mBranches.put(key, value);
     }
 
+    private Path getBranchPath(String branchName) {
+        return Paths.get(pathToMagit.toString(), BRANCHES, branchName);
+    }
+
+    public Path getRepositoryPath() {
+        return Paths.get(mRepositoryParentFolderLocation, mRepositoryName);
+    }
+
+    public boolean isValid() {
+        return Files.exists(Paths.get(mRepositoryParentFolderLocation)) &&
+                Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead)
+                && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, "master"));
+    }
+
+    public Path getCommitPath()throws IOException {
+        String branchName = FileReader.readFile(pathToHead.toString());
+        Path pathToBranchFile = getBranchPath(branchName);
+        String sha1OfCommit = FileReader.readFile(pathToBranchFile.toString());
+        return Paths.get(pathToMagit.toString(), "objects", sha1OfCommit);
+    }
+
     public void create() throws IllegalPathException, IOException {
-        Boolean validPath = false;
+        boolean validPath = false;
         File repository;
         try {
             Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit");

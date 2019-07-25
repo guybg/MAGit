@@ -3,12 +3,15 @@ package com.magit.logic.system.objects;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -30,8 +33,18 @@ public class Commit extends FileItem{
         mLastCommits = new ArrayList<>();
     }
 
-    private void loadCommmit() {
+    public static Commit parseCommitContent(Path pathToCommit) throws IOException, ParseException {
+        String commitContent = FileReader.readFile(pathToCommit.toString());
+        String[] commitLines = commitContent.split(String.format("%s",System.lineSeparator()));
+        String commitMessage = commitLines[2].split("=")[1];
+        String commitDate = commitLines[3].split("=")[1];
+        String commitCreator = commitLines[4].split("=")[1];
+        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        return new Commit(commitMessage, commitCreator, FileType.COMMIT, dateFormat.parse(commitDate));
+    }
 
+    public Date getDate() {
+        return mCommitDate;
     }
 
     public void newCommit(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
@@ -57,18 +70,17 @@ public class Commit extends FileItem{
 
     public String getFileContent() {
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
-        String content = "";
-        content = "wc=" + System.lineSeparator() + mWorkingCopySha1+ System.lineSeparator();
-        content += "lastCommits=" + System.lineSeparator();
+        StringBuilder content = new StringBuilder();
+        content.append(String.format("%s = %s%s%s = ",
+                "wc", mWorkingCopySha1, System.lineSeparator(), "lastCommits"));
         for (Sha1 commit : mLastCommits) {
-            content += commit.toString();
-            content += System.lineSeparator();
+            content.append(String.format("%s%c",commit.toString(),';'));
         }
-        content += "commitMessege=" + System.lineSeparator() + mCommitMessage + System.lineSeparator()
-                + "commitDate" + System.lineSeparator() + dateFormat.format(mCommitDate)
-                +System.lineSeparator() + "creator=" + System.lineSeparator() + mCreator + System.lineSeparator();
-
-        return content;
+        content.append(String.format("%s%s%s%s%s%s%s%s%s", System.lineSeparator(),
+                "commitMessege = ", mCommitMessage, System.lineSeparator(), "commitDate = " ,
+                dateFormat.format(mCommitDate), System.lineSeparator(), "creator = " ,
+                mCreator + System.lineSeparator()));
+        return content.toString();
     }
 
     @Override
