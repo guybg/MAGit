@@ -2,7 +2,10 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileReader;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
