@@ -6,7 +6,9 @@ import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.file.FileReader;
+import com.magit.logic.utils.file.WorkingCopyWalker;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -16,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
@@ -56,6 +59,18 @@ public class MagitEngine {
         } else {
             throw new RepositoryNotFoundException(repositoryPath.getFileName().toString());
         }
+    }
+
+    public String presentCurrentCommitAndHistory() throws RepositoryNotFoundException, IOException, ParseException {
+        if (!mActiveRepository.isValid())
+            throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
+        StringBuilder commitContent = new StringBuilder();
+        String pathToCommit = FileReader.readFile(mActiveRepository.getCommitPath().toString());
+        Commit commitToPresent = Commit.parseCommitContent(Paths.get(pathToCommit.toString()));
+        Tree commitTree = new WorkingCopyWalker(mActiveRepository.getRepositoryPath().toString(),
+                mUserName, commitToPresent.getDate()).getWorkingCopyTreeFromCommit(commitToPresent);
+
+        return commitContent.toString();
     }
 
     public void createNewRepository(String repositoryName, String fullPath) throws IllegalPathException, IOException {
