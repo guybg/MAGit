@@ -102,7 +102,8 @@ public class UserInterface {
                     break;
 
                 case PresentAllBranches:
-
+                    String branchesInfo = magitEngine.getBrnchesInfo();
+                    System.out.println(branchesInfo);
                     break;
                 case CreateNewBranch:
 
