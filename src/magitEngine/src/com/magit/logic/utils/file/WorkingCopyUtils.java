@@ -10,7 +10,6 @@ import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,52 +49,54 @@ public class WorkingCopyUtils {
         return wc;
     }
 
-    public Tree getWorkingCopyTreeFromCommit(Commit commit) throws IOException, ParseException {
+    public static Tree getWorkingCopyTreeFromCommit(Commit commit, String repositoryPath) throws IOException, ParseException {
         Sha1 wcSha1 = commit.getmWorkingCopySha1();
-        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName());
+
+        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName(), repositoryPath);
     }
 
-    private FileItem walk(Sha1 sha1Code,
-                          FileType mFileType,
-                          String mLastUpdater,
-                          Date mCommitDate,
-                          String mName) throws IOException, ParseException {
+    private static FileItem walk(Sha1 sha1Code,
+                                 FileType mFileType,
+                                 String mLastUpdater,
+                                 Date mCommitDate,
+                                 String mName, String repositoryPath) throws IOException, ParseException {
         if (mFileType == FileType.FOLDER) {
             SortedSet<FileItem> files = new TreeSet<>();
-            ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileZipper.zipToString(Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString(), sha1Code));
+            ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileZipper.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code));
             for (String[] fileItem : fileItems) {
                 DateFormat formatter1;
                 formatter1 = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
                 Date date = formatter1.parse(fileItem[4]);
-                files.add(walk(new Sha1(fileItem[1], true), FileType.valueOf(fileItem[2]), fileItem[3], date, fileItem[0]));
+                files.add(walk(new Sha1(fileItem[1], true), FileType.valueOf(fileItem[2]), fileItem[3], date, fileItem[0], repositoryPath));
             }
             return new Tree(mName, sha1Code, FileType.FOLDER, mLastUpdater, mCommitDate, files);
 
         } else {
-            String fileContent = FileZipper.zipToString(Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString(), sha1Code);
+            String fileContent = FileZipper.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code);
             return new Blob(mName, fileContent, mFileType, mLastUpdater, mCommitDate);
         }
     }
 
     //(String sourcePath, Sha1 sourceSha1, String destinationPath, String fileName)
-    public void unzipWorkingCopy(Commit commit, String destenationPath) throws IOException, ParseException {
-        Tree wc = getWorkingCopyTreeFromCommit(commit);
-        unzipWalk(wc, destenationPath);
+    public void unzipWorkingCopy(Commit commit, String destinationPath) throws IOException, ParseException {
+        Tree wc = getWorkingCopyTreeFromCommit(commit, mRepositoryDirectoryPath);
+        unzipWalk(wc, destinationPath);
     }
 
-    private void unzipWalk(FileItem fileItem, String destenationPath) throws IOException {
+
+    private void unzipWalk(FileItem fileItem, String destinationPath) throws IOException {
         if (fileItem.getmFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {
             if (fileItem.getmFileType() == FileType.FILE) {
-                FileZipper.fileItemToFile((Blob) fileItem, destenationPath, fileItem.getmName());
+                FileZipper.fileItemToFile((Blob) fileItem, destinationPath, fileItem.getmName());
             }
             return;
         }
         if (fileItem.getmName() != null) {
-            FileZipper.fileItemToFile((Tree) fileItem, destenationPath, fileItem.getmName());
-            destenationPath = Paths.get(destenationPath, fileItem.getmName()).toString();
+            FileZipper.fileItemToFile((Tree) fileItem, destinationPath, fileItem.getmName());
+            destinationPath = Paths.get(destinationPath, fileItem.getmName()).toString();
         }
         for (FileItem file : ((Tree) fileItem).getmFiles()) {
-            unzipWalk(file, Paths.get(destenationPath).toString());
+            unzipWalk(file, Paths.get(destinationPath).toString());
         }
 
     }
@@ -134,13 +135,13 @@ public class WorkingCopyUtils {
         return wc;
     }
 
-    public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException, WorkingCopyIsEmptyException {
+    public Sha1 zipWorkingCopy() throws IOException, WorkingCopyIsEmptyException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         WalkAction action = (file, params) -> {
             FileZipper.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
             return 1;
         };
-        wcWalk(repositoryDirectoryPath, directoryFiles, action);
+        wcWalk(mRepositoryDirectoryPath, directoryFiles, action);
         Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
         if (wc.getmFiles().isEmpty()) {
             throw new WorkingCopyIsEmptyException();
@@ -149,7 +150,7 @@ public class WorkingCopyUtils {
         return wc.getSha1Code();
     }
 
-    public Tree getWc(String mRepositoryDirectoryPath) throws IOException {
+    public Tree getWc() throws IOException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         wcWalk(mRepositoryDirectoryPath, directoryFiles, (file, params) -> 1);
         Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
@@ -180,5 +181,6 @@ public class WorkingCopyUtils {
                 }
             }
         }
+
     }
 }

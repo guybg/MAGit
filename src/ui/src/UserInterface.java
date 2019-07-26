@@ -27,8 +27,8 @@ public class UserInterface {
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            maGitSystem.createNewRepository("testRep", "D:\\testingRep");
-            run(maGitSystem);
+            maGitSystem.createNewRepository("testRep19", "c:\\testingRep");
+            //run(maGitSystem);
             maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +

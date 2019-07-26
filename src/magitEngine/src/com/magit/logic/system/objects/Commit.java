@@ -12,13 +12,12 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.LinkedList;
 
 public class Commit extends FileItem{
     private Sha1 mWorkingCopySha1;
-    private List<Sha1> mLastCommits;
+    private LinkedList<Sha1> mLastCommits;
     private String mCommitMessage;
     private Boolean firstCommit = true;
     private Sha1 mCommitSha1Code;
@@ -26,14 +25,14 @@ public class Commit extends FileItem{
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate);
         mCommitMessage = commitMessage;
-        mLastCommits = new ArrayList<>();
+        mLastCommits = new LinkedList<>();
     }
 
     private Commit(String commitMessage, String creator,
                   FileType fileType, Date mCommitDate, Sha1 sha1Code, Sha1 workingCopySha1){
         super(null, fileType, creator, mCommitDate);
         mCommitMessage = commitMessage;
-        mLastCommits = new ArrayList<>();
+        mLastCommits = new LinkedList<>();
         mCommitSha1Code = sha1Code;
         mWorkingCopySha1 = workingCopySha1;
     }
@@ -60,22 +59,31 @@ public class Commit extends FileItem{
         return super.mLastModified;
     }
 
-    public void newCommit(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
-        if (firstCommit) {
+    //String commitMessage, String creator, FileType fileType, Date mCommitDate
+    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException {
+        if (firstCommit == false) {
             generateFirstCommit(mCommitMessage, getCreator(), repository, branch);
         }
         /*
             handle second and on commit
          */
+        WorkingCopyUtils wcw = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, getCreationDate());
+        Tree curWc = wcw.getWc();
+        Commit lastCommit = createCommitInstanceByPath(Paths.get(repository.getObjectsFolderPath().toString(), mLastCommits.getLast().toString()));
+        Tree wcToCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, repository.getRepositoryPath().toString());
 
-
-
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), mLastUpdater, mLastModified);
+        Tree wc = WorkingCopyUtils.getWcWithOnlyNewchanges(wcToCommit, curWc);
+        mWorkingCopySha1 = wc.getSha1Code();
+        mLastCommits.addAll(lastCommit.mLastCommits);
+        //zip wc from tree <--------------TODO TODO TODO
+        mCommitSha1Code = new Sha1(getFileContent(), false);
         repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
     }
 
     private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
         WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator, mLastModified);
-        mWorkingCopySha1 = workingCopyUtils.zipWorkingCopy(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString());
+        mWorkingCopySha1 = workingCopyUtils.zipWorkingCopy();
         mCommitSha1Code = new Sha1(getFileContent(), false);
         FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
     }
