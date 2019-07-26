@@ -2,6 +2,7 @@ package com.magit.logic.utils.file;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
+import com.magit.logic.system.interfaces.WalkAction;
 import com.magit.logic.system.objects.Blob;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItem;
@@ -25,18 +26,8 @@ public class WorkingCopyUtils {
     private String mRepositoryDirectoryPath;
     private String mUserName;
     private Date mCommitDate;
-    private static Predicate<FileItem> treePredicate = new Predicate<FileItem>() {
-        @Override
-        public boolean evaluate(FileItem fileItem) {
-            return fileItem.getmFileType() == FileType.FOLDER;
-        }
-    };
-    private static Predicate<FileItem> blobPredicate = new Predicate<FileItem>() {
-        @Override
-        public boolean evaluate(FileItem fileItem) {
-            return fileItem.getmFileType() == FileType.FILE;
-        }
-    };
+    private static Predicate<FileItem> treePredicate = fileItem -> fileItem.getmFileType() == FileType.FOLDER;
+    private static Predicate<FileItem> blobPredicate = fileItem -> fileItem.getmFileType() == FileType.FILE;
 
     public WorkingCopyUtils(String repositoryDirectoryPath, String userName, Date commitDate) {
         mRepositoryDirectoryPath = repositoryDirectoryPath;
@@ -139,7 +130,11 @@ public class WorkingCopyUtils {
 
     public Sha1 zipWorkingCopy(String repositoryDirectoryPath) throws IOException, WorkingCopyIsEmptyException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
-        zipWalk(repositoryDirectoryPath, directoryFiles);
+        WalkAction action = (file, params) -> {
+            FileZipper.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+            return 1;
+        };
+        wcWalk(repositoryDirectoryPath, directoryFiles, action);
         Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
         if (wc.getmFiles().isEmpty()) {
             throw new WorkingCopyIsEmptyException();
@@ -148,28 +143,34 @@ public class WorkingCopyUtils {
         return wc.getSha1Code();
     }
 
-    private void zipWalk(String repositoryDirectoryPath, SortedSet<FileItem> directoryFiles) throws IOException {
+    public Tree getWc(String mRepositoryDirectoryPath) throws IOException {
+        SortedSet<FileItem> directoryFiles = new TreeSet<>();
+        wcWalk(mRepositoryDirectoryPath, directoryFiles, (file, params) -> 1);
+        Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
+        return wc;
+    }
+
+    private void wcWalk(String repositoryDirectoryPath, SortedSet<FileItem> directoryFiles, WalkAction wAction) throws IOException {
         File root = new File(repositoryDirectoryPath);
         File[] list = root.listFiles();
         if (list == null) return;
 
         for (File f : list) {
             if (!f.getName().equals(".magit")) {
-                if (f.isDirectory()) { /// <------- problem with f.getName()
+                if (f.isDirectory()) {
                     if (f.listFiles().length == 0) continue;
-                    String check = f.getName();
                     SortedSet<FileItem> dirFiles = new TreeSet<>();
-                    zipWalk(f.getAbsolutePath(), dirFiles);
+                    wcWalk(f.getAbsolutePath(), dirFiles, wAction);
                     System.out.println("Dir:" + f.getAbsoluteFile());
 
                     Tree tree = new Tree(FileType.FOLDER, mUserName, mCommitDate, f.getName(), dirFiles);
                     directoryFiles.add(tree);
-                    FileZipper.zip(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+                    wAction.action(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 } else {
                     System.out.println("File:" + f.getAbsoluteFile());
                     Blob blob = new Blob(f.getName(), FileReader.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
                     directoryFiles.add(blob);
-                    FileZipper.zip(blob, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+                    wAction.action(blob, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 }
             }
         }
