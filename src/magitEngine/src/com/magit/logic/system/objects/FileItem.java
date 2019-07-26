@@ -12,18 +12,32 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
     private FileType mFileType;
     protected String mLastUpdater;
     protected Date mLastModified;
+    protected Sha1 mSha1Code;
 
     public FileItem(String mName,
                     FileType mFileType,
                     String mLastUpdater,
-                    Date mLastModified) {
+                    Date mLastModified,
+                    Sha1 sha1Code) {
         this.mName = mName;
         this.mFileType = mFileType;
         this.mLastUpdater = mLastUpdater;
         this.mLastModified = mLastModified;
+        this.mSha1Code = sha1Code;
     }
 
     public abstract String getFileContent();
+
+    public String toPrintFormat(String path) {
+        StringBuilder fileItemContent = new StringBuilder();
+
+        fileItemContent.append(String.format(" --> %s%s", path, System.lineSeparator()));
+        fileItemContent.append(String.format("%s%s", mSha1Code, System.lineSeparator()));
+        fileItemContent.append(String.format("%s - %s%s", mName, mLastModified, System.lineSeparator()));
+        fileItemContent.append(String.format("==============================================%s", System.lineSeparator()));
+
+        return fileItemContent.toString();
+    }
 
     public String getmLastUpdater() {
         return mLastUpdater;
@@ -41,7 +55,11 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         return mLastModified;
     }
 
-    public abstract Sha1 getSha1Code();
+    public Sha1 getSha1Code() {
+        if (mSha1Code == null)
+            mSha1Code = new Sha1(getFileContent(), false);
+        return mSha1Code;
+    }
 
     public abstract String toString();
 

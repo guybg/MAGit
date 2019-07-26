@@ -23,7 +23,7 @@ public class Commit extends FileItem {
     private Sha1 mCommitSha1Code;
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
-        super(null, fileType, creator, mCommitDate);
+        super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
         if (mLastCommits.size() > 0) firstCommit = false;
@@ -31,7 +31,7 @@ public class Commit extends FileItem {
 
     private Commit(String commitMessage, String creator,
                    FileType fileType, Date mCommitDate, Sha1 sha1Code, Sha1 workingCopySha1) {
-        super(null, fileType, creator, mCommitDate);
+        super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
         mCommitSha1Code = sha1Code;
@@ -61,7 +61,6 @@ public class Commit extends FileItem {
         return super.mLastModified;
     }
 
-    //String commitMessage, String creator, FileType fileType, Date mCommitDate
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException {
         if (firstCommit) {
             generateFirstCommit(mCommitMessage, getCreator(), repository, branch);

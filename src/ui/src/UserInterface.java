@@ -92,7 +92,7 @@ public class UserInterface {
                     magitEngine.switchRepository(input.nextLine());
                     break;
                 case PresentCurrentCommitAndHistory:
-                    magitEngine.presentCurrentCommitAndHistory();
+                    System.out.println(magitEngine.presentCurrentCommitAndHistory());
                     break;
                 case ShowWorkingCopyStatus:
 
@@ -106,7 +106,7 @@ public class UserInterface {
                     break;
 
                 case PresentAllBranches:
-                    String branchesInfo = magitEngine.getBrnchesInfo();
+                    String branchesInfo = magitEngine.getBranchesInfo();
                     System.out.println(branchesInfo);
                     break;
                 case CreateNewBranch:

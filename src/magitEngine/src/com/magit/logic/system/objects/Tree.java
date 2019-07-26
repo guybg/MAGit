@@ -7,11 +7,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
+import java.util.SortedSet;
 
 public class Tree extends FileItem {
     private String mName;
-    private Sha1 mSha1Code;
     private SortedSet<FileItem> mFiles;
 
     public Tree(FileType mFileType,
@@ -19,7 +21,7 @@ public class Tree extends FileItem {
                 Date mCommitDate,
                 String mName,
                 SortedSet<FileItem> mFiles) {
-        super(mName, mFileType, mLastUpdater, mCommitDate);
+        super(mName, mFileType, mLastUpdater, mCommitDate, null);
         this.mName = mName;
         this.mFiles = mFiles;
         this.mSha1Code = new Sha1(getFileContent(), false);
@@ -32,10 +34,9 @@ public class Tree extends FileItem {
             String mLastUpdater,
             Date mCommitDate,
             SortedSet<FileItem> mFiles) {
-        super(mName, mFileType, mLastUpdater, mCommitDate);
+        super(mName, mFileType, mLastUpdater, mCommitDate, sha1Code);
         this.mName = mName;
         this.mFiles = mFiles;
-        this.mSha1Code = sha1Code;
     }
 
 
@@ -56,6 +57,10 @@ public class Tree extends FileItem {
     public void setmFiles(SortedSet<FileItem> mFiles) {
         this.mFiles = mFiles;
         this.mSha1Code = new Sha1(getFileContent(), false);
+    }
+
+    public SortedSet<FileItem> listFiles() {
+        return mFiles;
     }
 
     @Override
@@ -79,13 +84,6 @@ public class Tree extends FileItem {
     }
 
     @Override
-    public Sha1 getSha1Code() {
-        if (mSha1Code == null)
-            mSha1Code = new Sha1(getFileContent(), false);
-        return mSha1Code;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Tree)) return false;
@@ -95,13 +93,14 @@ public class Tree extends FileItem {
                 CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
     }
 
-    public String toPrintFormat(String repositoryPath) {
-        StringBuilder contentOfTree = new StringBuilder();
-        contentOfTree.append(String.format("Files Information ( '.' == [%s]%s", repositoryPath, System.lineSeparator()));
+    @Override
+    public String toPrintFormat(String pathToFile) {
+        StringBuilder folderContent = new StringBuilder();
 
-        LinkedList<FileItem> queue = new LinkedList<FileItem>();
-        queue.add(this);
-        return "dsds";
+        folderContent.append("[FOLDER]");
+        folderContent.append(super.toPrintFormat(pathToFile));
+
+        return folderContent.toString();
     }
 
     @Override

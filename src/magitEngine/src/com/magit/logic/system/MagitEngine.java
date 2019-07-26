@@ -4,7 +4,9 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
-import com.magit.logic.system.objects.*;
+import com.magit.logic.system.objects.Branch;
+import com.magit.logic.system.objects.Commit;
+import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
@@ -19,7 +21,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 public class MagitEngine {
@@ -71,22 +72,12 @@ public class MagitEngine {
         if (!mActiveRepository.isValid())
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
 
-        final String seperator = "===============================================================";
-        StringBuilder commitContent = new StringBuilder();
-        String pathToCommit = mActiveRepository.getCommitPath().toString();
-        Commit commitToPresent = Commit.createCommitInstanceByPath(Paths.get(pathToCommit));
-        commitContent.append(commitToPresent.toPrintFormat());
-
-        Tree commitTree = WorkingCopyUtils.getWorkingCopyTreeFromCommit(commitToPresent, mActiveRepository.getRepositoryPath().toString());
-
-        LinkedList<FileItem> fileItemQueue = new LinkedList<FileItem>();
-
-
-
-        return commitContent.toString();
+        Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(), mUserName, commit.getCreationDate());
+        return workingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()));
     }
 
-    public String getBrnchesInfo() throws IOException {
+    public String getBranchesInfo() throws IOException {
         final String seperator = "============================================";
         StringBuilder branchesContent = new StringBuilder();
 
