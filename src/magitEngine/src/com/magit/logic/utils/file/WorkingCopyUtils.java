@@ -13,7 +13,9 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -180,5 +182,42 @@ public class WorkingCopyUtils {
                 }
             }
         }
+    }
+
+    public String getWorkingCopyContent(Tree workingCopy) {
+        return toPrintFormat(workingCopy);
+    }
+
+    private String toPrintFormat(Tree workingCopyFolder) {
+        StringBuilder workingCopyContent = new StringBuilder();
+
+        workingCopyContent.append(String.format("Files Information ( . == [%s] )%s",
+                mRepositoryDirectoryPath, System.lineSeparator()));
+        workingCopyContent.append(String.format("==============================================%s", System.lineSeparator()));
+        workingCopyContent.append(String.format("[Root Folder] --> .%s", System.lineSeparator()));
+        workingCopyContent.append(String.format("%s%s", workingCopyFolder.getSha1Code(), System.lineSeparator()));
+        workingCopyContent.append(String.format("%s - %s%s", workingCopyFolder.getmName(), workingCopyFolder.getLastModified(), System.lineSeparator()));
+        workingCopyContent.append(String.format("==============================================%s", System.lineSeparator()));
+        for (FileItem fileToPrint : workingCopyFolder.listFiles()) {
+            workingCopyContent.append(workingCopyToPrint(fileToPrint, Paths.get(".")));
+        }
+
+        return workingCopyContent.toString();
+    }
+
+    private String workingCopyToPrint(FileItem fileToPrint, Path pathToFile) {
+        StringBuilder contentToPrint = new StringBuilder();
+        Path pathOfFile= Paths.get(pathToFile.toString(), fileToPrint.getmName());
+        if (fileToPrint.getmFileType() == FileType.FILE) {
+            contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
+            return contentToPrint.toString();
+        }
+
+        contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
+        for (FileItem fileInDirectory: ((Tree)fileToPrint).listFiles()) {
+            contentToPrint.append(workingCopyToPrint(fileInDirectory, pathOfFile));
+        }
+
+        return contentToPrint.toString();
     }
 }

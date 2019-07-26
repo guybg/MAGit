@@ -69,23 +69,12 @@ public class MagitEngine {
         if (!mActiveRepository.isValid())
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
 
-        final String seperator = "===============================================================";
-        StringBuilder commitContent = new StringBuilder();
-        String pathToCommit = mActiveRepository.getCommitPath().toString();
-        Commit commitToPresent = Commit.createCommitInstanceByPath(Paths.get(pathToCommit));
-        commitContent.append(commitToPresent.toPrintFormat());
-
-        Tree commitTree = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
-                mUserName, commitToPresent.getCreationDate()).getWorkingCopyTreeFromCommit(commitToPresent);
-
-        LinkedList<FileItem> fileItemQueue = new LinkedList<FileItem>();
-
-
-
-        return commitContent.toString();
+        Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(), mUserName, commit.getCreationDate());
+        return workingCopyUtils.getWorkingCopyContent(workingCopyUtils.getWorkingCopyTreeFromCommit(commit));
     }
 
-    public String getBrnchesInfo() throws IOException {
+    public String getBranchesInfo() throws IOException {
         final String seperator = "============================================";
         StringBuilder branchesContent = new StringBuilder();
 

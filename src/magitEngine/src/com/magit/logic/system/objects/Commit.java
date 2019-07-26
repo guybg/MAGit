@@ -24,14 +24,14 @@ public class Commit extends FileItem{
     private Sha1 mCommitSha1Code;
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
-        super(null, fileType, creator, mCommitDate);
+        super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new ArrayList<>();
     }
 
     private Commit(String commitMessage, String creator,
                   FileType fileType, Date mCommitDate, Sha1 sha1Code, Sha1 workingCopySha1){
-        super(null, fileType, creator, mCommitDate);
+        super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new ArrayList<>();
         mCommitSha1Code = sha1Code;

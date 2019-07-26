@@ -10,16 +10,14 @@ import java.util.Objects;
 
 public class Blob extends FileItem {
     private String mFileContent;
-    private Sha1 mSha1Code;
 
     public Blob(String mName,
                 String mFileContent,
                 FileType mFileType,
                 String mLastUpdater,
                 Date mCommitDate) {
-        super(mName, mFileType, mLastUpdater, mCommitDate);
+        super(mName, mFileType, mLastUpdater, mCommitDate, new Sha1(mFileContent, false));
         this.mFileContent = mFileContent;
-        this.mSha1Code = new Sha1(mFileContent, false);
     }
 
     @Override
@@ -38,13 +36,6 @@ public class Blob extends FileItem {
     }
 
     @Override
-    public Sha1 getSha1Code() {
-        if (mSha1Code == null)
-            mSha1Code = new Sha1(getFileContent(), false);
-        return mSha1Code;
-    }
-
-    @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), mFileContent);
     }
@@ -57,4 +48,13 @@ public class Blob extends FileItem {
         return super.equals(o) && Objects.equals(mFileContent, blob.mFileContent);
     }
 
+
+    @Override
+    public String toPrintFormat(String pathToBlob) {
+        StringBuilder blobContent = new StringBuilder();
+        blobContent.append("[BLOB]");
+        blobContent.append(super.toPrintFormat(pathToBlob));
+
+        return blobContent.toString();
+    }
 }

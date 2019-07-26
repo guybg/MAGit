@@ -5,6 +5,7 @@ import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.MagitEngine;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -92,7 +93,7 @@ public class UserInterface {
                     magitEngine.switchRepository(input.nextLine());
                     break;
                 case PresentCurrentCommitAndHistory:
-                    magitEngine.presentCurrentCommitAndHistory();
+                    System.out.println(magitEngine.presentCurrentCommitAndHistory());
                     break;
                 case ShowWorkingCopyStatus:
 
@@ -102,7 +103,7 @@ public class UserInterface {
                     break;
 
                 case PresentAllBranches:
-                    String branchesInfo = magitEngine.getBrnchesInfo();
+                    String branchesInfo = magitEngine.getBranchesInfo();
                     System.out.println(branchesInfo);
                     break;
                 case CreateNewBranch:
