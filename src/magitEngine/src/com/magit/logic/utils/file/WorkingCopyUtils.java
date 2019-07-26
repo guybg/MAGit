@@ -90,13 +90,13 @@ public class WorkingCopyUtils {
         fileItemWalk(wc, destinationPath, walkAction);
     }
 
-    public void zipWorkingCopyFromCommit(Commit commit) throws IOException, ParseException {
-        Tree wc = getWorkingCopyTreeFromCommit(commit, mRepositoryDirectoryPath);
-        WalkAction walkAction = (file, params) -> {
-            FileZipper.zip(file, (String) params[0]);
+    public void zipWorkingCopyFromTreeWC(Tree wc) throws IOException, ParseException {
+        WalkAction walkAction = (file, a) -> {
+            FileZipper.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
             return 1;
         };
         fileItemWalk(wc, mRepositoryDirectoryPath, walkAction);
+
     }
 
     private void fileItemWalk(FileItem fileItem, String destinationPath, WalkAction aAction) throws IOException {

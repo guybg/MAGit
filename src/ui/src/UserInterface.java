@@ -5,6 +5,8 @@ import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.MagitEngine;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -18,6 +20,7 @@ public class UserInterface {
     private final static String ShowWorkingCopyStatus = "Show Working Copy Status";
     private final static String Commit = "Commit";
     private final static String PresentAllBranches = "Present All Branches";
+    private final static String CreateNewRepository = "Create New Repository";
     private final static String CreateNewBranch = "Create New Branch";
     private final static String DeleteBranch = "Delete Branch";
     private final static String PickHeadBranch = "Checkout";
@@ -27,9 +30,9 @@ public class UserInterface {
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            // maGitSystem.createNewRepository("testRep20", "c:\\testingRep");
+            //maGitSystem.createNewRepository("testRep", "D:\\testingRep");
             run(maGitSystem);
-            // maGitSystem.commit();
+            //maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
                     e.getCause());
@@ -59,19 +62,20 @@ public class UserInterface {
                 "5." + ShowWorkingCopyStatus + System.lineSeparator() +
                 "6." + Commit + System.lineSeparator() +
                 "7." + PresentAllBranches + System.lineSeparator() +
-                "8." + CreateNewBranch + System.lineSeparator() +
-                "9." + DeleteBranch + System.lineSeparator() +
-                "10." + PickHeadBranch + System.lineSeparator() +
-                "11." + PresentCurrentBranchHisoty + System.lineSeparator() +
-                "12." + Exit + System.lineSeparator());
+                "8." + CreateNewRepository + System.lineSeparator() +
+                "9." + CreateNewBranch + System.lineSeparator() +
+                "10." + DeleteBranch + System.lineSeparator() +
+                "11." + PickHeadBranch + System.lineSeparator() +
+                "12." + PresentCurrentBranchHisoty + System.lineSeparator() +
+                "13." + Exit + System.lineSeparator());
     }
 
     private static void run(MagitEngine magitEngine) throws IOException, RepositoryNotFoundException, ParseException {
         Scanner input = new Scanner(System.in);
-        printMenu();
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
             try {
+                printMenu();
                 optionsToActivate = MenuOptions.getEnumByInt(input.nextInt());
                 input.nextLine();
             } catch (InputMismatchException ex) {
@@ -88,8 +92,7 @@ public class UserInterface {
                     System.out.println("Please enter repository path:" + System.lineSeparator());
                     break;
                 case SwitchRepository:
-                    System.out.println("Please enter repository path:" + System.lineSeparator());
-                    magitEngine.switchRepository(input.nextLine());
+                    switchRepository(magitEngine, input);
                     break;
                 case PresentCurrentCommitAndHistory:
                     System.out.println(magitEngine.presentCurrentCommitAndHistory());
@@ -109,6 +112,11 @@ public class UserInterface {
                     String branchesInfo = magitEngine.getBranchesInfo();
                     System.out.println(branchesInfo);
                     break;
+                case CreateNewRepository:
+                    System.out.println("Please enter path:");
+                    Path pathToRepository = Paths.get(input.nextLine());
+                    magitEngine.createNewRepository(pathToRepository.getFileName().toString(),
+                            pathToRepository.getParent().toString());
                 case CreateNewBranch:
                     System.out.println(String.format("Pick branch name:%s", System.lineSeparator()));
                     while (!magitEngine.createNewBranch(input.nextLine()))
@@ -135,6 +143,25 @@ public class UserInterface {
         } while (!optionsToActivate.equals(MenuOptions.Exit));
     }
 
+    private static void switchRepository(MagitEngine magitEngine, Scanner input) throws IOException, ParseException {
+        System.out.println("Please enter repository path:" + System.lineSeparator());
+        Path pathOfRepository = Paths.get("");
+        try {
+            pathOfRepository = Paths.get(input.nextLine());
+            magitEngine.switchRepository(pathOfRepository.toString());
+        } catch (RepositoryNotFoundException ex) {
+            System.out.println(
+                    String.format("%s %s%s",
+                            "Repository not found, would you like to create one?",
+                            "Press Y to create one, any other button to cancel operation.", System.lineSeparator()));
+            if (input.nextLine().equals("Y")) {
+                magitEngine.createNewRepository(pathOfRepository.getFileName().toString()
+                        , pathOfRepository.getParent().toString());
+            }
+        }
+
+    }
+
 
     private enum MenuOptions {
         UpdateUserName,
@@ -144,6 +171,7 @@ public class UserInterface {
         ShowWorkingCopyStatus,
         Commit,
         PresentAllBranches,
+        CreateNewRepository,
         CreateNewBranch,
         DeleteBranch,
         PickHeadBranch,

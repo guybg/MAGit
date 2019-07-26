@@ -7,6 +7,7 @@ import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -26,7 +27,7 @@ public class Commit extends FileItem {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
-        if (mLastCommits.size() > 0) firstCommit = false;
+        if (mWorkingCopySha1 != null) firstCommit = false;
     }
 
     private Commit(String commitMessage, String creator,
@@ -36,7 +37,7 @@ public class Commit extends FileItem {
         mLastCommits = new LinkedList<>();
         mCommitSha1Code = sha1Code;
         mWorkingCopySha1 = workingCopySha1;
-        if (mLastCommits.size() > 0) firstCommit = false;
+        if (mWorkingCopySha1 != null) firstCommit = false;
     }
 
     private String getCreator() {
@@ -44,6 +45,9 @@ public class Commit extends FileItem {
     }
 
     public static Commit createCommitInstanceByPath(Path pathToCommit) throws IOException, ParseException {
+        if (Files.notExists(pathToCommit.getParent()) || Files.notExists(pathToCommit))
+            return null;
+
         String seperator = " = ";
         Sha1 sha1Code = new Sha1(pathToCommit.getFileName().toString(), true);
         String commitContent = FileZipper.zipToString(pathToCommit.getParent().toString(), sha1Code);
@@ -62,8 +66,9 @@ public class Commit extends FileItem {
     }
 
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException {
-        if (firstCommit) {
+        if (branch.getmPointedCommitSha1().toString().equals("")) {
             generateFirstCommit(mCommitMessage, getCreator(), repository, branch);
+            repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
         } else {
         /*
             handle second and on commit
@@ -71,7 +76,7 @@ public class Commit extends FileItem {
             WorkingCopyUtils wcw = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, getCreationDate());
             Tree curWc = wcw.getWc();
 
-            Commit lastCommit = createCommitInstanceByPath(Paths.get(repository.getCommitPath().toString()));
+            Commit lastCommit = createCommitInstanceByPath(repository.getCommitPath());
             Tree oldWcFromCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, repository.getRepositoryPath().toString());
 
             WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), mLastUpdater, mLastModified);
@@ -80,17 +85,20 @@ public class Commit extends FileItem {
             if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code())) {
                 mLastCommits.addAll(lastCommit.mLastCommits);
                 mLastCommits.add(lastCommit.getSha1Code());
-                workingCopyUtils.zipWorkingCopyFromCommit(lastCommit);
+                workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
                 mCommitSha1Code = new Sha1(getFileContent(), false);
+                branch.setPointedCommitSha1(mCommitSha1Code);
+                FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+                repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
             }
         }
-        repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
     }
 
     private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
         WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator, mLastModified);
         mWorkingCopySha1 = workingCopyUtils.zipWorkingCopyFromCurrentWorkingCopy();
         mCommitSha1Code = new Sha1(getFileContent(), false);
+        branch.setPointedCommitSha1(mCommitSha1Code);
         FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
     }
 
