@@ -3,10 +3,12 @@ package com.magit.logic.system.objects;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -43,6 +45,9 @@ public class Commit extends FileItem{
     }
 
     public static Commit createCommitInstanceByPath(Path pathToCommit) throws IOException, ParseException {
+        if (Files.notExists(pathToCommit.getParent()) || Files.notExists(pathToCommit))
+            return null;
+
         String seperator = " = ";
         Sha1 sha1Code = new Sha1(pathToCommit.getFileName().toString(), true);
         String commitContent = FileZipper.zipToString(pathToCommit.getParent().toString(), sha1Code);

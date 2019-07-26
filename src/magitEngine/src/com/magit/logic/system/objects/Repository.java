@@ -61,8 +61,15 @@ public class Repository {
     }
 
     public Path getCommitPath()throws IOException {
+
         String branchName = FileReader.readFile(pathToHead.toString());
         Path pathToBranchFile = getBranchPath(branchName);
+        String branchFileContent = FileReader.readFile(pathToBranchFile.toString());
+        if (branchFileContent.equals(""))
+            return null;
+
+        if (Files.notExists(pathToBranchFile))
+            return null;
         String sha1OfCommit = FileReader.readFile(pathToBranchFile.toString());
         return Paths.get(pathToMagit.toString(), "objects", sha1OfCommit);
     }

@@ -14,7 +14,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -24,6 +23,7 @@ public class MagitEngine {
 
     public MagitEngine() {
     }
+
     private Repository mActiveRepository;
     private Branch mActiveBranch;
     private String mUserName = "Administrator";
@@ -34,23 +34,30 @@ public class MagitEngine {
     }
 
     public void switchRepository(String pathOfRepository) throws RepositoryNotFoundException, IOException, ParseException {
-        //3
+        if (!isValidRepository(pathOfRepository))
+            throw new RepositoryNotFoundException("repository Not Found");
+
         Path repositoryPath = Paths.get(pathOfRepository);
-        if (Files.exists(repositoryPath, LinkOption.NOFOLLOW_LINKS)) {
-            Path pathToMaster = Paths.get(repositoryPath.toString(), ".magit", "branches", "master");
-            if (!Files.exists(Paths.get(repositoryPath.toString(), ".magit")) ||
-                    !Files.exists(pathToMaster)) {
-                throw new RepositoryNotFoundException(repositoryPath.getFileName().toString());
-            }
-            loadRepository(repositoryPath);
-            mActiveBranch = new Branch("master", FileReader.readFile(pathToMaster.toString()));
+        loadRepository(repositoryPath);
+        if (mActiveRepository.getCommitPath() != null) {
             Commit commitOfRepository = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+            if (commitOfRepository == null)
+                return;
             WorkingCopyUtils workingCopyHandler = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
-                            mUserName, commitOfRepository.getCreationDate());
+                    mUserName, commitOfRepository.getCreationDate());
             workingCopyHandler.clearWorkingCopyFiles(mActiveRepository.getRepositoryPath());
             workingCopyHandler.unzipWorkingCopy(commitOfRepository, mActiveRepository.getRepositoryPath().toString());
         }
     }
+
+    private boolean isValidRepository(String repositoryPath) {
+        String magit = ".magit";
+
+        return Files.exists(Paths.get(repositoryPath)) &&
+                Files.exists(Paths.get(repositoryPath, magit)) &&
+                Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD"));
+    }
+
 
     private void loadRepository(Path repositoryPath) throws IOException {
         mActiveRepository = new Repository(repositoryPath.getFileName().toString()
@@ -62,7 +69,17 @@ public class MagitEngine {
             if (!branchFile.getName().equals("HEAD"))
                 mActiveRepository.add(branchFile.getName()
                         , new Branch(branchFile.getName(), FileReader.readFile(branchFile.getPath())));
+            else {
+                loadBranch(branchFile);
+                mActiveRepository.add(branchFile.getName(), mActiveBranch);
+            }
         }
+    }
+
+    private void loadBranch(File branchFile) throws IOException {
+        String headContent = FileReader.readFile(branchFile.getPath());
+        File headBranch = new File(Paths.get(branchFile.getParent(), headContent).toString());
+        mActiveBranch = new Branch(headContent, FileReader.readFile(headBranch.getPath()));
     }
 
     public String presentCurrentCommitAndHistory() throws RepositoryNotFoundException, IOException, ParseException {
