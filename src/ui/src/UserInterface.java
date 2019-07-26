@@ -68,12 +68,12 @@ public class UserInterface {
 
     private static void run(MagitEngine magitEngine) throws IOException, RepositoryNotFoundException, ParseException {
         Scanner input = new Scanner(System.in);
-        int choice = 0;
         printMenu();
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
             try {
                 optionsToActivate = MenuOptions.getEnumByInt(input.nextInt());
+                input.nextLine();
             } catch (InputMismatchException ex) {
                 input.nextLine();
                 System.out.println("Please choose a number.");
@@ -82,14 +82,14 @@ public class UserInterface {
             switch (optionsToActivate) {
                 case UpdateUserName:
                     System.out.println("Please enter user name:" + System.lineSeparator());
-                    magitEngine.updateUserName(input.next());
+                    magitEngine.updateUserName(input.nextLine());
                     break;
                 case ReadRepositoryDetails:
                     System.out.println("Please enter repository path:" + System.lineSeparator());
                     break;
                 case SwitchRepository:
                     System.out.println("Please enter repository path:" + System.lineSeparator());
-                    magitEngine.switchRepository(input.next());
+                    magitEngine.switchRepository(input.nextLine());
                     break;
                 case PresentCurrentCommitAndHistory:
                     magitEngine.presentCurrentCommitAndHistory();
@@ -106,9 +106,11 @@ public class UserInterface {
                     System.out.println(branchesInfo);
                     break;
                 case CreateNewBranch:
+                    System.out.println(String.format("Pick branch name:%s", System.lineSeparator()));
+                    while (!magitEngine.createNewBranch(input.nextLine()))
+                        System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
 
                     break;
-
                 case DeleteBranch:
 
                     break;

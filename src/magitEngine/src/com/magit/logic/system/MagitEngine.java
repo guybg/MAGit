@@ -5,9 +5,8 @@ import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.objects.*;
-import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileReader;
-import com.magit.logic.utils.file.FileZipper;
+import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -105,6 +104,15 @@ public class MagitEngine {
         }
 
         return branchesContent.toString();
+    }
+
+    public boolean createNewBranch(String branchName)throws IOException {
+        if (Files.exists(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName)))
+            return false;
+
+        FileWriter.writeNewFile(
+                Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName).toString(), "");
+        return true;
     }
 
     public void createNewRepository(String repositoryName, String fullPath) throws IllegalPathException, IOException {
