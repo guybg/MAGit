@@ -9,9 +9,11 @@ import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -44,18 +46,22 @@ public class WorkingCopyUtils {
         mCommitDate = commitDate;
     }
 
+    public void clearWorkingCopyFiles(Path repositoryPath) throws IOException {
+        FileHandler.clearFolder(repositoryPath);
+    }
+
     public static Tree getWcWithOnlyNewchanges(Tree newWc, Tree oldWc) {
         Tree wc;
         if (CollectionUtils.isEqualCollection(newWc.getmFiles(), oldWc.getmFiles()))
             wc = oldWc;
         else
-            wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getmLastUpdater(), newWc.getmCommitDate(), newWc.getmName(), new TreeSet<>()));
+            wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getmLastUpdater(), newWc.getLastModified(), newWc.getmName(), new TreeSet<>()));
         return wc;
     }
 
     public Tree getWorkingCopyTreeFromCommit(Commit commit) throws IOException, ParseException {
         Sha1 wcSha1 = commit.getmWorkingCopySha1();
-        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getmCommitDate(), commit.getmName());
+        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName());
     }
 
     private FileItem walk(Sha1 sha1Code,
@@ -120,10 +126,10 @@ public class WorkingCopyUtils {
             for (FileItem tree2 : tr2) {
                 if (tree2.getmName().equals(tree.getmName())) {
                     String updatater = tree.getmLastUpdater();
-                    Date date = tree.getmCommitDate();
+                    Date date = tree.getLastModified();
                     if (CollectionUtils.isEqualCollection(((Tree) tree).getmFiles(), ((Tree) tree2).getmFiles())) {
                         updatater = tree2.getmLastUpdater();
-                        date = tree2.getmCommitDate();
+                        date = tree2.getLastModified();
                     }
                     wc.addFileItem(updateWalk((Tree) tree, (Tree) tree2, new Tree(tree.getmFileType(), updatater, date, tree.getmName(), new TreeSet<FileItem>())));
                     isNewFolder = false;
@@ -155,9 +161,8 @@ public class WorkingCopyUtils {
 
         for (File f : list) {
             if (!f.getName().equals(".magit")) {
-                if (f.isDirectory()) { /// <------- problem with f.getName()
+                if (f.isDirectory()) {
                     if (f.listFiles().length == 0) continue;
-                    String check = f.getName();
                     SortedSet<FileItem> dirFiles = new TreeSet<>();
                     zipWalk(f.getAbsolutePath(), dirFiles);
                     System.out.println("Dir:" + f.getAbsoluteFile());

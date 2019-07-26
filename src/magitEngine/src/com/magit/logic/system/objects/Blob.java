@@ -34,7 +34,7 @@ public class Blob extends FileItem {
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +
                 super.getmLastUpdater() + ";" +
-                dateFormat.format(super.getmCommitDate());
+                dateFormat.format(super.getLastModified());
     }
 
     @Override

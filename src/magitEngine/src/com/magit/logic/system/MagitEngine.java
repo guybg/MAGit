@@ -4,10 +4,8 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.Repository;
-import com.magit.logic.system.objects.Tree;
+import com.magit.logic.system.objects.*;
+import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
@@ -20,8 +18,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class MagitEngine {
 
@@ -31,12 +28,13 @@ public class MagitEngine {
     private Branch mActiveBranch;
     private String mUserName = "Administrator";
 
-
     public void updateUserName(String userNameToSet) {
+        //1
         mUserName = userNameToSet;
     }
 
-    public void switchRepository(String pathOfRepository) throws RepositoryNotFoundException, IOException {
+    public void switchRepository(String pathOfRepository) throws RepositoryNotFoundException, IOException, ParseException {
+        //3
         Path repositoryPath = Paths.get(pathOfRepository);
         if (Files.exists(repositoryPath, LinkOption.NOFOLLOW_LINKS)) {
             Path pathToMaster = Paths.get(repositoryPath.toString(), ".magit", "branches", "master");
@@ -44,32 +42,45 @@ public class MagitEngine {
                     !Files.exists(pathToMaster)) {
                 throw new RepositoryNotFoundException(repositoryPath.getFileName().toString());
             }
-            mActiveRepository = new Repository(repositoryPath.getFileName().toString()
-                    , repositoryPath.getParent().toString());
-
-            List<File> branchesFiles = (List<File>) FileUtils.listFiles(
-                    new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
-                    TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-
-            for (File branchFile : branchesFiles) {
-                if (!branchFile.getName().equals("HEAD"))
-                    mActiveRepository.add(branchFile.getName()
-                            , new Branch(branchFile.getName(), FileReader.readFile(branchFile.getPath())));
-            }
+            loadRepository(repositoryPath);
             mActiveBranch = new Branch("master", FileReader.readFile(pathToMaster.toString()));
-        } else {
-            throw new RepositoryNotFoundException(repositoryPath.getFileName().toString());
+            Commit commitOfRepository = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+            WorkingCopyUtils workingCopyHandler = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
+                            mUserName, commitOfRepository.getCreationDate());
+            workingCopyHandler.clearWorkingCopyFiles(mActiveRepository.getRepositoryPath());
+            workingCopyHandler.unzipWorkingCopy(commitOfRepository, mActiveRepository.getRepositoryPath().toString());
+        }
+    }
+
+    private void loadRepository(Path repositoryPath) throws IOException {
+        mActiveRepository = new Repository(repositoryPath.getFileName().toString()
+                , repositoryPath.getParent().toString());
+        List<File> branchesFiles = (List<File>) FileUtils.listFiles(
+                new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
+                TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+        for (File branchFile : branchesFiles) {
+            if (!branchFile.getName().equals("HEAD"))
+                mActiveRepository.add(branchFile.getName()
+                        , new Branch(branchFile.getName(), FileReader.readFile(branchFile.getPath())));
         }
     }
 
     public String presentCurrentCommitAndHistory() throws RepositoryNotFoundException, IOException, ParseException {
         if (!mActiveRepository.isValid())
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
+
+        final String seperator = "===============================================================";
         StringBuilder commitContent = new StringBuilder();
-        String pathToCommit = FileReader.readFile(mActiveRepository.getCommitPath().toString());
-        Commit commitToPresent = Commit.parseCommitContent(Paths.get(pathToCommit));
+        String pathToCommit = mActiveRepository.getCommitPath().toString();
+        Commit commitToPresent = Commit.createCommitInstanceByPath(Paths.get(pathToCommit));
+        commitContent.append(commitToPresent.toPrintFormat());
+
         Tree commitTree = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
-                mUserName, commitToPresent.getDate()).getWorkingCopyTreeFromCommit(commitToPresent);
+                mUserName, commitToPresent.getCreationDate()).getWorkingCopyTreeFromCommit(commitToPresent);
+
+        LinkedList<FileItem> fileItemQueue = new LinkedList<FileItem>();
+
+
 
         return commitContent.toString();
     }
@@ -85,7 +96,7 @@ public class MagitEngine {
         Commit commit = new Commit("test", "Guy", FileType.COMMIT,new Date());
         commit.newCommit(mActiveRepository, mActiveBranch);
         //testing
-       /* WorkingCopyUtils wcw1 = new WorkingCopyUtils(Paths.get(mActiveRepository.getmRepositoryParentFolderLocation(),mActiveRepository.getRepositoryName()).toString(),"guy", commit.getmCommitDate());
+       /* WorkingCopyUtils wcw1 = new WorkingCopyUtils(Paths.get(mActiveRepository.getmRepositoryParentFolderLocation(),mActiveRepository.getRepositoryName()).toString(),"guy", commit.getLastModified());
         try {
             Commit commit1 = new Commit("test2", "Shlomo", FileType.COMMIT, new Date());
             commit1.newCommit(mActiveRepository,mActiveBranch);

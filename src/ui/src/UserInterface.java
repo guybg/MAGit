@@ -11,24 +11,24 @@ import java.util.Scanner;
 
 public class UserInterface {
 
-    final static String UpdateUserName = "Update User Name";
-    final static String ReadRepositoryDetails = "Read Repository Details";
-    final static String SwitchRepository = "Switch Repository";
-    final static String PresentCurrentCommitAndHistory = "Present Current Commit and History";
-    final static String ShowWorkingCopyStatus = "Show Working Copy Status";
-    final static String Commit = "Commit";
-    final static String PresentAllBranches = "Present All Branches";
-    final static String CreateNewBranch = "Create New Branch";
-    final static String DeleteBranch = "Delete Branch";
-    final static String PickHeadBranch = "Checkout";
-    final static String PresentCurrentBranchHisoty = "Present Current Branch History";
-    final static String Exit = "Exit";
+    private final static String UpdateUserName = "Update User Name";
+    private final static String ReadRepositoryDetails = "Read Repository Details";
+    private final static String SwitchRepository = "Switch Repository";
+    private final static String PresentCurrentCommitAndHistory = "Present Current Commit and History";
+    private final static String ShowWorkingCopyStatus = "Show Working Copy Status";
+    private final static String Commit = "Commit";
+    private final static String PresentAllBranches = "Present All Branches";
+    private final static String CreateNewBranch = "Create New Branch";
+    private final static String DeleteBranch = "Delete Branch";
+    private final static String PickHeadBranch = "Checkout";
+    private final static String PresentCurrentBranchHisoty = "Present Current Branch History";
+    private final static String Exit = "Exit";
 
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            //run(maGitSystem);
-            maGitSystem.createNewRepository("testRep19", "C:\\testingRep");
+            maGitSystem.createNewRepository("testRep", "D:\\testingRep");
+            run(maGitSystem);
             maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
@@ -37,17 +37,20 @@ public class UserInterface {
         } catch (IllegalPathException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
-            System.out.println("oya");
+            System.out.println(e);
         } //catch (RepositoryNotFoundException e) {
         catch (WorkingCopyIsEmptyException e) {
             e.printStackTrace();
+        }
+        catch (Exception e) {
+            System.out.println(e.toString());
         }
         //e.printStackTrace();
         //}
 
     }
 
-    public static void printMenu() {
+    private static void printMenu() {
         System.out.println("Menu:" + System.lineSeparator() +
                 "1." + UpdateUserName + System.lineSeparator() +
                 "2." + ReadRepositoryDetails + System.lineSeparator() +
@@ -63,7 +66,7 @@ public class UserInterface {
                 "12." + Exit + System.lineSeparator());
     }
 
-    public static void run(MagitEngine magitEngine) throws IOException, RepositoryNotFoundException {
+    private static void run(MagitEngine magitEngine) throws IOException, RepositoryNotFoundException, ParseException {
         Scanner input = new Scanner(System.in);
         int choice = 0;
         printMenu();
@@ -88,9 +91,8 @@ public class UserInterface {
                     System.out.println("Please enter repository path:" + System.lineSeparator());
                     magitEngine.switchRepository(input.next());
                     break;
-
                 case PresentCurrentCommitAndHistory:
-
+                    magitEngine.presentCurrentCommitAndHistory();
                     break;
                 case ShowWorkingCopyStatus:
 
@@ -100,8 +102,8 @@ public class UserInterface {
                     break;
 
                 case PresentAllBranches:
-                    break;
 
+                    break;
                 case CreateNewBranch:
 
                     break;

@@ -2,10 +2,7 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.utils.digest.Sha1;
-import com.magit.logic.utils.file.FileReader;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
@@ -13,17 +10,17 @@ import java.util.Objects;
 public abstract class FileItem implements Comparator<FileItem>, Comparable<FileItem> {
     private String mName;
     private FileType mFileType;
-    private String mLastUpdater;
-    private Date mCommitDate;
+    protected String mLastUpdater;
+    protected Date mLastModified;
 
     public FileItem(String mName,
                     FileType mFileType,
                     String mLastUpdater,
-                    Date mCommitDate) {
+                    Date mLastModified) {
         this.mName = mName;
         this.mFileType = mFileType;
         this.mLastUpdater = mLastUpdater;
-        this.mCommitDate = mCommitDate;
+        this.mLastModified = mLastModified;
     }
 
     public abstract String getFileContent();
@@ -40,8 +37,8 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         return mFileType;
     }
 
-    public Date getmCommitDate() {
-        return mCommitDate;
+    public Date getLastModified() {
+        return mLastModified;
     }
 
     public abstract Sha1 getSha1Code();

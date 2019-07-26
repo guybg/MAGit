@@ -22,7 +22,6 @@ public class Repository {
     private String mRepositoryParentFolderLocation;
     private HashMap<String, Branch> mBranches;
     private Path pathToRepository;
-
     private Path pathToMagit;
     private Path pathToHead;
 
@@ -30,7 +29,7 @@ public class Repository {
         this.mRepositoryName = mRepositoryName;
         this.mRepositoryParentFolderLocation = mRepositoryLocation;
         this.mBranches = new HashMap<>();
-        this.pathToRepository = Paths.get(mRepositoryName , mRepositoryName);
+        this.pathToRepository = Paths.get(mRepositoryParentFolderLocation , mRepositoryName);
         this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
         this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
     }

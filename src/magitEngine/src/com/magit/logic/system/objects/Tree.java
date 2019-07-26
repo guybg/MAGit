@@ -7,10 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
-import java.util.SortedSet;
+import java.util.*;
 
 public class Tree extends FileItem {
     private String mName;
@@ -40,6 +37,7 @@ public class Tree extends FileItem {
         this.mFiles = mFiles;
         this.mSha1Code = sha1Code;
     }
+
 
     public static ArrayList<String[]> treeItemsToStringArray(String treeItems) throws ParseException {
         ArrayList<String[]> files = new ArrayList<>();
@@ -77,7 +75,7 @@ public class Tree extends FileItem {
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +
                 super.getmLastUpdater() + ";" +
-                dateFormat.format(super.getmCommitDate());
+                dateFormat.format(super.getLastModified());
     }
 
     @Override
@@ -111,6 +109,15 @@ public class Tree extends FileItem {
         Tree tree = (Tree) o;
         return Objects.equals(mName, tree.mName) &&
                 CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
+    }
+
+    public String toPrintFormat(String repositoryPath) {
+        StringBuilder contentOfTree = new StringBuilder();
+        contentOfTree.append(String.format("Files Information ( '.' == [%s]%s", repositoryPath, System.lineSeparator()));
+
+        LinkedList<FileItem> queue = new LinkedList<FileItem>();
+        queue.add(this);
+        return "dsds";
     }
 
     @Override
