@@ -19,7 +19,7 @@ public class Branch {
 
     public Branch(String branchName, String textToSha1) {
         this.mBranchName = branchName;
-        mPointedCommitSha1 = new Sha1(textToSha1, false);
+        mPointedCommitSha1 = new Sha1(textToSha1, true);
     }
 
     public void create(String path) {
@@ -48,4 +48,5 @@ public class Branch {
     public String getmBranchName() {
         return mBranchName;
     }
+
 }

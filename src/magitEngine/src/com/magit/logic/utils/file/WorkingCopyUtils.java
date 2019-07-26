@@ -77,26 +77,43 @@ public class WorkingCopyUtils {
         }
     }
 
-    //(String sourcePath, Sha1 sourceSha1, String destinationPath, String fileName)
-    public void unzipWorkingCopy(Commit commit, String destinationPath) throws IOException, ParseException {
+
+    public void unzipWorkingCopyFromCommit(Commit commit, String destinationPath) throws IOException, ParseException {
         Tree wc = getWorkingCopyTreeFromCommit(commit, mRepositoryDirectoryPath);
-        unzipWalk(wc, destinationPath);
+        WalkAction walkAction = (file, params) -> {
+            if (file.getmFileType() == FileType.FILE)
+                FileZipper.fileItemToFile((Blob) file, (String) params[0], ((String) params[1]));
+            else
+                FileZipper.fileItemToFile((Tree) file, (String) params[0], ((String) params[1]));
+            return 1;
+        };
+        fileItemWalk(wc, destinationPath, walkAction);
     }
 
+    public void zipWorkingCopyFromCommit(Commit commit) throws IOException, ParseException {
+        Tree wc = getWorkingCopyTreeFromCommit(commit, mRepositoryDirectoryPath);
+        WalkAction walkAction = (file, params) -> {
+            FileZipper.zip(file, (String) params[0]);
+            return 1;
+        };
+        fileItemWalk(wc, mRepositoryDirectoryPath, walkAction);
+    }
 
-    private void unzipWalk(FileItem fileItem, String destinationPath) throws IOException {
+    private void fileItemWalk(FileItem fileItem, String destinationPath, WalkAction aAction) throws IOException {
         if (fileItem.getmFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {
             if (fileItem.getmFileType() == FileType.FILE) {
-                FileZipper.fileItemToFile((Blob) fileItem, destinationPath, fileItem.getmName());
+                aAction.action(fileItem, destinationPath, fileItem.getmName());
             }
             return;
+        } else {
+
         }
         if (fileItem.getmName() != null) {
-            FileZipper.fileItemToFile((Tree) fileItem, destinationPath, fileItem.getmName());
+            aAction.action(fileItem, destinationPath, fileItem.getmName());
             destinationPath = Paths.get(destinationPath, fileItem.getmName()).toString();
         }
         for (FileItem file : ((Tree) fileItem).getmFiles()) {
-            unzipWalk(file, Paths.get(destinationPath).toString());
+            fileItemWalk(file, Paths.get(destinationPath).toString(), aAction);
         }
 
     }
@@ -135,7 +152,7 @@ public class WorkingCopyUtils {
         return wc;
     }
 
-    public Sha1 zipWorkingCopy() throws IOException, WorkingCopyIsEmptyException {
+    public Sha1 zipWorkingCopyFromCurrentWorkingCopy() throws IOException, WorkingCopyIsEmptyException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         WalkAction action = (file, params) -> {
             FileZipper.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());

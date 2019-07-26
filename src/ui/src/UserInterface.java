@@ -27,9 +27,9 @@ public class UserInterface {
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            maGitSystem.createNewRepository("testRep19", "c:\\testingRep");
-            //run(maGitSystem);
-            maGitSystem.commit();
+            // maGitSystem.createNewRepository("testRep20", "c:\\testingRep");
+            run(maGitSystem);
+            // maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
                     e.getCause());
@@ -39,9 +39,9 @@ public class UserInterface {
         } catch (IOException e) {
             System.out.println(e);
         } //catch (RepositoryNotFoundException e) {
-        catch (WorkingCopyIsEmptyException e) {
-            e.printStackTrace();
-        }
+        //catch (WorkingCopyIsEmptyException e) {
+        //  e.printStackTrace();
+        //}
         catch (Exception e) {
             System.out.println(e.toString());
         }
@@ -98,7 +98,11 @@ public class UserInterface {
 
                     break;
                 case Commit:
-
+                    try {
+                        magitEngine.commit();
+                    } catch (WorkingCopyIsEmptyException e) {
+                        System.out.println(e.toString());
+                    }
                     break;
 
                 case PresentAllBranches:

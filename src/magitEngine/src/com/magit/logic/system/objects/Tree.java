@@ -85,22 +85,6 @@ public class Tree extends FileItem {
         return mSha1Code;
     }
 
-    //  @Override
-    //  public boolean equals(Object o) {
-    //      for(FileItem file: mFiles){
-    //          file.equals()
-    //      }
-    //      return super.equals(o);
-    //  }
-//
-
-
-    // @Override
-    // public int hashCode() {
-    //     return Objects.hash(mName, mSha1Code, mFiles);
-    // }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
