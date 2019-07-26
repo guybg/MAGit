@@ -6,6 +6,7 @@ import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.file.FileReader;
+import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -83,6 +84,36 @@ public class MagitEngine {
 
 
         return commitContent.toString();
+    }
+
+    public String getBrnchesInfo() throws IOException {
+        final String seperator = "============================================";
+        StringBuilder branchesContent = new StringBuilder();
+
+        branchesContent.append(String.format("Head Branch : %s%s%s%s",
+                FileReader.readFile(mActiveRepository.getHeadPath().toString()),System.lineSeparator(),
+                seperator, System.lineSeparator()));
+        File branchesDirectory = new File(mActiveRepository.getBranchDirectoryPath().toString());
+        File[] files = branchesDirectory.listFiles();
+        if (files == null)
+            return null;
+
+        for (File branchFile: files) {
+            if (!branchFile.getName().equals("HEAD"))
+                branchesContent.append(String.format("%s, sha1: %s%s",
+                        branchFile.getName(), FileReader.readFile(branchFile.getPath()),System.lineSeparator()));
+        }
+
+        return branchesContent.toString();
+    }
+
+    public boolean createNewBranch(String branchName)throws IOException {
+        if (Files.exists(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName)))
+            return false;
+
+        FileWriter.writeNewFile(
+                Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName).toString(), "");
+        return true;
     }
 
     public void createNewRepository(String repositoryName, String fullPath) throws IllegalPathException, IOException {

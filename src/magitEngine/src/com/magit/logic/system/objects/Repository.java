@@ -46,6 +46,14 @@ public class Repository {
         return Paths.get(mRepositoryParentFolderLocation, mRepositoryName);
     }
 
+    public Path getHeadPath() {
+        return pathToHead;
+    }
+
+    public Path getBranchDirectoryPath() {
+        return Paths.get(pathToMagit.toString(), BRANCHES);
+    }
+
     public boolean isValid() {
         return Files.exists(Paths.get(mRepositoryParentFolderLocation)) &&
                 Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead)
