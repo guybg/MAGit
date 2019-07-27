@@ -67,7 +67,8 @@ public class UserInterface {
                 "13." + Exit + System.lineSeparator());
     }
 
-    private static void run(MagitEngine magitEngine) throws IOException, RepositoryNotFoundException, ParseException {
+    private static void run(MagitEngine magitEngine) throws
+            IOException, RepositoryNotFoundException, ParseException, ActiveBranchDeletedExpcetion {
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
@@ -123,12 +124,12 @@ public class UserInterface {
                         System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
                     break;
                 case DeleteBranch:
-
+                    System.out.println(String.format("Enter branch name: %s", System.lineSeparator()));
+                    magitEngine.deleteBranch(input.nextLine());
                     break;
                 case PickHeadBranch:
 
                     break;
-
                 case PresentCurrentBranchHisoty:
                     System.out.println(magitEngine.presentCurrentBranch());
                     break;
