@@ -6,6 +6,7 @@ import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommi
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import sun.awt.image.ImageWatched;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,9 +46,13 @@ public class Commit extends FileItem {
         return super.mLastUpdater;
     }
 
+    public LinkedList<Sha1> getLastCommitsSha1Codes() {
+        return mLastCommits;
+    }
+
     public static Commit createCommitInstanceByPath(Path pathToCommit) throws IOException, ParseException {
         final int shaOfCommit1Index = 0, lastCommitsIndex = 1, commitMessageIndex = 2,
-                commitDateIndex = 3, commitCreatorIndex = 4, valueOfSplit = 1;
+                commitDateIndex = 3, commitCreatorIndex = 4, valueOfSplit = 1, twoPartsOfSplitting = 2;
         if (Files.notExists(pathToCommit.getParent()) || Files.notExists(pathToCommit))
             return null;
 
@@ -62,6 +67,9 @@ public class Commit extends FileItem {
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
         Commit output = new Commit(commitMessage, commitCreator, FileType.COMMIT, dateFormat.parse(commitDate), sha1Code, workingCopySha1);
         String[] lastCommits = commitLines[lastCommitsIndex].split(seperator);
+        if (lastCommits.length != twoPartsOfSplitting)
+            return output;
+
         for (String sha1OfCommit : lastCommits[lastCommitsIndex].split(";")) {
             output.mLastCommits.add(new Sha1(sha1OfCommit, true));
         }
@@ -146,7 +154,6 @@ public class Commit extends FileItem {
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "Message", mCommitMessage, System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "author", getCreator(), System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "date/time", getCreationDate().toString(), System.lineSeparator()));
-        contentOfCommit.append(System.lineSeparator());
 
         return contentOfCommit.toString();
     }

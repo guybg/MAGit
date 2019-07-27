@@ -100,7 +100,7 @@ public class UserInterface {
                 case Commit:
                     try {
                         System.out.println("Please enter your commit message " + System.lineSeparator());
-                        magitEngine.commit(magitEngine.getUserName(), input.nextLine());
+                        magitEngine.commit(input.nextLine(), magitEngine.getUserName());
                     } catch (WorkingCopyIsEmptyException e) {
                         System.out.println(e.toString());
                     } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {
@@ -130,7 +130,7 @@ public class UserInterface {
                     break;
 
                 case PresentCurrentBranchHisoty:
-
+                    System.out.println(magitEngine.presentCurrentBranch());
                     break;
                 case Exit:
                     optionsToActivate = MenuOptions.Exit;
