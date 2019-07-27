@@ -99,7 +99,8 @@ public class UserInterface {
                     break;
                 case Commit:
                     try {
-                        magitEngine.commit();
+                        System.out.println("Please enter your commit message " + System.lineSeparator());
+                        magitEngine.commit(magitEngine.getUserName(), input.nextLine());
                     } catch (WorkingCopyIsEmptyException e) {
                         System.out.println(e.toString());
                     } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {

@@ -36,6 +36,10 @@ public class MagitEngine {
         mUserName = userNameToSet;
     }
 
+    public String getUserName() {
+        return mUserName;
+    }
+
     public void switchRepository(String pathOfRepository) throws RepositoryNotFoundException, IOException, ParseException {
         if (!isValidRepository(pathOfRepository))
             throw new RepositoryNotFoundException("repository Not Found");
@@ -132,8 +136,8 @@ public class MagitEngine {
         mActiveBranch = repository.getmBranches().get("master");
     }
 
-    public void commit() throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
-        Commit commit = new Commit("test", "Guy", FileType.COMMIT,new Date());
+    public void commit(String commitMessage, String creator) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
+        Commit commit = new Commit(commitMessage, creator, FileType.COMMIT, new Date());
         commit.generate(mActiveRepository, mActiveBranch);
     }
 }
