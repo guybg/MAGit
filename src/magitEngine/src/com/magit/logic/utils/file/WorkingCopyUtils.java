@@ -42,8 +42,9 @@ public class WorkingCopyUtils {
 
 
     public static Tree getWorkingCopyTreeFromCommit(Commit commit, String repositoryPath) throws IOException, ParseException {
+        if (commit == null)
+            return null;
         Sha1 wcSha1 = commit.getmWorkingCopySha1();
-
         return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName(), repositoryPath);
     }
 
@@ -118,6 +119,8 @@ public class WorkingCopyUtils {
         SortedSet<FileItem> tr2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), treePredicate));
         SortedSet<FileItem> bl2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), blobPredicate));
         SortedSet<FileItem> dif = new TreeSet<>(CollectionUtils.union(CollectionUtils.intersection(bl2, bl1), bl1));
+        if (oldWc == null)
+            return aAction.actionOnDelta(wc, aAction.delta(bl1, bl2, currentPath));
         //wc.setmFiles(dif);
         aAction.actionOnDelta(wc, aAction.delta(bl1, bl2, currentPath));
 

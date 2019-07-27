@@ -52,8 +52,11 @@ public class Commit extends FileItem {
 
     public static Commit createCommitInstanceByPath(Path pathToCommit) throws IOException, ParseException {
         final int shaOfCommit1Index = 0, lastCommitsIndex = 1, commitMessageIndex = 2,
-                commitDateIndex = 3, commitCreatorIndex = 4, valueOfSplit = 1, twoPartsOfSplitting = 2;
-        if (Files.notExists(pathToCommit.getParent()) || Files.notExists(pathToCommit))
+                commitDateIndex = 3, commitCreatorIndex = 4, valueOfSplit = 1, twoPartsOfSplitting = 2,
+                sha1Length = 40;
+
+        if (pathToCommit == null || Files.notExists(pathToCommit) ||
+                pathToCommit.getFileName().toString().length() != sha1Length)
             return null;
 
         String seperator = " = ";

@@ -8,6 +8,7 @@ import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
@@ -40,6 +41,7 @@ public class MagitEngine {
     }
 
     public String getUserName() {
+
         return mUserName;
     }
 
@@ -50,9 +52,11 @@ public class MagitEngine {
         Path repositoryPath = Paths.get(pathOfRepository);
         loadRepository(repositoryPath);
         if (mActiveRepository.getCommitPath() != null) {
+
             Commit commitOfRepository = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
             if (commitOfRepository == null)
                 return;
+
             WorkingCopyUtils workingCopyHandler = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                     mUserName, commitOfRepository.getCreationDate());
             workingCopyHandler.clearWorkingCopyFiles(mActiveRepository.getRepositoryPath());
@@ -173,6 +177,31 @@ public class MagitEngine {
         FileUtils.deleteQuietly(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
     }
 
+    public String pickHeadBranch(String wantedBranchName) throws FileNotFoundException, IOException, ParseException{
+        if (Files.notExists(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
+            throw new FileNotFoundException("Branch doesn't exist");
+
+        if (areThereChanges())
+            return "There are unsaved changes, branch can't be switched.";
+
+        String headFileContent = FileReader.readFile(mActiveRepository.getHeadPath().toString());
+        if (headFileContent.equals(wantedBranchName))
+            return "Wanted branch is already active.";
+
+        FileWriter.writeNewFile(mActiveRepository.getHeadPath().toString(), wantedBranchName);
+        String wantedBranchSha1 = FileReader.readFile(
+                Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), wantedBranchName).toString());
+        Commit branchLatestCommit = Commit.createCommitInstanceByPath(
+                Paths.get(mActiveRepository.getObjectsFolderPath().toString(), wantedBranchSha1));
+        FileHandler.clearFolder(mActiveRepository.getRepositoryPath());
+
+        if (branchLatestCommit != null) {
+            WorkingCopyUtils wcCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(), mUserName, branchLatestCommit.getCreationDate());
+            wcCopyUtils.unzipWorkingCopyFromCommit(branchLatestCommit, mActiveRepository.getRepositoryPath().toString());
+        }
+        return "Active branch has changed successfully";
+    }
+
     public void createNewRepository(String repositoryName, String fullPath) throws IllegalPathException, IOException {
         Repository repository = new Repository(repositoryName, fullPath);
         repository.create();
@@ -188,14 +217,25 @@ public class MagitEngine {
     public Map<FileStatus, ArrayList<String>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
         WorkingCopyUtils wcw = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 mUserName, new Date());
+
         Tree curWc = wcw.getWc();
-
         Commit lastCommit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
-        Tree wcOfLastCommitToCompare = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
 
-        Map<FileStatus, ArrayList<String>> changes = WorkingCopyUtils.getWorkingCopyStatus(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
-        return changes;
+        Tree wcOfLastCommitToCompare = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
+        return WorkingCopyUtils.getWorkingCopyStatus(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
     }
+
+    private boolean areThereChanges() throws ParseException, IOException {
+        Map<FileStatus, ArrayList<String>> changes = checkDifferenceBetweenCurrentWCandLastCommit();
+        final int changesWereMade = 0;
+
+        return  changes != null &&
+                changes.get(FileStatus.EDITED).size() != changesWereMade &&
+                changes.get(FileStatus.NEW).size() != changesWereMade &&
+                changes.get(FileStatus.REMOVED).size() != changesWereMade;
+    }
+
+
 }
 
 

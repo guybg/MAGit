@@ -96,7 +96,7 @@ public class UserInterface {
                     System.out.println(magitEngine.presentCurrentCommitAndHistory());
                     break;
                 case ShowWorkingCopyStatus:
-
+                    magitEngine.checkDifferenceBetweenCurrentWCandLastCommit();
                     break;
                 case Commit:
                     try {
@@ -128,7 +128,8 @@ public class UserInterface {
                     magitEngine.deleteBranch(input.nextLine());
                     break;
                 case PickHeadBranch:
-                    magitEngine.checkDifferenceBetweenCurrentWCandLastCommit();
+                    System.out.println("Please enter branch name:");
+                    System.out.println(magitEngine.pickHeadBranch(input.nextLine()));
                     break;
                 case PresentCurrentBranchHisoty:
                     System.out.println(magitEngine.presentCurrentBranch());

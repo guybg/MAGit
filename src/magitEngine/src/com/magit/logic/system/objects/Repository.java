@@ -76,7 +76,7 @@ public class Repository {
 
     public Path getObjectsFolderPath() throws IOException {
         String branchName = FileReader.readFile(pathToHead.toString());
-        Path pathToBranchFile = getBranchPath(branchName);
+
         return Paths.get(pathToMagit.toString(), "objects");
     }
 
