@@ -120,7 +120,6 @@ public class UserInterface {
                     System.out.println(String.format("Pick branch name:%s", System.lineSeparator()));
                     while (!magitEngine.createNewBranch(input.nextLine()))
                         System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
-
                     break;
                 case DeleteBranch:
 

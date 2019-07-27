@@ -46,6 +46,8 @@ public class Commit extends FileItem {
     }
 
     public static Commit createCommitInstanceByPath(Path pathToCommit) throws IOException, ParseException {
+        final int shaOfCommit1Index = 0, lastCommitsIndex = 1, commitMessageIndex = 2,
+                commitDateIndex = 3, commitCreatorIndex = 4, valueOfSplit = 1;
         if (Files.notExists(pathToCommit.getParent()) || Files.notExists(pathToCommit))
             return null;
 
@@ -53,13 +55,17 @@ public class Commit extends FileItem {
         Sha1 sha1Code = new Sha1(pathToCommit.getFileName().toString(), true);
         String commitContent = FileZipper.zipToString(pathToCommit.getParent().toString(), sha1Code);
         String[] commitLines = commitContent.split(String.format("%s", System.lineSeparator()));
-        Sha1 workingCopySha1 = new Sha1(commitLines[0].split(seperator)[1], true);
-        String commitMessage = commitLines[2].split(seperator)[1];
-        String commitDate = commitLines[3].split(seperator)[1];
-        String commitCreator = commitLines[4].split(seperator)[1];
+        Sha1 workingCopySha1 = new Sha1(commitLines[shaOfCommit1Index].split(seperator)[valueOfSplit], true);
+        String commitMessage = commitLines[commitMessageIndex].split(seperator)[valueOfSplit];
+        String commitDate = commitLines[commitDateIndex].split(seperator)[valueOfSplit];
+        String commitCreator = commitLines[commitCreatorIndex].split(seperator)[valueOfSplit];
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
-        return new Commit(commitMessage, commitCreator,
-                FileType.COMMIT, dateFormat.parse(commitDate), sha1Code, workingCopySha1);
+        Commit output = new Commit(commitMessage, commitCreator, FileType.COMMIT, dateFormat.parse(commitDate), sha1Code, workingCopySha1);
+        String[] lastCommits = commitLines[lastCommitsIndex].split(seperator);
+        for (String sha1OfCommit : lastCommits[lastCommitsIndex].split(";")) {
+            output.mLastCommits.add(new Sha1(sha1OfCommit, true));
+        }
+        return output;
     }
 
     public Date getCreationDate() {
@@ -124,12 +130,12 @@ public class Commit extends FileItem {
     public String toString() {
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
         return "Commit{" +
-                "mWorkingCopySha1='" + mWorkingCopySha1 + '\'' +
-                ", mLastCommits=" + mLastCommits +
-                ", mCommitMessage='" + mCommitMessage + '\'' +
-                ", mLastModified=" + dateFormat.format(getCreationDate()) +
-                ", mCreator='" + getCreator() + '\'' +
-                ", firstCommit=" + firstCommit +
+                "mWorkingCopySha1 = " + mWorkingCopySha1 + '\'' +
+                " LastCommits = " + mLastCommits +
+                " CommitMessage = " + mCommitMessage + '\'' +
+                " LastModified = " + dateFormat.format(getCreationDate()) +
+                " Creator = " + getCreator() + '\'' +
+                " firstCommit = " + firstCommit +
                 '}';
     }
 
