@@ -1,7 +1,4 @@
-import com.magit.logic.exceptions.IllegalPathException;
-import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
-import com.magit.logic.exceptions.RepositoryNotFoundException;
-import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 
 import java.io.IOException;
@@ -104,6 +101,8 @@ public class UserInterface {
                     try {
                         magitEngine.commit();
                     } catch (WorkingCopyIsEmptyException e) {
+                        System.out.println(e.toString());
+                    } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {
                         System.out.println(e.toString());
                     }
                     break;

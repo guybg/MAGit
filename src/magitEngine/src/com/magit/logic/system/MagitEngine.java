@@ -4,6 +4,7 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
+import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -131,7 +132,7 @@ public class MagitEngine {
         mActiveBranch = repository.getmBranches().get("master");
     }
 
-    public void commit() throws IOException, WorkingCopyIsEmptyException, ParseException {
+    public void commit() throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
         Commit commit = new Commit("test", "Guy", FileType.COMMIT,new Date());
         commit.generate(mActiveRepository, mActiveBranch);
     }

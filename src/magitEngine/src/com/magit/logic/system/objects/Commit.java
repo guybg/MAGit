@@ -2,6 +2,7 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
+import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyUtils;
@@ -65,7 +66,7 @@ public class Commit extends FileItem {
         return super.mLastModified;
     }
 
-    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException {
+    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
         if (branch.getmPointedCommitSha1().toString().equals("")) {
             generateFirstCommit(mCommitMessage, getCreator(), repository, branch);
             repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
@@ -90,6 +91,8 @@ public class Commit extends FileItem {
                 branch.setPointedCommitSha1(mCommitSha1Code);
                 FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
                 repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
+            } else {
+                throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
             }
         }
     }
