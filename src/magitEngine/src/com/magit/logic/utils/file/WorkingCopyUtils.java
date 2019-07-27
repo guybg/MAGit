@@ -197,7 +197,7 @@ public class WorkingCopyUtils {
             @Override
             public Map<FileStatus, ArrayList<String>> action1(Map<FileStatus, ArrayList<String>> obj, Map<FileStatus, ArrayList<String>> onWhat) {
                 onWhat.putAll(obj);
-                return null;
+                return onWhat;
             }
 
             @Override
