@@ -1,10 +1,7 @@
 package com.magit.logic.system;
 
 import com.magit.logic.enums.FileType;
-import com.magit.logic.exceptions.IllegalPathException;
-import com.magit.logic.exceptions.RepositoryNotFoundException;
-import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
-import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -159,6 +156,17 @@ public class MagitEngine {
         }
 
         return activeBranchHistory.toString();
+    }
+
+    public void deleteBranch(String branchNameToDelete) throws FileNotFoundException, IOException, ActiveBranchDeletedExpcetion{
+        if (Files.notExists(mActiveRepository.getHeadPath()))
+            throw new FileNotFoundException("Head file not found, repository is invalid.");
+
+        String headContent = FileReader.readFile(mActiveRepository.getHeadPath().toString());
+        if (branchNameToDelete.equals(headContent))
+            throw new ActiveBranchDeletedExpcetion("Active Branch can't be deleted.");
+
+        FileUtils.deleteQuietly(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
     }
 
     public void createNewRepository(String repositoryName, String fullPath) throws IllegalPathException, IOException {
