@@ -8,6 +8,7 @@ import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommi
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
@@ -15,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,6 +129,36 @@ public class MagitEngine {
         FileWriter.writeNewFile(
                 Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName).toString(), "");
         return true;
+    }
+
+    public String presentCurrentBranch() throws  IOException, ParseException{
+        Path pathToBranchFile = Paths.get(mActiveRepository.getBranchDirectoryPath().toString(),
+                mActiveBranch.getmBranchName());
+        if (Files.notExists(pathToBranchFile))
+            throw new FileNotFoundException("No Branch file, repository is invalid");
+
+        String sha1OfCommit = FileReader.readFile(pathToBranchFile.toString());
+        Path pathToCommit = Paths.get(mActiveRepository.getObjectsFolderPath().toString(), sha1OfCommit);
+        if (Files.notExists(pathToCommit))
+            throw new FileNotFoundException("No commit file, repository is invalid");
+        final String seperator = "===================================================";
+        StringBuilder activeBranchHistory = new StringBuilder();
+        activeBranchHistory.append(String.format("Branch Name: %s%s%s%s%s%s"
+                , mActiveBranch.getmBranchName(), System.lineSeparator(),seperator, System.lineSeparator(),
+                "Current Commit:", System.lineSeparator()));
+        Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
+        activeBranchHistory.append(mostRecentCommit.toPrintFormat());
+        for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
+            Path currentCommitPath = Paths.get(mActiveRepository.getObjectsFolderPath().toString(), currentSha1.toString());
+            if (Files.notExists(currentCommitPath)) {
+                throw new FileNotFoundException("Commit history is invalid, repository invalid.");
+            }
+            activeBranchHistory.append(String.format("%s%s", seperator, System.lineSeparator()));
+            Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
+            activeBranchHistory.append(currentCommitInHistory.toPrintFormat());
+        }
+
+        return activeBranchHistory.toString();
     }
 
     public void createNewRepository(String repositoryName, String fullPath) throws IllegalPathException, IOException {

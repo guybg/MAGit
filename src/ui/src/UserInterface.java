@@ -130,7 +130,7 @@ public class UserInterface {
                     break;
 
                 case PresentCurrentBranchHisoty:
-
+                    System.out.println(magitEngine.presentCurrentBranch());
                     break;
                 case Exit:
                     optionsToActivate = MenuOptions.Exit;
