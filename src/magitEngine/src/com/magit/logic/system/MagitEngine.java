@@ -32,7 +32,6 @@ public class MagitEngine {
     private String mUserName = "Administrator";
 
     public void updateUserName(String userNameToSet) {
-        //1
         mUserName = userNameToSet;
     }
 
@@ -54,7 +53,7 @@ public class MagitEngine {
     }
 
     private boolean isValidRepository(String repositoryPath) {
-        String magit = ".magit";
+        final String magit = ".magit";
 
         return Files.exists(Paths.get(repositoryPath)) &&
                 Files.exists(Paths.get(repositoryPath, magit)) &&
@@ -68,6 +67,7 @@ public class MagitEngine {
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
+
         for (File branchFile : branchesFiles) {
             if (!branchFile.getName().equals("HEAD"))
                 mActiveRepository.add(branchFile.getName()

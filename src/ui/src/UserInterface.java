@@ -1,13 +1,18 @@
+import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.objects.Blob;
+import com.magit.logic.utils.file.FileWriter;
+import com.magit.logic.utils.file.FileZipper;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -30,7 +35,7 @@ public class UserInterface {
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            //maGitSystem.createNewRepository("testRep", "D:\\testingRep");
+            maGitSystem.createNewRepository("testRep", "D:\\testingRep");
             run(maGitSystem);
             //maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
@@ -121,7 +126,6 @@ public class UserInterface {
                     System.out.println(String.format("Pick branch name:%s", System.lineSeparator()));
                     while (!magitEngine.createNewBranch(input.nextLine()))
                         System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
-
                     break;
                 case DeleteBranch:
 

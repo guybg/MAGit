@@ -219,6 +219,10 @@ public class WorkingCopyUtils {
             workingCopyContent.append(workingCopyToPrint(fileToPrint, Paths.get(".")));
         }
 
+        workingCopyContent.append(
+                String.format("Current User: %s      Current Repository Location: %s %s",
+                        mUserName, mRepositoryDirectoryPath, System.lineSeparator()));
+
         return workingCopyContent.toString();
     }
 
