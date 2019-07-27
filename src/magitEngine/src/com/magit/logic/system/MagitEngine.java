@@ -185,7 +185,7 @@ public class MagitEngine {
         commit.generate(mActiveRepository, mActiveBranch);
     }
 
-    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
+    public Map<FileStatus, ArrayList<String>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
         WorkingCopyUtils wcw = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 mUserName, new Date());
         Tree curWc = wcw.getWc();
@@ -194,7 +194,7 @@ public class MagitEngine {
         Tree wcOfLastCommitToCompare = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
 
         Map<FileStatus, ArrayList<String>> changes = WorkingCopyUtils.getWorkingCopyStatus(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
-        System.out.println();
+        return changes;
     }
 }
 
