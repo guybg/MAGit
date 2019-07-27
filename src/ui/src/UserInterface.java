@@ -128,7 +128,7 @@ public class UserInterface {
                     magitEngine.deleteBranch(input.nextLine());
                     break;
                 case PickHeadBranch:
-
+                    magitEngine.checkDifferenceBetweenCurrentWCandLastCommit();
                     break;
                 case PresentCurrentBranchHisoty:
                     System.out.println(magitEngine.presentCurrentBranch());

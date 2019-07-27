@@ -1,8 +1,10 @@
 package com.magit.logic.utils.file;
 
+import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.interfaces.WalkAction;
+import com.magit.logic.system.interfaces.WalkCompareAction;
 import com.magit.logic.system.objects.Blob;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItem;
@@ -18,10 +20,8 @@ import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WorkingCopyUtils {
     private String mRepositoryDirectoryPath;
@@ -40,14 +40,6 @@ public class WorkingCopyUtils {
         FileHandler.clearFolder(repositoryPath);
     }
 
-    public static Tree getWcWithOnlyNewchanges(Tree newWc, Tree oldWc) {
-        Tree wc;
-        if (CollectionUtils.isEqualCollection(newWc.getmFiles(), oldWc.getmFiles()))
-            wc = oldWc;
-        else
-            wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getmLastUpdater(), newWc.getLastModified(), newWc.getmName(), new TreeSet<>()));
-        return wc;
-    }
 
     public static Tree getWorkingCopyTreeFromCommit(Commit commit, String repositoryPath) throws IOException, ParseException {
         Sha1 wcSha1 = commit.getmWorkingCopySha1();
@@ -118,16 +110,21 @@ public class WorkingCopyUtils {
 
     }
 
-    private static FileItem updateWalk(Tree newWc, Tree oldWc, Tree wc) {
+    //T1 = WC
+    //T2 = DELTA
+    private static <T1, T2> T1 updateWalk(Tree newWc, Tree oldWc, T1 wc, WalkCompareAction<T1, T2> aAction, String currentPath) throws IOException {
         SortedSet<FileItem> tr1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), treePredicate));
         SortedSet<FileItem> bl1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), blobPredicate));
         SortedSet<FileItem> tr2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), treePredicate));
         SortedSet<FileItem> bl2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), blobPredicate));
         SortedSet<FileItem> dif = new TreeSet<>(CollectionUtils.union(CollectionUtils.intersection(bl2, bl1), bl1));
-        wc.setmFiles(dif);
+        //wc.setmFiles(dif);
+        aAction.actionOnDelta(wc, aAction.delta(bl1, bl2, currentPath));
+
         if (tr1.isEmpty()) {
             if (!bl1.isEmpty()) {
-                return wc;
+                //return wc;
+                return aAction.returnAction(wc);
             }
         }
         for (FileItem tree : tr1) {
@@ -140,15 +137,114 @@ public class WorkingCopyUtils {
                         updatater = tree2.getmLastUpdater();
                         date = tree2.getLastModified();
                     }
-                    wc.addFileItem(updateWalk((Tree) tree, (Tree) tree2, new Tree(tree.getmFileType(), updatater, date, tree.getmName(), new TreeSet<FileItem>())));
+                    //wc.addFileItem(updateWalk((Tree) tree, (Tree) tree2, new Tree(tree.getmFileType(), updatater, date, tree.getmName(), new TreeSet<FileItem>())));
+                    aAction.action1(updateWalk((Tree) tree, (Tree) tree2, aAction.action2(tree.getmFileType(), updatater, date, tree.getmName(), new TreeSet<FileItem>(), wc), aAction, Paths.get(currentPath, tree.getmName()).toString()), wc);
                     isNewFolder = false;
                 }
             }
             if (isNewFolder) {
-                wc.addFileItem(tree);
+                //wc.addFileItem(tree);
+                aAction.action2(tree, wc);
                 isNewFolder = true;
             }
         }
+        return wc;
+    }
+
+    //file1 newfiles, file2 oldfiles (blobs)
+    public static Map<FileStatus, ArrayList<String>> getWorkingCopyStatus(Tree newWc, Tree oldWc, String currentPath) throws IOException {
+        WalkCompareAction<Map<FileStatus, ArrayList<String>>, Map<FileStatus, ArrayList<String>>> actionInterface = new WalkCompareAction<Map<FileStatus, ArrayList<String>>, Map<FileStatus, ArrayList<String>>>() {
+            @Override
+            public Map<FileStatus, ArrayList<String>> delta(SortedSet<FileItem> file1, SortedSet<FileItem> file2, String currentPath) throws IOException {
+                Map<FileStatus, ArrayList<String>> files = new TreeMap<>();
+                // new files
+                ArrayList<String> newAndEditedFiles = new ArrayList<>(CollectionUtils.subtract(file1, file2).stream().map(FileItem::getmName).collect(Collectors.toList()));
+                ArrayList<String> editedFiles = new ArrayList<>(newAndEditedFiles.stream()
+                        .filter(a -> file2.stream()
+                                .map(FileItem::getmName)
+                                .anyMatch(name -> name.equals(a)))
+                        .collect(Collectors.toList()));
+                // Edited files
+                ArrayList<String> newFiles = new ArrayList<>(CollectionUtils.subtract(newAndEditedFiles, editedFiles));
+                //deleted Files
+                ArrayList<String> deletedFiles = new ArrayList<>(CollectionUtils.subtract(file2.stream().map(FileItem::getmName).collect(Collectors.toList()), file1.stream().map(FileItem::getmName).collect(Collectors.toList())));
+
+                //adding path
+                ArrayList<String> editedFilesWithPath = new ArrayList<>(editedFiles.stream().map(a -> Paths.get(currentPath, a).toString()).collect(Collectors.toList()));
+                ArrayList<String> newFilesWithPath = new ArrayList<>(newFiles.stream().map(a -> Paths.get(currentPath, a).toString()).collect(Collectors.toList()));
+                ArrayList<String> deletedFilesWithPath = new ArrayList<>(deletedFiles.stream().map(a -> Paths.get(currentPath, a).toString()).collect(Collectors.toList()));
+
+                files.put(FileStatus.EDITED, editedFilesWithPath);
+                files.put(FileStatus.NEW, newFilesWithPath);
+                files.put(FileStatus.REMOVED, deletedFilesWithPath);
+                return files;
+            }
+
+            @Override
+            public Map<FileStatus, ArrayList<String>> actionOnDelta(Map<FileStatus, ArrayList<String>> onWhat, Map<FileStatus, ArrayList<String>> delta) {
+                onWhat.putAll(delta);
+                return onWhat;
+            }
+
+            @Override
+            public Map<FileStatus, ArrayList<String>> returnAction(Map<FileStatus, ArrayList<String>> obj) {
+                return obj;
+            }
+
+            @Override
+            public Map<FileStatus, ArrayList<String>> action1(Map<FileStatus, ArrayList<String>> obj, Map<FileStatus, ArrayList<String>> onWhat) {
+                onWhat.putAll(obj);
+                return null;
+            }
+
+            @Override
+            public Map<FileStatus, ArrayList<String>> action2(Object... params) {
+                ((Map<FileStatus, ArrayList<String>>) params[1]).putAll((Map<FileStatus, ArrayList<String>>) params[0]);
+                return (Map<FileStatus, ArrayList<String>>) params[1];
+            }
+        };
+        Map<FileStatus, ArrayList<String>> map = new TreeMap<>();
+        map = updateWalk(newWc, oldWc, new TreeMap<>(), actionInterface, currentPath);
+        return map;
+    }
+
+    public static Tree getWcWithOnlyNewchanges(Tree newWc, Tree oldWc) throws IOException {
+        Tree wc;
+
+        WalkCompareAction<Tree, SortedSet<FileItem>> actionInterface = new WalkCompareAction<Tree, SortedSet<FileItem>>() {
+            @Override
+            public SortedSet<FileItem> delta(SortedSet<FileItem> file1, SortedSet<FileItem> file2, String currentPath) {
+                SortedSet<FileItem> dif = new TreeSet<>(CollectionUtils.union(CollectionUtils.intersection(file2, file1), file1));
+                return dif;
+            }
+
+            @Override
+            public Tree actionOnDelta(Tree onWhat, SortedSet<FileItem> delta) {
+                onWhat.setmFiles(delta);
+                return onWhat;
+            }
+
+            @Override
+            public Tree returnAction(Tree obj) {
+                return obj;
+            }
+
+            @Override
+            public Tree action1(Tree obj, Tree onWhat) {
+                onWhat.addFileItem(obj);
+                return onWhat;
+            }
+
+            @Override
+            public Tree action2(Object... params) {
+                ((Tree) params[1]).addFileItem((Tree) params[0]);
+                return ((Tree) params[1]);
+            }
+        };
+        if (CollectionUtils.isEqualCollection(newWc.getmFiles(), oldWc.getmFiles()))
+            wc = oldWc;
+        else
+            wc = updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getmLastUpdater(), newWc.getLastModified(), newWc.getmName(), new TreeSet<>()), actionInterface, null);
         return wc;
     }
 

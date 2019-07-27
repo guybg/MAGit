@@ -1,10 +1,12 @@
 package com.magit.logic.system;
 
+import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileWriter;
@@ -19,8 +21,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class MagitEngine {
 
@@ -158,7 +162,7 @@ public class MagitEngine {
         return activeBranchHistory.toString();
     }
 
-    public void deleteBranch(String branchNameToDelete) throws FileNotFoundException, IOException, ActiveBranchDeletedExpcetion{
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion {
         if (Files.notExists(mActiveRepository.getHeadPath()))
             throw new FileNotFoundException("Head file not found, repository is invalid.");
 
@@ -179,6 +183,18 @@ public class MagitEngine {
     public void commit(String commitMessage, String creator) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
         Commit commit = new Commit(commitMessage, creator, FileType.COMMIT, new Date());
         commit.generate(mActiveRepository, mActiveBranch);
+    }
+
+    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
+        WorkingCopyUtils wcw = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
+                mUserName, new Date());
+        Tree curWc = wcw.getWc();
+
+        Commit lastCommit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+        Tree wcOfLastCommitToCompare = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
+
+        Map<FileStatus, ArrayList<String>> changes = WorkingCopyUtils.getWorkingCopyStatus(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
+        System.out.println();
     }
 }
 
