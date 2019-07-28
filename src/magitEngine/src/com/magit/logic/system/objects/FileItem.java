@@ -26,7 +26,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         this.mSha1Code = sha1Code;
     }
 
-    public abstract String getFileContent();
+    protected abstract String getFileContent();
 
     public String toPrintFormat(String path) {
         StringBuilder fileItemContent = new StringBuilder();
@@ -63,6 +63,9 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
 
     public abstract String toString();
 
+    protected String getMinimalFileDetailes() {
+        return mName + ";" + mSha1Code + ";" + mFileType;
+    }
 
     @Override
     public boolean equals(Object o) {

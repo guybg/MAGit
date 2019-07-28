@@ -73,6 +73,17 @@ public class Tree extends FileItem {
         return content;
     }
 
+    public String getMinimalFileContentForSha1() {
+        String content = "";
+        for (FileItem item : mFiles) {
+            content += item.toString();
+            content += System.lineSeparator();
+        }
+        return content;
+    }
+
+
+
     @Override
     public String toString() {
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
