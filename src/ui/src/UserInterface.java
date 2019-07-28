@@ -101,7 +101,7 @@ public class UserInterface {
                 case Commit:
                     try {
                         System.out.println("Please enter your commit message ");
-                        magitEngine.commit(input.nextLine(), magitEngine.getUserName());
+                        magitEngine.commit(input.nextLine());
                     } catch (WorkingCopyIsEmptyException e) {
                         System.out.println(e.toString());
                     } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {
@@ -109,14 +109,12 @@ public class UserInterface {
                     }
                     break;
                 case PresentAllBranches:
-                    String branchesInfo = magitEngine.getBranchesInfo();
-                    System.out.println(branchesInfo);
+                    System.out.println(magitEngine.getBranchesInfo());
                     break;
                 case CreateNewRepository:
                     System.out.println("Please enter path:");
                     Path pathToRepository = Paths.get(input.nextLine());
-                    magitEngine.createNewRepository(pathToRepository.getFileName().toString(),
-                            pathToRepository.getParent().toString());
+                    magitEngine.createNewRepository(pathToRepository);
                 case CreateNewBranch:
                     System.out.println("Pick branch name:");
                     while (!magitEngine.createNewBranch(input.nextLine()))
@@ -153,7 +151,7 @@ public class UserInterface {
             System.out.println("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.");
             String answer = input.nextLine();
             if (answer.equals("Y") ||answer.equals("y")) {
-                magitEngine.createNewRepository(pathOfRepository.getFileName().toString() , pathOfRepository.getParent().toString());
+                magitEngine.createNewRepository(pathOfRepository);
             }
         }
 

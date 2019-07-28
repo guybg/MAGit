@@ -55,7 +55,7 @@ public class WorkingCopyUtils {
 
         if (mFileType == FileType.FOLDER) {
             SortedSet<FileItem> files = new TreeSet<>();
-            ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileHandler.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code));
+            ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileItemHandler.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code));
             for (String[] fileItem : fileItems) {
                 DateFormat formatter1;
                 formatter1 = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
@@ -65,7 +65,7 @@ public class WorkingCopyUtils {
             return new Tree(mName, sha1Code, FileType.FOLDER, mLastUpdater, mCommitDate, files);
 
         } else {
-            String fileContent = FileHandler.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code);
+            String fileContent = FileItemHandler.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code);
             return new Blob(mName, fileContent, mFileType, mLastUpdater, mCommitDate);
         }
     }
@@ -85,7 +85,7 @@ public class WorkingCopyUtils {
 
     public void zipWorkingCopyFromTreeWC(Tree wc) throws IOException {
         WalkAction walkAction = (file, a) -> {
-            FileHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+            FileItemHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
             return 1;
         };
         fileItemWalk(wc, mRepositoryDirectoryPath, walkAction);
@@ -402,7 +402,7 @@ public class WorkingCopyUtils {
     public Sha1 zipWorkingCopyFromCurrentWorkingCopy() throws IOException, WorkingCopyIsEmptyException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         WalkAction action = (file, params) -> {
-            FileHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+            FileItemHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
             return 1;
         };
         wcWalk(mRepositoryDirectoryPath, directoryFiles, action);
@@ -410,7 +410,7 @@ public class WorkingCopyUtils {
         if (wc.getmFiles().isEmpty()) {
             throw new WorkingCopyIsEmptyException();
         }
-        FileHandler.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+        FileItemHandler.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
         return wc.getSha1Code();
     }
 
