@@ -1,9 +1,11 @@
 package com.magit.logic.system.objects;
 
+import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import org.apache.commons.collections4.MultiValuedMap;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,12 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Repository {
 
     private final String BRANCHES = "branches";
-    private String mLastUpdater;
+    private String mCurrentUpdater;
     private String mRepositoryName;
     private String mRepositoryParentFolderLocation;
     private HashMap<String, Branch> mBranches;
@@ -38,8 +43,12 @@ public class Repository {
         this.mBranches.put(key, value);
     }
 
-    public void setName(String name) {
-        mLastUpdater = name;
+    public void setUpdaterName(String name) {
+        mCurrentUpdater = name;
+    }
+
+    public String getUpdaterName(){
+        return mCurrentUpdater;
     }
 
     private Path getBranchPath(String branchName) {
@@ -130,5 +139,14 @@ public class Repository {
 
     void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
         FileHandler.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
+    }
+
+    public boolean areThereChanges(MultiValuedMap<FileStatus, String> changes) throws ParseException, IOException {
+        Map<FileStatus, Collection<String>> a = changes.asMap();
+        final int changesWereMade = 0;
+
+        return changes.get(FileStatus.EDITED).size() != changesWereMade ||
+                changes.get(FileStatus.NEW).size() != changesWereMade ||
+                changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
 }

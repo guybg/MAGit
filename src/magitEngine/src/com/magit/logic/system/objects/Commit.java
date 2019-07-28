@@ -59,7 +59,7 @@ public class Commit extends FileItem {
 
         String seperator = " = ";
         Sha1 sha1Code = new Sha1(pathToCommit.getFileName().toString(), true);
-        String commitContent = FileHandler.zipToString(pathToCommit.getParent().toString(), sha1Code);
+        String commitContent = FileItemHandler.zipToString(pathToCommit.getParent().toString(), sha1Code);
         String[] commitLines = commitContent.split(String.format("%s", System.lineSeparator()));
         Sha1 workingCopySha1 = new Sha1(commitLines[shaOfCommit1Index].split(seperator)[valueOfSplit], true);
         String commitMessage = commitLines[commitMessageIndex].split(seperator)[valueOfSplit];
@@ -102,7 +102,7 @@ public class Commit extends FileItem {
                 workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
                 mCommitSha1Code = new Sha1(getFileContent(), false);
                 branch.setPointedCommitSha1(mCommitSha1Code);
-                FileHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+                FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
                 repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
             } else {
                 throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
@@ -115,7 +115,7 @@ public class Commit extends FileItem {
         mWorkingCopySha1 = workingCopyUtils.zipWorkingCopyFromCurrentWorkingCopy();
         mCommitSha1Code = new Sha1(getFileContent(), false);
         branch.setPointedCommitSha1(mCommitSha1Code);
-        FileHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+        FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
     }
 
     public String getFileContent() {
