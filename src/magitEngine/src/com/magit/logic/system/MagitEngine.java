@@ -9,8 +9,6 @@ import com.magit.logic.system.objects.Repository;
 import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
-import com.magit.logic.utils.file.FileReader;
-import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
@@ -39,10 +37,10 @@ public class MagitEngine {
 
     public void updateUserName(String userNameToSet) {
         mUserName = userNameToSet;
+        mActiveRepository.setName(userNameToSet);
     }
 
     public String getUserName() {
-
         return mUserName;
     }
 
@@ -77,14 +75,14 @@ public class MagitEngine {
     private void loadRepository(Path repositoryPath) throws IOException {
         mActiveRepository = new Repository(repositoryPath.getFileName().toString()
                 , repositoryPath.getParent().toString());
-        List<File> branchesFiles = (List<File>) FileUtils.listFiles(
+        List<File> branchesFiles = (List<File>)FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
         for (File branchFile : branchesFiles) {
             if (!branchFile.getName().equals("HEAD"))
                 mActiveRepository.add(branchFile.getName()
-                        , new Branch(branchFile.getName(), FileReader.readFile(branchFile.getPath())));
+                        , new Branch(branchFile.getName(), FileHandler.readFile(branchFile.getPath())));
             else {
                 loadBranch(branchFile);
                 mActiveRepository.add(branchFile.getName(), mActiveBranch);
@@ -93,9 +91,9 @@ public class MagitEngine {
     }
 
     private void loadBranch(File branchFile) throws IOException {
-        String headContent = FileReader.readFile(branchFile.getPath());
+        String headContent = FileHandler.readFile(branchFile.getPath());
         File headBranch = new File(Paths.get(branchFile.getParent(), headContent).toString());
-        mActiveBranch = new Branch(headContent, FileReader.readFile(headBranch.getPath()));
+        mActiveBranch = new Branch(headContent, FileHandler.readFile(headBranch.getPath()));
     }
 
     public String presentCurrentCommitAndHistory() throws RepositoryNotFoundException, IOException, ParseException {
@@ -112,7 +110,7 @@ public class MagitEngine {
         StringBuilder branchesContent = new StringBuilder();
 
         branchesContent.append(String.format("Head Branch : %s%s%s%s",
-                FileReader.readFile(mActiveRepository.getHeadPath().toString()),System.lineSeparator(),
+                FileHandler.readFile(mActiveRepository.getHeadPath().toString()),System.lineSeparator(),
                 seperator, System.lineSeparator()));
         File branchesDirectory = new File(mActiveRepository.getBranchDirectoryPath().toString());
         File[] files = branchesDirectory.listFiles();
@@ -122,7 +120,7 @@ public class MagitEngine {
         for (File branchFile: files) {
             if (!branchFile.getName().equals("HEAD"))
                 branchesContent.append(String.format("%s, sha1: %s%s",
-                        branchFile.getName(), FileReader.readFile(branchFile.getPath()),System.lineSeparator()));
+                        branchFile.getName(), FileHandler.readFile(branchFile.getPath()),System.lineSeparator()));
         }
 
         return branchesContent.toString();
@@ -132,7 +130,7 @@ public class MagitEngine {
         if (Files.exists(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName)))
             return false;
 
-        FileWriter.writeNewFile(
+        FileHandler.writeNewFile(
                 Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
         return true;
     }
@@ -143,7 +141,7 @@ public class MagitEngine {
         if (Files.notExists(pathToBranchFile))
             throw new FileNotFoundException("No Branch file, repository is invalid");
 
-        String sha1OfCommit = FileReader.readFile(pathToBranchFile.toString());
+        String sha1OfCommit = FileHandler.readFile(pathToBranchFile.toString());
         Path pathToCommit = Paths.get(mActiveRepository.getObjectsFolderPath().toString(), sha1OfCommit);
         if (Files.notExists(pathToCommit))
             throw new FileNotFoundException("No commit file, repository is invalid");
@@ -171,7 +169,7 @@ public class MagitEngine {
         if (Files.notExists(mActiveRepository.getHeadPath()))
             throw new FileNotFoundException("Head file not found, repository is invalid.");
 
-        String headContent = FileReader.readFile(mActiveRepository.getHeadPath().toString());
+        String headContent = FileHandler.readFile(mActiveRepository.getHeadPath().toString());
         if (branchNameToDelete.equals(headContent))
             throw new ActiveBranchDeletedExpcetion("Active Branch can't be deleted.");
 
@@ -185,12 +183,12 @@ public class MagitEngine {
         if (areThereChanges())
             return "There are unsaved changes, branch can't be switched.";
 
-        String headFileContent = FileReader.readFile(mActiveRepository.getHeadPath().toString());
+        String headFileContent = FileHandler.readFile(mActiveRepository.getHeadPath().toString());
         if (headFileContent.equals(wantedBranchName))
             return "Wanted branch is already active.";
 
-        FileWriter.writeNewFile(mActiveRepository.getHeadPath().toString(), wantedBranchName);
-        String wantedBranchSha1 = FileReader.readFile(
+        FileHandler.writeNewFile(mActiveRepository.getHeadPath().toString(), wantedBranchName);
+        String wantedBranchSha1 = FileHandler.readFile(
                 Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), wantedBranchName).toString());
         Commit branchLatestCommit = Commit.createCommitInstanceByPath(
                 Paths.get(mActiveRepository.getObjectsFolderPath().toString(), wantedBranchSha1));

@@ -83,11 +83,11 @@ public class UserInterface {
             }
             switch (optionsToActivate) {
                 case UpdateUserName:
-                    System.out.println("Please enter user name:" + System.lineSeparator());
+                    System.out.println("Please enter user name:");
                     magitEngine.updateUserName(input.nextLine());
                     break;
                 case ReadRepositoryDetails:
-                    System.out.println("Please enter repository path:" + System.lineSeparator());
+                    System.out.println("Please enter repository path:");
                     break;
                 case SwitchRepository:
                     switchRepository(magitEngine, input);
@@ -100,7 +100,7 @@ public class UserInterface {
                     break;
                 case Commit:
                     try {
-                        System.out.println("Please enter your commit message " + System.lineSeparator());
+                        System.out.println("Please enter your commit message ");
                         magitEngine.commit(input.nextLine(), magitEngine.getUserName());
                     } catch (WorkingCopyIsEmptyException e) {
                         System.out.println(e.toString());
@@ -108,7 +108,6 @@ public class UserInterface {
                         System.out.println(e.toString());
                     }
                     break;
-
                 case PresentAllBranches:
                     String branchesInfo = magitEngine.getBranchesInfo();
                     System.out.println(branchesInfo);
@@ -119,19 +118,19 @@ public class UserInterface {
                     magitEngine.createNewRepository(pathToRepository.getFileName().toString(),
                             pathToRepository.getParent().toString());
                 case CreateNewBranch:
-                    System.out.println(String.format("Pick branch name:%s", System.lineSeparator()));
+                    System.out.println("Pick branch name:");
                     while (!magitEngine.createNewBranch(input.nextLine()))
                         System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
                     break;
                 case DeleteBranch:
-                    System.out.println(String.format("Enter branch name: %s", System.lineSeparator()));
+                    System.out.println("Enter branch name:");
                     magitEngine.deleteBranch(input.nextLine());
                     break;
                 case PickHeadBranch:
                     System.out.println("Please enter branch name:");
                     System.out.println(magitEngine.pickHeadBranch(input.nextLine()));
                     break;
-                case PresentCurrentBranchHisoty:
+                case PresentCurrentBranchHistory:
                     System.out.println(magitEngine.presentCurrentBranch());
                     break;
                 case Exit:
@@ -151,18 +150,14 @@ public class UserInterface {
             pathOfRepository = Paths.get(input.nextLine());
             magitEngine.switchRepository(pathOfRepository.toString());
         } catch (RepositoryNotFoundException ex) {
-            System.out.println(
-                    String.format("%s %s%s",
-                            "Repository not found, would you like to create one?",
-                            "Press Y to create one, any other button to cancel operation.", System.lineSeparator()));
-            if (input.nextLine().equals("Y")) {
-                magitEngine.createNewRepository(pathOfRepository.getFileName().toString()
-                        , pathOfRepository.getParent().toString());
+            System.out.println("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.");
+            String answer = input.nextLine();
+            if (answer.equals("Y") ||answer.equals("y")) {
+                magitEngine.createNewRepository(pathOfRepository.getFileName().toString() , pathOfRepository.getParent().toString());
             }
         }
 
     }
-
 
     private enum MenuOptions {
         UpdateUserName,
@@ -176,7 +171,7 @@ public class UserInterface {
         CreateNewBranch,
         DeleteBranch,
         PickHeadBranch,
-        PresentCurrentBranchHisoty,
+        PresentCurrentBranchHistory,
         Exit,
         Default;
 

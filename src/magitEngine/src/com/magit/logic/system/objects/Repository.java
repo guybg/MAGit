@@ -3,8 +3,7 @@ package com.magit.logic.system.objects;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.utils.digest.Sha1;
-import com.magit.logic.utils.file.FileReader;
-import com.magit.logic.utils.file.FileWriter;
+import com.magit.logic.utils.file.FileHandler;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -18,6 +17,7 @@ import java.util.HashMap;
 public class Repository {
 
     private final String BRANCHES = "branches";
+    private String mLastUpdater;
     private String mRepositoryName;
     private String mRepositoryParentFolderLocation;
     private HashMap<String, Branch> mBranches;
@@ -36,6 +36,10 @@ public class Repository {
 
     public void add(String key, Branch value) {
         this.mBranches.put(key, value);
+    }
+
+    public void setName(String name) {
+        mLastUpdater = name;
     }
 
     private Path getBranchPath(String branchName) {
@@ -62,26 +66,24 @@ public class Repository {
 
     public Path getCommitPath()throws IOException {
 
-        String branchName = FileReader.readFile(pathToHead.toString());
+        String branchName = FileHandler.readFile(pathToHead.toString());
         Path pathToBranchFile = getBranchPath(branchName);
-        String branchFileContent = FileReader.readFile(pathToBranchFile.toString());
+        String branchFileContent = FileHandler.readFile(pathToBranchFile.toString());
         if (branchFileContent.equals(""))
             return null;
 
         if (Files.notExists(pathToBranchFile))
             return null;
-        String sha1OfCommit = FileReader.readFile(pathToBranchFile.toString());
+        String sha1OfCommit = FileHandler.readFile(pathToBranchFile.toString());
         return Paths.get(pathToMagit.toString(), "objects", sha1OfCommit);
     }
 
-    public Path getObjectsFolderPath() throws IOException {
-        String branchName = FileReader.readFile(pathToHead.toString());
-
+    public Path getObjectsFolderPath(){
         return Paths.get(pathToMagit.toString(), "objects");
     }
 
     public void create() throws IllegalPathException, IOException {
-        boolean validPath = false;
+        boolean validPath;
         File repository;
         try {
             Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit");
@@ -103,14 +105,14 @@ public class Repository {
         Branch branch = new Branch("master");
         branch.create(Paths.get(mRepositoryParentFolderLocation, mRepositoryName).toString());
         mBranches.put("master", branch);
-        createHeadFile("master");
+        createHeadFile();
     }
 
-    private void createHeadFile(String branchName) throws IOException {
+    private void createHeadFile() throws IOException {
         Path path = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit", "Branches", "HEAD");
         Files.createFile(path);
         BufferedWriter writer = new BufferedWriter(new java.io.FileWriter(path.toString()));
-        writer.write(branchName);
+        writer.write("master");
         writer.close();
     }
 
@@ -122,12 +124,11 @@ public class Repository {
         return mRepositoryName;
     }
 
-    public String getmRepositoryParentFolderLocation() {
+    String getmRepositoryParentFolderLocation() {
         return mRepositoryParentFolderLocation;
     }
 
-    public void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
-
-        FileWriter.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
+    void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
+        FileHandler.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
     }
 }

@@ -4,7 +4,8 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
 import com.magit.logic.utils.digest.Sha1;
-import com.magit.logic.utils.file.FileZipper;
+import com.magit.logic.utils.file.FileHandler;
+import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
 import java.io.IOException;
@@ -21,14 +22,12 @@ public class Commit extends FileItem {
     private Sha1 mWorkingCopySha1;
     private LinkedList<Sha1> mLastCommits;
     private String mCommitMessage;
-    private Boolean firstCommit = true;
     private Sha1 mCommitSha1Code;
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
-        if (mWorkingCopySha1 != null) firstCommit = false;
     }
 
     private Commit(String commitMessage, String creator,
@@ -39,7 +38,6 @@ public class Commit extends FileItem {
         super.mSha1Code = sha1Code;
         mCommitSha1Code = sha1Code;
         mWorkingCopySha1 = workingCopySha1;
-        if (mWorkingCopySha1 != null) firstCommit = false;
     }
 
     private String getCreator() {
@@ -61,7 +59,7 @@ public class Commit extends FileItem {
 
         String seperator = " = ";
         Sha1 sha1Code = new Sha1(pathToCommit.getFileName().toString(), true);
-        String commitContent = FileZipper.zipToString(pathToCommit.getParent().toString(), sha1Code);
+        String commitContent = FileHandler.zipToString(pathToCommit.getParent().toString(), sha1Code);
         String[] commitLines = commitContent.split(String.format("%s", System.lineSeparator()));
         Sha1 workingCopySha1 = new Sha1(commitLines[shaOfCommit1Index].split(seperator)[valueOfSplit], true);
         String commitMessage = commitLines[commitMessageIndex].split(seperator)[valueOfSplit];
@@ -85,12 +83,10 @@ public class Commit extends FileItem {
 
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
         if (branch.getmPointedCommitSha1().toString().equals("")) {
-            generateFirstCommit(mCommitMessage, getCreator(), repository, branch);
+            generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
         } else {
-        /*
-            handle second and on commit
-         */
+        //handle second and on commit
             WorkingCopyUtils wcw = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, getCreationDate());
             Tree curWc = wcw.getWc();
 
@@ -106,7 +102,7 @@ public class Commit extends FileItem {
                 workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
                 mCommitSha1Code = new Sha1(getFileContent(), false);
                 branch.setPointedCommitSha1(mCommitSha1Code);
-                FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+                FileHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
                 repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
             } else {
                 throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
@@ -114,24 +110,24 @@ public class Commit extends FileItem {
         }
     }
 
-    private void generateFirstCommit(String commitMessage, String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
+    private void generateFirstCommit(String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
         WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator, mLastModified);
         mWorkingCopySha1 = workingCopyUtils.zipWorkingCopyFromCurrentWorkingCopy();
         mCommitSha1Code = new Sha1(getFileContent(), false);
         branch.setPointedCommitSha1(mCommitSha1Code);
-        FileZipper.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+        FileHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
     }
 
     public String getFileContent() {
         DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
         StringBuilder content = new StringBuilder();
         content.append(String.format("%s = %s%s%s = ",
-                "wc", mWorkingCopySha1, System.lineSeparator(), "lastCommits"));
+                "wc", mWorkingCopySha1, System.lineSeparator(), "last Commits"));
         for (Sha1 commit : mLastCommits) {
             content.append(String.format("%s%c", commit.toString(), ';'));
         }
         content.append(String.format("%s%s%s%s%s%s%s%s%s", System.lineSeparator(),
-                "commitMessege = ", mCommitMessage, System.lineSeparator(), "commitDate = ",
+                "commit Messege = ", mCommitMessage, System.lineSeparator(), "commit Date = ",
                 dateFormat.format(getCreationDate()), System.lineSeparator(), "creator = ",
                 getCreator() + System.lineSeparator()));
         return content.toString();
@@ -146,7 +142,6 @@ public class Commit extends FileItem {
                 " CommitMessage = " + mCommitMessage + '\'' +
                 " LastModified = " + dateFormat.format(getCreationDate()) +
                 " Creator = " + getCreator() + '\'' +
-                " firstCommit = " + firstCommit +
                 '}';
     }
 

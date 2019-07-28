@@ -42,22 +42,20 @@ public class WorkingCopyUtils {
         FileHandler.clearFolder(repositoryPath);
     }
 
-
     public static Tree getWorkingCopyTreeFromCommit(Commit commit, String repositoryPath) throws IOException, ParseException {
         if (commit == null)
             return null;
+
         Sha1 wcSha1 = commit.getmWorkingCopySha1();
         return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName(), repositoryPath);
     }
 
-    private static FileItem walk(Sha1 sha1Code,
-                                 FileType mFileType,
-                                 String mLastUpdater,
-                                 Date mCommitDate,
+    private static FileItem walk(Sha1 sha1Code, FileType mFileType, String mLastUpdater, Date mCommitDate,
                                  String mName, String repositoryPath) throws IOException, ParseException {
+
         if (mFileType == FileType.FOLDER) {
             SortedSet<FileItem> files = new TreeSet<>();
-            ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileZipper.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code));
+            ArrayList<String[]> fileItems = Tree.treeItemsToStringArray(FileHandler.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code));
             for (String[] fileItem : fileItems) {
                 DateFormat formatter1;
                 formatter1 = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
@@ -67,7 +65,7 @@ public class WorkingCopyUtils {
             return new Tree(mName, sha1Code, FileType.FOLDER, mLastUpdater, mCommitDate, files);
 
         } else {
-            String fileContent = FileZipper.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code);
+            String fileContent = FileHandler.zipToString(Paths.get(repositoryPath, ".magit", "objects").toString(), sha1Code);
             return new Blob(mName, fileContent, mFileType, mLastUpdater, mCommitDate);
         }
     }
@@ -77,17 +75,17 @@ public class WorkingCopyUtils {
         Tree wc = getWorkingCopyTreeFromCommit(commit, mRepositoryDirectoryPath);
         WalkAction walkAction = (file, params) -> {
             if (file.getmFileType() == FileType.FILE)
-                FileZipper.fileItemToFile((Blob) file, (String) params[0], ((String) params[1]));
+                FileItemHandler.fileItemToFile((Blob) file, (String) params[0], ((String) params[1]));
             else
-                FileZipper.fileItemToFile((Tree) file, (String) params[0], ((String) params[1]));
+                FileItemHandler.fileItemToFile((Tree) file, (String) params[0], ((String) params[1]));
             return 1;
         };
         fileItemWalk(wc, destinationPath, walkAction);
     }
 
-    public void zipWorkingCopyFromTreeWC(Tree wc) throws IOException, ParseException {
+    public void zipWorkingCopyFromTreeWC(Tree wc) throws IOException {
         WalkAction walkAction = (file, a) -> {
-            FileZipper.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+            FileHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
             return 1;
         };
         fileItemWalk(wc, mRepositoryDirectoryPath, walkAction);
@@ -100,8 +98,6 @@ public class WorkingCopyUtils {
                 aAction.action(fileItem, destinationPath, fileItem.getmName());
             }
             return;
-        } else {
-
         }
         if (fileItem.getmName() != null) {
             aAction.action(fileItem, destinationPath, fileItem.getmName());
@@ -225,8 +221,7 @@ public class WorkingCopyUtils {
             SortedSet<String> editedFiles = new TreeSet<>(newAndEditedFiles.stream()
                     .filter(a -> file2.stream()
                             .map(FileItem::getmName)
-                            .anyMatch(name -> name.equals(a)))
-                    .collect(Collectors.toList()));
+                            .anyMatch(name -> name.equals(a))).collect(Collectors.toList()));
             // Edited files
             SortedSet<String> newFiles = new TreeSet<>(CollectionUtils.subtract(newAndEditedFiles, editedFiles));
             //deleted Files
@@ -249,8 +244,7 @@ public class WorkingCopyUtils {
         if (oldWc == null) {
             oldWc = new Tree(FileType.FOLDER, "", new Date(), "", new TreeSet<>());
         }
-        map = diffwalk(newWc, oldWc, currentPath, map, actionInterface);
-        return map;
+        return diffwalk(newWc, oldWc, currentPath, map, actionInterface);
     }
 
 
@@ -284,7 +278,7 @@ public class WorkingCopyUtils {
 
     private static void findSameDirectories(String currentPath, MultiValuedMap<FileStatus, String> diffMap, WalkCompareAction<MultiValuedMap<FileStatus, String>> aAction, TreeSet<FileItem> tr1, TreeSet<FileItem> tr2, FileStatus fileStatus) throws IOException {
         for (FileItem tree : tr2) {
-            Boolean isNewFolder = true;
+            boolean isNewFolder = true;
             for (FileItem tree2 : tr1) {
                 if (tree2.getmName().equals(tree.getmName())) {
                     diffMap.putAll(diffwalk((Tree) tree, (Tree) tree2, currentPath, diffMap, aAction));
@@ -293,7 +287,6 @@ public class WorkingCopyUtils {
             }
             if (isNewFolder) {
                 addAllItemsFromNewFolders((Tree) tree, diffMap, currentPath, fileStatus);
-                isNewFolder = true;
             }
         }
     }
@@ -332,7 +325,7 @@ public class WorkingCopyUtils {
             }
         }
         for (FileItem tree : tr1) {
-            Boolean isNewFolder = true;
+            boolean isNewFolder = true;
             for (FileItem tree2 : tr2) {
                 if (tree2.getmName().equals(tree.getmName())) {
                     String updatater = tree.getmLastUpdater();
@@ -347,7 +340,6 @@ public class WorkingCopyUtils {
             }
             if (isNewFolder) {
                 wc.addFileItem(tree);
-                isNewFolder = true;
             }
         }
         return wc;
@@ -410,7 +402,7 @@ public class WorkingCopyUtils {
     public Sha1 zipWorkingCopyFromCurrentWorkingCopy() throws IOException, WorkingCopyIsEmptyException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         WalkAction action = (file, params) -> {
-            FileZipper.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+            FileHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
             return 1;
         };
         wcWalk(mRepositoryDirectoryPath, directoryFiles, action);
@@ -418,15 +410,14 @@ public class WorkingCopyUtils {
         if (wc.getmFiles().isEmpty()) {
             throw new WorkingCopyIsEmptyException();
         }
-        FileZipper.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+        FileHandler.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
         return wc.getSha1Code();
     }
 
     public Tree getWc() throws IOException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         wcWalk(mRepositoryDirectoryPath, directoryFiles, (file, params) -> 1);
-        Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
-        return wc;
+        return new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
     }
 
     private void wcWalk(String repositoryDirectoryPath, SortedSet<FileItem> directoryFiles, WalkAction wAction) throws IOException {
@@ -447,7 +438,7 @@ public class WorkingCopyUtils {
                     wAction.action(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 } else {
                     System.out.println("File:" + f.getAbsoluteFile());
-                    Blob blob = new Blob(f.getName(), FileReader.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
+                    Blob blob = new Blob(f.getName(), FileHandler.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
                     directoryFiles.add(blob);
                     wAction.action(blob, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 }
