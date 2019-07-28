@@ -6,7 +6,6 @@ import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommi
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileZipper;
 import com.magit.logic.utils.file.WorkingCopyUtils;
-import sun.awt.image.ImageWatched;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -37,6 +36,7 @@ public class Commit extends FileItem {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
+        super.mSha1Code = sha1Code;
         mCommitSha1Code = sha1Code;
         mWorkingCopySha1 = workingCopySha1;
         if (mWorkingCopySha1 != null) firstCommit = false;

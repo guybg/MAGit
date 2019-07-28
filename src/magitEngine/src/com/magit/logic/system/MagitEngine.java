@@ -12,6 +12,7 @@ import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileReader;
 import com.magit.logic.utils.file.FileWriter;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -22,7 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -132,7 +133,7 @@ public class MagitEngine {
             return false;
 
         FileWriter.writeNewFile(
-                Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName).toString(), "");
+                Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
         return true;
     }
 
@@ -177,7 +178,7 @@ public class MagitEngine {
         FileUtils.deleteQuietly(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
     }
 
-    public String pickHeadBranch(String wantedBranchName) throws FileNotFoundException, IOException, ParseException{
+    public String pickHeadBranch(String wantedBranchName) throws IOException, ParseException {
         if (Files.notExists(Paths.get(mActiveRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
             throw new FileNotFoundException("Branch doesn't exist");
 
@@ -199,6 +200,7 @@ public class MagitEngine {
             WorkingCopyUtils wcCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(), mUserName, branchLatestCommit.getCreationDate());
             wcCopyUtils.unzipWorkingCopyFromCommit(branchLatestCommit, mActiveRepository.getRepositoryPath().toString());
         }
+        mActiveBranch = mActiveRepository.getmBranches().get(wantedBranchName);
         return "Active branch has changed successfully";
     }
 
@@ -214,7 +216,7 @@ public class MagitEngine {
         commit.generate(mActiveRepository, mActiveBranch);
     }
 
-    public Map<FileStatus, ArrayList<String>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
+    public MultiValuedMap<FileStatus, String> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
         WorkingCopyUtils wcw = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 mUserName, new Date());
 
@@ -226,12 +228,12 @@ public class MagitEngine {
     }
 
     private boolean areThereChanges() throws ParseException, IOException {
-        Map<FileStatus, ArrayList<String>> changes = checkDifferenceBetweenCurrentWCandLastCommit();
+        MultiValuedMap<FileStatus, String> changes = checkDifferenceBetweenCurrentWCandLastCommit();
+        Map<FileStatus, Collection<String>> a = changes.asMap();
         final int changesWereMade = 0;
 
-        return  changes != null &&
-                changes.get(FileStatus.EDITED).size() != changesWereMade &&
-                changes.get(FileStatus.NEW).size() != changesWereMade &&
+        return changes.get(FileStatus.EDITED).size() != changesWereMade ||
+                changes.get(FileStatus.NEW).size() != changesWereMade ||
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
 
