@@ -24,7 +24,7 @@ public class Tree extends FileItem {
         super(mName, mFileType, mLastUpdater, mCommitDate, null);
         this.mName = mName;
         this.mFiles = mFiles;
-        this.mSha1Code = new Sha1(getFileContent(), false);
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public Tree(
@@ -73,10 +73,10 @@ public class Tree extends FileItem {
         return content;
     }
 
-    public String getMinimalFileContentForSha1() {
+    public String getMinimizedFileContentForSha1() {
         String content = "";
         for (FileItem item : mFiles) {
-            content += item.toString();
+            content += item.getMiniMizedFileDetailes();
             content += System.lineSeparator();
         }
         return content;

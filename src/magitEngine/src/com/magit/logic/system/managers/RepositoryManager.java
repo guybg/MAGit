@@ -9,7 +9,7 @@ import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommi
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
-import com.magit.logic.system.objects.Tree;
+import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.SortedSet;
 
 public class RepositoryManager {
     private Repository mActiveRepository;
@@ -102,6 +103,7 @@ public class RepositoryManager {
         activeBranch = repository.getmBranches().get("master");
     }
 
+
     public void commit(String commitMessage, String creator, Branch mActiveBranch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
         Commit commit = new Commit(commitMessage, creator, FileType.COMMIT, new Date());
         commit.generate(mActiveRepository, mActiveBranch);
@@ -111,11 +113,14 @@ public class RepositoryManager {
         WorkingCopyUtils wcw = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 mActiveRepository.getUpdaterName(), new Date());
 
-        Tree curWc = wcw.getWc();
+        SortedSet<Delta.DeltaFileItem> curWcDeltaFiles = wcw.getAllDeltaFilesFromCurrentWc();
         Commit lastCommit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
 
-        Tree wcOfLastCommitToCompare = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
-        return WorkingCopyUtils.getWorkingCopyStatus(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
+        SortedSet<Delta.DeltaFileItem> commitDeltaFiles = WorkingCopyUtils.getDeltaFileItemSetFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
+
+        SortedSet<String> strings = wcw.getNewItems(lastCommit);
+        return null;
+        //(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
     }
 
     public String getBranchesInfo() throws IOException {
