@@ -1,32 +1,14 @@
 package com.magit.logic.system;
 
-import com.magit.logic.enums.FileStatus;
-import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.Repository;
-import com.magit.logic.system.objects.Tree;
-import com.magit.logic.utils.digest.Sha1;
-import com.magit.logic.utils.file.FileHandler;
-import com.magit.logic.utils.file.WorkingCopyUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import java.io.File;
+import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 public class MagitEngine {
 
@@ -43,7 +25,10 @@ public class MagitEngine {
         mUserName = userNameToSet;
         mRepositoryManager.setUserName(userNameToSet);
     }
-    
+
+    public void readRepositoryDetailsFromXML(String path)throws JAXBException, FileNotFoundException {
+    }
+
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
         mRepositoryManager.switchRepository(pathOfRepository, mBranchManager);
     }
@@ -57,8 +42,7 @@ public class MagitEngine {
     }
 
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException,
-            WorkingCopyStatusNotChangedComparedToLastCommitException {
-        mRepositoryManager.commit(inputFromUser,
+            WorkingCopyStatusNotChangedComparedToLastCommitException { mRepositoryManager.commit(inputFromUser,
                 mRepositoryManager.getRepository().getUpdaterName(), mBranchManager.getActiveBranch());
     }
 
@@ -68,7 +52,7 @@ public class MagitEngine {
 
     public void createNewRepository(Path pathToFile) throws IOException {
         mRepositoryManager.createNewRepository(pathToFile.getFileName().toString(),
-                pathToFile.getParent().toString(), mBranchManager.getActiveBranch());
+                pathToFile.getParent().toString(), null);
     }
 
     public boolean createNewBranch(String branchName) throws IOException {

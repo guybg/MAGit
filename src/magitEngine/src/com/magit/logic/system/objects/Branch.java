@@ -27,7 +27,7 @@ public class Branch {
         return mPointedCommitSha1;
     }
 
-    public void create(String path) {
+    void create(String path) {
         try {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);
             File branch = new File(filePath.toString());
@@ -54,7 +54,7 @@ public class Branch {
         return mBranchName;
     }
 
-    public void setPointedCommitSha1(Sha1 mPointedCommitSha1) {
+    void setPointedCommitSha1(Sha1 mPointedCommitSha1) {
         this.mPointedCommitSha1 = mPointedCommitSha1;
     }
 }

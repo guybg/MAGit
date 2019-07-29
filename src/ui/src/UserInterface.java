@@ -1,6 +1,7 @@
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,18 +11,18 @@ import java.util.Scanner;
 
 public class UserInterface {
 
-    private final static String UpdateUserName = "Update User Name";
-    private final static String ReadRepositoryDetails = "Read Repository Details";
-    private final static String SwitchRepository = "Switch Repository";
-    private final static String PresentCurrentCommitAndHistory = "Present Current Commit and History";
-    private final static String ShowWorkingCopyStatus = "Show Working Copy Status";
+    private final static String UPDATE_USER_NAME = "Update User Name";
+    private final static String READ_REPOSITORY_DETAILS = "Read Repository Details";
+    private final static String SWITCH_REPOSITORY = "Switch Repository";
+    private final static String PRESENT_CURRENT_COMMIT_AND_HISTORY = "Present Current Commit and History";
+    private final static String SHOW_WORKING_COPY_STATUS = "Show Working Copy Status";
     private final static String Commit = "Commit";
-    private final static String PresentAllBranches = "Present All Branches";
-    private final static String CreateNewRepository = "Create New Repository";
-    private final static String CreateNewBranch = "Create New Branch";
-    private final static String DeleteBranch = "Delete Branch";
-    private final static String PickHeadBranch = "Checkout";
-    private final static String PresentCurrentBranchHisoty = "Present Current Branch History";
+    private final static String PRESENT_ALL_BRANCHES = "Present All Branches";
+    private final static String CREATE_NEW_REPOSITORY = "Create New Repository";
+    private final static String CREATE_NEW_BRANCH = "Create New Branch";
+    private final static String DELETE_BRANCH = "Delete Branch";
+    private final static String PICK_HEAD_BRANCH = "Checkout";
+    private final static String PRESENT_CURRENT_BRANCH_HISTORY = "Present Current Branch History";
     private final static String Exit = "Exit";
 
     public static void main(String[] args) throws IOException, ParseException {
@@ -52,23 +53,23 @@ public class UserInterface {
 
     private static void printMenu() {
         System.out.println("Menu:" + System.lineSeparator() +
-                "1." + UpdateUserName + System.lineSeparator() +
-                "2." + ReadRepositoryDetails + System.lineSeparator() +
-                "3." + SwitchRepository + System.lineSeparator() +
-                "4." + PresentCurrentCommitAndHistory + System.lineSeparator() +
-                "5." + ShowWorkingCopyStatus + System.lineSeparator() +
+                "1." + UPDATE_USER_NAME + System.lineSeparator() +
+                "2." + READ_REPOSITORY_DETAILS + System.lineSeparator() +
+                "3." + SWITCH_REPOSITORY + System.lineSeparator() +
+                "4." + PRESENT_CURRENT_COMMIT_AND_HISTORY + System.lineSeparator() +
+                "5." + SHOW_WORKING_COPY_STATUS + System.lineSeparator() +
                 "6." + Commit + System.lineSeparator() +
-                "7." + PresentAllBranches + System.lineSeparator() +
-                "8." + CreateNewRepository + System.lineSeparator() +
-                "9." + CreateNewBranch + System.lineSeparator() +
-                "10." + DeleteBranch + System.lineSeparator() +
-                "11." + PickHeadBranch + System.lineSeparator() +
-                "12." + PresentCurrentBranchHisoty + System.lineSeparator() +
-                "13." + Exit + System.lineSeparator());
+                "7." + PRESENT_ALL_BRANCHES + System.lineSeparator() +
+                "8." + CREATE_NEW_REPOSITORY + System.lineSeparator() +
+                "9." + CREATE_NEW_BRANCH + System.lineSeparator() +
+                "10." + DELETE_BRANCH + System.lineSeparator() +
+                "11." + PICK_HEAD_BRANCH + System.lineSeparator() +
+                "12." + PRESENT_CURRENT_BRANCH_HISTORY + System.lineSeparator() +
+                "13." + Exit);
     }
 
     private static void run(MagitEngine magitEngine) throws
-            IOException, RepositoryNotFoundException, ParseException, ActiveBranchDeletedExpcetion {
+            IOException, RepositoryNotFoundException, ParseException, ActiveBranchDeletedExpcetion, JAXBException {
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
@@ -87,7 +88,8 @@ public class UserInterface {
                     magitEngine.updateUserName(input.nextLine());
                     break;
                 case ReadRepositoryDetails:
-                    System.out.println("Please enter repository path:");
+                    System.out.println("Please enter xml file path:");
+                    magitEngine.readRepositoryDetailsFromXML(input.nextLine());
                     break;
                 case SwitchRepository:
                     switchRepository(magitEngine, input);

@@ -25,14 +25,15 @@ public class BranchManager {
     public Branch getActiveBranch() {
         return mActiveBranch;
     }
+    public void setActiveBranch(Branch branch) {
+        mActiveBranch = branch;
+    }
 
-    public void loadBranch(File branchFile) throws IOException {
+    void loadBranch(File branchFile) throws IOException {
         String headContent = FileHandler.readFile(branchFile.getPath());
         File headBranch = new File(Paths.get(branchFile.getParent(), headContent).toString());
         mActiveBranch = new Branch(headContent, FileHandler.readFile(headBranch.getPath()));
     }
-
-
 
     public boolean createNewBranch(String branchName, Repository repository)throws IOException {
         if (Files.exists(Paths.get(repository.toString(), branchName)))
