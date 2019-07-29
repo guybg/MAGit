@@ -3,6 +3,7 @@ package com.magit.logic.system.objects;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
+import com.magit.logic.system.XMLObjects.MagitSingleCommit;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
@@ -22,7 +23,6 @@ public class Commit extends FileItem {
     private Sha1 mWorkingCopySha1;
     private LinkedList<Sha1> mLastCommits;
     private String mCommitMessage;
-    private Sha1 mCommitSha1Code;
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate, null);
@@ -30,18 +30,31 @@ public class Commit extends FileItem {
         mLastCommits = new LinkedList<>();
     }
 
-    private Commit(String commitMessage, String creator,
-                   FileType fileType, Date mCommitDate, Sha1 sha1Code, Sha1 workingCopySha1) {
+    private Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate,
+                   Sha1 sha1Code, Sha1 workingCopySha1) {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
         super.mSha1Code = sha1Code;
-        mCommitSha1Code = sha1Code;
         mWorkingCopySha1 = workingCopySha1;
+    }
+
+    public Commit(MagitSingleCommit singleCommit) throws ParseException{
+        super(singleCommit);
+        this.mCommitMessage = singleCommit.getMessage();
+        this.mSha1Code = new Sha1(getFileContent(), false);
+    }
+
+    public void addPreceding(String contentToSha1) {
+        this.mLastCommits.add(new Sha1(contentToSha1, false));
     }
 
     private String getCreator() {
         return super.mLastUpdater;
+    }
+
+    public String getSha1() {
+        return super.mSha1Code.toString();
     }
 
     public LinkedList<Sha1> getLastCommitsSha1Codes() {
@@ -100,9 +113,10 @@ public class Commit extends FileItem {
                 mLastCommits.addAll(lastCommit.mLastCommits);
                 mLastCommits.add(lastCommit.getSha1Code());
                 workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
-                mCommitSha1Code = new Sha1(getFileContent(), false);
-                branch.setPointedCommitSha1(mCommitSha1Code);
-                FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+                super.mSha1Code = new Sha1(getFileContent(), false);
+                branch.setPointedCommitSha1(super.mSha1Code);
+                FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(),
+                        repository.getRepositoryName(), ".magit", "objects").toString(), super.mSha1Code);
                 repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
             } else {
                 throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
@@ -111,11 +125,13 @@ public class Commit extends FileItem {
     }
 
     private void generateFirstCommit(String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
-        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), creator, mLastModified);
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(),
+                repository.getRepositoryName()).toString(), creator, mLastModified);
         mWorkingCopySha1 = workingCopyUtils.zipWorkingCopyFromCurrentWorkingCopy();
-        mCommitSha1Code = new Sha1(getFileContent(), false);
-        branch.setPointedCommitSha1(mCommitSha1Code);
-        FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName(), ".magit", "objects").toString(), mCommitSha1Code);
+        super.mSha1Code = new Sha1(getFileContent(), false);
+        branch.setPointedCommitSha1(super.mSha1Code);
+        FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(),
+                repository.getRepositoryName(), ".magit", "objects").toString(), super.mSha1Code);
     }
 
     public String getFileContent() {
@@ -148,7 +164,7 @@ public class Commit extends FileItem {
     public String toPrintFormat() {
         StringBuilder contentOfCommit = new StringBuilder();
         String linePrefix = "Commit ";
-        contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "sha1", mCommitSha1Code.toString(), System.lineSeparator()));
+        contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "sha1", super.mSha1Code.toString(), System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "Message", mCommitMessage, System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "author", getCreator(), System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "date/time", getCreationDate().toString(), System.lineSeparator()));
@@ -158,7 +174,7 @@ public class Commit extends FileItem {
 
     @Override
     public Sha1 getSha1Code() {
-        return mCommitSha1Code;
+        return super.mSha1Code;
     }
 
     public Sha1 getmWorkingCopySha1() {

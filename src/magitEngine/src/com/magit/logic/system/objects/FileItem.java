@@ -1,8 +1,16 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.system.XMLObjects.MagitBlob;
+import com.magit.logic.system.XMLObjects.MagitSingleCommit;
+import com.magit.logic.system.XMLObjects.MagitSingleFolder;
 import com.magit.logic.utils.digest.Sha1;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Objects;
@@ -10,20 +18,39 @@ import java.util.Objects;
 public abstract class FileItem implements Comparator<FileItem>, Comparable<FileItem> {
     private String mName;
     private FileType mFileType;
-    protected String mLastUpdater;
-    protected Date mLastModified;
-    protected Sha1 mSha1Code;
+    String mLastUpdater;
+    Date mLastModified;
+    Sha1 mSha1Code;
 
-    public FileItem(String mName,
-                    FileType mFileType,
-                    String mLastUpdater,
-                    Date mLastModified,
-                    Sha1 sha1Code) {
+    FileItem(String mName, FileType mFileType, String mLastUpdater, Date mLastModified, Sha1 sha1Code) {
         this.mName = mName;
         this.mFileType = mFileType;
         this.mLastUpdater = mLastUpdater;
         this.mLastModified = mLastModified;
         this.mSha1Code = sha1Code;
+    }
+
+    FileItem(MagitBlob magitBlob) throws ParseException {
+        this.mName = magitBlob.getName();
+        this.mFileType = FileType.FILE;
+        this.mLastUpdater = magitBlob.getLastUpdater();
+        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        this.mLastModified = dateFormat.parse(magitBlob.getLastUpdateDate());
+    }
+
+    FileItem(MagitSingleFolder magitFolder) throws ParseException {
+        this.mName = magitFolder.getName();
+        this.mFileType = FileType.FOLDER;
+        this.mLastUpdater = magitFolder.getLastUpdater();
+        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        this.mLastModified = dateFormat.parse(magitFolder.getLastUpdateDate());
+    }
+
+    FileItem(MagitSingleCommit singleCommit) throws ParseException {
+        this.mLastUpdater = singleCommit.getAuthor();
+        this.mFileType = FileType.COMMIT;
+        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        this.mLastModified = dateFormat.parse(singleCommit.getDateOfCreation());
     }
 
     public abstract String getFileContent();

@@ -1,12 +1,15 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileStatus;
+import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
+import com.magit.logic.system.XMLObjects.*;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import org.apache.commons.collections4.MultiValuedMap;
 
+import javax.xml.bind.JAXBElement;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -15,9 +18,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Repository {
 
@@ -149,4 +150,5 @@ public class Repository {
                 changes.get(FileStatus.NEW).size() != changesWereMade ||
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
+
 }

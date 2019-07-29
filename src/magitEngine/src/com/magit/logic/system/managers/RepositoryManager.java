@@ -6,6 +6,8 @@ import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
+import com.magit.logic.system.XMLObjects.Item;
+import com.magit.logic.system.XMLObjects.MagitRepository;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -16,8 +18,12 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import java.io.File;
-import java.io.IOException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,17 +48,6 @@ public class RepositoryManager {
 
         Path repositoryPath = Paths.get(pathOfRepository);
         loadRepository(repositoryPath, branchManager);
-        if (mActiveRepository.getCommitPath() != null) {
-
-            Commit commitOfRepository = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
-            if (commitOfRepository == null)
-                return;
-
-            WorkingCopyUtils workingCopyHandler = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
-                    mActiveRepository.getUpdaterName(), commitOfRepository.getCreationDate());
-            workingCopyHandler.clearWorkingCopyFiles(mActiveRepository.getRepositoryPath());
-            workingCopyHandler.unzipWorkingCopyFromCommit(commitOfRepository, mActiveRepository.getRepositoryPath().toString());
-        }
     }
 
     private boolean isValidRepository(String repositoryPath) {
@@ -138,4 +133,6 @@ public class RepositoryManager {
 
         return branchesContent.toString();
     }
+
+
 }

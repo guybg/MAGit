@@ -1,44 +1,42 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.system.XMLObjects.MagitSingleFolder;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
-import java.util.SortedSet;
+import java.util.*;
 
 public class Tree extends FileItem {
-    private String mName;
     private SortedSet<FileItem> mFiles;
 
-    public Tree(FileType mFileType,
-                String mLastUpdater,
-                Date mCommitDate,
-                String mName,
-                SortedSet<FileItem> mFiles) {
+    public Tree(FileType mFileType, String mLastUpdater, Date mCommitDate, String mName, SortedSet<FileItem> mFiles) {
         super(mName, mFileType, mLastUpdater, mCommitDate, null);
-        this.mName = mName;
         this.mFiles = mFiles;
         this.mSha1Code = new Sha1(getFileContent(), false);
     }
 
-    public Tree(
-            String mName,
-            Sha1 sha1Code,
-            FileType mFileType,
-            String mLastUpdater,
-            Date mCommitDate,
-            SortedSet<FileItem> mFiles) {
+    public Tree(String mName, Sha1 sha1Code, FileType mFileType, String mLastUpdater, Date mCommitDate,
+                SortedSet<FileItem> mFiles) {
         super(mName, mFileType, mLastUpdater, mCommitDate, sha1Code);
-        this.mName = mName;
         this.mFiles = mFiles;
     }
 
+    public Tree(MagitSingleFolder magitFolder) throws ParseException {
+        super(magitFolder);
+        this.mFiles = new TreeSet<>();
+    }
+
+    public void add(FileItem fileToAdd) {
+        this.mFiles.add(fileToAdd);
+    }
+
+    public String getName() {
+        return super.getmName();
+    }
 
     public static ArrayList<String[]> treeItemsToStringArray(String treeItems) throws ParseException {
         ArrayList<String[]> files = new ArrayList<>();
@@ -89,7 +87,7 @@ public class Tree extends FileItem {
         if (!(o instanceof Tree)) return false;
         if (!super.equals(o)) return false;
         Tree tree = (Tree) o;
-        return Objects.equals(mName, tree.mName) &&
+        return Objects.equals(super.getmName(), tree.getName()) &&
                 CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
     }
 
@@ -105,7 +103,7 @@ public class Tree extends FileItem {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), mName);
+        return Objects.hash(super.hashCode(), super.getmName());
     }
 
     public int getNumberOfFiles() {

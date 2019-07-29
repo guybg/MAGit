@@ -1,9 +1,11 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.system.XMLObjects.MagitBlob;
 import com.magit.logic.utils.digest.Sha1;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
@@ -11,13 +13,15 @@ import java.util.Objects;
 public class Blob extends FileItem {
     private String mFileContent;
 
-    public Blob(String mName,
-                String mFileContent,
-                FileType mFileType,
-                String mLastUpdater,
-                Date mCommitDate) {
+    public Blob(String mName, String mFileContent, FileType mFileType, String mLastUpdater, Date mCommitDate) {
         super(mName, mFileType, mLastUpdater, mCommitDate, new Sha1(mFileContent, false));
         this.mFileContent = mFileContent;
+    }
+
+    public Blob(MagitBlob magitBlob) throws ParseException {
+        super(magitBlob);
+        this.mFileContent = magitBlob.getContent();
+        this.mSha1Code = new Sha1(mFileContent, false);
     }
 
     @Override
