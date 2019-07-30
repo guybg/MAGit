@@ -2,7 +2,8 @@ package com.magit.logic.utils.file;
 
 import org.apache.commons.io.FileUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
@@ -37,6 +38,6 @@ public class FileHandler {
 
     static void writeNewFolder(String destinationPath) {
         File file = new File(destinationPath);
-        file.mkdir();
+        file.mkdirs();
     }
 }

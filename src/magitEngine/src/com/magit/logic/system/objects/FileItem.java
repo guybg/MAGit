@@ -6,8 +6,6 @@ import com.magit.logic.system.XMLObjects.MagitSingleCommit;
 import com.magit.logic.system.XMLObjects.MagitSingleFolder;
 import com.magit.logic.utils.digest.Sha1;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,6 +59,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         fileItemContent.append(String.format(" --> %s%s", path, System.lineSeparator()));
         fileItemContent.append(String.format("%s%s", mSha1Code, System.lineSeparator()));
         fileItemContent.append(String.format("%s - %s%s", mName, mLastModified, System.lineSeparator()));
+        fileItemContent.append(String.format("Last modifier: %s%s", mLastUpdater, System.lineSeparator()));
         fileItemContent.append(String.format("==============================================%s", System.lineSeparator()));
 
         return fileItemContent.toString();

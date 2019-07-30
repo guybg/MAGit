@@ -4,9 +4,9 @@ public class WorkingCopyStatusNotChangedComparedToLastCommitException extends Ex
     public void WorkingCopyStatusNotChangedComparedToLastCommitException() {
 
     }
-
     @Override
     public String toString() {
         return "Couldn't generate a new commit due to the fact the working copy hasn't been changed compared to last commit";
     }
+
 }

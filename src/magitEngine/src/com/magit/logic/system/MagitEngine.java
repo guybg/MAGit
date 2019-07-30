@@ -23,52 +23,69 @@ public class MagitEngine {
 
     public void updateUserName(String userNameToSet) {
         mUserName = userNameToSet;
-        mRepositoryManager.setUserName(userNameToSet);
+        ////mRepositoryManager.setUserName(userNameToSet);
+
     }
 
+    private void repositoryNotFoundCheck() throws RepositoryNotFoundException {
+        if (mRepositoryManager.getRepository() == null)
+            throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
+    }
     public void readRepositoryDetailsFromXML(String path)throws JAXBException, FileNotFoundException {
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
-        mRepositoryManager.switchRepository(pathOfRepository, mBranchManager);
+        mRepositoryManager.switchRepository(pathOfRepository, mBranchManager, mUserName);
     }
 
-    public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException {
-        return mRepositoryManager.presentCurrentCommitAndHistory();
+    public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException {
+        repositoryNotFoundCheck();
+        return mRepositoryManager.presentCurrentCommitAndHistory(mUserName);
     }
 
-    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
+    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
         mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit();
     }
 
-    public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException,
-            WorkingCopyStatusNotChangedComparedToLastCommitException { mRepositoryManager.commit(inputFromUser,
-                mRepositoryManager.getRepository().getUpdaterName(), mBranchManager.getActiveBranch());
+    public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
+            WorkingCopyStatusNotChangedComparedToLastCommitException {
+        repositoryNotFoundCheck();
+        mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
     }
 
-    public String getBranchesInfo()throws IOException {
+    public String getBranchesInfo() throws IOException, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
         return mRepositoryManager.getBranchesInfo();
     }
 
     public void createNewRepository(Path pathToFile) throws IOException {
-        mRepositoryManager.createNewRepository(pathToFile.getFileName().toString(),
-                pathToFile.getParent().toString(), null);
+        try {
+            mRepositoryManager.createNewRepository(pathToFile.getFileName().toString(),
+                    pathToFile.getParent().toString(), mBranchManager, mUserName);
+        } catch (NullPointerException e) {
+            throw new IllegalPathException(pathToFile.toString(), "isn't a legal path");
+        }
     }
 
-    public boolean createNewBranch(String branchName) throws IOException {
+    public boolean createNewBranch(String branchName) throws IOException, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
         return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
     }
 
-    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion {
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
-    public String pickHeadBranch(String branchName) throws IOException, ParseException {
+    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
         return mBranchManager.pickHeadBranch(branchName,
                 mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit());
     }
 
-    public String presentCurrentBranch() throws IOException, ParseException{
+    public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
     }
 }

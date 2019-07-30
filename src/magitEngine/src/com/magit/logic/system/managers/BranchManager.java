@@ -5,10 +5,10 @@ import com.magit.logic.exceptions.ActiveBranchDeletedExpcetion;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
-import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.Map;
+import java.util.SortedSet;
 
 public class BranchManager {
     private Branch mActiveBranch;
@@ -39,6 +41,7 @@ public class BranchManager {
         if (Files.exists(Paths.get(repository.toString(), branchName)))
             return false;
 
+        repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getmPointedCommitSha1().toString()));
         FileHandler.writeNewFile( Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
         return true;
     }
@@ -85,16 +88,17 @@ public class BranchManager {
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,
-                                 MultiValuedMap<FileStatus, String> changes) throws IOException, ParseException {
+                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException {
         if (Files.notExists(Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
             throw new FileNotFoundException("Branch doesn't exist");
-
-        if (activeRepository.areThereChanges(changes))
-            return "There are unsaved changes, branch can't be switched.";
 
         String headFileContent = FileHandler.readFile(activeRepository.getHeadPath().toString());
         if (headFileContent.equals(wantedBranchName))
             return "Wanted branch is already active.";
+
+        if (activeRepository.areThereChanges(changes))
+            return "There are unsaved changes, branch can't be switched.";
+
 
         FileHandler.writeNewFile(activeRepository.getHeadPath().toString(), wantedBranchName);
         String wantedBranchSha1 = FileHandler.readFile(
@@ -104,9 +108,9 @@ public class BranchManager {
         FileHandler.clearFolder(activeRepository.getRepositoryPath());
 
         if (branchLatestCommit != null) {
-            WorkingCopyUtils wcCopyUtils = new WorkingCopyUtils(activeRepository.getRepositoryPath().toString(),
-                    activeRepository.getUpdaterName(), branchLatestCommit.getCreationDate());
-            wcCopyUtils.unzipWorkingCopyFromCommit(branchLatestCommit, activeRepository.getRepositoryPath().toString());
+            WorkingCopyUtils.unzipWorkingCopyFromCommit(branchLatestCommit,
+                    activeRepository.getRepositoryPath().toString(),
+                    activeRepository.getRepositoryPath().toString());
         }
         mActiveBranch = activeRepository.getmBranches().get(wantedBranchName);
         return "Active branch has changed successfully";

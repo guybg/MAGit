@@ -1,15 +1,12 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileStatus;
-import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
-import com.magit.logic.system.XMLObjects.*;
+import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
-import org.apache.commons.collections4.MultiValuedMap;
 
-import javax.xml.bind.JAXBElement;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
@@ -18,12 +15,14 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedSet;
 
 public class Repository {
 
     private final String BRANCHES = "branches";
-    private String mCurrentUpdater;
+    private String mActiveUser;
     private String mRepositoryName;
     private String mRepositoryParentFolderLocation;
     private HashMap<String, Branch> mBranches;
@@ -31,26 +30,27 @@ public class Repository {
     private Path pathToMagit;
     private Path pathToHead;
 
-    public Repository(String mRepositoryName, String mRepositoryLocation) {
+    public Repository(String mRepositoryName, String mRepositoryLocation, String mUserName) {
         this.mRepositoryName = mRepositoryName;
         this.mRepositoryParentFolderLocation = mRepositoryLocation;
         this.mBranches = new HashMap<>();
         this.pathToRepository = Paths.get(mRepositoryParentFolderLocation , mRepositoryName);
         this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
         this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
+        this.mActiveUser = mUserName;
     }
 
-    public void add(String key, Branch value) {
+    public void addBranch(String key, Branch value) {
         this.mBranches.put(key, value);
     }
 
-    public void setUpdaterName(String name) {
-        mCurrentUpdater = name;
+    public void setActiveUserName(String name) {
+        mActiveUser = name;
     }
 
-    public String getUpdaterName(){
-        return mCurrentUpdater;
-    }
+    // public String getActiveUserName(){
+    //     return mActiveUser;
+    //}
 
     private Path getBranchPath(String branchName) {
         return Paths.get(pathToMagit.toString(), BRANCHES, branchName);
@@ -142,12 +142,11 @@ public class Repository {
         FileHandler.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
     }
 
-    public boolean areThereChanges(MultiValuedMap<FileStatus, String> changes) throws ParseException, IOException {
-        Map<FileStatus, Collection<String>> a = changes.asMap();
+    public boolean areThereChanges(Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws ParseException, IOException {
         final int changesWereMade = 0;
 
-        return changes.get(FileStatus.EDITED).size() != changesWereMade ||
-                changes.get(FileStatus.NEW).size() != changesWereMade ||
+        return changes.get(FileStatus.NEW).size() != changesWereMade ||
+                changes.get(FileStatus.EDITED).size() != changesWereMade ||
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
 

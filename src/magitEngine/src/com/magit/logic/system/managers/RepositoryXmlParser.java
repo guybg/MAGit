@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public class RepositoryXmlParser {
 
-    public static Repository parseXMLToRepository(String xmlPath, BranchManager branchManager)
+    public static Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser)
      throws JAXBException, FileNotFoundException, ParseException {
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
 
@@ -28,14 +28,14 @@ public class RepositoryXmlParser {
         JAXBElement<MagitRepository> repositoryJAXBElement =
                 unmarshaller.unmarshal(new StreamSource(xmlStream), MagitRepository.class);
 
-        return createRepositoryFromXML(repositoryJAXBElement, branchManager);
+        return createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser);
     }
 
-    private static Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager)
+    private static Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
             throws ParseException {
         MagitRepository magitRepository = jaxbElement.getValue();
 
-        Repository repository = new Repository(magitRepository.getName(), magitRepository.getLocation());
+        Repository repository = new Repository(magitRepository.getName(), magitRepository.getLocation(), activeUser);
         HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
         HashMap<String, Tree> folderMap = createFolderMap(magitRepository);
         insertFileItemsToTrees(magitRepository, folderMap, blobMap);
@@ -100,12 +100,12 @@ public class RepositoryXmlParser {
             if (branch.getName().equals(headBranchName)) {
                 Branch headBranch = new Branch(branch.getName(), branchContent.toString());
                 branchManager.setActiveBranch(headBranch);
-                repository.add(headBranch.getmBranchName(), headBranch);
+                repository.addBranch(headBranch.getmBranchName(), headBranch);
             }
             else {
                 Branch branchToAdd = new Branch(branch.getName(),
                         new Sha1(commits.get(indexOfCommit).toString(), true).toString());
-                repository.add(branchToAdd.getmBranchName(), branchToAdd);
+                repository.addBranch(branchToAdd.getmBranchName(), branchToAdd);
             }
         }
     }

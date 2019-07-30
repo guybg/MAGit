@@ -1,69 +1,82 @@
 package com.magit.logic.utils.compare;
 
+import com.magit.logic.enums.FileStatus;
+import com.magit.logic.enums.FileType;
 import com.magit.logic.system.interfaces.DeltaAction;
 import com.magit.logic.system.objects.FileItem;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.nio.file.Paths;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Delta {
-    public static SortedSet<DeltaFileItem> getUnchangedItems(SortedSet<DeltaFileItem> firstItems, SortedSet<DeltaFileItem> secondItems) {
-        DeltaAction<SortedSet<DeltaFileItem>> deltaAction = new DeltaAction<SortedSet<DeltaFileItem>>() {
-            @Override
-            public SortedSet<DeltaFileItem> execute(SortedSet<DeltaFileItem> firstItem, SortedSet<DeltaFileItem> secondItem) {
-                return new TreeSet<>(firstItem.stream()
-                        .filter(deltaItem -> secondItem
-                                .stream()
-                                .map(DeltaFileItem::getPathAndSha1)
-                                .anyMatch(secondPathAndSha1 -> secondPathAndSha1.equals(deltaItem.getPathAndSha1())))
-                        .collect(Collectors.toSet()));
-            }
-        };
+    public static SortedSet<DeltaFileItem> getUnchangedFiles(SortedSet<DeltaFileItem> firstItems,
+                                                             SortedSet<DeltaFileItem> secondItems) {
+        DeltaAction<SortedSet<DeltaFileItem>> deltaAction = (firstItem, secondItem) -> new TreeSet<>(firstItem.stream()
+                .filter(deltaItem -> secondItem
+                        .stream()
+                        .map(DeltaFileItem::getPathAndSha1)
+                        .anyMatch(secondPathAndSha1 -> secondPathAndSha1.equals(deltaItem.getPathAndSha1()))
+                        && deltaItem.mFileItem.getmFileType().equals(FileType.FILE))
+                .collect(Collectors.toSet()));
         return deltaAction.execute(firstItems, secondItems);
     }
 
-    private static SortedSet<DeltaFileItem> getNewOrEditedItems(SortedSet<DeltaFileItem> firstItems, SortedSet<DeltaFileItem> secondItems) {
-        DeltaAction<SortedSet<DeltaFileItem>> deltaAction = new DeltaAction<SortedSet<DeltaFileItem>>() {
-            @Override
-            public SortedSet<DeltaFileItem> execute(SortedSet<DeltaFileItem> firstItem, SortedSet<DeltaFileItem> secondItem) {
-                return new TreeSet<>(firstItem.stream()
-                        .filter(deltaItem -> secondItem
-                                .stream()
-                                .map(DeltaFileItem::getPathAndSha1)
-                                .noneMatch(secondPathAndSha1 -> secondPathAndSha1.equals(deltaItem.getPathAndSha1())))
-                        .collect(Collectors.toSet()));
-            }
-        };
+    private static SortedSet<DeltaFileItem> getNewOrEditedFiles(SortedSet<DeltaFileItem> firstItems,
+                                                                SortedSet<DeltaFileItem> secondItems) {
+        DeltaAction<SortedSet<DeltaFileItem>> deltaAction = (firstItem, secondItem) -> new TreeSet<>(firstItem.stream()
+                .filter(deltaItem -> secondItem
+                        .stream()
+                        .map(DeltaFileItem::getPathAndSha1)
+                        .noneMatch(secondPathAndSha1 -> secondPathAndSha1.equals(deltaItem.getPathAndSha1())))
+                .collect(Collectors.toSet()));
         return deltaAction.execute(firstItems, secondItems);
     }
 
-    public static SortedSet<DeltaFileItem> getNewItems(SortedSet<DeltaFileItem> firstItems, SortedSet<DeltaFileItem> secondItems) {
-        return new TreeSet<>(getNewOrEditedItems(firstItems, secondItems)
+    public static SortedSet<DeltaFileItem> getNewFiles(SortedSet<DeltaFileItem> firstItems,
+                                                       SortedSet<DeltaFileItem> secondItems) {
+        return new TreeSet<>(getNewOrEditedFiles(firstItems, secondItems)
                 .stream()
                 .filter(item -> secondItems
                         .stream()
                         .map(DeltaFileItem::getFullPath)
-                        .noneMatch(secondItem -> item.equals(secondItem))).collect(Collectors.toSet()));
+                        .noneMatch(secondItem -> item.getFullPath().equals(secondItem))
+                        && item.mFileItem.getmFileType().equals(FileType.FILE))
+                .collect(Collectors.toSet()));
     }
 
-    public static SortedSet<DeltaFileItem> getEditedItems(SortedSet<DeltaFileItem> firstItems, SortedSet<DeltaFileItem> secondItems) {
-        return new TreeSet<>(getNewOrEditedItems(firstItems, secondItems)
+    public static SortedSet<DeltaFileItem> getEditedFiles(SortedSet<DeltaFileItem> firstItems,
+                                                          SortedSet<DeltaFileItem> secondItems) {
+        return new TreeSet<>(
+                CollectionUtils
+                        .intersection(getNewOrEditedFiles(firstItems, secondItems)
                 .stream()
-                .filter(item -> secondItems
+                                .filter(item -> item.mFileItem.getmFileType().equals(FileType.FILE))
+                                .collect(Collectors.toSet()), secondItems));
+    }
+
+    public static SortedSet<DeltaFileItem> getDeletedFiles(SortedSet<DeltaFileItem> firstItems,
+                                                           SortedSet<DeltaFileItem> secondItems) {
+        return new TreeSet<>(
+                CollectionUtils.subtract(secondItems
                         .stream()
-                        .map(DeltaFileItem::getFullPath)
-                        .anyMatch(secondItem -> item.equals(secondItem))).collect(Collectors.toSet()));
+                        .filter(item -> item.mFileItem.getmFileType().equals(FileType.FILE))
+                        .collect(Collectors.toSet()), firstItems));
     }
 
-    public static SortedSet<DeltaFileItem> getDeletedItems(SortedSet<DeltaFileItem> firstItems, SortedSet<DeltaFileItem> secondItems) {
-        return new TreeSet<>(CollectionUtils.subtract(secondItems, getNewOrEditedItems(firstItems, secondItems)));
+    public static Map<FileStatus, SortedSet<DeltaFileItem>> getDifferences(SortedSet<DeltaFileItem> firstItems,
+                                                                           SortedSet<DeltaFileItem> secondItems) {
+        Map<FileStatus, SortedSet<DeltaFileItem>> differences = new TreeMap<>();
+        differences.put(FileStatus.NEW, getNewFiles(firstItems, secondItems));
+        differences.put(FileStatus.REMOVED, getDeletedFiles(firstItems, secondItems));
+        differences.put(FileStatus.EDITED, getEditedFiles(firstItems, secondItems));
+        return differences;
     }
 
 
-    public static class DeltaFileItem implements Comparable<DeltaFileItem> {
+    public static class DeltaFileItem implements Comparable<DeltaFileItem>,
+            Comparator<DeltaFileItem> {
         private FileItem mFileItem;
         private String mFilePath;
 
@@ -83,6 +96,24 @@ public class Delta {
         @Override
         public int compareTo(DeltaFileItem o) {
             return mFilePath.compareTo(o.mFilePath);
+        }
+
+        @Override
+        public int compare(DeltaFileItem o1, DeltaFileItem o2) {
+            return o1.compareTo(o2);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof DeltaFileItem)) return false;
+            DeltaFileItem that = (DeltaFileItem) o;
+            return Objects.equals(mFilePath, that.mFilePath);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mFilePath);
         }
     }
 

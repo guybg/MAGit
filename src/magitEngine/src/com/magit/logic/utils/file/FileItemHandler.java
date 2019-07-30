@@ -7,9 +7,13 @@ import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.zip.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 public class FileItemHandler {
 
@@ -26,6 +30,7 @@ public class FileItemHandler {
     }
 
     static void zip(FileItem fileItem, String destinationPath) throws IOException {
+        FileHandler.writeNewFolder(Paths.get(destinationPath).toString());
         FileOutputStream fos = new FileOutputStream(Paths.get(destinationPath, fileItem.getSha1Code().toString()).toString());
         GZIPOutputStream gzos = new GZIPOutputStream(fos);
         gzos.write(fileItem.getFileContent().getBytes());
@@ -33,6 +38,7 @@ public class FileItemHandler {
     }
 
     public static void zip(Commit commit, String destinationPath, Sha1 sha1) throws IOException {
+        FileHandler.writeNewFolder(Paths.get(destinationPath).toString());
         FileOutputStream fos = new FileOutputStream(Paths.get(destinationPath, sha1.toString()).toString());
         GZIPOutputStream gzos = new GZIPOutputStream(fos);
         gzos.write(commit.getFileContent().getBytes());

@@ -49,12 +49,12 @@ public class Tree extends FileItem {
 
     public void addFileItem(FileItem fileItem) {
         mFiles.add(fileItem);
-        this.mSha1Code = new Sha1(getFileContent(), false);
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public void setmFiles(SortedSet<FileItem> mFiles) {
         this.mFiles = mFiles;
-        this.mSha1Code = new Sha1(getFileContent(), false);
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public SortedSet<FileItem> listFiles() {

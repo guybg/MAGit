@@ -2,53 +2,42 @@ package com.magit.logic.system.managers;
 
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
-import com.magit.logic.exceptions.IllegalPathException;
-import com.magit.logic.exceptions.RepositoryNotFoundException;
-import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
-import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
-import com.magit.logic.system.XMLObjects.Item;
-import com.magit.logic.system.XMLObjects.MagitRepository;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
-import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.List;
-import java.util.SortedSet;
+import java.util.*;
 
 public class RepositoryManager {
     private Repository mActiveRepository;
 
     public void setUserName(String userName) {
-        mActiveRepository.setUpdaterName(userName);
+        mActiveRepository.setActiveUserName(userName);
     }
 
+    ////public String getActiveUserName(){return mActiveRepository.getActiveUserName();}
     public Repository getRepository() {
         return mActiveRepository;
     }
 
-    public void switchRepository(String pathOfRepository, BranchManager branchManager) throws RepositoryNotFoundException, IOException, ParseException {
+    public void switchRepository(String pathOfRepository, BranchManager branchManager, String userName) throws RepositoryNotFoundException, IOException, ParseException {
         if (!isValidRepository(pathOfRepository))
             throw new RepositoryNotFoundException("repository Not Found");
 
         Path repositoryPath = Paths.get(pathOfRepository);
-        loadRepository(repositoryPath, branchManager);
+        loadRepository(repositoryPath, branchManager, userName);
     }
 
     private boolean isValidRepository(String repositoryPath) {
@@ -59,43 +48,42 @@ public class RepositoryManager {
                 Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD"));
     }
 
-    private void loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
+    private void loadRepository(Path repositoryPath, BranchManager branchManager, String userName) throws IOException {
         mActiveRepository = new Repository(repositoryPath.getFileName().toString()
-                , repositoryPath.getParent().toString());
+                , repositoryPath.getParent().toString(), userName);
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
         for (File branchFile : branchesFiles) {
             if (!branchFile.getName().equals("HEAD"))
-                mActiveRepository.add(branchFile.getName()
+                mActiveRepository.addBranch(branchFile.getName()
                         , new Branch(branchFile.getName(), FileHandler.readFile(branchFile.getPath())));
             else {
                 branchManager.loadBranch(branchFile);
-                mActiveRepository.add(branchFile.getName(), branchManager.getActiveBranch());
+                mActiveRepository.addBranch(branchFile.getName(), branchManager.getActiveBranch());
             }
         }
     }
 
 
-    public String presentCurrentCommitAndHistory() throws RepositoryNotFoundException, IOException, ParseException {
+    public String presentCurrentCommitAndHistory(String userName)
+            throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException {
         if (!mActiveRepository.isValid())
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
-
         Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
         if (commit == null)
-            return null;
+            throw new CommitNotFoundException("Theres no commit history to show, please add some files and commit them");
 
-        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils
-                (mActiveRepository.getRepositoryPath().toString(), mActiveRepository.getUpdaterName(), commit.getCreationDate());
-        return workingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()));
+        return WorkingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getmLastUpdater());
     }
 
-    public void createNewRepository(String repositoryName, String fullPath, Branch activeBranch) throws IllegalPathException, IOException {
-        Repository repository = new Repository(repositoryName, fullPath);
+    public void createNewRepository(String repositoryName, String fullPath, BranchManager branchManager, String userName) throws IllegalPathException, IOException {
+        Repository repository = new Repository(repositoryName, fullPath, userName);
         repository.create();
         mActiveRepository = repository;
-        activeBranch = repository.getmBranches().get("master");
+        repository.setActiveUserName(userName);
+        branchManager.setActiveBranch(repository.getmBranches().get("master"));
     }
 
 
@@ -104,18 +92,16 @@ public class RepositoryManager {
         commit.generate(mActiveRepository, mActiveBranch);
     }
 
-    public MultiValuedMap<FileStatus, String> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
-        WorkingCopyUtils wcw = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
-                mActiveRepository.getUpdaterName(), new Date());
-
-        SortedSet<Delta.DeltaFileItem> curWcDeltaFiles = wcw.getAllDeltaFilesFromCurrentWc();
+    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
+                "", new Date());
+        SortedSet<Delta.DeltaFileItem> curWcDeltaFiles;
+        SortedSet<Delta.DeltaFileItem> commitDeltaFiles;
+        curWcDeltaFiles = workingCopyUtils.getAllDeltaFilesFromCurrentWc();
         Commit lastCommit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
-
-        SortedSet<Delta.DeltaFileItem> commitDeltaFiles = WorkingCopyUtils.getDeltaFileItemSetFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
-
-        SortedSet<String> strings = wcw.getNewItems(lastCommit);
-        return null;
-        //(curWc, wcOfLastCommitToCompare, mActiveRepository.getRepositoryPath().toString());
+        commitDeltaFiles = WorkingCopyUtils.getDeltaFileItemSetFromCommit(lastCommit, mActiveRepository.getRepositoryPath().toString());
+        if (commitDeltaFiles == null) commitDeltaFiles = new TreeSet<>();
+        return WorkingCopyUtils.getDifferencesBetweenCurrentWcAndLastCommit(curWcDeltaFiles, commitDeltaFiles);
     }
 
     public String getBranchesInfo() throws IOException {
