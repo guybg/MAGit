@@ -109,7 +109,7 @@ public class UserInterface {
                     break;
                 case ShowWorkingCopyStatus:
                     try {
-                        magitEngine.checkDifferenceBetweenCurrentWCandLastCommit();
+                        System.out.println(magitEngine.getWorkingCopyStatus());
                     } catch (RepositoryNotFoundException e) {
                         System.out.println(e.getMessage());
                     }

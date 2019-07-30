@@ -5,7 +5,6 @@ import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
 import com.magit.logic.system.XMLObjects.MagitSingleCommit;
 import com.magit.logic.utils.digest.Sha1;
-import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
@@ -55,6 +54,10 @@ public class Commit extends FileItem {
 
     public String getSha1() {
         return super.mSha1Code.toString();
+    }
+
+    public String getCommitMessage() {
+        return mCommitMessage;
     }
 
     public LinkedList<Sha1> getLastCommitsSha1Codes() {

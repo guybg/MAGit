@@ -54,7 +54,7 @@ public class MagitEngine {
         mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
     }
 
-    public String getBranchesInfo() throws IOException, RepositoryNotFoundException {
+    public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getBranchesInfo();
     }
@@ -87,6 +87,11 @@ public class MagitEngine {
     public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException {
         repositoryNotFoundCheck();
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
+    }
+
+    public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException {
+        repositoryNotFoundCheck();
+        return mRepositoryManager.getWorkingCopyStatus(mUserName);
     }
 }
 

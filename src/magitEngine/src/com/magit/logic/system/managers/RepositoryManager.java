@@ -104,25 +104,60 @@ public class RepositoryManager {
         return WorkingCopyUtils.getDifferencesBetweenCurrentWcAndLastCommit(curWcDeltaFiles, commitDeltaFiles);
     }
 
-    public String getBranchesInfo() throws IOException {
+    public String getBranchesInfo() throws IOException, ParseException {
         final String seperator = "============================================";
         StringBuilder branchesContent = new StringBuilder();
-
-        branchesContent.append(String.format("Head Branch : %s%s%s%s",
-                FileHandler.readFile(mActiveRepository.getHeadPath().toString()),System.lineSeparator(),
-                seperator, System.lineSeparator()));
+        String headBranch = FileHandler.readFile(mActiveRepository.getHeadPath().toString());
         File branchesDirectory = new File(mActiveRepository.getBranchDirectoryPath().toString());
         File[] files = branchesDirectory.listFiles();
         if (files == null)
             return null;
 
-        for (File branchFile: files) {
-            if (!branchFile.getName().equals("HEAD"))
-                branchesContent.append(String.format("%s, sha1: %s%s",
-                        branchFile.getName(), FileHandler.readFile(branchFile.getPath()),System.lineSeparator()));
-        }
 
+        for (File branchFile: files) {
+            String commitSha1 = FileHandler.readFile(branchFile.getPath());
+            String commitMessage = "none";
+            if (!branchFile.getName().equals("HEAD")) {
+                Commit commit = Commit.createCommitInstanceByPath(Paths.get(mActiveRepository.getObjectsFolderPath().toString(), commitSha1));
+                if (commit != null) {
+                    commitMessage = commit.getCommitMessage();
+                }
+                branchesContent.append(String.format("Branch name: %s%s%s", branchFile.getName().equals(headBranch) ? "[HEAD] " : "", branchFile.getName(), System.lineSeparator()));
+                branchesContent.append(String.format("Commit Sha1: %s%s", commitSha1, System.lineSeparator()));
+                branchesContent.append(String.format("Commit Message: %s%s", commitMessage, System.lineSeparator()));
+                branchesContent.append(String.format("%s%s", seperator, System.lineSeparator()));
+            }
+        }
         return branchesContent.toString();
+    }
+
+    public String getWorkingCopyStatus(String userName) throws IOException, ParseException {
+        final String seperator = "============================================";
+        StringBuilder workingCopyStatusContent = new StringBuilder();
+        workingCopyStatusContent.append(String.format("Repository name: %s%s", mActiveRepository.getRepositoryName(), System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("Repository location: %s%s", mActiveRepository.getRepositoryPath(), System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("Active repository: %s%s", userName, System.lineSeparator()));
+
+        Map<FileStatus, SortedSet<Delta.DeltaFileItem>> differences = checkDifferenceBetweenCurrentWCandLastCommit();
+        workingCopyStatusContent.append(String.format("New Items: %s", System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("==========%s", System.lineSeparator()));
+        for (Delta.DeltaFileItem item : differences.get(FileStatus.NEW)) {
+            workingCopyStatusContent.append(String.format("%s%s", item.getFullPath(), System.lineSeparator()));
+        }
+        workingCopyStatusContent.append(String.format("%s", System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("Edited Items: %s", System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("==========%s", System.lineSeparator()));
+        for (Delta.DeltaFileItem item : differences.get(FileStatus.EDITED)) {
+            workingCopyStatusContent.append(String.format("%s%s", item.getFullPath(), System.lineSeparator()));
+        }
+        workingCopyStatusContent.append(String.format("%s", System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("Deleted Items: %s", System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("==========%s", System.lineSeparator()));
+        for (Delta.DeltaFileItem item : differences.get(FileStatus.REMOVED)) {
+            workingCopyStatusContent.append(String.format("%s%s", item.getFullPath(), System.lineSeparator()));
+        }
+        workingCopyStatusContent.append(String.format("%s", System.lineSeparator()));
+        return workingCopyStatusContent.toString();
     }
 
 
