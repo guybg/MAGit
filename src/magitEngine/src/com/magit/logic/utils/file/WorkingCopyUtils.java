@@ -294,14 +294,14 @@ public class WorkingCopyUtils {
                     if (Objects.requireNonNull(f.listFiles()).length == 0) continue;
                     SortedSet<FileItem> dirFiles = new TreeSet<>();
                     wcWalk(f.getAbsolutePath(), set, dirFiles, wAction);
-                    System.out.println("Dir:" + f.getAbsoluteFile());
+                    //System.out.println("Dir:" + f.getAbsoluteFile());
 
                     Tree tree = new Tree(FileType.FOLDER, mUserName, mCommitDate, f.getName(), dirFiles);
                     //directoryFiles.add(tree);
                     wAction.onAddAction(set, directoryFiles, tree, f.getAbsolutePath());
                     wAction.onWalkAction(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 } else {
-                    System.out.println("File:" + f.getAbsoluteFile());
+                    //System.out.println("File:" + f.getAbsoluteFile());
                     Blob blob = new Blob(f.getName(), FileHandler.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
                     //directoryFiles.add(blob);
                     wAction.onAddAction(set, directoryFiles, blob, f.getAbsolutePath());

@@ -161,12 +161,7 @@ public class UserInterface {
                     }
                     break;
                 case PickHeadBranch:
-                    System.out.println("Please enter branch name:");
-                    try {
-                        System.out.println(magitEngine.pickHeadBranch(input.nextLine()));
-                    } catch (RepositoryNotFoundException e) {
-                        System.out.println(e.getMessage());
-                    }
+                    switchBranch(magitEngine, input);
                     break;
                 case PresentCurrentBranchHistory:
                     try {
@@ -202,6 +197,25 @@ public class UserInterface {
 
     }
 
+    private static void switchBranch(MagitEngine magitEngine, Scanner input) throws IOException, ParseException {
+        System.out.println("Please enter branch name:");
+        String branchName = "";
+        try {
+            branchName = input.nextLine();
+            System.out.println(magitEngine.pickHeadBranch(branchName));
+        } catch (RepositoryNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (BranchNotFoundException e) {
+            System.out.println(e.getMessage());
+        } catch (UncommitedChangesException e) {
+            System.out.println(e.getMessage());
+            System.out.println("Press Y/y to create one, any other button to cancel operation.");
+            String answer = input.nextLine();
+            if (answer.equals("Y") || answer.equals("y")) {
+                magitEngine.forcedChangeBranch(branchName);
+            }
+        }
+    }
     private enum MenuOptions {
         UpdateUserName,
         ReadRepositoryDetails,

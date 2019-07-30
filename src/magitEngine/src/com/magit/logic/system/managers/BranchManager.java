@@ -2,6 +2,8 @@ package com.magit.logic.system.managers;
 
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.ActiveBranchDeletedExpcetion;
+import com.magit.logic.exceptions.BranchNotFoundException;
+import com.magit.logic.exceptions.UncommitedChangesException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -27,6 +29,7 @@ public class BranchManager {
     public Branch getActiveBranch() {
         return mActiveBranch;
     }
+
     public void setActiveBranch(Branch branch) {
         mActiveBranch = branch;
     }
@@ -37,16 +40,16 @@ public class BranchManager {
         mActiveBranch = new Branch(headContent, FileHandler.readFile(headBranch.getPath()));
     }
 
-    public boolean createNewBranch(String branchName, Repository repository)throws IOException {
+    public boolean createNewBranch(String branchName, Repository repository) throws IOException {
         if (Files.exists(Paths.get(repository.toString(), branchName)))
             return false;
 
         repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getmPointedCommitSha1().toString()));
-        FileHandler.writeNewFile( Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
+        FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
         return true;
     }
 
-    public String presentCurrentBranch(Repository activeRepository) throws  IOException, ParseException {
+    public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException {
         Path pathToBranchFile = Paths.get(activeRepository.getBranchDirectoryPath().toString(),
                 mActiveBranch.getmBranchName());
         if (Files.notExists(pathToBranchFile))
@@ -59,7 +62,7 @@ public class BranchManager {
         final String seperator = "===================================================";
         StringBuilder activeBranchHistory = new StringBuilder();
         activeBranchHistory.append(String.format("Branch Name: %s%s%s%s%s%s"
-                , mActiveBranch.getmBranchName(), System.lineSeparator(),seperator, System.lineSeparator(),
+                , mActiveBranch.getmBranchName(), System.lineSeparator(), seperator, System.lineSeparator(),
                 "Current Commit:", System.lineSeparator()));
         Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
         activeBranchHistory.append(mostRecentCommit.toPrintFormat());
@@ -88,18 +91,22 @@ public class BranchManager {
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,
-                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException {
+                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException {
         if (Files.notExists(Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
-            throw new FileNotFoundException("Branch doesn't exist");
+            throw new BranchNotFoundException(wantedBranchName);
 
         String headFileContent = FileHandler.readFile(activeRepository.getHeadPath().toString());
         if (headFileContent.equals(wantedBranchName))
             return "Wanted branch is already active.";
 
         if (activeRepository.areThereChanges(changes))
-            return "There are unsaved changes, branch can't be switched.";
+            throw new UncommitedChangesException("There are unsaved changes, are you sure you want to change branch without generating a commit?");
 
 
+        return forcedChangeBranch(wantedBranchName, activeRepository);
+    }
+
+    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException {
         FileHandler.writeNewFile(activeRepository.getHeadPath().toString(), wantedBranchName);
         String wantedBranchSha1 = FileHandler.readFile(
                 Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName).toString());

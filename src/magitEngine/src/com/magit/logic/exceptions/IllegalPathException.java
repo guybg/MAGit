@@ -7,7 +7,7 @@ public class IllegalPathException extends InvalidPathException {
 
     public IllegalPathException(String input, String reason) {
         super(input, reason);
-        this.message = "Couldnt perform on " + input + ", because input " + getReason();
+        this.message = "Couldnt perform action on path " + input + ", because input " + getReason();
     }
 
 

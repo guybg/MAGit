@@ -78,7 +78,7 @@ public class MagitEngine {
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
-    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException {
+    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException {
         repositoryNotFoundCheck();
         return mBranchManager.pickHeadBranch(branchName,
                 mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit());
@@ -92,6 +92,11 @@ public class MagitEngine {
     public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getWorkingCopyStatus(mUserName);
+    }
+
+    public String forcedChangeBranch(String branchName) throws ParseException, IOException {
+        return mBranchManager.forcedChangeBranch(branchName,
+                mRepositoryManager.getRepository());
     }
 }
 
