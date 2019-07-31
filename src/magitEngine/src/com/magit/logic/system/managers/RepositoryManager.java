@@ -32,6 +32,10 @@ public class RepositoryManager {
         return mActiveRepository;
     }
 
+    public void setmActiveRepository(Repository mActiveRepository) {
+        this.mActiveRepository = mActiveRepository;
+    }
+
     public void switchRepository(String pathOfRepository, BranchManager branchManager, String userName) throws RepositoryNotFoundException, IOException, ParseException {
         if (!isValidRepository(pathOfRepository))
             throw new RepositoryNotFoundException("repository Not Found");
@@ -48,7 +52,7 @@ public class RepositoryManager {
                 Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD"));
     }
 
-    private void loadRepository(Path repositoryPath, BranchManager branchManager, String userName) throws IOException {
+    private void loadRepository(Path repositoryPath, BranchManager branchManager, String userName) throws IOException, ParseException {
         mActiveRepository = new Repository(repositoryPath.getFileName().toString()
                 , repositoryPath.getParent().toString(), userName);
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
@@ -66,6 +70,11 @@ public class RepositoryManager {
         }
     }
 
+    public void unzipHeadBranchCommitWorkingCopy() throws IOException, ParseException {
+        Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+        WorkingCopyUtils.unzipWorkingCopyFromCommit(commit, mActiveRepository.getRepositoryPath().toString(),
+                mActiveRepository.getRepositoryPath().toString());
+    }
 
     public String presentCurrentCommitAndHistory(String userName)
             throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException {

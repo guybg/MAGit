@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class UserInterface {
 
     private final static String UPDATE_USER_NAME = "Update User Name";
-    private final static String READ_REPOSITORY_DETAILS = "Read Repository Details";
+    private final static String READ_REPOSITORY_DETAILS = "Load Repository From XML";
     private final static String SWITCH_REPOSITORY = "Switch Repository";
     private final static String PRESENT_CURRENT_COMMIT_AND_HISTORY = "Present Current Commit and History";
     private final static String SHOW_WORKING_COPY_STATUS = "Show Working Copy Status";
@@ -89,7 +89,7 @@ public class UserInterface {
                     break;
                 case ReadRepositoryDetails:
                     System.out.println("Please enter xml file path:");
-                    magitEngine.readRepositoryDetailsFromXML(input.nextLine());
+                    magitEngine.loadRepositoryFromXML(input.nextLine());
                     break;
                 case SwitchRepository:
                     try {

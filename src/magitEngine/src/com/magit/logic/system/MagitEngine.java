@@ -3,9 +3,10 @@ package com.magit.logic.system;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
+import com.magit.logic.system.managers.RepositoryXmlParser;
+import com.magit.logic.system.objects.Repository;
 
 import javax.xml.bind.JAXBException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -31,7 +32,11 @@ public class MagitEngine {
         if (mRepositoryManager.getRepository() == null)
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
-    public void readRepositoryDetailsFromXML(String path)throws JAXBException, FileNotFoundException {
+
+    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException {
+        Repository repository = RepositoryXmlParser.parseXMLToRepository(path, mBranchManager, mUserName);
+        mRepositoryManager.setmActiveRepository(repository);
+        mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {

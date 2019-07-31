@@ -8,6 +8,7 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,14 +35,16 @@ public class Commit extends FileItem {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
         mLastCommits = new LinkedList<>();
-        super.mSha1Code = sha1Code;
         mWorkingCopySha1 = workingCopySha1;
+        super.mSha1Code = sha1Code;
     }
 
-    public Commit(MagitSingleCommit singleCommit) throws ParseException{
+    public Commit(MagitSingleCommit singleCommit, Sha1 workingCopySha1) throws ParseException {
         super(singleCommit);
+        mLastCommits = new LinkedList<>();
         this.mCommitMessage = singleCommit.getMessage();
-        this.mSha1Code = new Sha1(getFileContent(), false);
+        mWorkingCopySha1 = workingCopySha1;
+        super.mSha1Code = new Sha1(getFileContent(), false);
     }
 
     public void addPreceding(String contentToSha1) {
@@ -97,6 +100,11 @@ public class Commit extends FileItem {
         return super.mLastModified;
     }
 
+    public void generateCommitFile(Path pathToObjectsFolder) throws IOException {
+        File objectsFolder = new File(pathToObjectsFolder.toString());
+        objectsFolder.mkdirs();
+        FileItemHandler.zip(this, pathToObjectsFolder.toString(), mSha1Code);
+    }
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
         if (branch.getmPointedCommitSha1().toString().equals("")) {
             generateFirstCommit(getCreator(), repository, branch);

@@ -2,6 +2,7 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,11 +33,12 @@ public class Branch {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);
             File branch = new File(filePath.toString());
             branch.getParentFile().mkdirs();
-            boolean newFile = branch.createNewFile();
+            boolean newFile = !branch.exists();
             if (!newFile) {
                 System.out.println("file exists");
                 throw new FileAlreadyExistsException(".magit already exists");
             } else {
+                FileHandler.writeNewFile(filePath.toString(), mPointedCommitSha1.toString());
                 System.out.println("file created");
             }
 

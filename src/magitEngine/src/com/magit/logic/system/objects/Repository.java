@@ -94,11 +94,21 @@ public class Repository {
 
     public void create() throws IllegalPathException, IOException {
         boolean validPath;
+        String headBranch = "master";
         File repository;
         try {
             Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit");
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
+            if (mBranches.entrySet() != null) {
+                for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {
+                    if (!branchEntry.getValue().getmBranchName().equals("HEAD")) {
+                        branchEntry.getValue().create(getRepositoryPath().toString());
+                    } else {
+                        headBranch = branchEntry.getValue().getmBranchName();
+                    }
+                }
+            }
         } catch (InvalidPathException e) {
             System.out.println(e.getMessage());
             throw new IllegalPathException(e.getInput(), e.getMessage());
@@ -111,18 +121,21 @@ public class Repository {
             else
                 throw new IllegalPathException(mRepositoryParentFolderLocation, "wrong location");
         }
-
-        Branch branch = new Branch("master");
-        branch.create(Paths.get(mRepositoryParentFolderLocation, mRepositoryName).toString());
-        mBranches.put("master", branch);
-        createHeadFile();
+        if (mBranches.entrySet() == null) {
+            Branch branch = new Branch("master");
+            branch.create(Paths.get(mRepositoryParentFolderLocation, mRepositoryName).toString());
+            mBranches.put("master", branch);
+        }
+        createHeadFile(headBranch);
     }
 
-    private void createHeadFile() throws IOException {
+    private void createHeadFile(String branchName) throws IOException {
         Path path = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit", "Branches", "HEAD");
+        File branchesPath = new File(path.getParent().toString());
+        branchesPath.mkdirs();
         Files.createFile(path);
         BufferedWriter writer = new BufferedWriter(new java.io.FileWriter(path.toString()));
-        writer.write("master");
+        writer.write(branchName);
         writer.close();
     }
 
@@ -149,5 +162,4 @@ public class Repository {
                 changes.get(FileStatus.EDITED).size() != changesWereMade ||
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
-
 }
