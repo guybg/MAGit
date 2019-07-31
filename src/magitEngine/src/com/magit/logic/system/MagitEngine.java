@@ -34,7 +34,8 @@ public class MagitEngine {
     }
 
     public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException {
-        Repository repository = RepositoryXmlParser.parseXMLToRepository(path, mBranchManager, mUserName);
+        RepositoryXmlParser parser = new RepositoryXmlParser();
+        Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName);
         mRepositoryManager.setmActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }

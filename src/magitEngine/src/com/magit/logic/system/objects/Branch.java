@@ -9,12 +9,13 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class Branch {
     private String mBranchName;
     private Sha1 mPointedCommitSha1;
 
-    public Branch(String mBranchName) {
+    Branch(String mBranchName) {
         this.mBranchName = mBranchName;
         mPointedCommitSha1 = new Sha1("", true);
     }
@@ -44,7 +45,7 @@ public class Branch {
         } catch (IllegalPathException e) {
             throw new IllegalPathException(e.getInput(), e.getMessage());
         } catch (FileAlreadyExistsException e) {
-            // throw nice messege about repository already exists
+            // throw nice message about repository already exists
         } catch (IOException e) {
 
             // throw io exception
@@ -57,5 +58,19 @@ public class Branch {
 
     void setPointedCommitSha1(Sha1 mPointedCommitSha1) {
         this.mPointedCommitSha1 = mPointedCommitSha1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Branch branch = (Branch) o;
+        return Objects.equals(mBranchName, branch.mBranchName) &&
+                Objects.equals(mPointedCommitSha1, branch.mPointedCommitSha1);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mBranchName, mPointedCommitSha1);
     }
 }

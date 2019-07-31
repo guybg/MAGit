@@ -84,7 +84,7 @@ public class Commit extends FileItem {
         String commitMessage = commitLines[commitMessageIndex].split(seperator)[valueOfSplit];
         String commitDate = commitLines[commitDateIndex].split(seperator)[valueOfSplit];
         String commitCreator = commitLines[commitCreatorIndex].split(seperator)[valueOfSplit];
-        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
         Commit output = new Commit(commitMessage, commitCreator, FileType.COMMIT, dateFormat.parse(commitDate), sha1Code, workingCopySha1);
         String[] lastCommits = commitLines[lastCommitsIndex].split(seperator);
         if (lastCommits.length != twoPartsOfSplitting)
@@ -146,7 +146,7 @@ public class Commit extends FileItem {
     }
 
     public String getFileContent() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
         StringBuilder content = new StringBuilder();
         content.append(String.format("%s = %s%s%s = ",
                 "wc", mWorkingCopySha1, System.lineSeparator(), "last Commits"));
@@ -162,7 +162,7 @@ public class Commit extends FileItem {
 
     @Override
     public String toString() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
         return "Commit{" +
                 "mWorkingCopySha1 = " + mWorkingCopySha1 + '\'' +
                 " LastCommits = " + mLastCommits +

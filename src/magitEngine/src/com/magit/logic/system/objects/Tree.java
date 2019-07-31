@@ -29,7 +29,6 @@ public class Tree extends FileItem {
     public Tree(MagitSingleFolder magitFolder) throws ParseException {
         super(magitFolder);
         this.mFiles = new TreeSet<>();
-        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public String getName() {
