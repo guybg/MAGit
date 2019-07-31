@@ -146,8 +146,14 @@ public class UserInterface {
                 case CreateNewBranch:
                     System.out.println("Pick branch name:");
                     try {
-                        while (!magitEngine.createNewBranch(input.nextLine()))
+                        String branchName = input.nextLine();
+                        while (!magitEngine.createNewBranch(branchName))
                             System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
+                        if (yesNoQuestion("Would you like to perform checkout to this branch right now? press Y/y to perform checkout or press any other key to cancel",
+                                input)) {
+                            changeBranchOperation(magitEngine, branchName, input);
+                        }
+
                     } catch (RepositoryNotFoundException e) {
                         System.out.println(e.getMessage());
                     }
@@ -188,20 +194,32 @@ public class UserInterface {
             pathOfRepository = Paths.get(input.nextLine());
             magitEngine.switchRepository(pathOfRepository.toString());
         } catch (RepositoryNotFoundException ex) {
-            System.out.println("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.");
-            String answer = input.nextLine();
-            if (answer.equals("Y") ||answer.equals("y")) {
+            if (yesNoQuestion("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.",
+                    input)) {
                 magitEngine.createNewRepository(pathOfRepository);
             }
         }
 
     }
 
+    public static Boolean yesNoQuestion(String message, Scanner inputScanner) {
+        Boolean result = false;
+        System.out.println(message);
+        String answer = inputScanner.nextLine();
+        if (answer.equals("Y") || answer.equals("y")) {
+            result = true;
+        }
+        return result;
+    }
+
     private static void switchBranch(MagitEngine magitEngine, Scanner input) throws IOException, ParseException {
         System.out.println("Please enter branch name:");
         String branchName = "";
+        changeBranchOperation(magitEngine, input.nextLine(), input);
+    }
+
+    private static void changeBranchOperation(MagitEngine magitEngine, String branchName, Scanner input) throws IOException, ParseException {
         try {
-            branchName = input.nextLine();
             System.out.println(magitEngine.pickHeadBranch(branchName));
         } catch (RepositoryNotFoundException e) {
             System.out.println(e.getMessage());
@@ -209,13 +227,12 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (UncommitedChangesException e) {
             System.out.println(e.getMessage());
-            System.out.println("Press Y/y to create one, any other button to cancel operation.");
-            String answer = input.nextLine();
-            if (answer.equals("Y") || answer.equals("y")) {
+            if (yesNoQuestion("Press Y/y to create one, any other button to cancel operation.", input)) {
                 magitEngine.forcedChangeBranch(branchName);
             }
         }
     }
+
     private enum MenuOptions {
         UpdateUserName,
         ReadRepositoryDetails,

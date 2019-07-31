@@ -23,6 +23,7 @@ public class Tree extends FileItem {
                 SortedSet<FileItem> mFiles) {
         super(mName, mFileType, mLastUpdater, mCommitDate, sha1Code);
         this.mFiles = mFiles;
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public Tree(MagitSingleFolder magitFolder) throws ParseException {
@@ -80,12 +81,22 @@ public class Tree extends FileItem {
 
     @Override
     public String toString() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
         return super.getmName() + ";" +
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +
                 super.getmLastUpdater() + ";" +
                 dateFormat.format(super.getLastModified());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Tree)) return false;
+        if (!super.equals(o)) return false;
+        Tree tree = (Tree) o;
+        return Objects.equals(super.getmName(), tree.getName()) &&
+                CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
     }
 
     @Override
@@ -99,17 +110,8 @@ public class Tree extends FileItem {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Tree tree = (Tree) o;
-        return Objects.equals(mFiles, tree.mFiles);
-    }
-
-    @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), mFiles);
+        return Objects.hash(super.hashCode(), super.getmName());
     }
 
     public int getNumberOfFiles() {
