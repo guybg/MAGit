@@ -86,7 +86,7 @@ public class Delta {
         }
 
         public String getFullPath() {
-            return Paths.get(mFilePath, mFileItem.getmName()).toString();
+            return Paths.get(mFilePath).toString();
         }
 
         public String getPathAndSha1() {

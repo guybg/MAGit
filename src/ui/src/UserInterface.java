@@ -227,7 +227,7 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (UncommitedChangesException e) {
             System.out.println(e.getMessage());
-            if (yesNoQuestion("Press Y/y to create one, any other button to cancel operation.", input)) {
+            if (yesNoQuestion("Press Y/y to switch, any other button to cancel operation.", input)) {
                 magitEngine.forcedChangeBranch(branchName);
             }
         }
