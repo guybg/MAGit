@@ -88,7 +88,7 @@ public class Commit extends FileItem {
         } else if (mSecondPreviousCommit.toString().equals("")) {
             mSecondPreviousCommit = new Sha1(contentToSha1, true);
         } else {
-            throw new PreviousCommitsLimitexceededException("Wrong XML input- Theres more then two previous commits to one of the commits");
+            throw new PreviousCommitsLimitexceededException("Wrong XML input - Theres more then two previous commits to one of the commits");
         }
 
     }
