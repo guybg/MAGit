@@ -26,28 +26,30 @@ public class Commit extends FileItem {
     private Sha1 mFirstPreviousCommit;
     private Sha1 mSecondPreviousCommit;
     private String mCommitMessage;
+    
+    final String EMPTY = "";
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
-        mFirstPreviousCommit = new Sha1("", true);
-        mSecondPreviousCommit = new Sha1("", true);
+        mFirstPreviousCommit = new Sha1(EMPTY, true);
+        mSecondPreviousCommit = new Sha1(EMPTY, true);
     }
 
     private Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate,
                    Sha1 sha1Code, Sha1 workingCopySha1) {
         super(null, fileType, creator, mCommitDate, null);
         mCommitMessage = commitMessage;
-        mFirstPreviousCommit = new Sha1("", true);
-        mSecondPreviousCommit = new Sha1("", true);
+        mFirstPreviousCommit = new Sha1(EMPTY, true);
+        mSecondPreviousCommit = new Sha1(EMPTY, true);
         mWorkingCopySha1 = workingCopySha1;
         super.mSha1Code = sha1Code;
     }
 
     public Commit(MagitSingleCommit singleCommit, Sha1 workingCopySha1) throws ParseException {
         super(singleCommit);
-        mFirstPreviousCommit = new Sha1("", true);
-        mSecondPreviousCommit = new Sha1("", true);
+        mFirstPreviousCommit = new Sha1(EMPTY, true);
+        mSecondPreviousCommit = new Sha1(EMPTY, true);
         this.mCommitMessage = singleCommit.getMessage();
         mWorkingCopySha1 = workingCopySha1;
         super.mSha1Code = new Sha1(getFileContent(), false);
@@ -83,9 +85,9 @@ public class Commit extends FileItem {
     }
 
     public void addPreceding(String contentToSha1) throws PreviousCommitsLimitexceededException {
-        if (mFirstPreviousCommit.toString().equals("")) {
+        if (mFirstPreviousCommit.toString().equals(EMPTY)) {
             mFirstPreviousCommit = new Sha1(contentToSha1, true);
-        } else if (mSecondPreviousCommit.toString().equals("")) {
+        } else if (mSecondPreviousCommit.toString().equals(EMPTY)) {
             mSecondPreviousCommit = new Sha1(contentToSha1, true);
         } else {
             throw new PreviousCommitsLimitexceededException("Wrong XML input - Theres more then two previous commits to one of the commits");
@@ -94,9 +96,9 @@ public class Commit extends FileItem {
     }
 
     public void addPreviousCommitSha1(String sha1) throws PreviousCommitsLimitexceededException {
-        if (mFirstPreviousCommit.toString().equals("")) {
+        if (mFirstPreviousCommit.toString().equals(EMPTY)) {
             mFirstPreviousCommit = new Sha1(sha1, true);
-        } else if (mSecondPreviousCommit.toString().equals("")) {
+        } else if (mSecondPreviousCommit.toString().equals(EMPTY)) {
             mSecondPreviousCommit = new Sha1(sha1, true);
         } else {
             throw new PreviousCommitsLimitexceededException(getSha1() + " commit is invalid - Theres more then two previous commits to one of the commits");
@@ -149,7 +151,7 @@ public class Commit extends FileItem {
     }
 
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
-        if (branch.getmPointedCommitSha1().toString().equals("")) {
+        if (branch.getmPointedCommitSha1().toString().equals(EMPTY)) {
             generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
         } else {
