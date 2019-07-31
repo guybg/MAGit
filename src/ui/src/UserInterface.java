@@ -23,12 +23,11 @@ public class UserInterface {
     private final static String DELETE_BRANCH = "Delete Branch";
     private final static String PICK_HEAD_BRANCH = "Checkout";
     private final static String PRESENT_CURRENT_BRANCH_HISTORY = "Present Current Branch History";
-    private final static String Exit = "Exit";
+    private final static String EXIT = "EXIT";
 
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            //maGitSystem.createNewRepository("testRep", "D:\\testingRep");
             run(maGitSystem);
             //maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
@@ -65,7 +64,7 @@ public class UserInterface {
                 "10." + DELETE_BRANCH + System.lineSeparator() +
                 "11." + PICK_HEAD_BRANCH + System.lineSeparator() +
                 "12." + PRESENT_CURRENT_BRANCH_HISTORY + System.lineSeparator() +
-                "13." + Exit);
+                "13." + EXIT);
     }
 
     private static void run(MagitEngine magitEngine) throws

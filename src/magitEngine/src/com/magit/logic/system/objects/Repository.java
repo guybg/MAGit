@@ -97,15 +97,15 @@ public class Repository {
         String headBranch = "master";
         File repository;
         try {
-            Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit");
+            Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit", BRANCHES);
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
             if (!mBranches.isEmpty()) {
-                for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {
-                    if (!branchEntry.getValue().getmBranchName().equals("HEAD")) {
-                        branchEntry.getValue().create(getRepositoryPath().toString());
+                for (Branch branch : mBranches.values()) {
+                    if (!branch.getmBranchName().equals("HEAD")) {
+                        branch.create(getRepositoryPath().toString());
                     } else {
-                        headBranch = branchEntry.getValue().getmBranchName();
+                        headBranch = branch.getmBranchName();
                     }
                 }
             }

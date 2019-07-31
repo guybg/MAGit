@@ -15,7 +15,7 @@ public class Branch {
     private String mBranchName;
     private Sha1 mPointedCommitSha1;
 
-    public Branch(String mBranchName) {
+    Branch(String mBranchName) {
         this.mBranchName = mBranchName;
         mPointedCommitSha1 = new Sha1("", true);
     }
@@ -33,7 +33,6 @@ public class Branch {
         try {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);
             File branch = new File(filePath.toString());
-            branch.getParentFile().mkdirs();
             boolean newFile = !branch.exists();
             if (!newFile) {
                 System.out.println("file exists");
@@ -46,7 +45,7 @@ public class Branch {
         } catch (IllegalPathException e) {
             throw new IllegalPathException(e.getInput(), e.getMessage());
         } catch (FileAlreadyExistsException e) {
-            // throw nice messege about repository already exists
+            // throw nice message about repository already exists
         } catch (IOException e) {
 
             // throw io exception
