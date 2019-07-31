@@ -3,6 +3,7 @@ package com.magit.logic.system.managers;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.ActiveBranchDeletedExpcetion;
 import com.magit.logic.exceptions.BranchNotFoundException;
+import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
 import com.magit.logic.exceptions.UncommitedChangesException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
@@ -20,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
@@ -49,7 +51,7 @@ public class BranchManager {
         return true;
     }
 
-    public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException {
+    public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitexceededException {
         Path pathToBranchFile = Paths.get(activeRepository.getBranchDirectoryPath().toString(),
                 mActiveBranch.getmBranchName());
         if (Files.notExists(pathToBranchFile))
@@ -66,18 +68,38 @@ public class BranchManager {
                 "Current Commit:", System.lineSeparator()));
         Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
         activeBranchHistory.append(mostRecentCommit.toPrintFormat());
+        getAllPreviousCommitsHistoryString(mostRecentCommit, activeRepository, activeBranchHistory);
+        //    for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
+        //        Path currentCommitPath = Paths.get(activeRepository.getObjectsFolderPath().toString(), currentSha1.toString());
+        //        if (Files.notExists(currentCommitPath)) {
+        //            throw new FileNotFoundException("Commit history is invalid, repository invalid.");
+        //        }
+        //        activeBranchHistory.append(String.format("%s%s", seperator, System.lineSeparator()));
+        //        Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
+        //        activeBranchHistory.append(currentCommitInHistory.toPrintFormat());
+        //    }
+
+        return activeBranchHistory.toString();
+    }
+
+    private void getAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository, StringBuilder activeBranchHistoryStringBuilder) throws IOException, ParseException, PreviousCommitsLimitexceededException {
+        final String seperator = "===================================================";
+        if (mostRecentCommit.getSha1Code().toString().equals("")) return;
         for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
+            List<Sha1> a = mostRecentCommit.getLastCommitsSha1Codes();
+            if (currentSha1.toString().equals("")) return;
             Path currentCommitPath = Paths.get(activeRepository.getObjectsFolderPath().toString(), currentSha1.toString());
             if (Files.notExists(currentCommitPath)) {
                 throw new FileNotFoundException("Commit history is invalid, repository invalid.");
             }
-            activeBranchHistory.append(String.format("%s%s", seperator, System.lineSeparator()));
+            activeBranchHistoryStringBuilder.append(String.format("%s%s", seperator, System.lineSeparator()));
             Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
-            activeBranchHistory.append(currentCommitInHistory.toPrintFormat());
+            if (currentCommitInHistory == null) return;
+            activeBranchHistoryStringBuilder.append(currentCommitInHistory.toPrintFormat());
+            getAllPreviousCommitsHistoryString(currentCommitInHistory, activeRepository, activeBranchHistoryStringBuilder);
         }
-
-        return activeBranchHistory.toString();
     }
+
 
     public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedExpcetion {
         if (Files.notExists(activeRepository.getHeadPath()))
@@ -91,7 +113,7 @@ public class BranchManager {
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,
-                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException {
+                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitexceededException {
         if (Files.notExists(Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
             throw new BranchNotFoundException(wantedBranchName);
 
@@ -106,7 +128,7 @@ public class BranchManager {
         return forcedChangeBranch(wantedBranchName, activeRepository);
     }
 
-    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException {
+    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitexceededException {
         FileHandler.writeNewFile(activeRepository.getHeadPath().toString(), wantedBranchName);
         String wantedBranchSha1 = FileHandler.readFile(
                 Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName).toString());

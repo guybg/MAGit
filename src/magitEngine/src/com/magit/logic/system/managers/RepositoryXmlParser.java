@@ -1,5 +1,6 @@
 package com.magit.logic.system.managers;
 
+import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
 import com.magit.logic.system.XMLObjects.*;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.digest.Sha1;
@@ -20,7 +21,7 @@ import java.util.HashMap;
 public class RepositoryXmlParser {
 
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser)
-            throws JAXBException, IOException, ParseException {
+            throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException {
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
 
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -33,7 +34,7 @@ public class RepositoryXmlParser {
     }
 
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
-            throws ParseException, IOException {
+            throws ParseException, IOException, PreviousCommitsLimitexceededException {
         MagitRepository magitRepository = jaxbElement.getValue();
 
         Repository repository = new Repository(magitRepository.getName(), magitRepository.getLocation(), activeUser);
@@ -86,7 +87,7 @@ public class RepositoryXmlParser {
     }
 
 
-    private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException {
+    private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitexceededException {
         //check why there's root folder in xml
         ArrayList<Commit> commitsOfRepository = new ArrayList<>();
         for (MagitSingleCommit magitCommit : magitRepository.getMagitCommits().getMagitSingleCommit()) {

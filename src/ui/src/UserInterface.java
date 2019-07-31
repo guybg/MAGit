@@ -88,7 +88,11 @@ public class UserInterface {
                     break;
                 case ReadRepositoryDetails:
                     System.out.println("Please enter xml file path:");
-                    magitEngine.loadRepositoryFromXML(input.nextLine());
+                    try {
+                        magitEngine.loadRepositoryFromXML(input.nextLine());
+                    } catch (PreviousCommitsLimitexceededException e) {
+                        System.out.println();
+                    }
                     break;
                 case SwitchRepository:
                     try {
@@ -104,12 +108,16 @@ public class UserInterface {
                         System.out.println(e.toString());
                     } catch (RepositoryNotFoundException e) {
                         System.out.println(e.getMessage());
+                    } catch (PreviousCommitsLimitexceededException e) {
+                        System.out.println(e.getMessage());
                     }
                     break;
                 case ShowWorkingCopyStatus:
                     try {
                         System.out.println(magitEngine.getWorkingCopyStatus());
                     } catch (RepositoryNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    } catch (PreviousCommitsLimitexceededException e) {
                         System.out.println(e.getMessage());
                     }
 
@@ -124,12 +132,16 @@ public class UserInterface {
                         System.out.println(e.toString());
                     } catch (RepositoryNotFoundException e) {
                         System.out.println(e.getMessage());
+                    } catch (PreviousCommitsLimitexceededException e) {
+                        System.out.println(e.getMessage());
                     }
                     break;
                 case PresentAllBranches:
                     try {
                         System.out.println(magitEngine.getBranchesInfo());
                     } catch (RepositoryNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    } catch (PreviousCommitsLimitexceededException e) {
                         System.out.println(e.getMessage());
                     }
                     break;
@@ -172,6 +184,8 @@ public class UserInterface {
                     try {
                         System.out.println(magitEngine.presentCurrentBranch());
                     } catch (RepositoryNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    } catch (PreviousCommitsLimitexceededException e) {
                         System.out.println(e.getMessage());
                     }
                     break;
@@ -227,8 +241,14 @@ public class UserInterface {
         } catch (UncommitedChangesException e) {
             System.out.println(e.getMessage());
             if (yesNoQuestion("Press Y/y to switch, any other button to cancel operation.", input)) {
-                magitEngine.forcedChangeBranch(branchName);
+                try {
+                    magitEngine.forcedChangeBranch(branchName);
+                } catch (PreviousCommitsLimitexceededException ex) {
+                    System.out.println(e.getMessage());
+                }
             }
+        } catch (PreviousCommitsLimitexceededException e) {
+            System.out.println(e.getMessage());
         }
     }
 

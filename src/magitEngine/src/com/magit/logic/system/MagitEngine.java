@@ -33,34 +33,35 @@ public class MagitEngine {
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
 
-    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException {
+    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName);
         mRepositoryManager.setmActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
+
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
         mRepositoryManager.switchRepository(pathOfRepository, mBranchManager, mUserName);
     }
 
-    public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException {
+    public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.presentCurrentCommitAndHistory(mUserName);
     }
 
-    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, RepositoryNotFoundException {
+    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit();
     }
 
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
-            WorkingCopyStatusNotChangedComparedToLastCommitException {
+            WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
     }
 
-    public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException {
+    public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getBranchesInfo();
     }
@@ -84,23 +85,23 @@ public class MagitEngine {
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
-    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException {
+    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mBranchManager.pickHeadBranch(branchName,
                 mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit());
     }
 
-    public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException {
+    public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
     }
 
-    public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException {
+    public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getWorkingCopyStatus(mUserName);
     }
 
-    public String forcedChangeBranch(String branchName) throws ParseException, IOException {
+    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitexceededException {
         return mBranchManager.forcedChangeBranch(branchName,
                 mRepositoryManager.getRepository());
     }

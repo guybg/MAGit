@@ -3,25 +3,17 @@ package com.magit.logic.system.managers;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
-import com.magit.logic.system.XMLObjects.Item;
-import com.magit.logic.system.XMLObjects.MagitRepository;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
-import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
-import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -80,14 +72,14 @@ public class RepositoryManager {
         }
     }
 
-    public void unzipHeadBranchCommitWorkingCopy() throws IOException, ParseException {
+    public void unzipHeadBranchCommitWorkingCopy() throws IOException, ParseException, PreviousCommitsLimitexceededException {
         Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
         WorkingCopyUtils.unzipWorkingCopyFromCommit(commit, mActiveRepository.getRepositoryPath().toString(),
                 mActiveRepository.getRepositoryPath().toString());
     }
 
     public String presentCurrentCommitAndHistory(String userName)
-            throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException {
+            throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException, PreviousCommitsLimitexceededException {
         if (!mActiveRepository.isValid())
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
 
@@ -107,12 +99,12 @@ public class RepositoryManager {
     }
 
 
-    public void commit(String commitMessage, String creator, Branch mActiveBranch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException {
+    public void commit(String commitMessage, String creator, Branch mActiveBranch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
         Commit commit = new Commit(commitMessage, creator, FileType.COMMIT, new Date());
         commit.generate(mActiveRepository, mActiveBranch);
     }
 
-    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException {
+    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, PreviousCommitsLimitexceededException {
         WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 "", new Date());
         SortedSet<Delta.DeltaFileItem> curWcDeltaFiles;
@@ -124,7 +116,7 @@ public class RepositoryManager {
         return WorkingCopyUtils.getDifferencesBetweenCurrentWcAndLastCommit(curWcDeltaFiles, commitDeltaFiles);
     }
 
-    public String getBranchesInfo() throws IOException, ParseException {
+    public String getBranchesInfo() throws IOException, ParseException, PreviousCommitsLimitexceededException {
         final String seperator = "============================================";
         StringBuilder branchesContent = new StringBuilder();
         String headBranch = FileHandler.readFile(mActiveRepository.getHeadPath().toString());
@@ -151,7 +143,7 @@ public class RepositoryManager {
         return branchesContent.toString();
     }
 
-    public String getWorkingCopyStatus(String userName) throws IOException, ParseException {
+    public String getWorkingCopyStatus(String userName) throws IOException, ParseException, PreviousCommitsLimitexceededException {
         final String seperator = "============================================";
         StringBuilder workingCopyStatusContent = new StringBuilder();
         workingCopyStatusContent.append(String.format("Repository name: %s%s", mActiveRepository.getRepositoryName(), System.lineSeparator()));
