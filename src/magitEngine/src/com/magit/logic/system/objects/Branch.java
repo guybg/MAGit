@@ -32,7 +32,6 @@ public class Branch {
         try {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);
             File branch = new File(filePath.toString());
-            branch.getParentFile().mkdirs();
             boolean newFile = !branch.exists();
             if (!newFile) {
                 System.out.println("file exists");

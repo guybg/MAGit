@@ -97,7 +97,7 @@ public class Repository {
         String headBranch = "master";
         File repository;
         try {
-            Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit");
+            Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit", BRANCHES);
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
             if (!mBranches.isEmpty()) {
