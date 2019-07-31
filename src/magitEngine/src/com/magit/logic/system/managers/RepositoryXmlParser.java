@@ -83,12 +83,11 @@ public class RepositoryXmlParser {
             for (Item itemToAddToTree : magitFolder.getItems().getItem()) {
                 String itemType = itemToAddToTree.getType();
                 String itemId = itemToAddToTree.getId();
-                if (magitFolder.getItems().getItem().stream().map(Item::getId).anyMatch(itemId::equals)) {
-                    if (itemType.equals("blob"))
-                        folderMap.get(magitFolderId).addFileItem(blobMap.get(itemId));
-                    else if (itemType.equals("folder") && magitFolder.getItems().getItem().contains(itemToAddToTree))
-                        folderMap.get(magitFolderId).addFileItem(folderMap.get(itemId));
-                }
+                if (itemType.equals("blob"))
+                    folderMap.get(magitFolderId).addFileItem(blobMap.get(itemId));
+                else if (itemType.equals("folder"))
+                    folderMap.get(magitFolderId).addFileItem(folderMap.get(itemId));
+
             }
         }
     }

@@ -100,7 +100,7 @@ public class Repository {
             Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit");
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
-            if (mBranches.entrySet() != null) {
+            if (!mBranches.isEmpty()) {
                 for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {
                     if (!branchEntry.getValue().getmBranchName().equals("HEAD")) {
                         branchEntry.getValue().create(getRepositoryPath().toString());
@@ -121,7 +121,7 @@ public class Repository {
             else
                 throw new IllegalPathException(mRepositoryParentFolderLocation, "wrong location");
         }
-        if (mBranches.entrySet() == null) {
+        if (mBranches.isEmpty()) {
             Branch branch = new Branch("master");
             branch.create(Paths.get(mRepositoryParentFolderLocation, mRepositoryName).toString());
             mBranches.put("master", branch);

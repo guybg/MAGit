@@ -23,11 +23,13 @@ public class Tree extends FileItem {
                 SortedSet<FileItem> mFiles) {
         super(mName, mFileType, mLastUpdater, mCommitDate, sha1Code);
         this.mFiles = mFiles;
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public Tree(MagitSingleFolder magitFolder) throws ParseException {
         super(magitFolder);
         this.mFiles = new TreeSet<>();
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
     public void add(FileItem fileToAdd) {
