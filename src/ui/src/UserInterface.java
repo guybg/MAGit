@@ -91,7 +91,7 @@ public class UserInterface {
                     try {
                         magitEngine.loadRepositoryFromXML(input.nextLine());
                     } catch (PreviousCommitsLimitexceededException e) {
-                        System.out.println();
+                        System.out.println(e.getMessage());
                     }
                     break;
                 case SwitchRepository:
