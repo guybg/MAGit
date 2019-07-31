@@ -32,10 +32,6 @@ public class Tree extends FileItem {
         this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
-    public void add(FileItem fileToAdd) {
-        this.mFiles.add(fileToAdd);
-    }
-
     public String getName() {
         return super.getmName();
     }
