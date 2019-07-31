@@ -3,17 +3,25 @@ package com.magit.logic.system.managers;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
+import com.magit.logic.system.XMLObjects.Item;
+import com.magit.logic.system.XMLObjects.MagitRepository;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import java.io.File;
-import java.io.IOException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +35,9 @@ public class RepositoryManager {
         mActiveRepository.setActiveUserName(userName);
     }
 
-    ////public String getActiveUserName(){return mActiveRepository.getActiveUserName();}
+    public void setActiveRepository(Repository repository) {
+        mActiveRepository = repository;
+    }
     public Repository getRepository() {
         return mActiveRepository;
     }
@@ -80,6 +90,7 @@ public class RepositoryManager {
             throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException {
         if (!mActiveRepository.isValid())
             throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
+
         Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
         if (commit == null)
             throw new CommitNotFoundException("Theres no commit history to show, please add some files and commit them");

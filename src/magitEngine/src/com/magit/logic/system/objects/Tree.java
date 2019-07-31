@@ -30,10 +30,6 @@ public class Tree extends FileItem {
         this.mFiles = new TreeSet<>();
     }
 
-    public void add(FileItem fileToAdd) {
-        this.mFiles.add(fileToAdd);
-    }
-
     public String getName() {
         return super.getmName();
     }
@@ -84,22 +80,12 @@ public class Tree extends FileItem {
 
     @Override
     public String toString() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
         return super.getmName() + ";" +
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +
                 super.getmLastUpdater() + ";" +
                 dateFormat.format(super.getLastModified());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Tree)) return false;
-        if (!super.equals(o)) return false;
-        Tree tree = (Tree) o;
-        return Objects.equals(super.getmName(), tree.getName()) &&
-                CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
     }
 
     @Override
@@ -113,8 +99,17 @@ public class Tree extends FileItem {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Tree tree = (Tree) o;
+        return Objects.equals(mFiles, tree.mFiles);
+    }
+
+    @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), super.getmName());
+        return Objects.hash(super.hashCode(), mFiles);
     }
 
     public int getNumberOfFiles() {

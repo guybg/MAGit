@@ -31,7 +31,7 @@ public class Blob extends FileItem {
 
     @Override
     public String toString() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
         return super.getmName() + ";" +
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +

@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class Branch {
     private String mBranchName;
@@ -58,5 +59,19 @@ public class Branch {
 
     void setPointedCommitSha1(Sha1 mPointedCommitSha1) {
         this.mPointedCommitSha1 = mPointedCommitSha1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Branch branch = (Branch) o;
+        return Objects.equals(mBranchName, branch.mBranchName) &&
+                Objects.equals(mPointedCommitSha1, branch.mPointedCommitSha1);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mBranchName, mPointedCommitSha1);
     }
 }
