@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class RepositoryXmlParser {
 
@@ -44,7 +43,7 @@ public class RepositoryXmlParser {
         ArrayList<Commit> commits = createCommitsInstances(magitRepository, treeMap);
         createBranches(magitRepository, repository, branchManager, commits);
         repository.create();
-        linkCommitsToBranches(repository, commits, treeMap);
+        zipCommitWorkingCopy(repository, commits, treeMap);
 
         return repository;
     }
@@ -126,7 +125,7 @@ public class RepositoryXmlParser {
         }
     }
 
-    private void linkCommitsToBranches(Repository repository, ArrayList<Commit> commits, HashMap<String, Tree> treeMap)
+    private void zipCommitWorkingCopy(Repository repository, ArrayList<Commit> commits, HashMap<String, Tree> treeMap)
     throws IOException{
         for (Commit commit : commits) {
             commit.generateCommitFile(repository.getObjectsFolderPath());

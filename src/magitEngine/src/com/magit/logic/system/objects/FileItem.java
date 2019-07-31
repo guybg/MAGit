@@ -37,7 +37,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
     }
 
     FileItem(MagitSingleFolder magitFolder) throws ParseException {
-        this.mName = magitFolder.getName();
+        this.mName = (magitFolder.getName() == null) ? "" : magitFolder.getName();
         this.mFileType = FileType.FOLDER;
         this.mLastUpdater = magitFolder.getLastUpdater();
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
