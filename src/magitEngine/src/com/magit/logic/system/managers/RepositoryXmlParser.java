@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.stream.Stream;
 
 public class RepositoryXmlParser {
 
@@ -35,7 +34,6 @@ public class RepositoryXmlParser {
                 unmarshaller.unmarshal(streamSource, MagitRepository.class);
 
         streamSource.getInputStream().close();
-        
         Repository repository = createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser);
         xmlStream.close();
         return repository;

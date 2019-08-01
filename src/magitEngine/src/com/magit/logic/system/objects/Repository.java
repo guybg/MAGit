@@ -9,6 +9,7 @@ import com.magit.logic.utils.file.FileHandler;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -140,9 +141,10 @@ public class Repository {
         File branchesPath = new File(path.getParent().toString());
         branchesPath.mkdirs();
         Files.createFile(path);
-        BufferedWriter writer = new BufferedWriter(new java.io.FileWriter(path.toString()));
-        writer.write(branchName);
-        writer.close();
+        try (FileWriter fileWriter = new java.io.FileWriter(path.toString());
+             BufferedWriter writer = new BufferedWriter(fileWriter)) {
+            writer.write(branchName);
+        }
     }
 
     public HashMap<String, Branch> getmBranches() {
