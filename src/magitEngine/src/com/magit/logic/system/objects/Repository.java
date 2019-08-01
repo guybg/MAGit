@@ -159,8 +159,9 @@ public class Repository {
         return mRepositoryLocation;
     }
 
-    public void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
-        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branchName).toString(), newCommit.toString());
+    public void changeBranchPointer(Branch branch, Sha1 newCommit) throws IOException {
+        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getmBranchName()).toString(), newCommit.toString());
+        branch.setPointedCommitSha1(newCommit);
     }
 
     public boolean areThereChanges(Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) {

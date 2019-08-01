@@ -157,7 +157,7 @@ public class Commit extends FileItem {
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
         if (branch.getmPointedCommitSha1().toString().equals(EMPTY)) {
             generateFirstCommit(getCreator(), repository, branch);
-            repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
+            repository.changeBranchPointer(branch, new Sha1(getFileContent(), false));
         } else {
             //handle second and on commit
             WorkingCopyUtils wcw = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, getCreationDate());
@@ -175,7 +175,7 @@ public class Commit extends FileItem {
                 super.mSha1Code = new Sha1(getFileContent(), false);
                 branch.setPointedCommitSha1(super.mSha1Code);
                 FileItemHandler.zip(this, Paths.get(repository.getmRepositoryLocation(), ".magit", "objects").toString(), super.mSha1Code);
-                repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
+                repository.changeBranchPointer(branch, new Sha1(getFileContent(), false));
             } else {
                 throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
             }

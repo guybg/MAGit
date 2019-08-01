@@ -148,6 +148,6 @@ public class BranchManager {
             throw new CommitNotFoundException("Wrong commit sha1 code, please enter existing commit sha1 code");
         }
 
-        repository.changeBranchPointer(mActiveBranch.getmBranchName(), commitSha1);
+        repository.changeBranchPointer(mActiveBranch, commitSha1);
     }
 }
