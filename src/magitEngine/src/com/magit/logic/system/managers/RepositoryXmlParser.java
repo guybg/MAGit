@@ -1,6 +1,7 @@
 package com.magit.logic.system.managers;
 
 import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
+import com.magit.logic.exceptions.XmlFileException;
 import com.magit.logic.system.XMLObjects.*;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.digest.Sha1;
@@ -18,13 +19,16 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RepositoryXmlParser {
 
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser)
-            throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException {
+            throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException {
+        checkIfXmlFile(xmlPath);
+        
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
 
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -41,9 +45,18 @@ public class RepositoryXmlParser {
         return repository;
     }
 
+
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
-            throws ParseException, IOException, PreviousCommitsLimitexceededException {
+            throws ParseException, IOException, PreviousCommitsLimitexceededException, XmlFileException {
         MagitRepository magitRepository = jaxbElement.getValue();
+
+        /* check for xml errors */
+        checkXmlForDuplicateRepositoryItemIdsError(magitRepository);
+        checkXmlFoldersForWrongItemIdPointers(magitRepository);
+        checkXmlCommitsForWrongFolderIdPointers(magitRepository);
+        checkXmlForInvalidPointedCommitsInBranches(magitRepository);
+        checkXmlHeadBranchExists(magitRepository);
+
         Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), activeUser, magitRepository.getName());
         HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
         HashMap<String, Tree> treeMap = createFolderMap(magitRepository);
@@ -56,8 +69,86 @@ public class RepositoryXmlParser {
         return repository;
     }
 
+    private void checkIfXmlFile(String pathToXml) throws XmlFileException {
+        if (!Paths.get(pathToXml).getFileName().toString().endsWith(".xml"))
+            throw new XmlFileException("Given file is not xml file, file does not and with .xml.");
+    }
+
+    private void checkXmlFoldersForWrongItemIdPointers(MagitRepository magitRepository) throws XmlFileException {
+        List<MagitBlob> magitBlobs = magitRepository.getMagitBlobs().getMagitBlob();
+        List<MagitSingleFolder> magitSingleFolders = magitRepository.getMagitFolders().getMagitSingleFolder();
+        for (MagitSingleFolder magitSingleFolder : magitSingleFolders) {
+            for (Item item : magitSingleFolder.getItems().getItem()) {
+                checkIfItemIdExists(magitRepository, magitSingleFolder, item);
+            }
+        }
+    }
+
+    private void checkXmlCommitsForWrongFolderIdPointers(MagitRepository magitRepository) throws XmlFileException {
+        List<MagitSingleFolder> magitSingleFolders = magitRepository.getMagitFolders().getMagitSingleFolder();
+        List<MagitSingleCommit> magitSingleCommits = magitRepository.getMagitCommits().getMagitSingleCommit();
+        for (MagitSingleCommit magitSingleCommit : magitSingleCommits) {
+            checkIfValidCommitFolder(magitRepository, magitSingleCommit, magitSingleCommit.getRootFolder());
+        }
+    }
+
+    private void checkIfValidCommitFolder(MagitRepository magitRepository, MagitSingleCommit magitSingleCommit, RootFolder rootFolder) throws XmlFileException {
+        if (magitRepository.getMagitFolders().getMagitSingleFolder().stream().noneMatch(magitfolder -> magitfolder.getId().equals(rootFolder.getId()) && magitfolder.isIsRoot())) {
+            throw new XmlFileException("XML error : Pointed commit folder with id " + rootFolder.getId() + " not found or not defined as a root folder.");
+        }
+    }
+
+    private void checkIfItemIdExists(MagitRepository magitRepository, MagitSingleFolder magitSingleFolder, Item itemTCheck) throws XmlFileException {
+        if (itemTCheck.getType().equals("blob")) {
+            if (!magitRepository.getMagitBlobs().getMagitBlob()
+                    .stream()
+                    .anyMatch(blob -> blob.getId().equals(itemTCheck.getId())))
+                throw new XmlFileException("XML error : Folder id " + magitSingleFolder.getId() + " contains the id " + itemTCheck.getId() + " of blob that doesn't exist.");
+        } else if (itemTCheck.getType().equals("folder")) {
+            if (!magitRepository.getMagitFolders().getMagitSingleFolder()
+                    .stream()
+                    .anyMatch(folder -> folder.getId().equals(itemTCheck.getId())))
+                throw new XmlFileException("XML error : Folder id " + magitSingleFolder.getId() + " contains the id " + itemTCheck.getId() + " of folder that doesn't exist.");
+            if (magitSingleFolder.getId().equals(itemTCheck.getId())) {
+                throw new XmlFileException("XML error : Folder contains itself.");
+            }
+        } else {
+            throw new XmlFileException("XML error : " + itemTCheck.getType() + " is not a valid item type.");
+        }
+    }
+
+    private void checkXmlForDuplicateRepositoryItemIdsError(MagitRepository magitRepository) throws XmlFileException {
+        List<MagitBlob> magitBlobs = magitRepository.getMagitBlobs().getMagitBlob();
+        List<MagitSingleFolder> magitSingleFolders = magitRepository.getMagitFolders().getMagitSingleFolder();
+        List<MagitSingleCommit> magitSingleCommits = magitRepository.getMagitCommits().getMagitSingleCommit();
+        if (magitBlobs.size() != magitBlobs.stream().map(MagitBlob::getId).distinct().count())
+            throw new XmlFileException("XML error : Duplicate Blob ids.");
+        if (magitSingleFolders.size() != magitSingleFolders.stream().map(MagitSingleFolder::getId).distinct().count())
+            throw new XmlFileException("XML error : Duplicate Folder ids.");
+        if (magitSingleCommits.size() != magitSingleCommits.stream().map(MagitSingleCommit::getId).distinct().count())
+            throw new XmlFileException("XML error : Duplicate Commit ids.");
+    }
+
+    private void checkXmlForInvalidPointedCommitsInBranches(MagitRepository magitRepository) throws XmlFileException {
+        List<MagitSingleCommit> magitSingleCommits = magitRepository.getMagitCommits().getMagitSingleCommit();
+        List<MagitSingleBranch> magitSingleBranches = magitRepository.getMagitBranches().getMagitSingleBranch();
+
+        for (MagitSingleBranch magitSingleBranch : magitSingleBranches) {
+            if (magitSingleCommits.stream().noneMatch(magitCommit -> magitCommit.getId().equals(magitSingleBranch.getPointedCommit().getId()))) {
+                throw new XmlFileException("XML error : Branch with the name: '" + magitSingleBranch.getName() + "' has invalid pointed commit id.");
+            }
+        }
+    }
+
+    private void checkXmlHeadBranchExists(MagitRepository magitRepository) throws XmlFileException {
+        if (magitRepository.getMagitBranches().getMagitSingleBranch().stream().noneMatch(branch -> branch.getName().equals(magitRepository.getMagitBranches().getHead()))) {
+            throw new XmlFileException("Head branch '" + magitRepository.getMagitBranches().getHead() + "' does not exist.");
+        }
+    }
+
     private HashMap<String, Blob> createBlobMap(MagitRepository magitRepository) throws ParseException {
         HashMap<String, Blob> blobMap = new HashMap<>();
+
         for (MagitBlob magitBlob : magitRepository.getMagitBlobs().getMagitBlob()) {
             Blob blobToAdd = new Blob(magitBlob);
             blobMap.put(magitBlob.getId(), blobToAdd);
@@ -110,8 +201,7 @@ public class RepositoryXmlParser {
                 commitsOfRepository.get(magitCommit.getId()).addPreceding(commitsOfRepository.get(precedingCommit.getId()).getSha1());
             }
         }
-        ArrayList<Commit> commitsArray = new ArrayList<>(commitsOfRepository.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
-        return commitsArray;
+        return new ArrayList<>(commitsOfRepository.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
     }
 
     private void createBranches(MagitRepository magitRepository, Repository repository,

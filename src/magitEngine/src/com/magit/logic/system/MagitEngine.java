@@ -35,7 +35,7 @@ public class MagitEngine {
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
 
-    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException {
+    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName);
         mRepositoryManager.setmActiveRepository(repository);
