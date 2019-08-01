@@ -28,7 +28,7 @@ public class RepositoryXmlParser {
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser)
             throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException {
         checkIfXmlFile(xmlPath);
-        
+
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
 
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
@@ -71,7 +71,7 @@ public class RepositoryXmlParser {
 
     private void checkIfXmlFile(String pathToXml) throws XmlFileException {
         if (!Paths.get(pathToXml).getFileName().toString().endsWith(".xml"))
-            throw new XmlFileException("Given file is not xml file, file does not and with .xml.");
+            throw new XmlFileException("XML error : Given file is not xml file, file does not end with .xml.");
     }
 
     private void checkXmlFoldersForWrongItemIdPointers(MagitRepository magitRepository) throws XmlFileException {
@@ -142,7 +142,7 @@ public class RepositoryXmlParser {
 
     private void checkXmlHeadBranchExists(MagitRepository magitRepository) throws XmlFileException {
         if (magitRepository.getMagitBranches().getMagitSingleBranch().stream().noneMatch(branch -> branch.getName().equals(magitRepository.getMagitBranches().getHead()))) {
-            throw new XmlFileException("Head branch '" + magitRepository.getMagitBranches().getHead() + "' does not exist.");
+            throw new XmlFileException("XML error : Head branch '" + magitRepository.getMagitBranches().getHead() + "' does not exist.");
         }
     }
 
