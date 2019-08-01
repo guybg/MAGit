@@ -55,8 +55,8 @@ public class RepositoryManager {
     }
 
     private void loadRepository(Path repositoryPath, BranchManager branchManager, String userName) throws IOException, ParseException {
-        mActiveRepository = new Repository(repositoryPath.getFileName().toString()
-                , repositoryPath.getParent().toString(), userName);
+        String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
+        mActiveRepository = new Repository(repositoryPath.toString(), userName, repositoryName);
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
@@ -81,7 +81,7 @@ public class RepositoryManager {
     public String presentCurrentCommitAndHistory(String userName)
             throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException, PreviousCommitsLimitexceededException {
         if (!mActiveRepository.isValid())
-            throw new RepositoryNotFoundException(mActiveRepository.getRepositoryName());
+            throw new RepositoryNotFoundException(mActiveRepository.getRepositoryPath().toString());
 
         Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
         if (commit == null)
@@ -90,8 +90,8 @@ public class RepositoryManager {
         return WorkingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getmLastUpdater());
     }
 
-    public void createNewRepository(String repositoryName, String fullPath, BranchManager branchManager, String userName) throws IllegalPathException, IOException {
-        Repository repository = new Repository(repositoryName, fullPath, userName);
+    public void createNewRepository(String fullPath, BranchManager branchManager, String userName, String repositoryName) throws IllegalPathException, IOException {
+        Repository repository = new Repository(fullPath, userName, repositoryName);
         repository.create();
         mActiveRepository = repository;
         repository.setActiveUserName(userName);
@@ -148,7 +148,7 @@ public class RepositoryManager {
         StringBuilder workingCopyStatusContent = new StringBuilder();
         workingCopyStatusContent.append(String.format("Repository name: %s%s", mActiveRepository.getRepositoryName(), System.lineSeparator()));
         workingCopyStatusContent.append(String.format("Repository location: %s%s", mActiveRepository.getRepositoryPath(), System.lineSeparator()));
-        workingCopyStatusContent.append(String.format("Active repository: %s%s", userName, System.lineSeparator()));
+        workingCopyStatusContent.append(String.format("Active user: %s%s", userName, System.lineSeparator()));
 
         Map<FileStatus, SortedSet<Delta.DeltaFileItem>> differences = checkDifferenceBetweenCurrentWCandLastCommit();
         workingCopyStatusContent.append(String.format("New Items: %s", System.lineSeparator()));

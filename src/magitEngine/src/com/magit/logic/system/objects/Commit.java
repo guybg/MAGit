@@ -4,6 +4,7 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
+import com.magit.logic.system.XMLObjects.MagitRepository;
 import com.magit.logic.system.XMLObjects.MagitSingleCommit;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
@@ -48,13 +49,14 @@ public class Commit extends FileItem {
         super.mSha1Code = sha1Code;
     }
 
-    public Commit(MagitSingleCommit singleCommit, Sha1 workingCopySha1) throws ParseException {
+    public Commit(MagitSingleCommit singleCommit, Sha1 workingCopySha1, MagitRepository magitRepository) throws ParseException, IOException {
         super(singleCommit);
         mFirstPreviousCommit = new Sha1(EMPTY, true);
         mSecondPreviousCommit = new Sha1(EMPTY, true);
         this.mCommitMessage = singleCommit.getMessage();
         mWorkingCopySha1 = workingCopySha1;
         super.mSha1Code = new Sha1(getFileContent(), false);
+        addCommitToCommitsFile(magitRepository);
     }
 
     public static Commit createCommitInstanceByPath(Path pathToCommit) throws IOException, ParseException, PreviousCommitsLimitexceededException {
@@ -157,14 +159,14 @@ public class Commit extends FileItem {
             generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
         } else {
-        //handle second and on commit
+            //handle second and on commit
             WorkingCopyUtils wcw = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, getCreationDate());
             Tree curWc = wcw.getWc();
 
             Commit lastCommit = createCommitInstanceByPath(repository.getCommitPath());
             Tree oldWcFromCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, repository.getRepositoryPath().toString());
 
-            WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(), repository.getRepositoryName()).toString(), mLastUpdater, mLastModified);
+            WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, mLastModified);
             Tree fixedWc = WorkingCopyUtils.getWcWithOnlyNewchanges(curWc, oldWcFromCommit);
             mWorkingCopySha1 = fixedWc.getSha1Code();
             if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code())) {
@@ -172,24 +174,29 @@ public class Commit extends FileItem {
                 workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
                 super.mSha1Code = new Sha1(getFileContent(), false);
                 branch.setPointedCommitSha1(super.mSha1Code);
-                FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(),
-                        repository.getRepositoryName(), ".magit", "objects").toString(), super.mSha1Code);
+                FileItemHandler.zip(this, Paths.get(repository.getmRepositoryLocation(), ".magit", "objects").toString(), super.mSha1Code);
                 repository.changeBranchPointer(branch.getmBranchName(), new Sha1(getFileContent(), false));
             } else {
                 throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
             }
         }
+        addCommitToCommitsFile(repository);
+    }
+
+    private void addCommitToCommitsFile(Repository repository) throws IOException {
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getMagitFolderPath().toString(), COMMITS_FILE_NAME).toString(), getSha1Code().toString());
     }
 
+    private void addCommitToCommitsFile(MagitRepository magitRepository) throws IOException {
+        FileHandler.appendFileWithContentAndLine(Paths.get(magitRepository.getLocation(), ".magit", COMMITS_FILE_NAME).toString(), getSha1Code().toString());
+    }
+
     private void generateFirstCommit(String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {
-        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(Paths.get(repository.getmRepositoryParentFolderLocation(),
-                repository.getRepositoryName()).toString(), creator, mLastModified);
+        WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(repository.getRepositoryPath().toString(), creator, mLastModified);
         mWorkingCopySha1 = workingCopyUtils.zipWorkingCopyFromCurrentWorkingCopy();
         super.mSha1Code = new Sha1(getFileContent(), false);
         branch.setPointedCommitSha1(super.mSha1Code);
-        FileItemHandler.zip(this, Paths.get(repository.getmRepositoryParentFolderLocation(),
-                repository.getRepositoryName(), ".magit", "objects").toString(), super.mSha1Code);
+        FileItemHandler.zip(this, Paths.get(repository.getRepositoryPath().toString(), ".magit", "objects").toString(), super.mSha1Code);
     }
 
     public String getFileContent() {

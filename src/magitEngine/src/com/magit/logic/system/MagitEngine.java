@@ -81,10 +81,9 @@ public class MagitEngine {
         return mRepositoryManager.getBranchesInfo();
     }
 
-    public void createNewRepository(Path pathToFile) throws IOException {
+    public void createNewRepository(Path pathToFile, String repositoryName) throws IOException {
         try {
-            mRepositoryManager.createNewRepository(pathToFile.getFileName().toString(),
-                    pathToFile.getParent().toString(), mBranchManager, mUserName);
+            mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, mUserName, repositoryName);
         } catch (NullPointerException e) {
             throw new IllegalPathException(pathToFile.toString(), "isn't a legal path");
         }

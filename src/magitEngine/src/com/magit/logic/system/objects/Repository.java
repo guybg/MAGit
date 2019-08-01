@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -22,22 +21,23 @@ import java.util.SortedSet;
 public class Repository {
 
     private final String BRANCHES = "branches";
+    private final String REPOSITORY_NAME = "REPOSITORY_NAME";
     private String mActiveUser;
     private String mRepositoryName;
-    private String mRepositoryParentFolderLocation;
+    private String mRepositoryLocation;
     private HashMap<String, Branch> mBranches;
     private Path pathToRepository;
     private Path pathToMagit;
     private Path pathToHead;
 
-    public Repository(String mRepositoryName, String mRepositoryLocation, String mUserName) {
-        this.mRepositoryName = mRepositoryName;
-        this.mRepositoryParentFolderLocation = mRepositoryLocation;
+    public Repository(String mRepositoryLocation, String mUserName, String mRepositoryName) {
+        this.mRepositoryLocation = mRepositoryLocation;
         this.mBranches = new HashMap<>();
-        this.pathToRepository = Paths.get(mRepositoryParentFolderLocation , mRepositoryName);
+        this.pathToRepository = Paths.get(mRepositoryLocation);
         this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
         this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
         this.mActiveUser = mUserName;
+        this.mRepositoryName = mRepositoryName;
     }
 
     public void addBranch(String key, Branch value) {
@@ -57,11 +57,11 @@ public class Repository {
     }
 
     public Path getRepositoryPath() {
-        return Paths.get(mRepositoryParentFolderLocation, mRepositoryName);
+        return Paths.get(mRepositoryLocation);
     }
 
     public Path getMagitFolderPath() {
-        return Paths.get(getRepositoryPath().toString(), ".magit");
+        return pathToMagit;
     }
     public Path getHeadPath() {
         return pathToHead;
@@ -73,7 +73,7 @@ public class Repository {
 
 
     public boolean isValid() {
-        return Files.exists(Paths.get(mRepositoryParentFolderLocation)) &&
+        return Files.exists(Paths.get(mRepositoryLocation)) &&
                 Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead)
                 && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, "master"));
     }
@@ -101,9 +101,11 @@ public class Repository {
         String headBranch = "master";
         File repository;
         try {
-            Path filePath = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit", BRANCHES);
+            Path filePath = Paths.get(mRepositoryLocation, ".magit", BRANCHES);
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
+            Path repositoryNamePath = Paths.get(mRepositoryLocation, ".magit", REPOSITORY_NAME);
+            FileHandler.writeNewFile(repositoryNamePath.toString(), mRepositoryName);
             if (!mBranches.isEmpty()) {
                 for (Branch branch : mBranches.values()) {
                     if (!branch.getmBranchName().equals("HEAD")) {
@@ -121,20 +123,20 @@ public class Repository {
 
         if (!validPath) {
             if (repository.exists())
-                throw new RepositoryAlreadyExistsException(mRepositoryParentFolderLocation, mRepositoryName);
+                throw new RepositoryAlreadyExistsException(mRepositoryLocation, getRepositoryName());
             else
-                throw new IllegalPathException(mRepositoryParentFolderLocation, "wrong location");
+                throw new IllegalPathException(mRepositoryLocation, "wrong location");
         }
         if (mBranches.isEmpty()) {
             Branch branch = new Branch("master");
-            branch.create(Paths.get(mRepositoryParentFolderLocation, mRepositoryName).toString());
+            branch.create(Paths.get(mRepositoryLocation).toString());
             mBranches.put("master", branch);
         }
         createHeadFile(headBranch);
     }
 
     private void createHeadFile(String branchName) throws IOException {
-        Path path = Paths.get(mRepositoryParentFolderLocation, mRepositoryName, ".magit", "Branches", "HEAD");
+        Path path = Paths.get(mRepositoryLocation, ".magit", "Branches", "HEAD");
         File branchesPath = new File(path.getParent().toString());
         branchesPath.mkdirs();
         Files.createFile(path);
@@ -151,15 +153,15 @@ public class Repository {
         return mRepositoryName;
     }
 
-    String getmRepositoryParentFolderLocation() {
-        return mRepositoryParentFolderLocation;
+    String getmRepositoryLocation() {
+        return mRepositoryLocation;
     }
 
     public void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
-        FileHandler.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
+        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branchName).toString(), newCommit.toString());
     }
 
-    public boolean areThereChanges(Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws ParseException, IOException {
+    public boolean areThereChanges(Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) {
         final int changesWereMade = 0;
 
         return changes.get(FileStatus.NEW).size() != changesWereMade ||

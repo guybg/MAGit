@@ -14,6 +14,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,8 +37,7 @@ public class RepositoryXmlParser {
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
             throws ParseException, IOException, PreviousCommitsLimitexceededException {
         MagitRepository magitRepository = jaxbElement.getValue();
-
-        Repository repository = new Repository(magitRepository.getName(), magitRepository.getLocation(), activeUser);
+        Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), activeUser, magitRepository.getName());
         HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
         HashMap<String, Tree> treeMap = createFolderMap(magitRepository);
         insertFileItemsToTrees(magitRepository.getMagitFolders(), treeMap, blobMap);
@@ -87,11 +87,11 @@ public class RepositoryXmlParser {
     }
 
 
-    private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitexceededException {
+    private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitexceededException, IOException {
         //check why there's root folder in xml
         ArrayList<Commit> commitsOfRepository = new ArrayList<>();
         for (MagitSingleCommit magitCommit : magitRepository.getMagitCommits().getMagitSingleCommit()) {
-            Commit currentCommit = new Commit(magitCommit, folders.get(magitCommit.getRootFolder().getId()).getSha1Code());
+            Commit currentCommit = new Commit(magitCommit, folders.get(magitCommit.getRootFolder().getId()).getSha1Code(), magitRepository);
             commitsOfRepository.add(currentCommit);
             PrecedingCommits precedingCommits = magitCommit.getPrecedingCommits();
             if (precedingCommits == null) {

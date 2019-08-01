@@ -151,7 +151,8 @@ public class UserInterface {
                     System.out.println("Please enter path:");
                     try {
                         Path pathToRepository = Paths.get(input.nextLine());
-                        magitEngine.createNewRepository(pathToRepository);
+                        System.out.println("Please enter repository name");
+                        magitEngine.createNewRepository(pathToRepository, input.nextLine());
                     } catch (IllegalPathException e) {
                         System.out.println(e.getMessage());
                         continue;
@@ -233,7 +234,8 @@ public class UserInterface {
         } catch (RepositoryNotFoundException ex) {
             if (yesNoQuestion("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.",
                     input)) {
-                magitEngine.createNewRepository(pathOfRepository);
+                System.out.println("Please enter repository name");
+                magitEngine.createNewRepository(pathOfRepository, input.nextLine());
             }
         }
 
