@@ -18,6 +18,8 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RepositoryXmlParser {
 
@@ -94,24 +96,26 @@ public class RepositoryXmlParser {
 
     private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitexceededException, IOException {
         //check why there's root folder in xml
-        ArrayList<Commit> commitsOfRepository = new ArrayList<>();
+        HashMap<String, Commit> commitsOfRepository = new HashMap<>();
         for (MagitSingleCommit magitCommit : magitRepository.getMagitCommits().getMagitSingleCommit()) {
             Commit currentCommit = new Commit(magitCommit, folders.get(magitCommit.getRootFolder().getId()).getSha1Code(), magitRepository);
-            commitsOfRepository.add(currentCommit);
+            commitsOfRepository.put(magitCommit.getId(), currentCommit);
+        }
+        for (MagitSingleCommit magitCommit : magitRepository.getMagitCommits().getMagitSingleCommit()) {
             PrecedingCommits precedingCommits = magitCommit.getPrecedingCommits();
             if (precedingCommits == null) {
                 precedingCommits = new PrecedingCommits();
             }
             for (PrecedingCommits.PrecedingCommit precedingCommit : precedingCommits.getPrecedingCommit()) {
-                int indexInArray = Integer.parseInt(precedingCommit.getId()) - 1;
-                currentCommit.addPreceding(commitsOfRepository.get(indexInArray).getSha1());
+                commitsOfRepository.get(magitCommit.getId()).addPreceding(commitsOfRepository.get(precedingCommit.getId()).getSha1());
             }
         }
-        return commitsOfRepository;
+        ArrayList<Commit> commitsArray = new ArrayList<>(commitsOfRepository.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+        return commitsArray;
     }
 
     private void createBranches(MagitRepository magitRepository, Repository repository,
-                                       BranchManager branchManager, ArrayList<Commit> commits) {
+                                BranchManager branchManager, ArrayList<Commit> commits) {
         String headBranchName = magitRepository.getMagitBranches().getHead();
         for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
 
@@ -123,8 +127,7 @@ public class RepositoryXmlParser {
                 branchManager.setActiveBranch(headBranch);
                 repository.addBranch(headBranch.getmBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
-            }
-            else {
+            } else {
                 Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
                 repository.addBranch(branchToAdd.getmBranchName(), branchToAdd);
             }
@@ -132,7 +135,7 @@ public class RepositoryXmlParser {
     }
 
     private void zipCommitWorkingCopy(Repository repository, ArrayList<Commit> commits, HashMap<String, Tree> treeMap)
-    throws IOException{
+            throws IOException {
         for (Commit commit : commits) {
             commit.generateCommitFile(repository.getObjectsFolderPath());
             Sha1 commitWorkingCopySha1commit = commit.getmWorkingCopySha1();
