@@ -12,5 +12,10 @@ public class CommitNotFoundException extends Exception {
     public String toString() {
         return this.mError;
     }
+
+    @Override
+    public String getMessage() {
+        return this.mError;
+    }
 }
 

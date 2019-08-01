@@ -1,10 +1,7 @@
 package com.magit.logic.system.managers;
 
 import com.magit.logic.enums.FileStatus;
-import com.magit.logic.exceptions.ActiveBranchDeletedExpcetion;
-import com.magit.logic.exceptions.BranchNotFoundException;
-import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
-import com.magit.logic.exceptions.UncommitedChangesException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -143,5 +140,14 @@ public class BranchManager {
         }
         mActiveBranch = activeRepository.getmBranches().get(wantedBranchName);
         return "Active branch has changed successfully";
+    }
+
+    public void changeBranchPointedCommit(Repository repository, Sha1 commitSha1) throws IOException, CommitNotFoundException {
+        boolean commitExists = FileHandler.isContentExistsInFile(Paths.get(repository.getMagitFolderPath().toString(), "COMMITS").toString(), commitSha1.toString());
+        if (!commitExists) {
+            throw new CommitNotFoundException("Wrong commit sha1 code, please enter existing commit sha1 code");
+        }
+
+        repository.changeBranchPointer(mActiveBranch.getmBranchName(), commitSha1);
     }
 }

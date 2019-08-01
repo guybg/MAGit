@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class UserInterface {
 
     private final static String UPDATE_USER_NAME = "Update User Name";
-    private final static String READ_REPOSITORY_DETAILS = "Load Repository From XML";
+    private final static String LOAD_REPOSITORY_FROM_XML = "Load Repository From XML";
     private final static String SWITCH_REPOSITORY = "Switch Repository";
     private final static String PRESENT_CURRENT_COMMIT_AND_HISTORY = "Present Current Commit and History";
     private final static String SHOW_WORKING_COPY_STATUS = "Show Working Copy Status";
@@ -23,6 +23,7 @@ public class UserInterface {
     private final static String DELETE_BRANCH = "Delete Branch";
     private final static String PICK_HEAD_BRANCH = "Checkout";
     private final static String PRESENT_CURRENT_BRANCH_HISTORY = "Present Current Branch History";
+    private final static String CHANGE_HEAD_BRANCH_POINTED_COMMIT = "Change Head Branch Pointed Commit";
     private final static String EXIT = "EXIT";
 
     public static void main(String[] args) throws IOException, ParseException {
@@ -53,7 +54,7 @@ public class UserInterface {
     private static void printMenu() {
         System.out.println("Menu:" + System.lineSeparator() +
                 "1." + UPDATE_USER_NAME + System.lineSeparator() +
-                "2." + READ_REPOSITORY_DETAILS + System.lineSeparator() +
+                "2." + LOAD_REPOSITORY_FROM_XML + System.lineSeparator() +
                 "3." + SWITCH_REPOSITORY + System.lineSeparator() +
                 "4." + PRESENT_CURRENT_COMMIT_AND_HISTORY + System.lineSeparator() +
                 "5." + SHOW_WORKING_COPY_STATUS + System.lineSeparator() +
@@ -64,7 +65,8 @@ public class UserInterface {
                 "10." + DELETE_BRANCH + System.lineSeparator() +
                 "11." + PICK_HEAD_BRANCH + System.lineSeparator() +
                 "12." + PRESENT_CURRENT_BRANCH_HISTORY + System.lineSeparator() +
-                "13." + EXIT);
+                "13." + CHANGE_HEAD_BRANCH_POINTED_COMMIT + System.lineSeparator() +
+                "14." + EXIT);
     }
 
     private static void run(MagitEngine magitEngine) throws
@@ -86,7 +88,7 @@ public class UserInterface {
                     System.out.println("Please enter user name:");
                     magitEngine.updateUserName(input.nextLine());
                     break;
-                case ReadRepositoryDetails:
+                case LoadRepositoryFromXML:
                     System.out.println("Please enter xml file path:");
                     try {
                         magitEngine.loadRepositoryFromXML(input.nextLine());
@@ -189,6 +191,28 @@ public class UserInterface {
                         System.out.println(e.getMessage());
                     }
                     break;
+                case ChangePointedCommitSha1:
+                    System.out.println("Please Enter Commit's Sha1 code:");
+                    String commitSha1Code = input.nextLine();
+                    try {
+                        magitEngine.workingCopyChangedComparedToCommit();
+                        System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
+                    } catch (PreviousCommitsLimitexceededException e) {
+
+                    } catch (UncommitedChangesException e) {
+                        if (yesNoQuestion("Are you sure you want to change pointed commit before commiting unsaved changes?, press y/Y to change pointed commit, any other key to abort.", input)) {
+                            try {
+                                System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
+                            } catch (CommitNotFoundException ex) {
+                                System.out.println(e.getMessage());
+                            } catch (PreviousCommitsLimitexceededException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
+                    } catch (CommitNotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
                 case Exit:
                     optionsToActivate = MenuOptions.Exit;
                     break;
@@ -254,7 +278,7 @@ public class UserInterface {
 
     private enum MenuOptions {
         UpdateUserName,
-        ReadRepositoryDetails,
+        LoadRepositoryFromXML,
         SwitchRepository,
         PresentCurrentCommitAndHistory,
         ShowWorkingCopyStatus,
@@ -265,6 +289,7 @@ public class UserInterface {
         DeleteBranch,
         PickHeadBranch,
         PresentCurrentBranchHistory,
+        ChangePointedCommitSha1,
         Exit,
         Default;
 

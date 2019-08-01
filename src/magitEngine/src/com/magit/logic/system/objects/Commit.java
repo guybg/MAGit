@@ -6,6 +6,7 @@ import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
 import com.magit.logic.system.XMLObjects.MagitSingleCommit;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
@@ -26,8 +27,9 @@ public class Commit extends FileItem {
     private Sha1 mFirstPreviousCommit;
     private Sha1 mSecondPreviousCommit;
     private String mCommitMessage;
-    
+
     final String EMPTY = "";
+    final String COMMITS_FILE_NAME = "COMMITS";
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate, null);
@@ -177,6 +179,7 @@ public class Commit extends FileItem {
                 throw new WorkingCopyStatusNotChangedComparedToLastCommitException();
             }
         }
+        FileHandler.appendFileWithContentAndLine(Paths.get(repository.getMagitFolderPath().toString(), COMMITS_FILE_NAME).toString(), getSha1Code().toString());
     }
 
     private void generateFirstCommit(String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {

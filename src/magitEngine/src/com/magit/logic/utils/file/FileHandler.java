@@ -40,4 +40,14 @@ public class FileHandler {
         File file = new File(destinationPath);
         file.mkdirs();
     }
+
+    public static void appendFileWithContentAndLine(String destinationPath, String fileContent) throws IOException {
+        File file = new File(destinationPath);
+        FileUtils.writeStringToFile(file, fileContent + System.lineSeparator(), StandardCharsets.UTF_8, true);
+    }
+
+    public static boolean isContentExistsInFile(String fileSourcePath, String contentToFind) throws IOException {
+        File file = new File(fileSourcePath);
+        return FileUtils.readFileToString(file, StandardCharsets.UTF_8).contains(contentToFind);
+    }
 }

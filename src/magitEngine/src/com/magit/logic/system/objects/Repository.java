@@ -60,6 +60,9 @@ public class Repository {
         return Paths.get(mRepositoryParentFolderLocation, mRepositoryName);
     }
 
+    public Path getMagitFolderPath() {
+        return Paths.get(getRepositoryPath().toString(), ".magit");
+    }
     public Path getHeadPath() {
         return pathToHead;
     }
@@ -67,6 +70,7 @@ public class Repository {
     public Path getBranchDirectoryPath() {
         return Paths.get(pathToMagit.toString(), BRANCHES);
     }
+
 
     public boolean isValid() {
         return Files.exists(Paths.get(mRepositoryParentFolderLocation)) &&
@@ -151,7 +155,7 @@ public class Repository {
         return mRepositoryParentFolderLocation;
     }
 
-    void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
+    public void changeBranchPointer(String branchName, Sha1 newCommit) throws IOException {
         FileHandler.writeNewFile(Paths.get(mRepositoryParentFolderLocation, mRepositoryName,".magit","branches", branchName).toString(), newCommit.toString());
     }
 

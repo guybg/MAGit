@@ -5,6 +5,8 @@ import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileHandler;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -55,6 +57,19 @@ public class MagitEngine {
         mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit();
     }
 
+    public String changeBranchPointedCommit(String commitSha1) throws IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
+        repositoryNotFoundCheck();
+        mBranchManager.changeBranchPointedCommit(mRepositoryManager.getRepository(), new Sha1(commitSha1, true));
+        FileHandler.clearFolder(mRepositoryManager.getRepository().getRepositoryPath());
+        mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
+        return mRepositoryManager.presentCurrentCommitAndHistory(mUserName);
+    }
+
+    public void workingCopyChangedComparedToCommit() throws ParseException, PreviousCommitsLimitexceededException, IOException, RepositoryNotFoundException, UncommitedChangesException {
+        repositoryNotFoundCheck();
+        if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit()))
+            throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
+    }
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
             WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
