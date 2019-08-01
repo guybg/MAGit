@@ -20,6 +20,8 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
     Date mLastModified;
     Sha1 mSha1Code;
 
+    protected String dateFormat = "dd.MM.yyyy-hh:mm:ss:SSS";
+
     FileItem(String mName, FileType mFileType, String mLastUpdater, Date mLastModified, Sha1 sha1Code) {
         this.mName = mName;
         this.mFileType = mFileType;
@@ -32,7 +34,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         this.mName = magitBlob.getName();
         this.mFileType = FileType.FILE;
         this.mLastUpdater = magitBlob.getLastUpdater();
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
         this.mLastModified = dateFormat.parse(magitBlob.getLastUpdateDate());
     }
 
@@ -40,14 +42,14 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         this.mName = (magitFolder.getName() == null) ? "" : magitFolder.getName();
         this.mFileType = FileType.FOLDER;
         this.mLastUpdater = magitFolder.getLastUpdater();
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
         this.mLastModified = dateFormat.parse(magitFolder.getLastUpdateDate());
     }
 
     FileItem(MagitSingleCommit singleCommit) throws ParseException {
         this.mLastUpdater = singleCommit.getAuthor();
         this.mFileType = FileType.COMMIT;
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
         this.mLastModified = dateFormat.parse(singleCommit.getDateOfCreation());
     }
 

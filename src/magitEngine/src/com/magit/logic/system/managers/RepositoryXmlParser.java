@@ -31,7 +31,9 @@ public class RepositoryXmlParser {
         JAXBElement<MagitRepository> repositoryJAXBElement =
                 unmarshaller.unmarshal(new StreamSource(xmlStream), MagitRepository.class);
 
-        return createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser);
+        Repository repository = createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser);
+        xmlStream.close();
+        return repository;
     }
 
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)

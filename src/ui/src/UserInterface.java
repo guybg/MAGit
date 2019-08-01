@@ -24,7 +24,7 @@ public class UserInterface {
     private final static String PICK_HEAD_BRANCH = "Checkout";
     private final static String PRESENT_CURRENT_BRANCH_HISTORY = "Present Current Branch History";
     private final static String CHANGE_HEAD_BRANCH_POINTED_COMMIT = "Change Head Branch Pointed Commit";
-    private final static String EXIT = "EXIT";
+    private final static String EXIT = "Exit";
 
     public static void main(String[] args) throws IOException, ParseException {
         MagitEngine maGitSystem = new MagitEngine();

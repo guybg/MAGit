@@ -81,7 +81,7 @@ public class Tree extends FileItem {
 
     @Override
     public String toString() {
-        DateFormat dateFormat = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
         return super.getmName() + ";" +
                 mSha1Code + ";" +
                 super.getmFileType() + ";" +

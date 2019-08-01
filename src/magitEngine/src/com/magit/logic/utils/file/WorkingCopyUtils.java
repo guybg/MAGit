@@ -43,7 +43,7 @@ public class WorkingCopyUtils {
             for (String[] fileItem : fileItems) {
                 if (fileItem.length < 4) continue;
                 DateFormat formatter1;
-                formatter1 = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:sss");
+                formatter1 = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
                 Date date = formatter1.parse(fileItem[4]);
                 files.add(walk(new Sha1(fileItem[1], true), FileType.valueOf(fileItem[2]), fileItem[3], date, fileItem[0], repositoryPath, Paths.get(filePath, fileItem[0]).toString(), deltaFileItems));
             }
