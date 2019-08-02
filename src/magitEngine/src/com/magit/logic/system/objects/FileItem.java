@@ -91,7 +91,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
 
     public abstract String toString();
 
-    protected String getMiniMizedFileDetailes() {
+    String getMinimizedFileDetails() {
         return mName + ";" + mSha1Code + ";" + mFileType;
     }
 

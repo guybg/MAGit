@@ -71,7 +71,7 @@ public class Tree extends FileItem {
     public String getMinimizedFileContentForSha1() {
         String content = "";
         for (FileItem item : mFiles) {
-            content += item.getMiniMizedFileDetailes();
+            content += item.getMinimizedFileDetails();
             content += System.lineSeparator();
         }
         return content;
