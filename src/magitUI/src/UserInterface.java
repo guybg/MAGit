@@ -37,16 +37,10 @@ public class UserInterface {
                     e.getCause());
         } catch (IOException e) {
             System.out.println(e);
-        } //catch (RepositoryNotFoundException e) {
-        //catch (WorkingCopyIsEmptyException e) {
-        //  e.printStackTrace();
-        //}
+        }
         catch (Exception e) {
             System.out.println(e.toString());
         }
-        //e.printStackTrace();
-        //}
-
     }
 
     private static void printMenu() {
@@ -68,7 +62,7 @@ public class UserInterface {
     }
 
     private static void run(MagitEngine magitEngine) throws
-            IOException, RepositoryNotFoundException, ParseException, ActiveBranchDeletedExpcetion, JAXBException {
+            IOException, ParseException, JAXBException {
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
@@ -142,9 +136,7 @@ public class UserInterface {
         System.out.println("Please enter xml file path:");
         try {
             magitEngine.loadRepositoryFromXML(input.nextLine());
-        } catch (PreviousCommitsLimitexceededException | XmlFileException | IOException e) {
-            System.out.println(e.getMessage());
-        } catch (IllegalPathException e) {
+        } catch (PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
