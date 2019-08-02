@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$//magit.iml" filepath="$PROJECT_DIR$//magit.iml" />
       <module fileurl="file://$PROJECT_DIR$/src/magitEngine/magitEngine.iml" filepath="$PROJECT_DIR$/src/magitEngine/magitEngine.iml" />
-      <module fileurl="file://$PROJECT_DIR$/src/ui/ui.iml" filepath="$PROJECT_DIR$/src/ui/ui.iml" />
+      <module fileurl="file://$PROJECT_DIR$/src/magitUI/magitUI.iml" filepath="$PROJECT_DIR$/src/magitUI/magitUI.iml" />
     </modules>
   </component>
 </project>
