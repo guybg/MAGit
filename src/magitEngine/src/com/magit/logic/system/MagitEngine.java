@@ -94,7 +94,7 @@ public class MagitEngine {
         return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
     }
 
-    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion, RepositoryNotFoundException {
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion, RepositoryNotFoundException, BranchNotFoundException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }

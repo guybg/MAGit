@@ -11,4 +11,9 @@ public class ActiveBranchDeletedExpcetion extends Exception {
     public String toString() {
         return this.mError;
     }
+
+    @Override
+    public String getMessage() {
+        return mError;
+    }
 }

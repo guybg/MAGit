@@ -98,13 +98,16 @@ public class BranchManager {
     }
 
 
-    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedExpcetion {
+    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedExpcetion, BranchNotFoundException {
         if (Files.notExists(activeRepository.getHeadPath()))
             throw new FileNotFoundException("Head file not found, repository is invalid.");
 
         String headContent = FileHandler.readFile(activeRepository.getHeadPath().toString());
         if (branchNameToDelete.equals(headContent))
             throw new ActiveBranchDeletedExpcetion("Active Branch can't be deleted.");
+
+        if (!activeRepository.getmBranches().containsKey(branchNameToDelete))
+            throw new BranchNotFoundException(branchNameToDelete, "Branch called '" + branchNameToDelete + "' can't be deleted, because it doesn't exist at current repository.");
 
         FileUtils.deleteQuietly(Paths.get(activeRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
     }
