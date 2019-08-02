@@ -102,7 +102,6 @@ public class UserInterface {
                         createNewRepository(magitEngine, input);
                     } catch (IllegalPathException e) {
                         System.out.println(e.getMessage());
-                        continue;
                     }
                     break;
                 case CreateNewBranch:
