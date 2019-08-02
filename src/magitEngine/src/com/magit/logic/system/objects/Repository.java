@@ -111,7 +111,7 @@ public class Repository {
             }
         } catch (InvalidPathException e) {
             System.out.println(e.getMessage());
-            throw new IllegalPathException(e.getInput(), e.getMessage());
+            throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
 
         }
 
@@ -119,7 +119,7 @@ public class Repository {
             if (repository.exists())
                 throw new RepositoryAlreadyExistsException(mRepositoryLocation, getRepositoryName());
             else
-                throw new IllegalPathException(mRepositoryLocation, "wrong location");
+                throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
         }
         if (mBranches.isEmpty()) {
             Branch branch = new Branch("master");

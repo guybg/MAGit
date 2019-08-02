@@ -1,13 +1,11 @@
 package com.magit.logic.exceptions;
 
-import java.nio.file.InvalidPathException;
-
-public class IllegalPathException extends InvalidPathException {
+public class IllegalPathException extends Exception {
     private String message;
 
-    public IllegalPathException(String input, String reason) {
-        super(input, reason);
-        this.message = "Couldnt perform action on path " + input + ", because input " + getReason();
+    public IllegalPathException(String message) {
+        super(message);
+        this.message = message;
     }
 
 

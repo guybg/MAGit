@@ -7,6 +7,7 @@ import com.magit.logic.utils.file.FileHandler;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
@@ -29,7 +30,7 @@ public class Branch {
         return mPointedCommitSha1;
     }
 
-    void create(String path) {
+    void create(String path) throws IllegalPathException {
         try {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);
             File branch = new File(filePath.toString());
@@ -42,8 +43,8 @@ public class Branch {
                 System.out.println("file created");
             }
 
-        } catch (IllegalPathException e) {
-            throw new IllegalPathException(e.getInput(), e.getMessage());
+        } catch (InvalidPathException e) {
+            throw new IllegalPathException(path + " is not a valid path.");
         } catch (FileAlreadyExistsException e) {
             // throw nice message about repository already exists
         } catch (IOException e) {

@@ -191,7 +191,7 @@ public class WorkingCopyUtils {
         workingCopyContent.append(String.format("==============================================%s", System.lineSeparator()));
         workingCopyContent.append(String.format("[Root Folder] --> .%s", System.lineSeparator()));
         workingCopyContent.append(String.format("%s%s", workingCopyFolder.getSha1Code(), System.lineSeparator()));
-        workingCopyContent.append(String.format("%s - %s%s", workingCopyFolder.getmName(), workingCopyFolder.getLastModified(), System.lineSeparator()));
+        workingCopyContent.append(String.format("WC - %s%s", workingCopyFolder.getLastModified(), System.lineSeparator()));
         workingCopyContent.append(String.format("Last modifier: %s%s", workingCopyFolder.getmLastUpdater(), System.lineSeparator()));
         workingCopyContent.append(String.format("==============================================%s", System.lineSeparator()));
         for (FileItem fileToPrint : workingCopyFolder.listFiles()) {

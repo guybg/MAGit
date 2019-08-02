@@ -39,9 +39,12 @@ public class BranchManager {
         mActiveBranch = new Branch(headContent, FileHandler.readFile(headBranch.getPath()));
     }
 
-    public boolean createNewBranch(String branchName, Repository repository) throws IOException {
+    public boolean createNewBranch(String branchName, Repository repository) throws IOException, InvalidNameException {
         if (Files.exists(Paths.get(repository.toString(), branchName)))
             return false;
+        if (branchName.contains(" ")) {
+            throw new InvalidNameException("Branch name cannot contain spaces, please choose a name without space and try again.");
+        }
 
         repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getmPointedCommitSha1().toString()));
         FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
@@ -52,12 +55,12 @@ public class BranchManager {
         Path pathToBranchFile = Paths.get(activeRepository.getBranchDirectoryPath().toString(),
                 mActiveBranch.getmBranchName());
         if (Files.notExists(pathToBranchFile))
-            throw new FileNotFoundException("No Branch file, repository is invalid");
+            throw new FileNotFoundException("No Branch file, repository is invalid.");
 
         String sha1OfCommit = FileHandler.readFile(pathToBranchFile.toString());
         Path pathToCommit = Paths.get(activeRepository.getObjectsFolderPath().toString(), sha1OfCommit);
         if (Files.notExists(pathToCommit))
-            throw new FileNotFoundException("No commit file, repository is invalid");
+            throw new FileNotFoundException("No commit file, there is no history to show.");
         final String seperator = "===================================================";
         StringBuilder activeBranchHistory = new StringBuilder();
         activeBranchHistory.append(String.format("Branch Name: %s%s%s%s%s%s"
@@ -66,15 +69,6 @@ public class BranchManager {
         Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
         activeBranchHistory.append(mostRecentCommit.toPrintFormat());
         getAllPreviousCommitsHistoryString(mostRecentCommit, activeRepository, activeBranchHistory);
-        //    for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
-        //        Path currentCommitPath = Paths.get(activeRepository.getObjectsFolderPath().toString(), currentSha1.toString());
-        //        if (Files.notExists(currentCommitPath)) {
-        //            throw new FileNotFoundException("Commit history is invalid, repository invalid.");
-        //        }
-        //        activeBranchHistory.append(String.format("%s%s", seperator, System.lineSeparator()));
-        //        Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
-        //        activeBranchHistory.append(currentCommitInHistory.toPrintFormat());
-        //    }
 
         return activeBranchHistory.toString();
     }
@@ -145,10 +139,15 @@ public class BranchManager {
         return "Active branch has changed successfully";
     }
 
-    public void changeBranchPointedCommit(Repository repository, Sha1 commitSha1) throws IOException, CommitNotFoundException {
-        boolean commitExists = FileHandler.isContentExistsInFile(Paths.get(repository.getMagitFolderPath().toString(), "COMMITS").toString(), commitSha1.toString());
+    public void changeBranchPointedCommit(Repository repository, Sha1 commitSha1) throws CommitNotFoundException, IOException {
+        boolean commitExists = false;
+        try {
+            commitExists = FileHandler.isContentExistsInFile(Paths.get(repository.getMagitFolderPath().toString(), "COMMITS").toString(), commitSha1.toString());
+        } catch (IOException e) {
+            throw new CommitNotFoundException("There are no commits to go back to.");
+        }
         if (!commitExists) {
-            throw new CommitNotFoundException("Wrong commit sha1 code, please enter existing commit sha1 code");
+            throw new CommitNotFoundException("Wrong commit sha1 code, please enter existing commit sha1 code.");
         }
 
         repository.changeBranchPointer(mActiveBranch, commitSha1);

@@ -1,5 +1,6 @@
 package com.magit.logic.system.managers;
 
+import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
 import com.magit.logic.exceptions.XmlFileException;
 import com.magit.logic.system.XMLObjects.*;
@@ -7,7 +8,6 @@ import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
-import javax.naming.LimitExceededException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -16,19 +16,17 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RepositoryXmlParser {
 
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser)
-            throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException {
+            throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         checkIfXmlFile(xmlPath);
 
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
@@ -48,7 +46,7 @@ public class RepositoryXmlParser {
     }
 
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
-            throws ParseException, IOException, PreviousCommitsLimitexceededException, XmlFileException {
+            throws ParseException, IOException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         MagitRepository magitRepository = jaxbElement.getValue();
 
         /* check for xml errors */
@@ -59,6 +57,7 @@ public class RepositoryXmlParser {
         checkXmlHeadBranchExists(magitRepository);
 
         Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), activeUser, magitRepository.getName());
+
         HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
         HashMap<String, Tree> treeMap = createFolderMap(magitRepository);
         insertFileItemsToTrees(magitRepository.getMagitFolders(), treeMap, blobMap);
@@ -70,9 +69,13 @@ public class RepositoryXmlParser {
         return repository;
     }
 
-    private void checkIfXmlFile(String pathToXml) throws XmlFileException {
-        if (!Paths.get(pathToXml).getFileName().toString().endsWith(".xml"))
-            throw new XmlFileException("XML error : Given file is not xml file, file does not end with .xml.");
+    private void checkIfXmlFile(String pathToXml) throws XmlFileException, IllegalPathException {
+        try {
+            if (!Paths.get(pathToXml).getFileName().toString().endsWith(".xml"))
+                throw new XmlFileException("XML error : Given file is not xml file, file does not end with .xml.");
+        } catch (InvalidPathException e) {
+            throw new IllegalPathException(pathToXml + " is not a valid path.");
+        }
     }
 
     private void checkXmlFoldersForWrongItemIdPointers(MagitRepository magitRepository) throws XmlFileException {

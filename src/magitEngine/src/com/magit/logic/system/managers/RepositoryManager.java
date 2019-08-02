@@ -47,6 +47,10 @@ public class RepositoryManager {
                 Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD"));
     }
 
+    public boolean isCommitExists(String sha1Code) throws IOException {
+        return FileHandler.isContentExistsInFile(Paths.get(getRepository().getMagitFolderPath().toString(), "COMMITS").toString(), sha1Code);
+    }
+
     private void loadRepository(Path repositoryPath, BranchManager branchManager, String userName) throws IOException, ParseException {
         String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
         mActiveRepository = new Repository(repositoryPath.toString(), userName, repositoryName);

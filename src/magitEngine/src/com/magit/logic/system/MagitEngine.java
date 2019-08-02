@@ -7,11 +7,10 @@ import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
-import org.apache.commons.io.FileUtils;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.text.ParseException;
 
@@ -32,12 +31,12 @@ public class MagitEngine {
 
     }
 
-    private void repositoryNotFoundCheck() throws RepositoryNotFoundException {
+    public void repositoryNotFoundCheck() throws RepositoryNotFoundException {
         if (mRepositoryManager.getRepository() == null)
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
 
-    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException {
+    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName);
         mRepositoryManager.setmActiveRepository(repository);
@@ -82,15 +81,15 @@ public class MagitEngine {
         return mRepositoryManager.getBranchesInfo();
     }
 
-    public void createNewRepository(Path pathToFile, String repositoryName) throws IOException {
+    public void createNewRepository(Path pathToFile, String repositoryName) throws IOException, IllegalPathException {
         try {
             mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, mUserName, repositoryName);
-        } catch (NullPointerException e) {
-            throw new IllegalPathException(pathToFile.toString(), "isn't a legal path");
+        } catch (NullPointerException | InvalidPathException e) {
+            throw new IllegalPathException(pathToFile.toString() + " is not a valid path.");
         }
     }
 
-    public boolean createNewBranch(String branchName) throws IOException, RepositoryNotFoundException {
+    public boolean createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException {
         repositoryNotFoundCheck();
         return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
     }

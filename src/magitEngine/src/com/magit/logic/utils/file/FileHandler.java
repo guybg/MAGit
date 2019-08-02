@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class FileHandler {
 
@@ -48,6 +49,8 @@ public class FileHandler {
 
     public static boolean isContentExistsInFile(String fileSourcePath, String contentToFind) throws IOException {
         File file = new File(fileSourcePath);
-        return FileUtils.readFileToString(file, StandardCharsets.UTF_8).contains(contentToFind);
+        boolean commitExists = false;
+        String[] commitsSha1s = FileUtils.readFileToString(file, StandardCharsets.UTF_8).split(System.lineSeparator());
+        return Arrays.asList(commitsSha1s).contains(contentToFind);
     }
 }

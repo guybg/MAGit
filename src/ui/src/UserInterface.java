@@ -3,6 +3,7 @@ import com.magit.logic.system.MagitEngine;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -26,7 +27,7 @@ public class UserInterface {
     private final static String CHANGE_HEAD_BRANCH_POINTED_COMMIT = "Change Head Branch Pointed Commit";
     private final static String EXIT = "Exit";
 
-    public static void main(String[] args) throws IOException, ParseException {
+    public static void main(String[] args) {
         MagitEngine maGitSystem = new MagitEngine();
         try {
             run(maGitSystem);
@@ -34,9 +35,6 @@ public class UserInterface {
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
                     e.getCause());
-
-        } catch (IllegalPathException e) {
-            System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(e);
         } //catch (RepositoryNotFoundException e) {
@@ -123,7 +121,7 @@ public class UserInterface {
                     pickHeadBranch(magitEngine, input);
                     break;
                 case PresentCurrentBranchHistory:
-                    presentCurrentBranchHistory(magitEngine, input);
+                    presentCurrentBranchHistory(magitEngine);
                     break;
                 case ChangePointedCommitSha1:
                     changePointedCommitSha1(magitEngine, input);
@@ -144,7 +142,9 @@ public class UserInterface {
         System.out.println("Please enter xml file path:");
         try {
             magitEngine.loadRepositoryFromXML(input.nextLine());
-        } catch (PreviousCommitsLimitexceededException | IOException | XmlFileException e) {
+        } catch (PreviousCommitsLimitexceededException | XmlFileException | IOException e) {
+            System.out.println(e.getMessage());
+        } catch (IllegalPathException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -159,7 +159,7 @@ public class UserInterface {
             System.out.println(magitEngine.presentCurrentCommitAndHistory());
         } catch (CommitNotFoundException e) {
             System.out.println(e.toString());
-        } catch (RepositoryNotFoundException | IOException | PreviousCommitsLimitexceededException e) {
+        } catch (RepositoryNotFoundException | PreviousCommitsLimitexceededException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -167,9 +167,7 @@ public class UserInterface {
     private static void switchRepository(MagitEngine magitEngine, Scanner input) throws ParseException {
         try {
             executeSwitchRepository(magitEngine, input);
-        } catch (IllegalPathException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
+        } catch (IOException | IllegalPathException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -188,6 +186,7 @@ public class UserInterface {
 
     private static void commit(MagitEngine magitEngine, Scanner input) throws ParseException {
         try {
+            magitEngine.repositoryNotFoundCheck();
             System.out.println("Please enter your commit message ");
             magitEngine.commit(input.nextLine());
         } catch (WorkingCopyIsEmptyException e) {
@@ -206,26 +205,30 @@ public class UserInterface {
     private static void presentAllBranches(MagitEngine magitEngine) throws ParseException {
         try {
             System.out.println(magitEngine.getBranchesInfo());
-        } catch (RepositoryNotFoundException | IOException | PreviousCommitsLimitexceededException e) {
+        } catch (RepositoryNotFoundException | PreviousCommitsLimitexceededException | IOException e) {
             System.out.println(e.getMessage());
         }
 
     }
 
-    private static void createNewRepository(MagitEngine magitEngine, Scanner input) {
+    private static void createNewRepository(MagitEngine magitEngine, Scanner input) throws IllegalPathException {
         System.out.println("Please enter path:");
-        Path pathToRepository = Paths.get(input.nextLine());
-        System.out.println("Please enter repository name");
+        String pathToRepositoryInput = input.nextLine();
         try {
+            Path pathToRepository = Paths.get(pathToRepositoryInput);
+            System.out.println("Please enter repository name");
             magitEngine.createNewRepository(pathToRepository, input.nextLine());
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        } catch (InvalidPathException e) {
+            throw new IllegalPathException(pathToRepositoryInput + " is not a valid path.");
         }
     }
 
     private static void createNewBranch(MagitEngine magitEngine, Scanner input) throws ParseException {
-        System.out.println("Pick branch name:");
         try {
+            magitEngine.repositoryNotFoundCheck();
+            System.out.println("Pick branch name:");
             String branchName = input.nextLine();
             while (!magitEngine.createNewBranch(branchName))
                 System.out.println(String.format("Branch already exists, pick another.%s", System.lineSeparator()));
@@ -233,32 +236,35 @@ public class UserInterface {
                     input)) {
                 changeBranchOperation(magitEngine, branchName, input);
             }
-        } catch (RepositoryNotFoundException | IOException e) {
+        } catch (RepositoryNotFoundException | InvalidNameException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     private static void deleteBranch(MagitEngine magitEngine, Scanner input) {
-        System.out.println("Enter branch name:");
         try {
+            magitEngine.repositoryNotFoundCheck();
+            System.out.println("Enter branch name:");
             magitEngine.deleteBranch(input.nextLine());
-        } catch (RepositoryNotFoundException | IOException | BranchNotFoundException | ActiveBranchDeletedExpcetion e) {
+        } catch (RepositoryNotFoundException | ActiveBranchDeletedExpcetion | BranchNotFoundException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void presentCurrentBranchHistory(MagitEngine magitEngine, Scanner input) throws ParseException {
+    private static void presentCurrentBranchHistory(MagitEngine magitEngine) throws ParseException {
         try {
             System.out.println(magitEngine.presentCurrentBranch());
-        } catch (RepositoryNotFoundException | IOException | PreviousCommitsLimitexceededException e) {
+        } catch (RepositoryNotFoundException | PreviousCommitsLimitexceededException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
 
     private static void changePointedCommitSha1(MagitEngine magitEngine, Scanner input) throws ParseException {
-        System.out.println("Please Enter Commit's Sha1 code:");
-        String commitSha1Code = input.nextLine();
+        String commitSha1Code = "";
         try {
+            magitEngine.repositoryNotFoundCheck();
+            System.out.println("Please Enter Commit's Sha1 code:");
+            commitSha1Code = input.nextLine();
             magitEngine.workingCopyChangedComparedToCommit();
             System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
         } catch (PreviousCommitsLimitexceededException e) {
@@ -280,20 +286,23 @@ public class UserInterface {
         }
     }
 
-    private static void executeSwitchRepository(MagitEngine magitEngine, Scanner input) throws ParseException, IOException {
+
+    private static void executeSwitchRepository(MagitEngine magitEngine, Scanner input) throws ParseException, IOException, IllegalPathException {
         System.out.println("Please enter repository path:" + System.lineSeparator());
-        Path pathOfRepository = Paths.get("");
+        String pathOfRepositoryString = input.nextLine();
         try {
-            pathOfRepository = Paths.get(input.nextLine());
+            Path pathOfRepository = Paths.get(pathOfRepositoryString);
             magitEngine.switchRepository(pathOfRepository.toString());
         } catch (RepositoryNotFoundException ex) {
             if (yesNoQuestion("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.",
                     input)) {
                 System.out.println("Please enter repository name");
-                magitEngine.createNewRepository(pathOfRepository, input.nextLine());
+                magitEngine.createNewRepository(Paths.get(pathOfRepositoryString), input.nextLine());
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
+        } catch (InvalidPathException e) {
+            throw new IllegalPathException(pathOfRepositoryString + " is not a legal path.");
         }
     }
 
@@ -308,9 +317,13 @@ public class UserInterface {
     }
 
     private static void pickHeadBranch(MagitEngine magitEngine, Scanner input) throws IOException, ParseException {
-        System.out.println("Please enter branch name:");
-        String branchName = "";
-        changeBranchOperation(magitEngine, input.nextLine(), input);
+        try {
+            magitEngine.repositoryNotFoundCheck();
+            System.out.println("Please enter branch name:");
+            changeBranchOperation(magitEngine, input.nextLine(), input);
+        } catch (RepositoryNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private static void changeBranchOperation(MagitEngine magitEngine, String branchName, Scanner input) throws IOException, ParseException {
