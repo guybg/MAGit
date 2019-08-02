@@ -37,7 +37,7 @@ public class UserInterface {
             System.out.println(e.getMessage() + "\n" +
                     e.getCause());
         } catch (IOException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         catch (Exception e) {
             System.out.println(e.toString());
@@ -272,8 +272,7 @@ public class UserInterface {
             commitSha1Code = input.nextLine();
             magitEngine.workingCopyChangedComparedToCommit();
             System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
-        } catch (PreviousCommitsLimitexceededException e) {
-
+        } catch (PreviousCommitsLimitexceededException ignored) {
         } catch (UncommitedChangesException e) {
             if (yesNoQuestion("Are you sure you want to change pointed commit before commiting unsaved changes?, press y/Y to change pointed commit, any other key to abort.", input)) {
                 try {
