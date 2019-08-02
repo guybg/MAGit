@@ -7,6 +7,7 @@ import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 
+import javax.naming.LimitExceededException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -15,6 +16,7 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -44,7 +46,6 @@ public class RepositoryXmlParser {
         xmlStream.close();
         return repository;
     }
-
 
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
             throws ParseException, IOException, PreviousCommitsLimitexceededException, XmlFileException {
@@ -184,7 +185,6 @@ public class RepositoryXmlParser {
         }
     }
 
-
     private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitexceededException, IOException {
         //check why there's root folder in xml
         HashMap<String, Commit> commitsOfRepository = new HashMap<>();
@@ -201,7 +201,7 @@ public class RepositoryXmlParser {
                 commitsOfRepository.get(magitCommit.getId()).addPreceding(commitsOfRepository.get(precedingCommit.getId()).getSha1());
             }
         }
-        return new ArrayList<>(commitsOfRepository.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList()));
+        return new ArrayList<>(commitsOfRepository.values());
     }
 
     private void createBranches(MagitRepository magitRepository, Repository repository,
@@ -238,4 +238,39 @@ public class RepositoryXmlParser {
             }
         }
     }
+
+    private void writeRepositoryToXML(Repository repository)
+            throws IOException, ParseException, PreviousCommitsLimitexceededException {
+
+        MagitRepository magitRepository = createMagitRepository(repository);
+
+
+    }
+
+    private MagitRepository createMagitRepository (Repository repository) {
+        MagitRepository magitRepository = new MagitRepository();
+        magitRepository.setLocation(repository.getRepositoryPath().toString());
+        magitRepository.setName(repository.getRepositoryName());
+        return magitRepository;
+    }
+
+    private HashMap<Integer, MagitSingleCommit> createMagitCommits(Repository repository)
+            throws IOException, ParseException, PreviousCommitsLimitexceededException{
+        Integer id = 0;
+        HashMap<Integer, MagitSingleCommit> commitMap = new HashMap<>();
+
+        for (String sha1OfCommit : repository.getAllCommitsOfRepository()) {
+            Commit currentCommit = Commit.createCommitInstanceByPath(
+                    Paths.get(repository.getObjectsFolderPath().toString(),sha1OfCommit));
+            if (currentCommit == null)
+                continue;
+
+            MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(currentCommit, id);
+            commitMap.put(id++, currentMagitCommit);
+        }
+
+        return commitMap;
+    }
+
+
 }

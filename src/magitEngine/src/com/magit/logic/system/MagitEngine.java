@@ -7,8 +7,10 @@ import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import org.apache.commons.io.FileUtils;
 
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.ParseException;
@@ -40,7 +42,6 @@ public class MagitEngine {
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName);
         mRepositoryManager.setmActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
-
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {

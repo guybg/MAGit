@@ -23,13 +23,6 @@ import java.util.*;
 public class RepositoryManager {
     private Repository mActiveRepository;
 
-    public void setUserName(String userName) {
-        mActiveRepository.setActiveUserName(userName);
-    }
-
-    public void setActiveRepository(Repository repository) {
-        mActiveRepository = repository;
-    }
     public Repository getRepository() {
         return mActiveRepository;
     }
@@ -94,7 +87,6 @@ public class RepositoryManager {
         Repository repository = new Repository(fullPath, userName, repositoryName);
         repository.create();
         mActiveRepository = repository;
-        repository.setActiveUserName(userName);
         branchManager.setActiveBranch(repository.getmBranches().get("master"));
     }
 

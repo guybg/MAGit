@@ -23,7 +23,6 @@ public class Repository {
 
     private final String BRANCHES = "branches";
     private final String REPOSITORY_NAME = "REPOSITORY_NAME";
-    private String mActiveUser;
     private String mRepositoryName;
     private String mRepositoryLocation;
     private HashMap<String, Branch> mBranches;
@@ -37,41 +36,35 @@ public class Repository {
         this.pathToRepository = Paths.get(mRepositoryLocation);
         this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
         this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
-        this.mActiveUser = mUserName;
         this.mRepositoryName = mRepositoryName;
     }
 
     public void addBranch(String key, Branch value) {
         this.mBranches.put(key, value);
     }
-
-    public void setActiveUserName(String name) {
-        mActiveUser = name;
-    }
-
-    // public String getActiveUserName(){
-    //     return mActiveUser;
-    //}
-
     private Path getBranchPath(String branchName) {
         return Paths.get(pathToMagit.toString(), BRANCHES, branchName);
     }
-
     public Path getRepositoryPath() {
         return Paths.get(mRepositoryLocation);
     }
-
     public Path getMagitFolderPath() {
         return pathToMagit;
     }
     public Path getHeadPath() {
         return pathToHead;
     }
-
     public Path getBranchDirectoryPath() {
         return Paths.get(pathToMagit.toString(), BRANCHES);
     }
 
+    public String[] getAllCommitsOfRepository() throws IOException {
+        Path pathToCommitsFile = Paths.get(pathToMagit.toString(), "COMMITS");
+        if (Files.notExists(pathToCommitsFile))
+            return null;
+
+        return FileHandler.readFile(pathToCommitsFile.toString()).split(System.lineSeparator());
+    }
 
     public boolean isValid() {
         return Files.exists(Paths.get(mRepositoryLocation)) &&
