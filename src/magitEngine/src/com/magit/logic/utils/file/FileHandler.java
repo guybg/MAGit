@@ -49,7 +49,6 @@ public class FileHandler {
 
     public static boolean isContentExistsInFile(String fileSourcePath, String contentToFind) throws IOException {
         File file = new File(fileSourcePath);
-        boolean commitExists = false;
         String[] commitsSha1s = FileUtils.readFileToString(file, StandardCharsets.UTF_8).split(System.lineSeparator());
         return Arrays.asList(commitsSha1s).contains(contentToFind);
     }
