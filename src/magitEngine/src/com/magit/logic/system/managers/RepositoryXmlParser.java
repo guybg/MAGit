@@ -10,6 +10,7 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 
+import javax.naming.LimitExceededException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -23,9 +24,8 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class RepositoryXmlParser {
 
@@ -266,7 +266,7 @@ public class RepositoryXmlParser {
             throws IOException, ParseException, PreviousCommitsLimitexceededException {
 
         MagitRepository magitRepository = createMagitRepository(repository);
-
+        createMagitObjects(repository, magitRepository);
 
     }
 
@@ -277,23 +277,61 @@ public class RepositoryXmlParser {
         return magitRepository;
     }
 
-    private HashMap<Integer, MagitSingleCommit> createMagitCommits(Repository repository)
+    private void createMagitObjects(Repository repository, MagitRepository magitRepository)
             throws IOException, ParseException, PreviousCommitsLimitexceededException{
-        Integer id = 0;
-        HashMap<Integer, MagitSingleCommit> commitMap = new HashMap<>();
+        int id = 0;
+        ArrayList<MagitSingleCommit> commitList = new ArrayList<>();
 
         for (String sha1OfCommit : repository.getAllCommitsOfRepository()) {
             Commit currentCommit = Commit.createCommitInstanceByPath(
                     Paths.get(repository.getObjectsFolderPath().toString(),sha1OfCommit));
+
             if (currentCommit == null)
                 continue;
 
-            MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(currentCommit, id);
-            commitMap.put(id++, currentMagitCommit);
+            MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(currentCommit, id++);
+            commitList.add(currentMagitCommit);
+            Tree foldersOfCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(currentCommit, repository.getRepositoryPath().toString());
+            createMagitObjectsFromTree(foldersOfCommit, magitRepository);
         }
 
-        return commitMap;
+        MagitCommits magitCommits = MagitObjectsFactory.createMagitCommits();
+        magitCommits.getMagitSingleCommit().addAll(commitList);
     }
 
+    private void createMagitObjectsFromTree(Tree folder, MagitRepository magitRepository) {
+        Integer idBlob = 1, idTree = 1;
+        LinkedList<FileItem> objectsOfTree = new LinkedList<>();
+        objectsOfTree.add(folder);
+        ArrayList<MagitBlob> magitBlobsList = new ArrayList<>();
+        ArrayList<MagitSingleFolder> magitFoldersList = new ArrayList<>();
 
+        for (FileItem item : objectsOfTree) {
+            if (item instanceof Blob) {
+                magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, idBlob));
+            } else if (item instanceof Tree) {
+                MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, idTree, true);//ask guy
+                ArrayList<Item> itemsOfFolder = new ArrayList<>();
+                for (FileItem childInFolder : ((Tree) item).getmFiles()) {
+                    if (childInFolder instanceof Blob) {
+                        itemsOfFolder.add(MagitObjectsFactory.createItem(idBlob++, "blob"));
+                    } else if (childInFolder instanceof Tree) {
+                        itemsOfFolder.add(MagitObjectsFactory.createItem(idTree++, "folder"));
+                    }
+                    objectsOfTree.add(childInFolder);
+                }
+                MagitSingleFolder.Items items = MagitObjectsFactory.createItemList();
+                items.getItem().addAll(itemsOfFolder);
+                magitSingleFolder.setItems(items);
+                magitFoldersList.add(magitSingleFolder);
+                objectsOfTree.poll();
+            }
+        }
+        MagitBlobs magitBlobs = MagitObjectsFactory.createMagitBlobs();
+        magitBlobs.getMagitBlob().addAll(magitBlobsList);
+        magitRepository.setMagitBlobs(magitBlobs);
+        MagitFolders magitFolders = MagitObjectsFactory.createMagitFolders();
+        magitFolders.getMagitSingleFolder().addAll(magitFoldersList);
+        magitRepository.setMagitFolders(magitFolders);
+    }
 }
