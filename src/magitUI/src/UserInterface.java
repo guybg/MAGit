@@ -3,6 +3,7 @@ import com.magit.logic.system.MagitEngine;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -133,10 +134,23 @@ public class UserInterface {
 
     private static void loadRepositoryFromXML(MagitEngine magitEngine, Scanner input) throws ParseException, JAXBException {
         System.out.println("Please enter xml file path:");
+        String xmlPath = "";
         try {
-            magitEngine.loadRepositoryFromXML(input.nextLine());
-        } catch (PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException | IOException e) {
+            xmlPath = input.nextLine();
+            magitEngine.loadRepositoryFromXML(xmlPath, false);
+        } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage());
+            if (yesNoQuestion("Would you like to replace current repository with XML repository?, press y/Y to replace, any other key to abort.", input)) {
+                try {
+                    magitEngine.loadRepositoryFromXML(xmlPath, true);
+                } catch (IOException | PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
+        } catch (PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException | FileAlreadyExistsException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

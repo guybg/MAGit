@@ -117,7 +117,7 @@ public class Repository {
 
         if (!validPath) {
             if (repository.exists())
-                throw new RepositoryAlreadyExistsException(mRepositoryLocation, getRepositoryName());
+                throw new RepositoryAlreadyExistsException(mRepositoryLocation);
             else
                 throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
         }

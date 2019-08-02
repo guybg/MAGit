@@ -44,7 +44,8 @@ public class RepositoryManager {
 
         return Files.exists(Paths.get(repositoryPath)) &&
                 Files.exists(Paths.get(repositoryPath, magit)) &&
-                Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD"));
+                Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD")) &&
+                Files.exists((Paths.get(repositoryPath, magit, "REPOSITORY_NAME")));
     }
 
     public boolean isCommitExists(String sha1Code) throws IOException {

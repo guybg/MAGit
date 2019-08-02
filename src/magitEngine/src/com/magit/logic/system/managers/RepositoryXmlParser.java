@@ -2,11 +2,13 @@ package com.magit.logic.system.managers;
 
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
+import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.exceptions.XmlFileException;
 import com.magit.logic.system.XMLObjects.*;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import org.apache.commons.io.FileUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -16,6 +18,8 @@ import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -25,7 +29,7 @@ import java.util.List;
 
 public class RepositoryXmlParser {
 
-    public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser)
+    public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser, boolean forceCreation)
             throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         checkIfXmlFile(xmlPath);
 
@@ -40,12 +44,12 @@ public class RepositoryXmlParser {
                 unmarshaller.unmarshal(streamSource, MagitRepository.class);
 
         streamSource.getInputStream().close();
-        Repository repository = createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser);
+        Repository repository = createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser, forceCreation);
         xmlStream.close();
         return repository;
     }
 
-    private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser)
+    private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser, boolean forceCreation)
             throws ParseException, IOException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         MagitRepository magitRepository = jaxbElement.getValue();
 
@@ -56,6 +60,12 @@ public class RepositoryXmlParser {
         checkXmlForInvalidPointedCommitsInBranches(magitRepository);
         checkXmlHeadBranchExists(magitRepository);
 
+        if (!forceCreation)
+            checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(magitRepository.getLocation());
+        if (Files.exists(Paths.get(magitRepository.getLocation()))) {
+            File repositoryDirectory = new File(magitRepository.getLocation());
+            FileUtils.deleteDirectory(repositoryDirectory);
+        }
         Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), activeUser, magitRepository.getName());
 
         HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
@@ -67,6 +77,16 @@ public class RepositoryXmlParser {
         zipCommitWorkingCopy(repository, commits, treeMap);
 
         return repository;
+    }
+
+    private void checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(String repositoryPath) throws FileAlreadyExistsException {
+        if (Files.exists(Paths.get(repositoryPath)) &&
+                Files.exists(Paths.get(repositoryPath, ".magit")) &&
+                Files.exists(Paths.get(repositoryPath, ".magit", "REPOSITORY_NAME")) &&
+                Files.exists((Paths.get(repositoryPath, ".magit", "Branches", "HEAD"))))
+            throw new RepositoryAlreadyExistsException("There is already a repository at " + repositoryPath + ".", repositoryPath);
+        else if (Files.exists(Paths.get(repositoryPath)))
+            throw new FileAlreadyExistsException("There is a non repository file at that location.");
     }
 
     private void checkIfXmlFile(String pathToXml) throws XmlFileException, IllegalPathException {
