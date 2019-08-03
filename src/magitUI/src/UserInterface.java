@@ -10,13 +10,14 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.jar.JarException;
 
 public class UserInterface {
 
     private final static String UPDATE_USER_NAME = "Update User Name";
     private final static String LOAD_REPOSITORY_FROM_XML = "Load Repository From XML";
     private final static String EXPORT_REPOSITORY_TO_XML = "Export Repository To XML";
-    private final static String SWITCH_REPOSITORY = "Switch Repository";
+    private final static String SWITCH_REPOSITORY = "Load/Switch Repository";
     private final static String PRESENT_CURRENT_COMMIT_AND_HISTORY = "Present Current Commit and History";
     private final static String SHOW_WORKING_COPY_STATUS = "Show Working Copy Status";
     private final static String Commit = "Commit";
@@ -64,7 +65,7 @@ public class UserInterface {
     }
 
     private static void run(MagitEngine magitEngine) throws
-            IOException, ParseException, JAXBException, PreviousCommitsLimitexceededException {
+            IOException, ParseException, JAXBException, PreviousCommitsLimitexceededException, RepositoryNotFoundException {
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
@@ -85,8 +86,8 @@ public class UserInterface {
                     loadRepositoryFromXML(magitEngine, input);
                     break;
                 case ExportRepositoryToXML:
-                    System.out.println("enter path");
-                    magitEngine.exportRepositoryToXML(input.nextLine());
+                    exportRepositoryToXML(magitEngine, input);
+                    break;
                 case SwitchRepository:
                     switchRepository(magitEngine, input);
                     break;
@@ -155,6 +156,17 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void exportRepositoryToXML(MagitEngine magitEngine, Scanner input){
+        try {
+            magitEngine.repositoryNotFoundCheck();
+            System.out.println("Enter destination of XML file:");
+            magitEngine.exportRepositoryToXML(input.nextLine());
+        }
+        catch (RepositoryNotFoundException | IOException | ParseException | PreviousCommitsLimitexceededException | JAXBException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 

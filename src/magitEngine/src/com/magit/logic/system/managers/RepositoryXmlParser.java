@@ -253,7 +253,7 @@ public class RepositoryXmlParser {
         }
     }
 
-    public void writeRepositoryToXML(Repository repository)
+    public void writeRepositoryToXML(Repository repository, String saveFileTo)
             throws IOException, ParseException, PreviousCommitsLimitexceededException, JAXBException {
 
         MagitRepository magitRepository = createMagitRepository(repository);
@@ -264,7 +264,7 @@ public class RepositoryXmlParser {
 
         Marshaller marshaller = jaxbContext.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-        FileOutputStream fileOutputStream = new FileOutputStream("D:/2.xml");
+        FileOutputStream fileOutputStream = new FileOutputStream(saveFileTo);
         marshaller.marshal(magitRepository, fileOutputStream);
         fileOutputStream.close();
     }
