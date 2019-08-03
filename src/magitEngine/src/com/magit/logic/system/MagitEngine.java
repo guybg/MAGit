@@ -27,8 +27,6 @@ public class MagitEngine {
 
     public void updateUserName(String userNameToSet) {
         mUserName = userNameToSet;
-        ////mRepositoryManager.setUserName(userNameToSet);
-
     }
 
     public void repositoryNotFoundCheck() throws RepositoryNotFoundException {
@@ -41,6 +39,12 @@ public class MagitEngine {
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
         mRepositoryManager.setmActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
+    }
+
+    public void exportRepositoryToXML(String Path) throws IOException, ParseException, PreviousCommitsLimitexceededException
+    , JAXBException {
+        RepositoryXmlParser parser = new RepositoryXmlParser();
+        parser.writeRepositoryToXML(mRepositoryManager.getRepository());
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {

@@ -15,6 +15,7 @@ public class UserInterface {
 
     private final static String UPDATE_USER_NAME = "Update User Name";
     private final static String LOAD_REPOSITORY_FROM_XML = "Load Repository From XML";
+    private final static String EXPORT_REPOSITORY_TO_XML = "Export Repository To XML";
     private final static String SWITCH_REPOSITORY = "Switch Repository";
     private final static String PRESENT_CURRENT_COMMIT_AND_HISTORY = "Present Current Commit and History";
     private final static String SHOW_WORKING_COPY_STATUS = "Show Working Copy Status";
@@ -48,22 +49,23 @@ public class UserInterface {
         System.out.println("Menu:" + System.lineSeparator() +
                 "1." + UPDATE_USER_NAME + System.lineSeparator() +
                 "2." + LOAD_REPOSITORY_FROM_XML + System.lineSeparator() +
-                "3." + SWITCH_REPOSITORY + System.lineSeparator() +
-                "4." + PRESENT_CURRENT_COMMIT_AND_HISTORY + System.lineSeparator() +
-                "5." + SHOW_WORKING_COPY_STATUS + System.lineSeparator() +
-                "6." + Commit + System.lineSeparator() +
-                "7." + PRESENT_ALL_BRANCHES + System.lineSeparator() +
-                "8." + CREATE_NEW_REPOSITORY + System.lineSeparator() +
-                "9." + CREATE_NEW_BRANCH + System.lineSeparator() +
-                "10." + DELETE_BRANCH + System.lineSeparator() +
-                "11." + PICK_HEAD_BRANCH + System.lineSeparator() +
-                "12." + PRESENT_CURRENT_BRANCH_HISTORY + System.lineSeparator() +
-                "13." + CHANGE_HEAD_BRANCH_POINTED_COMMIT + System.lineSeparator() +
-                "14." + EXIT);
+                "3." + EXPORT_REPOSITORY_TO_XML + System.lineSeparator() +
+                "4." + SWITCH_REPOSITORY + System.lineSeparator() +
+                "5." + PRESENT_CURRENT_COMMIT_AND_HISTORY + System.lineSeparator() +
+                "6." + SHOW_WORKING_COPY_STATUS + System.lineSeparator() +
+                "7." + Commit + System.lineSeparator() +
+                "8." + PRESENT_ALL_BRANCHES + System.lineSeparator() +
+                "9." + CREATE_NEW_REPOSITORY + System.lineSeparator() +
+                "10." + CREATE_NEW_BRANCH + System.lineSeparator() +
+                "11." + DELETE_BRANCH + System.lineSeparator() +
+                "12." + PICK_HEAD_BRANCH + System.lineSeparator() +
+                "13." + PRESENT_CURRENT_BRANCH_HISTORY + System.lineSeparator() +
+                "14." + CHANGE_HEAD_BRANCH_POINTED_COMMIT + System.lineSeparator() +
+                "15." + EXIT);
     }
 
     private static void run(MagitEngine magitEngine) throws
-            IOException, ParseException, JAXBException {
+            IOException, ParseException, JAXBException, PreviousCommitsLimitexceededException {
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
@@ -83,6 +85,9 @@ public class UserInterface {
                 case LoadRepositoryFromXML:
                     loadRepositoryFromXML(magitEngine, input);
                     break;
+                case ExportRepositoryToXML:
+                    System.out.println("enter path");
+                    magitEngine.exportRepositoryToXML(input.nextLine());
                 case SwitchRepository:
                     switchRepository(magitEngine, input);
                     break;
@@ -354,6 +359,7 @@ public class UserInterface {
     private enum MenuOptions {
         UpdateUserName,
         LoadRepositoryFromXML,
+        ExportRepositoryToXML,
         SwitchRepository,
         PresentCurrentCommitAndHistory,
         ShowWorkingCopyStatus,
