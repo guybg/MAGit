@@ -2,6 +2,7 @@ import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 
 import javax.xml.bind.JAXBException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.InvalidPathException;
@@ -151,7 +152,7 @@ public class UserInterface {
                     System.out.println(ex.getMessage());
                 }
             }
-        } catch (PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException | FileAlreadyExistsException e) {
+        } catch (PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException | FileAlreadyExistsException | FileNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
