@@ -387,8 +387,8 @@ public class RepositoryXmlParser {
             MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getmName() == null);
 
             ArrayList<Item> itemsOfFolder = new ArrayList<>();
-            for (FileItem childInFolder : ((Tree) item).getmFiles()) {
-                Item itemToAdd = generateItemFromChild(childInFolder, sha1OfFiles);
+            for (FileItem childInFolder : ((Tree)item).getmFiles()) {
+                Item itemToAdd = generateItemFromChild(childInFolder);
                 if (itemToAdd != null) {
                     itemsOfFolder.add(itemToAdd);
                 }
@@ -401,25 +401,24 @@ public class RepositoryXmlParser {
         }
     }
 
-    private Item generateItemFromChild(FileItem childInFolder, StringBuilder sha1OfFiles) {
+    private Item generateItemFromChild(FileItem childInFolder) {
 
         String sha1OfChild = childInFolder.getSha1Code().toString();
-        if (sha1OfFiles.toString().contains(childInFolder.getSha1Code().toString() + childInFolder.getmName()))
-            return null;
 
         if (childInFolder.getmFileType().equals(FileType.FILE)) {
-            if (!blobSha1ToId.containsKey(sha1OfChild)) {
-                Integer idBlob = blobSha1ToId.size() + 1;
+            boolean containsKey = blobSha1ToId.containsKey(sha1OfChild);
+            Integer idBlob = containsKey ? Integer.parseInt(blobSha1ToId.get(sha1OfChild)) : blobSha1ToId.size() + 1;
+            if (!containsKey) {
                 blobSha1ToId.put(childInFolder.getSha1Code().toString(), idBlob.toString());
-
-                return MagitObjectsFactory.createItem(idBlob, "blob");
             }
+            return MagitObjectsFactory.createItem(idBlob, "blob");
         } else if (childInFolder.getmFileType().equals(FileType.FOLDER)) {
-            if (!treeSha1ToId.containsKey(sha1OfChild)) {
-                Integer idTree = treeSha1ToId.size() + 1;
+            boolean containsKey = treeSha1ToId.containsKey(sha1OfChild);
+            Integer idTree = containsKey ? Integer.parseInt(treeSha1ToId.get(sha1OfChild)): treeSha1ToId.size() + 1;
+            if (!containsKey) {
                 treeSha1ToId.put(childInFolder.getSha1Code().toString(), idTree.toString());
-                return MagitObjectsFactory.createItem(idTree, "folder");
             }
+            return MagitObjectsFactory.createItem(idTree, "folder");
         }
         return null;
     }
@@ -435,6 +434,7 @@ public class RepositoryXmlParser {
             hasNewSha1 = true;
             PrecedingCommits.PrecedingCommit precedingCommit = new PrecedingCommits.PrecedingCommit();
             precedingCommit.setId(sha1ToId.get(sha1Code.toString()));
+            precedingCommitsCollection.add(precedingCommit);
         }
         if (hasNewSha1) {
             PrecedingCommits pc = new PrecedingCommits();
