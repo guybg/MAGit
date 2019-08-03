@@ -2,7 +2,6 @@ import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.InvalidPathException;
@@ -32,10 +31,7 @@ public class UserInterface {
     public static void main(String[] args) {
         MagitEngine maGitSystem = new MagitEngine();
         try {
-            System.out.println(Paths.get("c:repo341").toAbsolutePath().toString());//.equals(Paths.get("c:/repo1").toRealPath()));
-            System.out.println(new File(Paths.get("c:/repo1").toString()).getAbsolutePath());
             run(maGitSystem);
-            //maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
                     e.getCause());
