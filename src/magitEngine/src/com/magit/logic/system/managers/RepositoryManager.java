@@ -73,6 +73,7 @@ public class RepositoryManager {
 
     public void unzipHeadBranchCommitWorkingCopy() throws IOException, ParseException, PreviousCommitsLimitexceededException {
         Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+        if (commit == null) return;
         WorkingCopyUtils.unzipWorkingCopyFromCommit(commit, mActiveRepository.getRepositoryPath().toString(),
                 mActiveRepository.getRepositoryPath().toString());
     }

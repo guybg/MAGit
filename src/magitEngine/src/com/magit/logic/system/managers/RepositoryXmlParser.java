@@ -104,7 +104,6 @@ public class RepositoryXmlParser {
     }
 
     private void checkXmlFoldersForWrongItemIdPointers(MagitRepository magitRepository) throws XmlFileException {
-        List<MagitBlob> magitBlobs = magitRepository.getMagitBlobs().getMagitBlob();
         List<MagitSingleFolder> magitSingleFolders = magitRepository.getMagitFolders().getMagitSingleFolder();
         for (MagitSingleFolder magitSingleFolder : magitSingleFolders) {
             for (Item item : magitSingleFolder.getItems().getItem()) {
@@ -114,7 +113,6 @@ public class RepositoryXmlParser {
     }
 
     private void checkXmlCommitsForWrongFolderIdPointers(MagitRepository magitRepository) throws XmlFileException {
-        List<MagitSingleFolder> magitSingleFolders = magitRepository.getMagitFolders().getMagitSingleFolder();
         List<MagitSingleCommit> magitSingleCommits = magitRepository.getMagitCommits().getMagitSingleCommit();
         for (MagitSingleCommit magitSingleCommit : magitSingleCommits) {
             checkIfValidCommitFolder(magitRepository, magitSingleCommit, magitSingleCommit.getRootFolder());
@@ -129,14 +127,14 @@ public class RepositoryXmlParser {
 
     private void checkIfItemIdExists(MagitRepository magitRepository, MagitSingleFolder magitSingleFolder, Item itemTCheck) throws XmlFileException {
         if (itemTCheck.getType().equals("blob")) {
-            if (!magitRepository.getMagitBlobs().getMagitBlob()
+            if (magitRepository.getMagitBlobs().getMagitBlob()
                     .stream()
-                    .anyMatch(blob -> blob.getId().equals(itemTCheck.getId())))
+                    .noneMatch(blob -> blob.getId().equals(itemTCheck.getId())))
                 throw new XmlFileException("XML error : Folder id " + magitSingleFolder.getId() + " contains the id " + itemTCheck.getId() + " of blob that doesn't exist.");
         } else if (itemTCheck.getType().equals("folder")) {
-            if (!magitRepository.getMagitFolders().getMagitSingleFolder()
+            if (magitRepository.getMagitFolders().getMagitSingleFolder()
                     .stream()
-                    .anyMatch(folder -> folder.getId().equals(itemTCheck.getId())))
+                    .noneMatch(folder -> folder.getId().equals(itemTCheck.getId())))
                 throw new XmlFileException("XML error : Folder id " + magitSingleFolder.getId() + " contains the id " + itemTCheck.getId() + " of folder that doesn't exist.");
             if (magitSingleFolder.getId().equals(itemTCheck.getId())) {
                 throw new XmlFileException("XML error : Folder contains itself.");
@@ -163,7 +161,7 @@ public class RepositoryXmlParser {
         List<MagitSingleBranch> magitSingleBranches = magitRepository.getMagitBranches().getMagitSingleBranch();
 
         for (MagitSingleBranch magitSingleBranch : magitSingleBranches) {
-            if (magitSingleCommits.stream().noneMatch(magitCommit -> magitCommit.getId().equals(magitSingleBranch.getPointedCommit().getId()))) {
+            if (magitSingleCommits.stream().noneMatch(magitCommit -> magitCommit.getId().equals(magitSingleBranch.getPointedCommit().getId())) && magitSingleCommits.size() > 0) {
                 throw new XmlFileException("XML error : Branch with the name: '" + magitSingleBranch.getName() + "' has invalid pointed commit id.");
             }
         }
@@ -195,7 +193,7 @@ public class RepositoryXmlParser {
     }
 
     private void insertFileItemsToTrees(MagitFolders magitFolders, HashMap<String, Tree> treeMap, HashMap<String, Blob> blobMap) {
-        magitFolders.getMagitSingleFolder().stream().filter(folder -> folder.isIsRoot())
+        magitFolders.getMagitSingleFolder().stream().filter(MagitSingleFolder::isIsRoot)
                 .forEach(folder -> insertFileItemsToTree(magitFolders, folder, treeMap, blobMap));
     }
 
@@ -236,9 +234,11 @@ public class RepositoryXmlParser {
                                 BranchManager branchManager, ArrayList<Commit> commits) {
         String headBranchName = magitRepository.getMagitBranches().getHead();
         for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
-
-            int indexOfCommit = Integer.parseInt(branch.getPointedCommit().getId()) - 1;
-            Sha1 branchContent = new Sha1(commits.get(indexOfCommit).getSha1(), true);
+            Sha1 branchContent = new Sha1("", true);
+            if (branch.getPointedCommit().getId() != "") {
+                int indexOfCommit = Integer.parseInt(branch.getPointedCommit().getId()) - 1;
+                branchContent = new Sha1(commits.get(indexOfCommit).getSha1(), true);
+            }
 
             if (branch.getName().equals(headBranchName)) {
                 Branch headBranch = new Branch(branch.getName(), branchContent.toString());
