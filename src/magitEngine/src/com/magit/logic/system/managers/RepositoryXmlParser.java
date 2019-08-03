@@ -1,5 +1,6 @@
 package com.magit.logic.system.managers;
 
+import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
@@ -292,6 +293,7 @@ public class RepositoryXmlParser {
         ArrayList<MagitSingleCommit> magitCommitsList = new ArrayList<>();
         ArrayList<MagitSingleFolder> magitSingleFolders = new ArrayList<>();
         ArrayList<MagitBlob> magitBlobs = new ArrayList<>();
+        StringBuilder sha1OfFiles = new StringBuilder();
 
         for (String sha1OfCommit : repository.getAllCommitsOfRepository()) {
             Commit currentCommit = Commit.createCommitInstanceByPath(
@@ -303,7 +305,7 @@ public class RepositoryXmlParser {
             id++;
             magitCommitsList.add(currentMagitCommit);
             Tree foldersOfCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(currentCommit, repository.getRepositoryPath().toString());
-            createMagitObjectsFromTree(foldersOfCommit, magitBlobs, magitSingleFolders);
+            createMagitObjectsFromTree(sha1OfFiles, foldersOfCommit, magitBlobs, magitSingleFolders);
         }
         insertObjectToMagitRepository(magitRepository, magitBlobs, magitSingleFolders, magitCommitsList);
         return sha1ToId;
@@ -331,9 +333,9 @@ public class RepositoryXmlParser {
     }
 
 
-    private void createMagitObjectsFromTree(Tree folder, ArrayList<MagitBlob> magitBlobsList,
+    private void createMagitObjectsFromTree(StringBuilder sha1OfFiles, Tree folder, ArrayList<MagitBlob> magitBlobsList,
                                             ArrayList<MagitSingleFolder> magitFoldersList) {
-        Integer idBlob = 1, idTree = 1;
+        Integer idBlob = magitBlobsList.size() + 1, idTree = magitFoldersList.size() + 1;
         final int empty = 0;
         LinkedList<FileItem> objectsOfTree = new LinkedList<>();
         objectsOfTree.add(folder);
@@ -342,26 +344,33 @@ public class RepositoryXmlParser {
 
         while (objectsOfTree.size() != empty) {
             FileItem item = objectsOfTree.poll();
-            if (item instanceof Blob) {
-                String id = blobSha1ToId.get(item.getSha1Code().toString());
+            String sha1Code = item.getSha1Code().toString();
+            if (sha1OfFiles.toString().contains(sha1Code + item.getmName()))
+                continue;
+            sha1OfFiles.append(String.format("%s%s%s", sha1Code, item.getmName(), ';'));
+            if (item.getmFileType().equals(FileType.FILE)) {
+                String id = blobSha1ToId.get(sha1Code);
                 magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, Integer.parseInt(id)));
-            } else if (item instanceof Tree) {
-                if (!treeSha1ToId.containsKey(item.getSha1Code().toString())) {
-                    treeSha1ToId.put(item.getSha1Code().toString(), idTree.toString());
+            } else if (item.getmFileType().equals(FileType.FOLDER)) {
+                if (!treeSha1ToId.containsKey(sha1Code)) {
+                    treeSha1ToId.put(sha1Code, idTree.toString());
                     idTree++;
                 }
-                String id = treeSha1ToId.get(item.getSha1Code().toString());
+                String id = treeSha1ToId.get(sha1Code);
                 MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getmName() == null);
 
                 ArrayList<Item> itemsOfFolder = new ArrayList<>();
                 for (FileItem childInFolder : ((Tree)item).getmFiles()) {
-                    if (childInFolder instanceof Blob) {
-                        if (!blobSha1ToId.containsKey(item.getSha1Code().toString()))
+                    if (sha1OfFiles.toString().contains(childInFolder.getSha1Code().toString() + childInFolder.getmName()))
+                        continue;
+
+                    if (childInFolder.getmFileType().equals(FileType.FILE)) {
+                        if (!blobSha1ToId.containsKey(sha1Code))
                             blobSha1ToId.put(childInFolder.getSha1Code().toString(), idBlob.toString());
                         itemsOfFolder.add(MagitObjectsFactory.createItem(idBlob, "blob"));
                         idBlob++;
-                    } else if (childInFolder instanceof Tree) {
-                        if (!treeSha1ToId.containsKey(item.getSha1Code().toString())) {
+                    } else if (childInFolder.getmFileType().equals(FileType.FOLDER)) {
+                        if (!treeSha1ToId.containsKey(sha1Code)) {
                             treeSha1ToId.put(childInFolder.getSha1Code().toString(), idTree.toString());
                         }
                         itemsOfFolder.add(MagitObjectsFactory.createItem(idTree, "folder"));
