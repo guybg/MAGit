@@ -230,7 +230,7 @@ public class RepositoryXmlParser {
         String headBranchName = magitRepository.getMagitBranches().getHead();
         for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
             Sha1 branchContent = new Sha1("", true);
-            if (branch.getPointedCommit() != null) {
+            if (branch.getPointedCommit().getId() != "") {
                 int indexOfCommit = Integer.parseInt(branch.getPointedCommit().getId()) - 1;
                 branchContent = new Sha1(commits.get(indexOfCommit).getSha1(), true);
             }
