@@ -29,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RepositoryXmlParser {
-
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser, boolean forceCreation)
             throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         checkIfXmlFile(xmlPath);

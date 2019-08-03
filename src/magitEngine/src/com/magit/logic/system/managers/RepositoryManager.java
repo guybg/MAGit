@@ -23,6 +23,7 @@ import java.util.*;
 public class RepositoryManager {
     private Repository mActiveRepository;
 
+    private final String EMPTY = "";
     public Repository getRepository() {
         return mActiveRepository;
     }
@@ -103,7 +104,7 @@ public class RepositoryManager {
 
     public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, PreviousCommitsLimitexceededException {
         WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
-                "", new Date());
+                EMPTY, new Date());
         SortedSet<Delta.DeltaFileItem> curWcDeltaFiles;
         SortedSet<Delta.DeltaFileItem> commitDeltaFiles;
         curWcDeltaFiles = workingCopyUtils.getAllDeltaFilesFromCurrentWc();
@@ -126,12 +127,13 @@ public class RepositoryManager {
         for (File branchFile: files) {
             String commitSha1 = FileHandler.readFile(branchFile.getPath());
             String commitMessage = "none";
+            if (commitSha1.equals(EMPTY)) commitSha1 = "none";
             if (!branchFile.getName().equals("HEAD")) {
                 Commit commit = Commit.createCommitInstanceByPath(Paths.get(mActiveRepository.getObjectsFolderPath().toString(), commitSha1));
                 if (commit != null) {
                     commitMessage = commit.getCommitMessage();
                 }
-                branchesContent.append(String.format("Branch name: %s%s%s", branchFile.getName().equals(headBranch) ? "[HEAD] " : "", branchFile.getName(), System.lineSeparator()));
+                branchesContent.append(String.format("Branch name: %s%s%s", branchFile.getName().equals(headBranch) ? "[HEAD] " : EMPTY, branchFile.getName(), System.lineSeparator()));
                 branchesContent.append(String.format("Commit Sha1: %s%s", commitSha1, System.lineSeparator()));
                 branchesContent.append(String.format("Commit Message: %s%s", commitMessage, System.lineSeparator()));
                 branchesContent.append(String.format("%s%s", seperator, System.lineSeparator()));

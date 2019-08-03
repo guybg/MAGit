@@ -15,10 +15,12 @@ import java.util.Objects;
 public class Branch {
     private String mBranchName;
     private Sha1 mPointedCommitSha1;
+    
+    private final String EMPTY = "";
 
     Branch(String mBranchName) {
         this.mBranchName = mBranchName;
-        mPointedCommitSha1 = new Sha1("", true);
+        mPointedCommitSha1 = new Sha1(EMPTY, true);
     }
 
     public Branch(String branchName, String textToSha1) {
