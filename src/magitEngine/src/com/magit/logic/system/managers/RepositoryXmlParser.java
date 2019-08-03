@@ -11,7 +11,6 @@ import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 
-import javax.naming.LimitExceededException;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
@@ -25,8 +24,10 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class RepositoryXmlParser {
 
@@ -201,9 +202,9 @@ public class RepositoryXmlParser {
             if (item.getType().equals("blob"))
                 treeMap.get(folder.getId()).addFileItem(blobMap.get(item.getId()));
             else if (item.getType().equals("folder")) {
-                MagitSingleFolder nextFolderInHirerchy = magitFolders.getMagitSingleFolder().stream()
+                MagitSingleFolder nextFolderInHierarchy = magitFolders.getMagitSingleFolder().stream()
                         .filter(f -> f.getId().equals(item.getId())).findFirst().get();
-                insertFileItemsToTree(magitFolders, nextFolderInHirerchy, treeMap, blobMap);
+                insertFileItemsToTree(magitFolders, nextFolderInHierarchy, treeMap, blobMap);
                 treeMap.get(folder.getId()).addFileItem(treeMap.get(item.getId()));
             }
         }
