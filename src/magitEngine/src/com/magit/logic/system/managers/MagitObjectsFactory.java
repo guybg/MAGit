@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat;
 
 class MagitObjectsFactory {
 
-    private static final String DATE_TIME_FORMAT = "dd.MM.yyyy-hh:mm:ss:SSS";
+    private static final String DATE_TIME_FORMAT = "dd.MM.yyyy-kk:mm:ss:SSS";
     static MagitSingleCommit createMagitSingleCommit(Commit commit, Integer id) {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
         MagitSingleCommit magitSingleCommit = new MagitSingleCommit();
