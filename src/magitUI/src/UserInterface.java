@@ -87,6 +87,7 @@ public class UserInterface {
                 case ExportRepositoryToXML:
                     System.out.println("enter path");
                     magitEngine.exportRepositoryToXML(input.nextLine());
+                    break;
                 case SwitchRepository:
                     switchRepository(magitEngine, input);
                     break;
