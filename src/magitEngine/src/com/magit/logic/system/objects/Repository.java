@@ -101,11 +101,11 @@ public class Repository {
             Path repositoryNamePath = Paths.get(mRepositoryLocation, ".magit", REPOSITORY_NAME);
             FileHandler.writeNewFile(repositoryNamePath.toString(), mRepositoryName);
             if (!mBranches.isEmpty()) {
-                for (Branch branch : mBranches.values()) {
-                    if (!branch.getmBranchName().equals("HEAD")) {
-                        branch.create(getRepositoryPath().toString());
+                for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {
+                    if (!branchEntry.getKey().equals("HEAD")) {
+                        branchEntry.getValue().create(getRepositoryPath().toString());
                     } else {
-                        headBranch = branch.getmBranchName();
+                        headBranch = branchEntry.getValue().getmBranchName();
                     }
                 }
             }
