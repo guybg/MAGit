@@ -41,10 +41,10 @@ public class MagitEngine {
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
-    public void exportRepositoryToXML(String Path) throws IOException, ParseException, PreviousCommitsLimitexceededException
+    public void exportRepositoryToXML(String path) throws IOException, ParseException, PreviousCommitsLimitexceededException
     , JAXBException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
-        parser.writeRepositoryToXML(mRepositoryManager.getRepository());
+        parser.writeRepositoryToXML(mRepositoryManager.getRepository(), path);
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
