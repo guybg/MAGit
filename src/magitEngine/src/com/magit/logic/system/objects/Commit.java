@@ -213,6 +213,11 @@ public class Commit extends FileItem {
         return content.toString();
     }
 
+    public String[] getPerviousCommits() {
+        final int lastCommitsLine = 1, sha1SideOfLine = 1;
+        return getFileContent().split(System.lineSeparator())[lastCommitsLine].split(" = ")[sha1SideOfLine].split(";");
+    }
+
     @Override
     public String toString() {
         DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);

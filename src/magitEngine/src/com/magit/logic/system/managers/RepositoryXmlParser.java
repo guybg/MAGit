@@ -7,6 +7,7 @@ import com.magit.logic.exceptions.XmlFileException;
 import com.magit.logic.system.XMLObjects.*;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.digest.Sha1;
+import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 
@@ -266,8 +267,8 @@ public class RepositoryXmlParser {
             throws IOException, ParseException, PreviousCommitsLimitexceededException {
 
         MagitRepository magitRepository = createMagitRepository(repository);
-        createMagitObjects(repository, magitRepository);
-
+        HashMap<String,String> sha1ToId = createMagitObjects(repository, magitRepository);
+        magitRepository.setMagitBranches(createMagitBranches(repository,sha1ToId, magitRepository));
     }
 
     private MagitRepository createMagitRepository (Repository repository) {
@@ -277,26 +278,41 @@ public class RepositoryXmlParser {
         return magitRepository;
     }
 
-    private void createMagitObjects(Repository repository, MagitRepository magitRepository)
+    private HashMap<String, String> createMagitObjects(Repository repository, MagitRepository magitRepository)
             throws IOException, ParseException, PreviousCommitsLimitexceededException{
-        int id = 0;
-        ArrayList<MagitSingleCommit> commitList = new ArrayList<>();
+        Integer id = 0;
+        HashMap<String, String> sha1ToId = mapSha1ToId(repository);
+        ArrayList<MagitSingleCommit> magitCommitsList = new ArrayList<>();
 
-        for (String sha1OfCommit : repository.getAllCommitsOfRepository()) {
+        for (String sha1OfCommit : sha1ToId.values()) {
             Commit currentCommit = Commit.createCommitInstanceByPath(
                     Paths.get(repository.getObjectsFolderPath().toString(),sha1OfCommit));
-
             if (currentCommit == null)
                 continue;
 
-            MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(currentCommit, id++);
-            commitList.add(currentMagitCommit);
+            MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(currentCommit, id);
+            magitCommitsList.add(currentMagitCommit);
+            sha1ToId.put(sha1OfCommit ,id.toString());
+            setPrecedingCommits(currentCommit, currentMagitCommit, sha1ToId);
             Tree foldersOfCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(currentCommit, repository.getRepositoryPath().toString());
             createMagitObjectsFromTree(foldersOfCommit, magitRepository);
         }
 
         MagitCommits magitCommits = MagitObjectsFactory.createMagitCommits();
-        magitCommits.getMagitSingleCommit().addAll(commitList);
+        magitCommits.getMagitSingleCommit().addAll(magitCommitsList);
+
+        return sha1ToId;
+    }
+
+    private HashMap<String,String> mapSha1ToId(Repository repository) throws IOException {
+        Integer id = 1;
+        HashMap<String,String> sha1ToId = new HashMap<>();
+        for (String sha1 : repository.getAllCommitsOfRepository()) {
+            sha1ToId.put(sha1, id.toString());
+            id++;
+        }
+
+        return sha1ToId;
     }
 
     private void createMagitObjectsFromTree(Tree folder, MagitRepository magitRepository) {
@@ -333,5 +349,51 @@ public class RepositoryXmlParser {
         MagitFolders magitFolders = MagitObjectsFactory.createMagitFolders();
         magitFolders.getMagitSingleFolder().addAll(magitFoldersList);
         magitRepository.setMagitFolders(magitFolders);
+    }
+
+    private void setPrecedingCommits(Commit commit, MagitSingleCommit magitSingleCommit,
+                                     HashMap<String, String> sha1ToId) {
+        ArrayList<PrecedingCommits.PrecedingCommit> precedingCommitsCollection = new ArrayList<>();
+        for (String sha1Code :commit.getPerviousCommits()) {
+            PrecedingCommits.PrecedingCommit precedingCommit = new PrecedingCommits.PrecedingCommit();
+            precedingCommit.setId(sha1ToId.get(sha1Code));
+        }
+        PrecedingCommits pc = new PrecedingCommits();
+        pc.getPrecedingCommit().addAll(precedingCommitsCollection);
+        magitSingleCommit.setPrecedingCommits(pc);
+    }
+
+    private MagitBranches createMagitBranches(Repository repository, HashMap<String,String> sha1ToId,
+                                              MagitRepository magitRepository) throws IOException {
+        if (Files.notExists(repository.getBranchDirectoryPath()))
+            return null;
+
+        File branchesDir = new File(repository.getBranchDirectoryPath().toString());
+        File[] children = branchesDir.listFiles();
+        if (children == null)
+            return null;
+
+        MagitBranches magitBranches = new MagitBranches();
+        ArrayList<MagitSingleBranch> magitBranchesList = new ArrayList<>();
+
+        for (File child : children) {
+            MagitSingleBranch magitSingleBranch = new MagitSingleBranch();
+            MagitSingleBranch.PointedCommit pointedCommit = new MagitSingleBranch.PointedCommit();
+            if (child.getName().equals("HEAD")) {
+                String headBranchName = FileHandler.readFile(repository.getHeadPath().toString());
+                magitRepository.getMagitBranches().setHead(headBranchName);
+                magitSingleBranch.setName(headBranchName);
+                String branchFilePath = Paths.get(repository.getBranchDirectoryPath().toString(), headBranchName).toString();
+                pointedCommit.setId(sha1ToId.get(FileHandler.readFile(FileHandler.readFile(branchFilePath))));
+                magitSingleBranch.setPointedCommit(pointedCommit);
+            }
+            else {
+                magitSingleBranch.setName(child.getName());
+                pointedCommit.setId(sha1ToId.get(FileHandler.readFile(child.getAbsolutePath())));
+                magitSingleBranch.setPointedCommit(pointedCommit);
+            }
+            magitBranches.getMagitSingleBranch().add(magitSingleBranch);
+        }
+        return magitBranches;
     }
 }

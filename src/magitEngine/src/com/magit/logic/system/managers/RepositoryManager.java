@@ -141,7 +141,6 @@ public class RepositoryManager {
     }
 
     public String getWorkingCopyStatus(String userName) throws IOException, ParseException, PreviousCommitsLimitexceededException {
-        final String seperator = "============================================";
         StringBuilder workingCopyStatusContent = new StringBuilder();
         workingCopyStatusContent.append(String.format("Repository name: %s%s", mActiveRepository.getRepositoryName(), System.lineSeparator()));
         workingCopyStatusContent.append(String.format("Repository location: %s%s", mActiveRepository.getRepositoryPath(), System.lineSeparator()));
