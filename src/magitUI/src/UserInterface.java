@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
-import java.util.jar.JarException;
 
 public class UserInterface {
 
@@ -65,7 +64,7 @@ public class UserInterface {
     }
 
     private static void run(MagitEngine magitEngine) throws
-            IOException, ParseException, JAXBException, PreviousCommitsLimitexceededException, RepositoryNotFoundException {
+            IOException, ParseException, JAXBException{
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
