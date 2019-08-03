@@ -374,7 +374,6 @@ public class RepositoryXmlParser {
             return null;
 
         MagitBranches magitBranches = new MagitBranches();
-        ArrayList<MagitSingleBranch> magitBranchesList = new ArrayList<>();
 
         for (File child : children) {
             MagitSingleBranch magitSingleBranch = new MagitSingleBranch();

@@ -204,8 +204,10 @@ public class Commit extends FileItem {
         StringBuilder content = new StringBuilder();
         content.append(String.format("%s = %s%s%s = ",
                 "wc", mWorkingCopySha1, System.lineSeparator(), "last Commits"));
-        content.append(String.format("%s%c", mFirstPreviousCommit.toString(), ';'));
-        content.append(String.format("%s%c", mSecondPreviousCommit.toString(), ';'));
+        if (!mFirstPreviousCommit.toString().equals(EMPTY))
+            content.append(String.format("%s%c", mFirstPreviousCommit.toString(), ';'));
+        if (!mSecondPreviousCommit.toString().equals(EMPTY))
+            content.append(String.format("%s%c", mSecondPreviousCommit.toString(), ';'));
         content.append(String.format("%s%s%s%s%s%s%s%s%s", System.lineSeparator(),
                 "commit Messege = ", mCommitMessage, System.lineSeparator(), "commit Date = ",
                 dateFormat.format(getCreationDate()), System.lineSeparator(), "creator = ",
