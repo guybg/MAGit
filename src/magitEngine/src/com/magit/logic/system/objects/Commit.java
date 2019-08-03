@@ -29,8 +29,8 @@ public class Commit extends FileItem {
     private Sha1 mSecondPreviousCommit;
     private String mCommitMessage;
 
-    final String EMPTY = "";
-    final String COMMITS_FILE_NAME = "COMMITS";
+    private final String EMPTY = "";
+    private final String COMMITS_FILE_NAME = "COMMITS";
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate, null);

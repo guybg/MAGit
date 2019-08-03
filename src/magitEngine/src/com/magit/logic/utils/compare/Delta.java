@@ -82,11 +82,11 @@ public class Delta {
 
         public DeltaFileItem(FileItem fileItem, String mFilePath) {
             this.mFileItem = fileItem;
-            this.mFilePath = mFilePath;
+            this.mFilePath = Paths.get(mFilePath).toAbsolutePath().toString().toLowerCase();
         }
 
         public String getFullPath() {
-            return Paths.get(mFilePath).toString();
+            return mFilePath;
         }
 
         public String getPathAndSha1() {
