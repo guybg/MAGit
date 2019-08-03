@@ -33,7 +33,6 @@ public class UserInterface {
         MagitEngine maGitSystem = new MagitEngine();
         try {
             run(maGitSystem);
-            //maGitSystem.commit();
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage() + "\n" +
                     e.getCause());

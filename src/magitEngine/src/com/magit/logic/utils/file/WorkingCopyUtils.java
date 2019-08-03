@@ -94,7 +94,7 @@ public class WorkingCopyUtils {
                 if (file.getmFileType() == FileType.FILE)
                     FileItemHandler.fileItemToFile((Blob) file, (String) params[0], ((String) params[1]));
                 else
-                    FileItemHandler.fileItemToFile((Tree) file, (String) params[0], ((String) params[1]));
+                    FileItemHandler.fileItemToFile((String) params[0], ((String) params[1]));
             }
 
             @Override

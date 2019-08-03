@@ -191,9 +191,9 @@ public class RepositoryXmlParser {
             if (item.getType().equals("blob"))
                 treeMap.get(folder.getId()).addFileItem(blobMap.get(item.getId()));
             else if (item.getType().equals("folder")) {
-                MagitSingleFolder nextFolderInHirerchy = magitFolders.getMagitSingleFolder().stream()
+                MagitSingleFolder nextFolderInHierarchy = magitFolders.getMagitSingleFolder().stream()
                         .filter(f -> f.getId().equals(item.getId())).findFirst().get();
-                insertFileItemsToTree(magitFolders, nextFolderInHirerchy, treeMap, blobMap);
+                insertFileItemsToTree(magitFolders, nextFolderInHierarchy, treeMap, blobMap);
                 treeMap.get(folder.getId()).addFileItem(treeMap.get(item.getId()));
             }
         }
