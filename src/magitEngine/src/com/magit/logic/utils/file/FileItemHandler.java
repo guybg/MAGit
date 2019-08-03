@@ -3,7 +3,6 @@ package com.magit.logic.utils.file;
 import com.magit.logic.system.objects.Blob;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItem;
-import com.magit.logic.system.objects.Tree;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.io.IOUtils;
 
@@ -24,7 +23,7 @@ public class FileItemHandler {
         FileHandler.writeNewFile(Paths.get(destinationPath, fileName).toString(), fileItem.getFileContent());
     }
 
-    static void fileItemToFile(Tree fileItem, String destinationPath, String fileName) {
+    static void fileItemToFile(String destinationPath, String fileName) {
         FileHandler.writeNewFolder(Paths.get(destinationPath, fileName).toString());
     }
 
