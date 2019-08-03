@@ -360,18 +360,18 @@ public class RepositoryXmlParser {
 
                 ArrayList<Item> itemsOfFolder = new ArrayList<>();
                 for (FileItem childInFolder : ((Tree)item).getmFiles()) {
+                    String sha1OfChild = childInFolder.getSha1Code().toString();
                     if (sha1OfFiles.toString().contains(childInFolder.getSha1Code().toString() + childInFolder.getmName()))
                         continue;
 
                     if (childInFolder.getmFileType().equals(FileType.FILE)) {
-                        if (!blobSha1ToId.containsKey(sha1Code))
+                        if (!blobSha1ToId.containsKey(sha1OfChild))
                             blobSha1ToId.put(childInFolder.getSha1Code().toString(), idBlob.toString());
                         itemsOfFolder.add(MagitObjectsFactory.createItem(idBlob, "blob"));
                         idBlob++;
                     } else if (childInFolder.getmFileType().equals(FileType.FOLDER)) {
-                        if (!treeSha1ToId.containsKey(sha1Code)) {
+                        if (!treeSha1ToId.containsKey(sha1OfChild))
                             treeSha1ToId.put(childInFolder.getSha1Code().toString(), idTree.toString());
-                        }
                         itemsOfFolder.add(MagitObjectsFactory.createItem(idTree, "folder"));
                         idTree++;
                     }

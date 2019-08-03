@@ -5,12 +5,16 @@ import com.magit.logic.system.objects.Blob;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Tree;
 
+import java.text.SimpleDateFormat;
+
 class MagitObjectsFactory {
 
+    private static final String DATE_TIME_FORMAT = "dd.MM.yyyy-hh:mm:ss:SSS";
     static MagitSingleCommit createMagitSingleCommit(Commit commit, Integer id) {
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
         MagitSingleCommit magitSingleCommit = new MagitSingleCommit();
         magitSingleCommit.setAuthor(commit.getmLastUpdater());
-        magitSingleCommit.setDateOfCreation(commit.getCreationDate().toString());
+        magitSingleCommit.setDateOfCreation(formatter.format(commit.getCreationDate()));
         magitSingleCommit.setMessage(commit.getCommitMessage());
         magitSingleCommit.setId(id.toString());
 
@@ -19,9 +23,10 @@ class MagitObjectsFactory {
 
     static MagitBlob createMagitBlob(Blob blob, Integer id) {
         MagitBlob magitBlob = new MagitBlob();
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
         magitBlob.setContent(blob.getFileContent());
         magitBlob.setId(id.toString());
-        magitBlob.setLastUpdateDate(blob.getLastModified().toString());
+        magitBlob.setLastUpdateDate(formatter.format(blob.getLastModified()));
         magitBlob.setLastUpdater(blob.getmLastUpdater());
         magitBlob.setName(blob.getmName());
 
@@ -30,9 +35,10 @@ class MagitObjectsFactory {
 
     static MagitSingleFolder createMagitSingleFolder(Tree tree, Integer id, boolean isRoot) {
         MagitSingleFolder magitSingleFolder = new MagitSingleFolder();
+        SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
         magitSingleFolder.setId(id.toString());
         magitSingleFolder.setIsRoot(isRoot);
-        magitSingleFolder.setLastUpdateDate(tree.getLastModified().toString());
+        magitSingleFolder.setLastUpdateDate(formatter.format(tree.getLastModified()));
         magitSingleFolder.setLastUpdater(tree.getmLastUpdater());
         magitSingleFolder.setName(tree.getmName());
 
