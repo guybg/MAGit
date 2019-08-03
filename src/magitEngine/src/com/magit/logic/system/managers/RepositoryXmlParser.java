@@ -11,23 +11,12 @@ import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
+import java.io.*;
+import java.nio.file.*;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class RepositoryXmlParser {
 
@@ -264,76 +253,110 @@ public class RepositoryXmlParser {
         }
     }
 
-    private void writeRepositoryToXML(Repository repository)
-            throws IOException, ParseException, PreviousCommitsLimitexceededException {
+    public void writeRepositoryToXML(Repository repository)
+            throws IOException, ParseException, PreviousCommitsLimitexceededException, JAXBException {
 
         MagitRepository magitRepository = createMagitRepository(repository);
-        HashMap<String,String> sha1ToId = createMagitObjects(repository, magitRepository);
-        magitRepository.setMagitBranches(createMagitBranches(repository,sha1ToId, magitRepository));
+        HashMap<String, String> sha1OfCommits = buildObjectsFromCommits(repository, magitRepository);
+        magitRepository.setMagitBranches(createMagitBranches(repository, sha1OfCommits));
+
+        JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
+
+        Marshaller marshaller = jaxbContext.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+        FileOutputStream fileOutputStream = new FileOutputStream("D:/2.xml");
+        marshaller.marshal(magitRepository, fileOutputStream);
+        fileOutputStream.close();
     }
 
-    private MagitRepository createMagitRepository (Repository repository) {
+    private MagitRepository createMagitRepository(Repository repository) {
         MagitRepository magitRepository = new MagitRepository();
         magitRepository.setLocation(repository.getRepositoryPath().toString());
         magitRepository.setName(repository.getRepositoryName());
         return magitRepository;
     }
 
-    private HashMap<String, String> createMagitObjects(Repository repository, MagitRepository magitRepository)
-            throws IOException, ParseException, PreviousCommitsLimitexceededException{
-        Integer id = 0;
-        HashMap<String, String> sha1ToId = mapSha1ToId(repository);
+    private HashMap<String, String> buildObjectsFromCommits(Repository repository, MagitRepository magitRepository)
+            throws IOException, ParseException, PreviousCommitsLimitexceededException {
+        Integer id = 1;
+        HashMap<String, String> sha1ToId = new HashMap<>();
         ArrayList<MagitSingleCommit> magitCommitsList = new ArrayList<>();
+        ArrayList<MagitSingleFolder> magitSingleFolders = new ArrayList<>();
+        ArrayList<MagitBlob> magitBlobs = new ArrayList<>();
 
-        for (String sha1OfCommit : sha1ToId.values()) {
+        for (String sha1OfCommit : repository.getAllCommitsOfRepository()) {
             Commit currentCommit = Commit.createCommitInstanceByPath(
-                    Paths.get(repository.getObjectsFolderPath().toString(),sha1OfCommit));
+                    Paths.get(repository.getObjectsFolderPath().toString(), sha1OfCommit));
             if (currentCommit == null)
                 continue;
 
-            MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(currentCommit, id);
+            MagitSingleCommit currentMagitCommit = analyzeCommitToMagitSingleCommit(currentCommit, sha1ToId, id);
+            id++;
             magitCommitsList.add(currentMagitCommit);
-            sha1ToId.put(sha1OfCommit ,id.toString());
-            setPrecedingCommits(currentCommit, currentMagitCommit, sha1ToId);
             Tree foldersOfCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(currentCommit, repository.getRepositoryPath().toString());
-            createMagitObjectsFromTree(foldersOfCommit, magitRepository);
+            createMagitObjectsFromTree(foldersOfCommit, magitBlobs, magitSingleFolders);
         }
+        insertObjectToMagitRepository(magitRepository, magitBlobs, magitSingleFolders, magitCommitsList);
+        return sha1ToId;
+    }
 
+    private MagitSingleCommit analyzeCommitToMagitSingleCommit(Commit commit, HashMap<String, String> sha1ToId, Integer id) {
+        MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(commit, id);
+        sha1ToId.put(commit.getSha1(), id.toString());
+        setPrecedingCommits(commit, currentMagitCommit, sha1ToId);
+
+        return currentMagitCommit;
+    }
+
+    private void insertObjectToMagitRepository(MagitRepository magitRepository, ArrayList<MagitBlob> magitBlobs,
+                                               ArrayList<MagitSingleFolder> magitSingleFolders, ArrayList<MagitSingleCommit> magitCommitsList) {
+        MagitBlobs magitBlobCollection = new MagitBlobs();
+        magitBlobCollection.getMagitBlob().addAll(magitBlobs);
+        magitRepository.setMagitBlobs(magitBlobCollection);
+        MagitFolders magitFolders = new MagitFolders();
+        magitFolders.getMagitSingleFolder().addAll(magitSingleFolders);
+        magitRepository.setMagitFolders(magitFolders);
         MagitCommits magitCommits = MagitObjectsFactory.createMagitCommits();
         magitCommits.getMagitSingleCommit().addAll(magitCommitsList);
-
-        return sha1ToId;
+        magitRepository.setMagitCommits(magitCommits);
     }
 
-    private HashMap<String,String> mapSha1ToId(Repository repository) throws IOException {
-        Integer id = 1;
-        HashMap<String,String> sha1ToId = new HashMap<>();
-        for (String sha1 : repository.getAllCommitsOfRepository()) {
-            sha1ToId.put(sha1, id.toString());
-            id++;
-        }
 
-        return sha1ToId;
-    }
-
-    private void createMagitObjectsFromTree(Tree folder, MagitRepository magitRepository) {
+    private void createMagitObjectsFromTree(Tree folder, ArrayList<MagitBlob> magitBlobsList,
+                                            ArrayList<MagitSingleFolder> magitFoldersList) {
         Integer idBlob = 1, idTree = 1;
+        final int empty = 0;
         LinkedList<FileItem> objectsOfTree = new LinkedList<>();
         objectsOfTree.add(folder);
-        ArrayList<MagitBlob> magitBlobsList = new ArrayList<>();
-        ArrayList<MagitSingleFolder> magitFoldersList = new ArrayList<>();
+        HashMap<String, String> blobSha1ToId = new HashMap<>();
+        HashMap<String, String> treeSha1ToId = new HashMap<>();
 
-        for (FileItem item : objectsOfTree) {
+        while (objectsOfTree.size() != empty) {
+            FileItem item = objectsOfTree.poll();
             if (item instanceof Blob) {
-                magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, idBlob));
+                String id = blobSha1ToId.get(item.getSha1Code().toString());
+                magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, Integer.parseInt(id)));
             } else if (item instanceof Tree) {
-                MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, idTree, true);//ask guy
+                if (!treeSha1ToId.containsKey(item.getSha1Code().toString())) {
+                    treeSha1ToId.put(item.getSha1Code().toString(), idTree.toString());
+                    idTree++;
+                }
+                String id = treeSha1ToId.get(item.getSha1Code().toString());
+                MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getmName() == null);
+
                 ArrayList<Item> itemsOfFolder = new ArrayList<>();
-                for (FileItem childInFolder : ((Tree) item).getmFiles()) {
+                for (FileItem childInFolder : ((Tree)item).getmFiles()) {
                     if (childInFolder instanceof Blob) {
-                        itemsOfFolder.add(MagitObjectsFactory.createItem(idBlob++, "blob"));
+                        if (!blobSha1ToId.containsKey(item.getSha1Code().toString()))
+                            blobSha1ToId.put(childInFolder.getSha1Code().toString(), idBlob.toString());
+                        itemsOfFolder.add(MagitObjectsFactory.createItem(idBlob, "blob"));
+                        idBlob++;
                     } else if (childInFolder instanceof Tree) {
-                        itemsOfFolder.add(MagitObjectsFactory.createItem(idTree++, "folder"));
+                        if (!treeSha1ToId.containsKey(item.getSha1Code().toString())) {
+                            treeSha1ToId.put(childInFolder.getSha1Code().toString(), idTree.toString());
+                        }
+                        itemsOfFolder.add(MagitObjectsFactory.createItem(idTree, "folder"));
+                        idTree++;
                     }
                     objectsOfTree.add(childInFolder);
                 }
@@ -341,31 +364,34 @@ public class RepositoryXmlParser {
                 items.getItem().addAll(itemsOfFolder);
                 magitSingleFolder.setItems(items);
                 magitFoldersList.add(magitSingleFolder);
-                objectsOfTree.poll();
             }
         }
         MagitBlobs magitBlobs = MagitObjectsFactory.createMagitBlobs();
         magitBlobs.getMagitBlob().addAll(magitBlobsList);
-        magitRepository.setMagitBlobs(magitBlobs);
         MagitFolders magitFolders = MagitObjectsFactory.createMagitFolders();
         magitFolders.getMagitSingleFolder().addAll(magitFoldersList);
-        magitRepository.setMagitFolders(magitFolders);
     }
 
     private void setPrecedingCommits(Commit commit, MagitSingleCommit magitSingleCommit,
                                      HashMap<String, String> sha1ToId) {
         ArrayList<PrecedingCommits.PrecedingCommit> precedingCommitsCollection = new ArrayList<>();
-        for (String sha1Code :commit.getPerviousCommits()) {
+        boolean hasNewSha1 = false;
+        for (Sha1 sha1Code : commit.getLastCommitsSha1Codes()) {
+            if (sha1Code.toString().equals(""))
+                continue;
+
+            hasNewSha1 = true;
             PrecedingCommits.PrecedingCommit precedingCommit = new PrecedingCommits.PrecedingCommit();
-            precedingCommit.setId(sha1ToId.get(sha1Code));
+            precedingCommit.setId(sha1ToId.get(sha1Code.toString()));
         }
-        PrecedingCommits pc = new PrecedingCommits();
-        pc.getPrecedingCommit().addAll(precedingCommitsCollection);
-        magitSingleCommit.setPrecedingCommits(pc);
+        if (hasNewSha1) {
+            PrecedingCommits pc = new PrecedingCommits();
+            pc.getPrecedingCommit().addAll(precedingCommitsCollection);
+            magitSingleCommit.setPrecedingCommits(pc);
+        }
     }
 
-    private MagitBranches createMagitBranches(Repository repository, HashMap<String,String> sha1ToId,
-                                              MagitRepository magitRepository) throws IOException {
+    private MagitBranches createMagitBranches(Repository repository, HashMap<String,String> sha1ToId) throws IOException {
         if (Files.notExists(repository.getBranchDirectoryPath()))
             return null;
 
@@ -377,22 +403,19 @@ public class RepositoryXmlParser {
         MagitBranches magitBranches = new MagitBranches();
 
         for (File child : children) {
-            MagitSingleBranch magitSingleBranch = new MagitSingleBranch();
-            MagitSingleBranch.PointedCommit pointedCommit = new MagitSingleBranch.PointedCommit();
+
             if (child.getName().equals("HEAD")) {
                 String headBranchName = FileHandler.readFile(repository.getHeadPath().toString());
-                magitRepository.getMagitBranches().setHead(headBranchName);
-                magitSingleBranch.setName(headBranchName);
-                String branchFilePath = Paths.get(repository.getBranchDirectoryPath().toString(), headBranchName).toString();
-                pointedCommit.setId(sha1ToId.get(FileHandler.readFile(FileHandler.readFile(branchFilePath))));
-                magitSingleBranch.setPointedCommit(pointedCommit);
+                magitBranches.setHead(headBranchName);
             }
             else {
+                MagitSingleBranch magitSingleBranch = new MagitSingleBranch();
+                MagitSingleBranch.PointedCommit pointedCommit = new MagitSingleBranch.PointedCommit();
                 magitSingleBranch.setName(child.getName());
                 pointedCommit.setId(sha1ToId.get(FileHandler.readFile(child.getAbsolutePath())));
                 magitSingleBranch.setPointedCommit(pointedCommit);
+                magitBranches.getMagitSingleBranch().add(magitSingleBranch);
             }
-            magitBranches.getMagitSingleBranch().add(magitSingleBranch);
         }
         return magitBranches;
     }
