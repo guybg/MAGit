@@ -148,11 +148,11 @@ public class UserInterface {
             if (yesNoQuestion("Would you like to replace current repository with XML repository?, press y/Y to replace, any other key to abort.", input)) {
                 try {
                     magitEngine.loadRepositoryFromXML(xmlPath, true);
-                } catch (IOException | PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException ex) {
+                } catch (IOException | PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException ex) {
                     System.out.println(ex.getMessage());
                 }
             }
-        } catch (PreviousCommitsLimitexceededException | XmlFileException | IllegalPathException | FileAlreadyExistsException | FileNotFoundException e) {
+        } catch (PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException | FileAlreadyExistsException | FileNotFoundException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
@@ -164,7 +164,7 @@ public class UserInterface {
             magitEngine.repositoryNotFoundCheck();
             System.out.println("Enter destination of XML file:");
             magitEngine.exportRepositoryToXML(input.nextLine());
-        } catch (RepositoryNotFoundException | IOException | ParseException | PreviousCommitsLimitexceededException | JAXBException ex) {
+        } catch (RepositoryNotFoundException | IOException | ParseException | PreviousCommitsLimitExceededException | JAXBException ex) {
             System.out.println(ex.getMessage());
         }
     }
@@ -179,7 +179,7 @@ public class UserInterface {
             System.out.println(magitEngine.presentCurrentCommitAndHistory());
         } catch (CommitNotFoundException e) {
             System.out.println(e.toString());
-        } catch (RepositoryNotFoundException | PreviousCommitsLimitexceededException | IOException e) {
+        } catch (RepositoryNotFoundException | PreviousCommitsLimitExceededException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -197,7 +197,7 @@ public class UserInterface {
             System.out.println(magitEngine.getWorkingCopyStatus());
         } catch (RepositoryNotFoundException e) {
             System.out.println(e.getMessage());
-        } catch (PreviousCommitsLimitexceededException e) {
+        } catch (PreviousCommitsLimitExceededException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
@@ -215,7 +215,7 @@ public class UserInterface {
             System.out.println(e.toString());
         } catch (RepositoryNotFoundException e) {
             System.out.println(e.getMessage());
-        } catch (PreviousCommitsLimitexceededException e) {
+        } catch (PreviousCommitsLimitExceededException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
@@ -225,7 +225,7 @@ public class UserInterface {
     private static void presentAllBranches(MagitEngine magitEngine) throws ParseException {
         try {
             System.out.println(magitEngine.getBranchesInfo());
-        } catch (RepositoryNotFoundException | PreviousCommitsLimitexceededException | IOException e) {
+        } catch (RepositoryNotFoundException | PreviousCommitsLimitExceededException | IOException e) {
             System.out.println(e.getMessage());
         }
 
@@ -266,7 +266,7 @@ public class UserInterface {
             magitEngine.repositoryNotFoundCheck();
             System.out.println("Enter branch name:");
             magitEngine.deleteBranch(input.nextLine());
-        } catch (RepositoryNotFoundException | ActiveBranchDeletedExpcetion | BranchNotFoundException | IOException e) {
+        } catch (RepositoryNotFoundException | ActiveBranchDeletedException | BranchNotFoundException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -274,7 +274,7 @@ public class UserInterface {
     private static void presentCurrentBranchHistory(MagitEngine magitEngine) throws ParseException {
         try {
             System.out.println(magitEngine.presentCurrentBranch());
-        } catch (RepositoryNotFoundException | PreviousCommitsLimitexceededException | IOException e) {
+        } catch (RepositoryNotFoundException | PreviousCommitsLimitExceededException | IOException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -287,14 +287,14 @@ public class UserInterface {
             commitSha1Code = input.nextLine();
             magitEngine.workingCopyChangedComparedToCommit();
             System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
-        } catch (PreviousCommitsLimitexceededException ignored) {
+        } catch (PreviousCommitsLimitExceededException ignored) {
         } catch (UncommitedChangesException e) {
             if (yesNoQuestion("Are you sure you want to change pointed commit before commiting unsaved changes?, press y/Y to change pointed commit, any other key to abort.", input)) {
                 try {
                     System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
                 } catch (CommitNotFoundException | RepositoryNotFoundException ex) {
                     System.out.println(ex.getMessage());
-                } catch (PreviousCommitsLimitexceededException ex) {
+                } catch (PreviousCommitsLimitExceededException ex) {
                     ex.printStackTrace();
                 } catch (IOException ex) {
                     ex.getMessage();
@@ -357,11 +357,11 @@ public class UserInterface {
             if (yesNoQuestion("Press Y/y to switch, any other button to cancel operation.", input)) {
                 try {
                     magitEngine.forcedChangeBranch(branchName);
-                } catch (PreviousCommitsLimitexceededException ex) {
+                } catch (PreviousCommitsLimitExceededException ex) {
                     System.out.println(e.getMessage());
                 }
             }
-        } catch (PreviousCommitsLimitexceededException e) {
+        } catch (PreviousCommitsLimitExceededException e) {
             System.out.println(e.getMessage());
         }
     }

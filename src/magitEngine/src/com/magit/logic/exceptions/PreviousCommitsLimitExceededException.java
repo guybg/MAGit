@@ -1,13 +1,13 @@
 package com.magit.logic.exceptions;
 
-public class PreviousCommitsLimitexceededException extends Exception {
+public class PreviousCommitsLimitExceededException extends Exception {
     private String message;
 
-    public PreviousCommitsLimitexceededException(String message) {
+    public PreviousCommitsLimitExceededException(String message) {
         this.message = message;
     }
 
-    public PreviousCommitsLimitexceededException() {
+    public PreviousCommitsLimitExceededException() {
         message = "Previous commit limit exceeded.";
     }
 
