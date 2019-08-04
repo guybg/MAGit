@@ -54,7 +54,7 @@ public class BranchManager {
         FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
     }
 
-    public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitexceededException {
+    public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         Path pathToBranchFile = Paths.get(activeRepository.getBranchDirectoryPath().toString(),
                 mActiveBranch.getmBranchName());
         if (Files.notExists(pathToBranchFile))
@@ -77,7 +77,7 @@ public class BranchManager {
         return activeBranchHistory.toString();
     }
 
-    private void getAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository, StringBuilder activeBranchHistoryStringBuilder) throws IOException, ParseException, PreviousCommitsLimitexceededException {
+    private void getAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository, StringBuilder activeBranchHistoryStringBuilder) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         final String seperator = "===================================================";
         if (mostRecentCommit.getSha1Code().toString().equals("")) return;
         for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
@@ -96,13 +96,13 @@ public class BranchManager {
     }
 
 
-    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedExpcetion, BranchNotFoundException {
+    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedException, BranchNotFoundException {
         if (Files.notExists(activeRepository.getHeadPath()))
             throw new FileNotFoundException("Head file not found, repository is invalid.");
 
         String headContent = FileHandler.readFile(activeRepository.getHeadPath().toString());
         if (branchNameToDelete.equals(headContent))
-            throw new ActiveBranchDeletedExpcetion("Active Branch can't be deleted.");
+            throw new ActiveBranchDeletedException("Active Branch can't be deleted.");
 
         if (!activeRepository.getmBranches().containsKey(branchNameToDelete))
             throw new BranchNotFoundException(branchNameToDelete, "Branch '" + branchNameToDelete + "' cannot be deleted, because it does not exist at current repository.");
@@ -112,7 +112,7 @@ public class BranchManager {
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,
-                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitexceededException {
+                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException {
         if (Files.notExists(Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
             throw new BranchNotFoundException(wantedBranchName);
 
@@ -127,7 +127,7 @@ public class BranchManager {
         return forcedChangeBranch(wantedBranchName, activeRepository);
     }
 
-    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitexceededException {
+    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         FileHandler.writeNewFile(activeRepository.getHeadPath().toString(), wantedBranchName);
         String wantedBranchSha1 = FileHandler.readFile(
                 Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName).toString());

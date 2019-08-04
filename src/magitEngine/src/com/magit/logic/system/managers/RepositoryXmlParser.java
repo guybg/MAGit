@@ -2,7 +2,7 @@ package com.magit.logic.system.managers;
 
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.IllegalPathException;
-import com.magit.logic.exceptions.PreviousCommitsLimitexceededException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.exceptions.XmlFileException;
 import com.magit.logic.system.XMLObjects.*;
@@ -35,7 +35,7 @@ public class RepositoryXmlParser {
 
 
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser, boolean forceCreation)
-            throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
+            throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException {
         checkIfXmlFile(xmlPath);
 
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
@@ -55,7 +55,7 @@ public class RepositoryXmlParser {
     }
 
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser, boolean forceCreation)
-            throws ParseException, IOException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
+            throws ParseException, IOException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException {
         MagitRepository magitRepository = jaxbElement.getValue();
 
         /* check for xml errors */
@@ -211,7 +211,7 @@ public class RepositoryXmlParser {
         }
     }
 
-    private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitexceededException, IOException {
+    private ArrayList<Commit> createCommitsInstances(MagitRepository magitRepository, HashMap<String, Tree> folders) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         //check why there's root folder in xml
         HashMap<String, Commit> commitsOfRepository = new HashMap<>();
         for (MagitSingleCommit magitCommit : magitRepository.getMagitCommits().getMagitSingleCommit()) {
@@ -269,7 +269,7 @@ public class RepositoryXmlParser {
     }
 
     public void writeRepositoryToXML(Repository repository, String saveFileTo)
-            throws IOException, ParseException, PreviousCommitsLimitexceededException, JAXBException {
+            throws IOException, ParseException, PreviousCommitsLimitExceededException, JAXBException {
 
         blobSha1ToId = new HashMap<>();
         treeSha1ToId = new HashMap<>();
@@ -298,7 +298,7 @@ public class RepositoryXmlParser {
     }
 
     private HashMap<String, String> buildObjectsFromCommits(Repository repository, MagitRepository magitRepository)
-            throws IOException, ParseException, PreviousCommitsLimitexceededException {
+            throws IOException, ParseException, PreviousCommitsLimitExceededException {
         HashMap<String, String> sha1ToId = mapCommitSha1ToId(repository);
         ArrayList<MagitSingleCommit> magitCommitsList = new ArrayList<>();
         ArrayList<MagitSingleFolder> magitSingleFolders = new ArrayList<>();
