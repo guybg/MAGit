@@ -17,7 +17,6 @@ import java.text.ParseException;
 
 public class MagitEngine {
 
-    private static final String EMPTY = "";
     private final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
 
     public MagitEngine() {

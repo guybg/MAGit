@@ -23,11 +23,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class WorkingCopyUtils {
+    private static Predicate<FileItem> treePredicate = fileItem -> fileItem.getmFileType() == FileType.FOLDER;
+    private static Predicate<FileItem> blobPredicate = fileItem -> fileItem.getmFileType() == FileType.FILE;
     private String mRepositoryDirectoryPath;
     private String mUserName;
     private Date mCommitDate;
-    private static Predicate<FileItem> treePredicate = fileItem -> fileItem.getmFileType() == FileType.FOLDER;
-    private static Predicate<FileItem> blobPredicate = fileItem -> fileItem.getmFileType() == FileType.FILE;
 
     public WorkingCopyUtils(String repositoryDirectoryPath, String userName, Date commitDate) {
         mRepositoryDirectoryPath = repositoryDirectoryPath;
@@ -121,22 +121,6 @@ public class WorkingCopyUtils {
 
     }
 
-    public void zipWorkingCopyFromTreeWC(Tree wc) throws IOException {
-        WalkAction walkAction = new WalkAction() {
-            @Override
-            public void onWalkAction(FileItem file, Object... params) throws IOException {
-                FileItemHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
-            }
-
-            @Override
-            public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) {
-
-            }
-        };
-        fileItemWalk(wc, mRepositoryDirectoryPath, walkAction);
-
-    }
-
     public static String getWorkingCopyContent(Tree workingCopy, String repositoryDirectoryPath, String userName) {
         return toPrintFormat(workingCopy, repositoryDirectoryPath, userName);
     }
@@ -206,6 +190,38 @@ public class WorkingCopyUtils {
         return workingCopyContent.toString();
     }
 
+    private static String workingCopyToPrint(FileItem fileToPrint, Path pathToFile) {
+        StringBuilder contentToPrint = new StringBuilder();
+        Path pathOfFile = Paths.get(pathToFile.toString(), fileToPrint.getmName());
+        if (fileToPrint.getmFileType() == FileType.FILE) {
+            contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
+            return contentToPrint.toString();
+        }
+
+        contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
+        for (FileItem fileInDirectory : ((Tree) fileToPrint).listFiles()) {
+            contentToPrint.append(workingCopyToPrint(fileInDirectory, pathOfFile));
+        }
+
+        return contentToPrint.toString();
+    }
+
+    public void zipWorkingCopyFromTreeWC(Tree wc) throws IOException {
+        WalkAction walkAction = new WalkAction() {
+            @Override
+            public void onWalkAction(FileItem file, Object... params) throws IOException {
+                FileItemHandler.zip(file, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
+            }
+
+            @Override
+            public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) {
+
+            }
+        };
+        fileItemWalk(wc, mRepositoryDirectoryPath, walkAction);
+
+    }
+
     public Tree getWc() throws IOException {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         WalkAction<FileItem> walkAction = new WalkAction<FileItem>() {
@@ -224,23 +240,7 @@ public class WorkingCopyUtils {
         return new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
     }
 
-    private static String workingCopyToPrint(FileItem fileToPrint, Path pathToFile) {
-        StringBuilder contentToPrint = new StringBuilder();
-        Path pathOfFile = Paths.get(pathToFile.toString(), fileToPrint.getmName());
-        if (fileToPrint.getmFileType() == FileType.FILE) {
-            contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
-            return contentToPrint.toString();
-        }
-
-        contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
-        for (FileItem fileInDirectory : ((Tree) fileToPrint).listFiles()) {
-            contentToPrint.append(workingCopyToPrint(fileInDirectory, pathOfFile));
-        }
-
-        return contentToPrint.toString();
-    }
-
-    public void clearWorkingCopyFiles(Path repositoryPath) throws IOException { ///@@@@@@@@@@@@?????????????????????
+    public void clearWorkingCopyFiles(Path repositoryPath) throws IOException { ///@@@@@@@@@@@@????????????????????? TODO (REMOVE THIS?)
         FileHandler.clearFolder(repositoryPath);
     }
 
@@ -295,16 +295,14 @@ public class WorkingCopyUtils {
                     if (Objects.requireNonNull(f.listFiles()).length == 0) continue;
                     SortedSet<FileItem> dirFiles = new TreeSet<>();
                     wcWalk(f.getAbsolutePath(), set, dirFiles, wAction);
-                    //System.out.println("Dir:" + f.getAbsoluteFile());
 
                     Tree tree = new Tree(FileType.FOLDER, mUserName, mCommitDate, f.getName(), dirFiles);
-                    //directoryFiles.add(tree);
+
                     wAction.onAddAction(set, directoryFiles, tree, f.getAbsolutePath());
                     wAction.onWalkAction(tree, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 } else {
-                    //System.out.println("File:" + f.getAbsoluteFile());
                     Blob blob = new Blob(f.getName(), FileHandler.readFile(f.getAbsolutePath()), FileType.FILE, mUserName, mCommitDate);
-                    //directoryFiles.add(blob);
+
                     wAction.onAddAction(set, directoryFiles, blob, f.getAbsolutePath());
                     wAction.onWalkAction(blob, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
                 }

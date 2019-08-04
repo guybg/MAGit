@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.SortedSet;
 
 public class BranchManager {
-    private static final String EMPTY = "";
     private Branch mActiveBranch;
 
     public Branch getActiveBranch() {
