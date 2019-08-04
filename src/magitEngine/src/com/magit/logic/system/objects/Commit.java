@@ -105,7 +105,7 @@ public class Commit extends FileItem {
         } else if (mSecondPreviousCommit.toString().equals(EMPTY)) {
             mSecondPreviousCommit = new Sha1(sha1, true);
         } else {
-            throw new PreviousCommitsLimitexceededException(getSha1() + " commit is invalid - Theres more then two previous commits to one of the commits");
+            throw new PreviousCommitsLimitexceededException(getSha1Code() + " commit is invalid - Theres more then two previous commits to one of the commits");
         }
     }
 
@@ -115,10 +115,6 @@ public class Commit extends FileItem {
 
     private String getCreator() {
         return super.mLastUpdater;
-    }
-
-    public String getSha1() {
-        return super.mSha1Code.toString();
     }
 
     public String getCommitMessage() {
@@ -184,11 +180,11 @@ public class Commit extends FileItem {
     }
 
     private void addCommitToCommitsFile(Repository repository) throws IOException {
-        FileHandler.appendFileWithContentAndLine(Paths.get(repository.getMagitFolderPath().toString(), COMMITS_FILE_NAME).toString(), getSha1Code().toString());
+        FileHandler.appendFileWithContentAndLine(Paths.get(repository.getMagitFolderPath().toString(), COMMITS_FILE_NAME).toString(), this.getSha1Code().toString());
     }
 
     private void addCommitToCommitsFile(MagitRepository magitRepository) throws IOException {
-        FileHandler.appendFileWithContentAndLine(Paths.get(magitRepository.getLocation(), ".magit", COMMITS_FILE_NAME).toString(), getSha1Code().toString());
+        FileHandler.appendFileWithContentAndLine(Paths.get(magitRepository.getLocation(), ".magit", COMMITS_FILE_NAME).toString(), this.getSha1Code().toString());
     }
 
     private void generateFirstCommit(String creator, Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException {

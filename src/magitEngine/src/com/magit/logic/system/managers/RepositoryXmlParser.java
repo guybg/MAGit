@@ -224,7 +224,8 @@ public class RepositoryXmlParser {
                 precedingCommits = new PrecedingCommits();
             }
             for (PrecedingCommits.PrecedingCommit precedingCommit : precedingCommits.getPrecedingCommit()) {
-                commitsOfRepository.get(magitCommit.getId()).addPreceding(commitsOfRepository.get(precedingCommit.getId()).getSha1());
+                commitsOfRepository.get(magitCommit.getId())
+                        .addPreceding(commitsOfRepository.get(precedingCommit.getId()).getSha1Code().toString());
             }
         }
         return new ArrayList<>(commitsOfRepository.values());
@@ -237,7 +238,7 @@ public class RepositoryXmlParser {
             Sha1 branchContent = new Sha1("", true);
             if (branch.getPointedCommit().getId() != "") {
                 int indexOfCommit = Integer.parseInt(branch.getPointedCommit().getId()) - 1;
-                branchContent = new Sha1(commits.get(indexOfCommit).getSha1(), true);
+                branchContent = new Sha1(commits.get(indexOfCommit).getSha1Code().toString(), true);
             }
 
             if (branch.getName().equals(headBranchName)) {
@@ -298,24 +299,19 @@ public class RepositoryXmlParser {
 
     private HashMap<String, String> buildObjectsFromCommits(Repository repository, MagitRepository magitRepository)
             throws IOException, ParseException, PreviousCommitsLimitexceededException {
-        Integer id = 1;
-        HashMap<String, String> sha1ToId = new HashMap<>();
+        HashMap<String, String> sha1ToId = mapCommitSha1ToId(repository);
         ArrayList<MagitSingleCommit> magitCommitsList = new ArrayList<>();
         ArrayList<MagitSingleFolder> magitSingleFolders = new ArrayList<>();
         ArrayList<MagitBlob> magitBlobs = new ArrayList<>();
         StringBuilder sha1OfFiles = new StringBuilder();
-        String[] commitsOfrepository = repository.getAllCommitsOfRepository();
-        if (commitsOfrepository == null)
-            return null;
 
-        for (String sha1OfCommit : repository.getAllCommitsOfRepository()) {
+        for (String sha1OfCommit : sha1ToId.keySet()) {
             Commit currentCommit = Commit.createCommitInstanceByPath(
                     Paths.get(repository.getObjectsFolderPath().toString(), sha1OfCommit));
             if (currentCommit == null)
                 continue;
 
-            MagitSingleCommit currentMagitCommit = analyzeCommitToMagitSingleCommit(currentCommit, sha1ToId, id);
-            id++;
+            MagitSingleCommit currentMagitCommit = analyzeCommitToMagitSingleCommit(currentCommit, sha1ToId);
             magitCommitsList.add(currentMagitCommit);
             Tree foldersOfCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(currentCommit, repository.getRepositoryPath().toString());
             createMagitObjectsFromTree(sha1OfFiles, foldersOfCommit, magitBlobs, magitSingleFolders);
@@ -329,9 +325,20 @@ public class RepositoryXmlParser {
         return sha1ToId;
     }
 
-    private MagitSingleCommit analyzeCommitToMagitSingleCommit(Commit commit, HashMap<String, String> sha1ToId, Integer id) {
+    private HashMap<String,String> mapCommitSha1ToId(Repository repository)throws IOException {
+        HashMap<String,String> sha1toId = new HashMap<>();
+        Integer id = 1;
+        for (String sha1 : repository.getAllCommitsOfRepository()) {
+            sha1toId.put(sha1, id.toString());
+            id++;
+        }
+
+        return sha1toId;
+    }
+
+    private MagitSingleCommit analyzeCommitToMagitSingleCommit(Commit commit, HashMap<String, String> sha1ToId) {
+        int id = Integer.parseInt(sha1ToId.get(commit.getSha1Code().toString()));
         MagitSingleCommit currentMagitCommit = MagitObjectsFactory.createMagitSingleCommit(commit, id);
-        sha1ToId.put(commit.getSha1(), id.toString());
         setPrecedingCommits(commit, currentMagitCommit, sha1ToId);
 
         return currentMagitCommit;
@@ -436,10 +443,10 @@ public class RepositoryXmlParser {
             precedingCommit.setId(sha1ToId.get(sha1Code.toString()));
             precedingCommitsCollection.add(precedingCommit);
         }
+        PrecedingCommits pc =new PrecedingCommits();
+        magitSingleCommit.setPrecedingCommits(pc);
         if (hasNewSha1) {
-            PrecedingCommits pc = new PrecedingCommits();
             pc.getPrecedingCommit().addAll(precedingCommitsCollection);
-            magitSingleCommit.setPrecedingCommits(pc);
         }
     }
 
