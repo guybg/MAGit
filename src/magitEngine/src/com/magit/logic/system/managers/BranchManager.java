@@ -10,6 +10,7 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,6 +24,7 @@ import java.util.Map;
 import java.util.SortedSet;
 
 public class BranchManager {
+    private static final String EMPTY = "";
     private Branch mActiveBranch;
 
     public Branch getActiveBranch() {
@@ -39,16 +41,17 @@ public class BranchManager {
         mActiveBranch = new Branch(headContent, FileHandler.readFile(headBranch.getPath()));
     }
 
-    public boolean createNewBranch(String branchName, Repository repository) throws IOException, InvalidNameException {
-        if (Files.exists(Paths.get(repository.toString(), branchName)))
-            return false;
-        if (branchName.contains(" ")) {
-            throw new InvalidNameException("Branch name cannot contain spaces, please choose a name without space and try again.");
+    public void createNewBranch(String branchName, Repository repository) throws IOException, InvalidNameException, BranchAlreadyExistsException {
+        final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
+        if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) {
+            throw new InvalidNameException("Branch name cannot contain blank spaces, please choose a name without blank space and try again.");
         }
+        if (Files.exists(Paths.get(repository.getBranchDirectoryPath().toString(), branchName)))
+            throw new BranchAlreadyExistsException(branchName);
+
 
         repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getmPointedCommitSha1().toString()));
         FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
-        return true;
     }
 
     public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitexceededException {
@@ -67,6 +70,7 @@ public class BranchManager {
                 , mActiveBranch.getmBranchName(), System.lineSeparator(), seperator, System.lineSeparator(),
                 "Current Commit:", System.lineSeparator()));
         Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
+        assert mostRecentCommit != null; // checking if file exists first, if not, throws FileNotFoundException.
         activeBranchHistory.append(mostRecentCommit.toPrintFormat());
         getAllPreviousCommitsHistoryString(mostRecentCommit, activeRepository, activeBranchHistory);
 
@@ -101,9 +105,10 @@ public class BranchManager {
             throw new ActiveBranchDeletedExpcetion("Active Branch can't be deleted.");
 
         if (!activeRepository.getmBranches().containsKey(branchNameToDelete))
-            throw new BranchNotFoundException(branchNameToDelete, "Branch called '" + branchNameToDelete + "' can't be deleted, because it doesn't exist at current repository.");
+            throw new BranchNotFoundException(branchNameToDelete, "Branch '" + branchNameToDelete + "' cannot be deleted, because it does not exist at current repository.");
 
         FileUtils.deleteQuietly(Paths.get(activeRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
+        activeRepository.getmBranches().remove(branchNameToDelete);
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,

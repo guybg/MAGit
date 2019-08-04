@@ -7,7 +7,7 @@ public class RepositoryAlreadyExistsException extends FileAlreadyExistsException
 
     public RepositoryAlreadyExistsException(String repositoryFullPath) {
         super(repositoryFullPath);
-        message = "There is already a repository at " + repositoryFullPath
+        message = "Functioning repository already exists at location " + repositoryFullPath
                 + " ,Please consider using another location and try again.";
     }
 

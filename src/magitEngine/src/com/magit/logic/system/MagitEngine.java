@@ -7,6 +7,7 @@ import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -15,6 +16,9 @@ import java.nio.file.Path;
 import java.text.ParseException;
 
 public class MagitEngine {
+
+    private static final String EMPTY = "";
+    private final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
 
     public MagitEngine() {
         mRepositoryManager = new RepositoryManager();
@@ -25,7 +29,10 @@ public class MagitEngine {
 
     private String mUserName = "Administrator";
 
-    public void updateUserName(String userNameToSet) {
+
+    public void updateUserName(String userNameToSet) throws InvalidNameException {
+        if (StringUtils.containsOnly(userNameToSet, BLANK_SPACE) || userNameToSet.isEmpty())
+            throw new InvalidNameException("Username should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
         mUserName = userNameToSet;
     }
 
@@ -85,17 +92,19 @@ public class MagitEngine {
         return mRepositoryManager.getBranchesInfo();
     }
 
-    public void createNewRepository(Path pathToFile, String repositoryName) throws IOException, IllegalPathException {
+    public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException {
         try {
+            if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
+                throw new InvalidNameException("Repository name should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
             mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, mUserName, repositoryName);
-        } catch (NullPointerException | InvalidPathException e) {
+        } catch (NullPointerException | InvalidPathException | IOException e) {
             throw new IllegalPathException(pathToFile.toString() + " is not a valid path.");
         }
     }
 
-    public boolean createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException {
+    public void createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
         repositoryNotFoundCheck();
-        return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
+        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
     }
 
     public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion, RepositoryNotFoundException, BranchNotFoundException {
@@ -103,8 +112,10 @@ public class MagitEngine {
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
-    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitexceededException {
+    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitexceededException, InvalidNameException {
         repositoryNotFoundCheck();
+        if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty())
+            throw new InvalidNameException("Branch name cannot be empty or with whitespace.");
         return mBranchManager.pickHeadBranch(branchName,
                 mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit());
     }

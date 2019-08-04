@@ -20,7 +20,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
     Date mLastModified;
     Sha1 mSha1Code;
 
-    protected String dateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
+    protected String mDateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
 
     FileItem(String mName, FileType mFileType, String mLastUpdater, Date mLastModified, Sha1 sha1Code) {
         this.mName = mName;
@@ -34,7 +34,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         this.mName = magitBlob.getName();
         this.mFileType = FileType.FILE;
         this.mLastUpdater = magitBlob.getLastUpdater();
-        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
+        DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
         this.mLastModified = dateFormat.parse(magitBlob.getLastUpdateDate());
     }
 
@@ -42,25 +42,26 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         this.mName = (magitFolder.getName() == null) ? "" : magitFolder.getName();
         this.mFileType = FileType.FOLDER;
         this.mLastUpdater = magitFolder.getLastUpdater();
-        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
+        DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
         this.mLastModified = dateFormat.parse(magitFolder.getLastUpdateDate());
     }
 
     FileItem(MagitSingleCommit singleCommit) throws ParseException {
         this.mLastUpdater = singleCommit.getAuthor();
         this.mFileType = FileType.COMMIT;
-        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
+        DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
         this.mLastModified = dateFormat.parse(singleCommit.getDateOfCreation());
     }
 
     public abstract String getFileContent();
 
     public String toPrintFormat(String path) {
+        DateFormat dateFormat = new SimpleDateFormat(mDateFormat);
         StringBuilder fileItemContent = new StringBuilder();
 
         fileItemContent.append(String.format(" --> %s%s", path, System.lineSeparator()));
         fileItemContent.append(String.format("%s%s", mSha1Code, System.lineSeparator()));
-        fileItemContent.append(String.format("%s - %s%s", mName, mLastModified, System.lineSeparator()));
+        fileItemContent.append(String.format("%s - %s%s", mName, dateFormat.format(mLastModified), System.lineSeparator()));
         fileItemContent.append(String.format("Last modifier: %s%s", mLastUpdater, System.lineSeparator()));
         fileItemContent.append(String.format("==============================================%s", System.lineSeparator()));
 

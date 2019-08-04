@@ -89,9 +89,9 @@ public class Commit extends FileItem {
     }
 
     public void addPreceding(String contentToSha1) throws PreviousCommitsLimitexceededException {
-        if (mFirstPreviousCommit.toString().equals(EMPTY)) {
+        if (mFirstPreviousCommit.toString().isEmpty()) {
             mFirstPreviousCommit = new Sha1(contentToSha1, true);
-        } else if (mSecondPreviousCommit.toString().equals(EMPTY)) {
+        } else if (mSecondPreviousCommit.toString().isEmpty()) {
             mSecondPreviousCommit = new Sha1(contentToSha1, true);
         } else {
             throw new PreviousCommitsLimitexceededException("Wrong XML input - Theres more then two previous commits to one of the commits");
@@ -100,9 +100,9 @@ public class Commit extends FileItem {
     }
 
     public void addPreviousCommitSha1(String sha1) throws PreviousCommitsLimitexceededException {
-        if (mFirstPreviousCommit.toString().equals(EMPTY)) {
+        if (mFirstPreviousCommit.toString().isEmpty()) {
             mFirstPreviousCommit = new Sha1(sha1, true);
-        } else if (mSecondPreviousCommit.toString().equals(EMPTY)) {
+        } else if (mSecondPreviousCommit.toString().isEmpty()) {
             mSecondPreviousCommit = new Sha1(sha1, true);
         } else {
             throw new PreviousCommitsLimitexceededException(getSha1Code() + " commit is invalid - Theres more then two previous commits to one of the commits");
@@ -151,7 +151,7 @@ public class Commit extends FileItem {
     }
 
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
-        if (branch.getmPointedCommitSha1().toString().equals(EMPTY)) {
+        if (branch.getmPointedCommitSha1().toString().isEmpty()) {
             generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch, new Sha1(getFileContent(), false));
         } else {
@@ -196,13 +196,13 @@ public class Commit extends FileItem {
     }
 
     public String getFileContent() {
-        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
+        DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
         StringBuilder content = new StringBuilder();
         content.append(String.format("%s = %s%s%s = ",
                 "wc", mWorkingCopySha1, System.lineSeparator(), "last Commits"));
-        if (!mFirstPreviousCommit.toString().equals(EMPTY))
+        if (!mFirstPreviousCommit.toString().isEmpty())
             content.append(String.format("%s%c", mFirstPreviousCommit.toString(), ';'));
-        if (!mSecondPreviousCommit.toString().equals(EMPTY))
+        if (!mSecondPreviousCommit.toString().isEmpty())
             content.append(String.format("%s%c", mSecondPreviousCommit.toString(), ';'));
         content.append(String.format("%s%s%s%s%s%s%s%s%s", System.lineSeparator(),
                 "commit Messege = ", mCommitMessage, System.lineSeparator(), "commit Date = ",
@@ -213,7 +213,7 @@ public class Commit extends FileItem {
 
     @Override
     public String toString() {
-        DateFormat dateFormat = new SimpleDateFormat(this.dateFormat);
+        DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
         return "Commit{" +
                 "mWorkingCopySha1 = " + mWorkingCopySha1 + '\'' +
                 " LastCommits = " + mFirstPreviousCommit + ";" + mSecondPreviousCommit +
@@ -224,12 +224,13 @@ public class Commit extends FileItem {
     }
 
     public String toPrintFormat() {
+        DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
         StringBuilder contentOfCommit = new StringBuilder();
         String linePrefix = "Commit ";
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "sha1", super.mSha1Code.toString(), System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "Message", mCommitMessage, System.lineSeparator()));
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "author", getCreator(), System.lineSeparator()));
-        contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "date/time", getCreationDate().toString(), System.lineSeparator()));
+        contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "date/time", dateFormat.format(getCreationDate()), System.lineSeparator()));
 
         return contentOfCommit.toString();
     }

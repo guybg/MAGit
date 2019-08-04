@@ -10,5 +10,15 @@
     <orderEntry type="library" name="commons-codec-1.12" level="project" />
     <orderEntry type="library" name="commons-io-2.6" level="project" />
     <orderEntry type="library" name="commons-collections4-4.3" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../../lib/commons-lang3-3.9.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="commons-lang3-3.9" level="project" />
   </component>
 </module>

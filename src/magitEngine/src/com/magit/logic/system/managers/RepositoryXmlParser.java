@@ -89,7 +89,7 @@ public class RepositoryXmlParser {
                 Files.exists(Paths.get(repositoryPath, ".magit")) &&
                 Files.exists(Paths.get(repositoryPath, ".magit", "REPOSITORY_NAME")) &&
                 Files.exists((Paths.get(repositoryPath, ".magit", "Branches", "HEAD"))))
-            throw new RepositoryAlreadyExistsException("There is already a repository at " + repositoryPath + ".", repositoryPath);
+            throw new RepositoryAlreadyExistsException("Functioning repository already exists at location " + repositoryPath + ".", repositoryPath);
         else if (Files.exists(Paths.get(repositoryPath)))
             throw new FileAlreadyExistsException("There is a non repository file at that location.");
     }
@@ -162,7 +162,7 @@ public class RepositoryXmlParser {
 
         for (MagitSingleBranch magitSingleBranch : magitSingleBranches) {
             if (magitSingleCommits.stream().noneMatch(magitCommit -> magitCommit.getId().equals(magitSingleBranch.getPointedCommit().getId())) && magitSingleCommits.size() > 0) {
-                throw new XmlFileException("XML error : Branch with the name: '" + magitSingleBranch.getName() + "' has invalid pointed commit id.");
+                throw new XmlFileException("XML error : Branch named: '" + magitSingleBranch.getName() + "' has invalid pointed commit id.");
             }
         }
     }
