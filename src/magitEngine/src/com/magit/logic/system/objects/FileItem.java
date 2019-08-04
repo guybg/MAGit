@@ -20,7 +20,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
     Date mLastModified;
     Sha1 mSha1Code;
 
-    protected String dateFormat = "dd.MM.yyyy-hh:mm:ss:SSS";
+    protected String dateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
 
     FileItem(String mName, FileType mFileType, String mLastUpdater, Date mLastModified, Sha1 sha1Code) {
         this.mName = mName;
