@@ -45,8 +45,8 @@ public class UserInterface {
         }
     }
 
-    private static void printMenu() {
-        System.out.println("Menu:" + System.lineSeparator() +
+    private static void printMenu(MagitEngine magitEngine) {
+        System.out.println("Menu:                 Active User: " + magitEngine.getUserName() + System.lineSeparator() +
                 "1." + UPDATE_USER_NAME + System.lineSeparator() +
                 "2." + LOAD_REPOSITORY_FROM_XML + System.lineSeparator() +
                 "3." + EXPORT_REPOSITORY_TO_XML + System.lineSeparator() +
@@ -70,7 +70,7 @@ public class UserInterface {
         MenuOptions optionsToActivate = MenuOptions.Default;
         do {
             try {
-                printMenu();
+                printMenu(magitEngine);
                 optionsToActivate = MenuOptions.getEnumByInt(input.nextInt());
                 input.nextLine();
             } catch (InputMismatchException ex) {

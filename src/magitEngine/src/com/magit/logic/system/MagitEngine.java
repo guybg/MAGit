@@ -86,6 +86,10 @@ public class MagitEngine {
         return mRepositoryManager.getBranchesInfo();
     }
 
+    public String getUserName() {
+        return mUserName;
+    }
+
     public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException {
         try {
             if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
