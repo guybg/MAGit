@@ -1,7 +1,7 @@
 package com.magit.logic.exceptions;
 
 public class IllegalPathException extends Exception {
-    private String message;
+    private final String message;
 
     public IllegalPathException(String message) {
         super(message);

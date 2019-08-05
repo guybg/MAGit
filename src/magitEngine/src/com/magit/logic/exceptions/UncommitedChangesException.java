@@ -1,7 +1,7 @@
 package com.magit.logic.exceptions;
 
 public class UncommitedChangesException extends Exception {
-    String mMessage;
+    private final String mMessage;
 
     public UncommitedChangesException(String mMessage) {
         this.mMessage = mMessage;

@@ -28,24 +28,25 @@ public class RepositoryManager {
         return mActiveRepository;
     }
 
-    public void setmActiveRepository(Repository mActiveRepository) {
+    public void setActiveRepository(Repository mActiveRepository) {
         this.mActiveRepository = mActiveRepository;
     }
 
     public void switchRepository(String pathOfRepository, BranchManager branchManager, String userName) throws RepositoryNotFoundException, IOException, ParseException {
         if (!isValidRepository(pathOfRepository))
-            throw new RepositoryNotFoundException("repository Not Found");
+            throw new RepositoryNotFoundException("Repository not found or corrupted.");
 
         Path repositoryPath = Paths.get(pathOfRepository);
-        loadRepository(repositoryPath, branchManager, userName);
+        loadRepository(repositoryPath, branchManager);
     }
 
-    private boolean isValidRepository(String repositoryPath) {
+    private boolean isValidRepository(String repositoryPath) throws IOException {
         final String magit = ".magit";
 
         return Files.exists(Paths.get(repositoryPath)) &&
                 Files.exists(Paths.get(repositoryPath, magit)) &&
                 Files.exists(Paths.get(repositoryPath, magit, "branches", "HEAD")) &&
+                !FileHandler.readFile(Paths.get(repositoryPath, magit, "branches", "HEAD").toString()).isEmpty() &&
                 Files.exists((Paths.get(repositoryPath, magit, "REPOSITORY_NAME")));
     }
 
@@ -53,9 +54,9 @@ public class RepositoryManager {
         return FileHandler.isContentExistsInFile(Paths.get(getRepository().getMagitFolderPath().toString(), "COMMITS").toString(), sha1Code);
     }
 
-    private void loadRepository(Path repositoryPath, BranchManager branchManager, String userName) throws IOException, ParseException {
+    private void loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
         String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
-        mActiveRepository = new Repository(repositoryPath.toString(), userName, repositoryName);
+        mActiveRepository = new Repository(repositoryPath.toString(), repositoryName);
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
@@ -81,17 +82,17 @@ public class RepositoryManager {
     public String presentCurrentCommitAndHistory()
             throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException, PreviousCommitsLimitExceededException {
         if (!mActiveRepository.isValid())
-            throw new RepositoryNotFoundException(mActiveRepository.getRepositoryPath().toString());
+            throw new RepositoryNotFoundException("Repository at location " + mActiveRepository.getRepositoryPath().toString() + " is corrupted.");
 
         Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
         if (commit == null)
             throw new CommitNotFoundException("There's no commit history to show, please add some files and commit them");
 
-        return WorkingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getmLastUpdater());
+        return WorkingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getLastUpdater());
     }
 
-    public void createNewRepository(String fullPath, BranchManager branchManager, String userName, String repositoryName) throws IllegalPathException, IOException {
-        Repository repository = new Repository(fullPath, userName, repositoryName);
+    public void createNewRepository(String fullPath, BranchManager branchManager, String repositoryName) throws IllegalPathException, IOException {
+        Repository repository = new Repository(fullPath, repositoryName);
         repository.create();
         mActiveRepository = repository;
         branchManager.setActiveBranch(repository.getmBranches().get("master"));
@@ -103,7 +104,7 @@ public class RepositoryManager {
         commit.generate(mActiveRepository, mActiveBranch);
     }
 
-    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferenceBetweenCurrentWCAndLastCommit() throws IOException, ParseException, PreviousCommitsLimitExceededException {
         WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(mActiveRepository.getRepositoryPath().toString(),
                 EMPTY, new Date());
         SortedSet<Delta.DeltaFileItem> curWcDeltaFiles;
@@ -116,7 +117,7 @@ public class RepositoryManager {
     }
 
     public String getBranchesInfo() throws IOException, ParseException, PreviousCommitsLimitExceededException {
-        final String seperator = "============================================";
+        final String separator = "============================================";
         StringBuilder branchesContent = new StringBuilder();
         String headBranch = FileHandler.readFile(mActiveRepository.getHeadPath().toString());
         File branchesDirectory = new File(mActiveRepository.getBranchDirectoryPath().toString());
@@ -137,7 +138,7 @@ public class RepositoryManager {
                 branchesContent.append(String.format("Branch name: %s%s%s", branchFile.getName().equals(headBranch) ? "[HEAD] " : EMPTY, branchFile.getName(), System.lineSeparator()));
                 branchesContent.append(String.format("Commit Sha1: %s%s", commitSha1, System.lineSeparator()));
                 branchesContent.append(String.format("Commit Message: %s%s", commitMessage, System.lineSeparator()));
-                branchesContent.append(String.format("%s%s", seperator, System.lineSeparator()));
+                branchesContent.append(String.format("%s%s", separator, System.lineSeparator()));
             }
         }
         return branchesContent.toString();
@@ -150,7 +151,7 @@ public class RepositoryManager {
         workingCopyStatusContent.append(String.format("Active user: %s%s", userName, System.lineSeparator()));
         workingCopyStatusContent.append(String.format("%s", System.lineSeparator()));
 
-        Map<FileStatus, SortedSet<Delta.DeltaFileItem>> differences = checkDifferenceBetweenCurrentWCandLastCommit();
+        Map<FileStatus, SortedSet<Delta.DeltaFileItem>> differences = checkDifferenceBetweenCurrentWCAndLastCommit();
         if (differences.values().stream().allMatch(Set::isEmpty))
             return workingCopyStatusContent.append(String.format("%s%s", "There are no open changes.", System.lineSeparator())).toString();
         workingCopyStatusContent.append(String.format("New Files: %s", System.lineSeparator()));

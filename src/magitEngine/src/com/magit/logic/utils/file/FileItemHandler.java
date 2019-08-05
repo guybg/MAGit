@@ -14,11 +14,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 public class FileItemHandler {
-
-
-    public FileItemHandler() {
-    }
-
     static void fileItemToFile(Blob fileItem, String destinationPath, String fileName) throws IOException {
         FileHandler.writeNewFile(Paths.get(destinationPath, fileName).toString(), fileItem.getFileContent());
     }
@@ -30,26 +25,26 @@ public class FileItemHandler {
     static void zip(FileItem fileItem, String destinationPath) throws IOException {
         FileHandler.writeNewFolder(Paths.get(destinationPath).toString());
         try (FileOutputStream fos = new FileOutputStream(Paths.get(destinationPath, fileItem.getSha1Code().toString()).toString());
-             GZIPOutputStream gzos = new GZIPOutputStream(fos)) {
-            gzos.write(fileItem.getFileContent().getBytes());
-            gzos.flush();
+             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fos)) {
+            gzipOutputStream.write(fileItem.getFileContent().getBytes());
+            gzipOutputStream.flush();
         }
     }
 
     public static void zip(Commit commit, String destinationPath, Sha1 sha1) throws IOException {
         FileHandler.writeNewFolder(Paths.get(destinationPath).toString());
         try (FileOutputStream fos = new FileOutputStream(Paths.get(destinationPath, sha1.toString()).toString());
-             GZIPOutputStream gzos = new GZIPOutputStream(fos)) {
-            gzos.write(commit.getFileContent().getBytes());
-            gzos.flush();
+             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fos)) {
+            gzipOutputStream.write(commit.getFileContent().getBytes());
+            gzipOutputStream.flush();
         }
 
     }
 
     public static String unzip(String sourcePath, Sha1 sourceSha1, String destinationPath, String fileName) throws IOException {
         try (FileInputStream fis = new FileInputStream(Paths.get(sourcePath, sourceSha1.toString()).toString());
-             GZIPInputStream gzis = new GZIPInputStream(fis)) {
-            String fileContent = new String(IOUtils.toByteArray(gzis));
+             GZIPInputStream gzipInputStream = new GZIPInputStream(fis)) {
+            String fileContent = new String(IOUtils.toByteArray(gzipInputStream));
             FileHandler.writeNewFile(Paths.get(destinationPath, fileName).toString(), fileContent);
             return fileContent;
         }
@@ -57,8 +52,8 @@ public class FileItemHandler {
 
     public static String zipToString(String sourcePath, Sha1 sourceSha1) throws IOException {
         try (FileInputStream fis = new FileInputStream(Paths.get(sourcePath, sourceSha1.toString()).toString());
-             GZIPInputStream gzis = new GZIPInputStream(fis)) {
-            return new String(IOUtils.toByteArray(gzis));
+             GZIPInputStream gzipInputStream = new GZIPInputStream(fis)) {
+            return new String(IOUtils.toByteArray(gzipInputStream));
         }
     }
 }

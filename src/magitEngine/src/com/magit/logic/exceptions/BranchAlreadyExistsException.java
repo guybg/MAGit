@@ -1,7 +1,7 @@
 package com.magit.logic.exceptions;
 
 public class BranchAlreadyExistsException extends Exception {
-    private String message;
+    private final String message;
 
     public BranchAlreadyExistsException(String branchName) {
         super(branchName);

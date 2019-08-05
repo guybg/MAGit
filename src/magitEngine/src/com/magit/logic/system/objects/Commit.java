@@ -68,17 +68,17 @@ public class Commit extends FileItem {
                 pathToCommit.getFileName().toString().length() != sha1Length)
             return null;
 
-        String seperator = " = ";
+        String separator = " = ";
         Sha1 sha1Code = new Sha1(pathToCommit.getFileName().toString(), true);
         String commitContent = FileItemHandler.zipToString(pathToCommit.getParent().toString(), sha1Code);
         String[] commitLines = commitContent.split(String.format("%s", System.lineSeparator()));
-        Sha1 workingCopySha1 = new Sha1(commitLines[shaOfCommit1Index].split(seperator)[valueOfSplit], true);
-        String commitMessage = commitLines[commitMessageIndex].split(seperator)[valueOfSplit];
-        String commitDate = commitLines[commitDateIndex].split(seperator)[valueOfSplit];
-        String commitCreator = commitLines[commitCreatorIndex].split(seperator)[valueOfSplit];
+        Sha1 workingCopySha1 = new Sha1(commitLines[shaOfCommit1Index].split(separator)[valueOfSplit], true);
+        String commitMessage = commitLines[commitMessageIndex].split(separator)[valueOfSplit];
+        String commitDate = commitLines[commitDateIndex].split(separator)[valueOfSplit];
+        String commitCreator = commitLines[commitCreatorIndex].split(separator)[valueOfSplit];
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
         Commit output = new Commit(commitMessage, commitCreator, FileType.COMMIT, dateFormat.parse(commitDate), sha1Code, workingCopySha1);
-        String[] lastCommits = commitLines[lastCommitsIndex].split(seperator);
+        String[] lastCommits = commitLines[lastCommitsIndex].split(separator);
         if (lastCommits.length != twoPartsOfSplitting)
             return output;
 
@@ -94,18 +94,18 @@ public class Commit extends FileItem {
         } else if (mSecondPreviousCommit.toString().isEmpty()) {
             mSecondPreviousCommit = new Sha1(contentToSha1, true);
         } else {
-            throw new PreviousCommitsLimitExceededException("Wrong XML input - Theres more then two previous commits to one of the commits");
+            throw new PreviousCommitsLimitExceededException("Wrong XML input - There are more then two previous commits to one of the commits");
         }
 
     }
 
-    public void addPreviousCommitSha1(String sha1) throws PreviousCommitsLimitExceededException {
+    private void addPreviousCommitSha1(String sha1) throws PreviousCommitsLimitExceededException {
         if (mFirstPreviousCommit.toString().equals(EMPTY)) {
             mFirstPreviousCommit = new Sha1(sha1, true);
         } else if (mSecondPreviousCommit.toString().isEmpty()) {
             mSecondPreviousCommit = new Sha1(sha1, true);
         } else {
-            throw new PreviousCommitsLimitExceededException(getSha1Code() + " commit is invalid - Theres more then two previous commits to one of the commits");
+            throw new PreviousCommitsLimitExceededException(getSha1Code() + " commit is invalid - There are more then two previous commits to one of the commits");
         }
     }
 
@@ -151,7 +151,7 @@ public class Commit extends FileItem {
     }
 
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
-        if (branch.getmPointedCommitSha1().toString().equals(EMPTY)) {
+        if (branch.getPointedCommitSha1().toString().equals(EMPTY)) {
             generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch, new Sha1(getFileContent(), false));
         } else {
@@ -163,7 +163,7 @@ public class Commit extends FileItem {
             Tree oldWcFromCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(lastCommit, repository.getRepositoryPath().toString());
 
             WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, mLastModified);
-            Tree fixedWc = WorkingCopyUtils.getWcWithOnlyNewchanges(curWc, oldWcFromCommit);
+            Tree fixedWc = WorkingCopyUtils.getWcWithOnlyNewChanges(curWc, oldWcFromCommit);
             mWorkingCopySha1 = fixedWc.getSha1Code();
             if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code())) {
                 mFirstPreviousCommit = lastCommit.getSha1Code();
@@ -205,7 +205,7 @@ public class Commit extends FileItem {
         if (!mSecondPreviousCommit.toString().isEmpty())
             content.append(String.format("%s%c", mSecondPreviousCommit.toString(), ';'));
         content.append(String.format("%s%s%s%s%s%s%s%s%s", System.lineSeparator(),
-                "commit Messege = ", mCommitMessage, System.lineSeparator(), "commit Date = ",
+                "commit Message = ", mCommitMessage, System.lineSeparator(), "commit Date = ",
                 dateFormat.format(getCreationDate()), System.lineSeparator(), "creator = ",
                 getCreator() + System.lineSeparator()));
         return content.toString();
@@ -240,7 +240,7 @@ public class Commit extends FileItem {
         return super.mSha1Code;
     }
 
-    public Sha1 getmWorkingCopySha1() {
+    public Sha1 getWorkingCopySha1() {
         return mWorkingCopySha1;
     }
 }

@@ -13,7 +13,7 @@ class MagitObjectsFactory {
     static MagitSingleCommit createMagitSingleCommit(Commit commit, Integer id) {
         SimpleDateFormat formatter = new SimpleDateFormat(DATE_TIME_FORMAT);
         MagitSingleCommit magitSingleCommit = new MagitSingleCommit();
-        magitSingleCommit.setAuthor(commit.getmLastUpdater());
+        magitSingleCommit.setAuthor(commit.getLastUpdater());
         magitSingleCommit.setDateOfCreation(formatter.format(commit.getCreationDate()));
         magitSingleCommit.setMessage(commit.getCommitMessage());
         magitSingleCommit.setId(id.toString());
@@ -27,8 +27,8 @@ class MagitObjectsFactory {
         magitBlob.setContent(blob.getFileContent());
         magitBlob.setId(id.toString());
         magitBlob.setLastUpdateDate(formatter.format(blob.getLastModified()));
-        magitBlob.setLastUpdater(blob.getmLastUpdater());
-        magitBlob.setName(blob.getmName());
+        magitBlob.setLastUpdater(blob.getLastUpdater());
+        magitBlob.setName(blob.getName());
 
         return magitBlob;
     }
@@ -39,8 +39,8 @@ class MagitObjectsFactory {
         magitSingleFolder.setId(id.toString());
         magitSingleFolder.setIsRoot(isRoot);
         magitSingleFolder.setLastUpdateDate(formatter.format(tree.getLastModified()));
-        magitSingleFolder.setLastUpdater(tree.getmLastUpdater());
-        magitSingleFolder.setName(tree.getmName());
+        magitSingleFolder.setLastUpdater(tree.getLastUpdater());
+        magitSingleFolder.setName(tree.getName());
 
         return magitSingleFolder;
     }

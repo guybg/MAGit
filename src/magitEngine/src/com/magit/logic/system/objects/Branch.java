@@ -13,13 +13,12 @@ import java.nio.file.Paths;
 import java.util.Objects;
 
 public class Branch {
-    private String mBranchName;
+    private final String mBranchName;
     private Sha1 mPointedCommitSha1;
-    
-    private final String EMPTY = "";
 
     Branch(String mBranchName) {
         this.mBranchName = mBranchName;
+        final String EMPTY = "";
         mPointedCommitSha1 = new Sha1(EMPTY, true);
     }
 
@@ -28,7 +27,7 @@ public class Branch {
         mPointedCommitSha1 = new Sha1(textToSha1, true);
     }
 
-    public Sha1 getmPointedCommitSha1() {
+    public Sha1 getPointedCommitSha1() {
         return mPointedCommitSha1;
     }
 
@@ -47,15 +46,12 @@ public class Branch {
 
         } catch (InvalidPathException e) {
             throw new IllegalPathException(path + " is not a valid path.");
-        } catch (FileAlreadyExistsException e) {
-            // throw nice message about repository already exists
         } catch (IOException e) {
-
-            // throw io exception
+            System.out.println(e.getMessage());
         }
     }
 
-    public String getmBranchName() {
+    public String getBranchName() {
         return mBranchName;
     }
 

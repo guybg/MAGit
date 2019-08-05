@@ -129,7 +129,6 @@ public class UserInterface {
                     optionsToActivate = MenuOptions.Exit;
                     break;
                 case Default:
-                    break;
                 default:
                     System.out.println("Please choose a number in the above range");
                     break;
@@ -191,7 +190,7 @@ public class UserInterface {
     private static void switchRepository(MagitEngine magitEngine, Scanner input) throws ParseException {
         try {
             executeSwitchRepository(magitEngine, input);
-        } catch (IOException | IllegalPathException | InvalidNameException e) {
+        } catch (IllegalPathException | InvalidNameException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -292,7 +291,7 @@ public class UserInterface {
             System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
         } catch (PreviousCommitsLimitExceededException ignored) {
         } catch (UncommitedChangesException e) {
-            if (yesNoQuestion("Are you sure you want to change pointed commit before commiting unsaved changes?, press y/Y to change pointed commit, any other key to abort.", input)) {
+            if (yesNoQuestion("Are you sure you want to change pointed commit before committing unsaved changes?, press y/Y to change pointed commit, any other key to abort.", input)) {
                 try {
                     System.out.println(magitEngine.changeBranchPointedCommit(commitSha1Code));
                 } catch (CommitNotFoundException | RepositoryNotFoundException ex) {
@@ -309,7 +308,7 @@ public class UserInterface {
     }
 
 
-    private static void executeSwitchRepository(MagitEngine magitEngine, Scanner input) throws ParseException, IOException, IllegalPathException, InvalidNameException {
+    private static void executeSwitchRepository(MagitEngine magitEngine, Scanner input) throws ParseException, IllegalPathException, InvalidNameException {
         System.out.println("Please enter repository path:" + System.lineSeparator());
         String pathOfRepositoryString = input.nextLine();
         try {
@@ -359,7 +358,7 @@ public class UserInterface {
             System.out.println(e.getMessage());
             if (yesNoQuestion("Press Y/y to switch, any other button to cancel operation.", input)) {
                 try {
-                    magitEngine.forcedChangeBranch(branchName);
+                    System.out.println(magitEngine.forcedChangeBranch(branchName));
                 } catch (PreviousCommitsLimitExceededException ex) {
                     System.out.println(e.getMessage());
                 }
@@ -389,7 +388,7 @@ public class UserInterface {
         Exit,
         Default;
 
-        public static MenuOptions getEnumByInt(int index) {
+        static MenuOptions getEnumByInt(int index) {
             return index <= 0 || index > values().length - 1 ? Default : values()[index - 1];
         }
     }

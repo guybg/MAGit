@@ -71,7 +71,7 @@ public class RepositoryXmlParser {
             File repositoryDirectory = new File(magitRepository.getLocation());
             FileUtils.deleteDirectory(repositoryDirectory);
         }
-        Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), activeUser, magitRepository.getName());
+        Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
 
         HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
         HashMap<String, Tree> treeMap = createFolderMap(magitRepository);
@@ -115,12 +115,12 @@ public class RepositoryXmlParser {
     private void checkXmlCommitsForWrongFolderIdPointers(MagitRepository magitRepository) throws XmlFileException {
         List<MagitSingleCommit> magitSingleCommits = magitRepository.getMagitCommits().getMagitSingleCommit();
         for (MagitSingleCommit magitSingleCommit : magitSingleCommits) {
-            checkIfValidCommitFolder(magitRepository, magitSingleCommit, magitSingleCommit.getRootFolder());
+            checkIfValidCommitFolder(magitRepository, magitSingleCommit.getRootFolder());
         }
     }
 
-    private void checkIfValidCommitFolder(MagitRepository magitRepository, MagitSingleCommit magitSingleCommit, RootFolder rootFolder) throws XmlFileException {
-        if (magitRepository.getMagitFolders().getMagitSingleFolder().stream().noneMatch(magitfolder -> magitfolder.getId().equals(rootFolder.getId()) && magitfolder.isIsRoot())) {
+    private void checkIfValidCommitFolder(MagitRepository magitRepository, RootFolder rootFolder) throws XmlFileException {
+        if (magitRepository.getMagitFolders().getMagitSingleFolder().stream().noneMatch(magitFolder -> magitFolder.getId().equals(rootFolder.getId()) && magitFolder.isIsRoot())) {
             throw new XmlFileException("XML error : Pointed commit folder with id " + rootFolder.getId() + " not found or not defined as a root folder.");
         }
     }
@@ -236,7 +236,7 @@ public class RepositoryXmlParser {
         String headBranchName = magitRepository.getMagitBranches().getHead();
         for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
             Sha1 branchContent = new Sha1("", true);
-            if (branch.getPointedCommit().getId() != "") {
+            if (!branch.getPointedCommit().getId().equals("")) {
                 int indexOfCommit = Integer.parseInt(branch.getPointedCommit().getId()) - 1;
                 branchContent = new Sha1(commits.get(indexOfCommit).getSha1Code().toString(), true);
             }
@@ -244,11 +244,11 @@ public class RepositoryXmlParser {
             if (branch.getName().equals(headBranchName)) {
                 Branch headBranch = new Branch(branch.getName(), branchContent.toString());
                 branchManager.setActiveBranch(headBranch);
-                repository.addBranch(headBranch.getmBranchName(), headBranch);
+                repository.addBranch(headBranch.getBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
             } else {
                 Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
-                repository.addBranch(branchToAdd.getmBranchName(), branchToAdd);
+                repository.addBranch(branchToAdd.getBranchName(), branchToAdd);
             }
         }
     }
@@ -257,11 +257,11 @@ public class RepositoryXmlParser {
             throws IOException {
         for (Commit commit : commits) {
             commit.generateCommitFile(repository.getObjectsFolderPath());
-            Sha1 commitWorkingCopySha1commit = commit.getmWorkingCopySha1();
+            Sha1 commitWorkingCopySha1commit = commit.getWorkingCopySha1();
             for (Tree treeEntry : treeMap.values()) {
                 if (treeEntry.getSha1Code().equals(commitWorkingCopySha1commit)) {
                     WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(repository.getRepositoryPath().toString(),
-                            treeEntry.getmLastUpdater(), treeEntry.getLastModified());
+                            treeEntry.getLastUpdater(), treeEntry.getLastModified());
                     workingCopyUtils.zipWorkingCopyFromTreeWC(treeEntry);
                 }
             }
@@ -379,22 +379,22 @@ public class RepositoryXmlParser {
         Integer idTree = treeSha1ToId.size() + 1;
         FileItem item = objectsOfTree.poll();
         String sha1Code = item.getSha1Code().toString();
-        if (sha1OfFiles.toString().contains(sha1Code + item.getmName()))
+        if (sha1OfFiles.toString().contains(sha1Code + item.getName()))
             return;
 
-        sha1OfFiles.append(String.format("%s%s%s", sha1Code, item.getmName(), ';'));
-        if (item.getmFileType().equals(FileType.FILE)) {
+        sha1OfFiles.append(String.format("%s%s%s", sha1Code, item.getName(), ';'));
+        if (item.getFileType().equals(FileType.FILE)) {
             String id = blobSha1ToId.get(sha1Code);
             magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, Integer.parseInt(id)));
-        } else if (item.getmFileType().equals(FileType.FOLDER)) {
+        } else if (item.getFileType().equals(FileType.FOLDER)) {
             if (!treeSha1ToId.containsKey(sha1Code)) {
                 treeSha1ToId.put(sha1Code, idTree.toString());
             }
             String id = treeSha1ToId.get(sha1Code);
-            MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getmName() == null);
+            MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getName() == null);
 
             ArrayList<Item> itemsOfFolder = new ArrayList<>();
-            for (FileItem childInFolder : ((Tree)item).getmFiles()) {
+            for (FileItem childInFolder : ((Tree) item).getFiles()) {
                 Item itemToAdd = generateItemFromChild(childInFolder);
                 if (itemToAdd != null) {
                     itemsOfFolder.add(itemToAdd);
@@ -412,14 +412,14 @@ public class RepositoryXmlParser {
 
         String sha1OfChild = childInFolder.getSha1Code().toString();
 
-        if (childInFolder.getmFileType().equals(FileType.FILE)) {
+        if (childInFolder.getFileType().equals(FileType.FILE)) {
             boolean containsKey = blobSha1ToId.containsKey(sha1OfChild);
             Integer idBlob = containsKey ? Integer.parseInt(blobSha1ToId.get(sha1OfChild)) : blobSha1ToId.size() + 1;
             if (!containsKey) {
                 blobSha1ToId.put(childInFolder.getSha1Code().toString(), idBlob.toString());
             }
             return MagitObjectsFactory.createItem(idBlob, "blob");
-        } else if (childInFolder.getmFileType().equals(FileType.FOLDER)) {
+        } else if (childInFolder.getFileType().equals(FileType.FOLDER)) {
             boolean containsKey = treeSha1ToId.containsKey(sha1OfChild);
             Integer idTree = containsKey ? Integer.parseInt(treeSha1ToId.get(sha1OfChild)): treeSha1ToId.size() + 1;
             if (!containsKey) {

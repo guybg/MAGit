@@ -19,7 +19,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 
@@ -49,13 +48,13 @@ public class BranchManager {
             throw new BranchAlreadyExistsException(branchName);
 
 
-        repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getmPointedCommitSha1().toString()));
-        FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getmPointedCommitSha1().toString());
+        repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getPointedCommitSha1().toString()));
+        FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getPointedCommitSha1().toString());
     }
 
     public String presentCurrentBranch(Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         Path pathToBranchFile = Paths.get(activeRepository.getBranchDirectoryPath().toString(),
-                mActiveBranch.getmBranchName());
+                mActiveBranch.getBranchName());
         if (Files.notExists(pathToBranchFile))
             throw new FileNotFoundException("No Branch file, repository is invalid.");
 
@@ -63,10 +62,10 @@ public class BranchManager {
         Path pathToCommit = Paths.get(activeRepository.getObjectsFolderPath().toString(), sha1OfCommit);
         if (Files.notExists(pathToCommit))
             throw new FileNotFoundException("No commit file, there is no history to show.");
-        final String seperator = "===================================================";
+        final String separator = "===================================================";
         StringBuilder activeBranchHistory = new StringBuilder();
         activeBranchHistory.append(String.format("Branch Name: %s%s%s%s%s%s"
-                , mActiveBranch.getmBranchName(), System.lineSeparator(), seperator, System.lineSeparator(),
+                , mActiveBranch.getBranchName(), System.lineSeparator(), separator, System.lineSeparator(),
                 "Current Commit:", System.lineSeparator()));
         Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
         assert mostRecentCommit != null; // checking if file exists first, if not, throws FileNotFoundException.
@@ -77,16 +76,15 @@ public class BranchManager {
     }
 
     private void getAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository, StringBuilder activeBranchHistoryStringBuilder) throws IOException, ParseException, PreviousCommitsLimitExceededException {
-        final String seperator = "===================================================";
+        final String separator = "===================================================";
         if (mostRecentCommit.getSha1Code().toString().equals("")) return;
         for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
-            List<Sha1> a = mostRecentCommit.getLastCommitsSha1Codes();
             if (currentSha1.toString().equals("")) return;
             Path currentCommitPath = Paths.get(activeRepository.getObjectsFolderPath().toString(), currentSha1.toString());
             if (Files.notExists(currentCommitPath)) {
                 throw new FileNotFoundException("Commit history is invalid, repository invalid.");
             }
-            activeBranchHistoryStringBuilder.append(String.format("%s%s", seperator, System.lineSeparator()));
+            activeBranchHistoryStringBuilder.append(String.format("%s%s", separator, System.lineSeparator()));
             Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
             if (currentCommitInHistory == null) return;
             activeBranchHistoryStringBuilder.append(currentCommitInHistory.toPrintFormat());
@@ -144,7 +142,7 @@ public class BranchManager {
     }
 
     public void changeBranchPointedCommit(Repository repository, Sha1 commitSha1) throws CommitNotFoundException, IOException {
-        boolean commitExists = false;
+        boolean commitExists;
         try {
             commitExists = FileHandler.isContentExistsInFile(Paths.get(repository.getMagitFolderPath().toString(), "COMMITS").toString(), commitSha1.toString());
         } catch (IOException e) {

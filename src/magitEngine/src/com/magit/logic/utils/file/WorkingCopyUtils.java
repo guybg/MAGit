@@ -23,11 +23,11 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class WorkingCopyUtils {
-    private static Predicate<FileItem> treePredicate = fileItem -> fileItem.getmFileType() == FileType.FOLDER;
-    private static Predicate<FileItem> blobPredicate = fileItem -> fileItem.getmFileType() == FileType.FILE;
-    private String mRepositoryDirectoryPath;
-    private String mUserName;
-    private Date mCommitDate;
+    private static final Predicate<FileItem> treePredicate = fileItem -> fileItem.getFileType() == FileType.FOLDER;
+    private static final Predicate<FileItem> blobPredicate = fileItem -> fileItem.getFileType() == FileType.FILE;
+    private final String mRepositoryDirectoryPath;
+    private final String mUserName;
+    private final Date mCommitDate;
 
     public WorkingCopyUtils(String repositoryDirectoryPath, String userName, Date commitDate) {
         mRepositoryDirectoryPath = repositoryDirectoryPath;
@@ -61,16 +61,16 @@ public class WorkingCopyUtils {
     public static Tree getWorkingCopyTreeFromCommit(Commit commit, String repositoryPath) throws IOException, ParseException {
         if (commit == null)
             return null;
-        Sha1 wcSha1 = commit.getmWorkingCopySha1();
-        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName(), repositoryPath, repositoryPath, null);
+        Sha1 wcSha1 = commit.getWorkingCopySha1();
+        return (Tree) walk(wcSha1, FileType.FOLDER, commit.getLastUpdater(), commit.getLastModified(), commit.getName(), repositoryPath, repositoryPath, null);
     }
 
     public static SortedSet<Delta.DeltaFileItem> getDeltaFileItemSetFromCommit(Commit commit, String repositoryPath) throws IOException, ParseException {
         if (commit == null)
             return null;
-        Sha1 wcSha1 = commit.getmWorkingCopySha1();
+        Sha1 wcSha1 = commit.getWorkingCopySha1();
         SortedSet<Delta.DeltaFileItem> deltaFiles = new TreeSet<>();
-        walk(wcSha1, FileType.FOLDER, commit.getmLastUpdater(), commit.getLastModified(), commit.getmName(), repositoryPath, repositoryPath, deltaFiles);
+        walk(wcSha1, FileType.FOLDER, commit.getLastUpdater(), commit.getLastModified(), commit.getName(), repositoryPath, repositoryPath, deltaFiles);
         return deltaFiles;
     }
 
@@ -81,7 +81,7 @@ public class WorkingCopyUtils {
     }
 
     private static void addToDeltaSet(String filePath, SortedSet<Delta.DeltaFileItem> deltaFileItems, FileItem file) {
-        if (deltaFileItems != null && file.getmName() != null) {
+        if (deltaFileItems != null && file.getName() != null) {
             deltaFileItems.add(new Delta.DeltaFileItem(file, filePath));
         }
     }
@@ -91,7 +91,7 @@ public class WorkingCopyUtils {
         WalkAction walkAction = new WalkAction() {
             @Override
             public void onWalkAction(FileItem file, Object... params) throws IOException {
-                if (file.getmFileType() == FileType.FILE)
+                if (file.getFileType() == FileType.FILE)
                     FileItemHandler.fileItemToFile((Blob) file, (String) params[0], ((String) params[1]));
                 else
                     FileItemHandler.fileItemToFile((String) params[0], ((String) params[1]));
@@ -105,17 +105,17 @@ public class WorkingCopyUtils {
     }
 
     private static void fileItemWalk(FileItem fileItem, String destinationPath, WalkAction aAction) throws IOException {
-        if (fileItem.getmFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {
-            if (fileItem.getmFileType() == FileType.FILE) {
-                aAction.onWalkAction(fileItem, destinationPath, fileItem.getmName());
+        if (fileItem.getFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {
+            if (fileItem.getFileType() == FileType.FILE) {
+                aAction.onWalkAction(fileItem, destinationPath, fileItem.getName());
             }
             return;
         }
-        if (fileItem.getmName() != null) {
-            aAction.onWalkAction(fileItem, destinationPath, fileItem.getmName());
-            destinationPath = Paths.get(destinationPath, fileItem.getmName()).toString();
+        if (fileItem.getName() != null) {
+            aAction.onWalkAction(fileItem, destinationPath, fileItem.getName());
+            destinationPath = Paths.get(destinationPath, fileItem.getName()).toString();
         }
-        for (FileItem file : ((Tree) fileItem).getmFiles()) {
+        for (FileItem file : ((Tree) fileItem).getFiles()) {
             fileItemWalk(file, Paths.get(destinationPath).toString(), aAction);
         }
 
@@ -126,12 +126,12 @@ public class WorkingCopyUtils {
     }
 
     private static FileItem updateWalk(Tree newWc, Tree oldWc, Tree wc) {
-        SortedSet<FileItem> tr1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), treePredicate));
-        SortedSet<FileItem> bl1 = new TreeSet<>(CollectionUtils.select(newWc.getmFiles(), blobPredicate));
-        SortedSet<FileItem> tr2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), treePredicate));
-        SortedSet<FileItem> bl2 = new TreeSet<>(CollectionUtils.select(oldWc.getmFiles(), blobPredicate));
+        SortedSet<FileItem> tr1 = new TreeSet<>(CollectionUtils.select(newWc.getFiles(), treePredicate));
+        SortedSet<FileItem> bl1 = new TreeSet<>(CollectionUtils.select(newWc.getFiles(), blobPredicate));
+        SortedSet<FileItem> tr2 = new TreeSet<>(CollectionUtils.select(oldWc.getFiles(), treePredicate));
+        SortedSet<FileItem> bl2 = new TreeSet<>(CollectionUtils.select(oldWc.getFiles(), blobPredicate));
         SortedSet<FileItem> dif = new TreeSet<>(CollectionUtils.union(CollectionUtils.intersection(bl2, bl1), bl1));
-        wc.setmFiles(dif);
+        wc.setFiles(dif);
         if (tr1.isEmpty()) {
             if (!bl1.isEmpty()) {
                 return wc;
@@ -140,14 +140,14 @@ public class WorkingCopyUtils {
         for (FileItem tree : tr1) {
             boolean isNewFolder = true;
             for (FileItem tree2 : tr2) {
-                if (tree2.getmName().equals(tree.getmName())) {
-                    String updatater = tree.getmLastUpdater();
+                if (tree2.getName().equals(tree.getName())) {
+                    String updater = tree.getLastUpdater();
                     Date date = tree.getLastModified();
-                    if (CollectionUtils.isEqualCollection(((Tree) tree).getmFiles(), ((Tree) tree2).getmFiles())) {
-                        updatater = tree2.getmLastUpdater();
+                    if (CollectionUtils.isEqualCollection(((Tree) tree).getFiles(), ((Tree) tree2).getFiles())) {
+                        updater = tree2.getLastUpdater();
                         date = tree2.getLastModified();
                     }
-                    wc.addFileItem(updateWalk((Tree) tree, (Tree) tree2, new Tree(tree.getmFileType(), updatater, date, tree.getmName(), new TreeSet<FileItem>())));
+                    wc.addFileItem(updateWalk((Tree) tree, (Tree) tree2, new Tree(tree.getFileType(), updater, date, tree.getName(), new TreeSet<>())));
                     isNewFolder = false;
                 }
             }
@@ -158,12 +158,12 @@ public class WorkingCopyUtils {
         return wc;
     }
 
-    public static Tree getWcWithOnlyNewchanges(Tree newWc, Tree oldWc) {
+    public static Tree getWcWithOnlyNewChanges(Tree newWc, Tree oldWc) {
         Tree wc;
-        if (CollectionUtils.isEqualCollection(newWc.getmFiles(), oldWc.getmFiles()))
+        if (CollectionUtils.isEqualCollection(newWc.getFiles(), oldWc.getFiles()))
             wc = oldWc;
         else
-            wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getmLastUpdater(), newWc.getLastModified(), newWc.getmName(), new TreeSet<>()));
+            wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getLastUpdater(), newWc.getLastModified(), newWc.getName(), new TreeSet<>()));
         return wc;
     }
 
@@ -177,7 +177,7 @@ public class WorkingCopyUtils {
         workingCopyContent.append(String.format("[Root Folder] --> .%s", System.lineSeparator()));
         workingCopyContent.append(String.format("%s%s", workingCopyFolder.getSha1Code(), System.lineSeparator()));
         workingCopyContent.append(String.format("WC - %s%s", dateFormat.format(workingCopyFolder.getLastModified()), System.lineSeparator()));
-        workingCopyContent.append(String.format("Last modifier: %s%s", workingCopyFolder.getmLastUpdater(), System.lineSeparator()));
+        workingCopyContent.append(String.format("Last modifier: %s%s", workingCopyFolder.getLastUpdater(), System.lineSeparator()));
         workingCopyContent.append(String.format("==============================================%s", System.lineSeparator()));
         for (FileItem fileToPrint : workingCopyFolder.listFiles()) {
             workingCopyContent.append(workingCopyToPrint(fileToPrint, Paths.get(".")));
@@ -192,8 +192,8 @@ public class WorkingCopyUtils {
 
     private static String workingCopyToPrint(FileItem fileToPrint, Path pathToFile) {
         StringBuilder contentToPrint = new StringBuilder();
-        Path pathOfFile = Paths.get(pathToFile.toString(), fileToPrint.getmName());
-        if (fileToPrint.getmFileType() == FileType.FILE) {
+        Path pathOfFile = Paths.get(pathToFile.toString(), fileToPrint.getName());
+        if (fileToPrint.getFileType() == FileType.FILE) {
             contentToPrint.append(fileToPrint.toPrintFormat(pathOfFile.toString()));
             return contentToPrint.toString();
         }
@@ -226,7 +226,7 @@ public class WorkingCopyUtils {
         SortedSet<FileItem> directoryFiles = new TreeSet<>();
         WalkAction<FileItem> walkAction = new WalkAction<FileItem>() {
             @Override
-            public void onWalkAction(FileItem file, Object... params) throws IOException {
+            public void onWalkAction(FileItem file, Object... params) {
 
             }
 
@@ -259,7 +259,7 @@ public class WorkingCopyUtils {
         };
         wcWalk(mRepositoryDirectoryPath, null, directoryFiles, action);
         Tree wc = new Tree(FileType.FOLDER, mUserName, mCommitDate, "wc", directoryFiles);
-        if (wc.getmFiles().isEmpty()) {
+        if (wc.getFiles().isEmpty()) {
             throw new WorkingCopyIsEmptyException();
         }
         FileItemHandler.zip(wc, Paths.get(mRepositoryDirectoryPath, ".magit", "objects").toString());
@@ -270,7 +270,7 @@ public class WorkingCopyUtils {
         SortedSet<Delta.DeltaFileItem> deltaFiles = new TreeSet<>();
         WalkAction<Delta.DeltaFileItem> walkAction = new WalkAction<Delta.DeltaFileItem>() {
             @Override
-            public void onWalkAction(FileItem file, Object... params) throws IOException {
+            public void onWalkAction(FileItem file, Object... params) {
 
             }
 

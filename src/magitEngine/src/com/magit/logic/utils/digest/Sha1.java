@@ -3,7 +3,7 @@ package com.magit.logic.utils.digest;
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class Sha1 {
-    private String mSha1Code;
+    private final String mSha1Code;
 
     public Sha1(String input, Boolean isSha1) {
         if (!isSha1)

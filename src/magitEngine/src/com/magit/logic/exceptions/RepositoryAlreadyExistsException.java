@@ -3,7 +3,7 @@ package com.magit.logic.exceptions;
 import java.nio.file.FileAlreadyExistsException;
 
 public class RepositoryAlreadyExistsException extends FileAlreadyExistsException {
-    private String message;
+    private final String message;
 
     public RepositoryAlreadyExistsException(String repositoryFullPath) {
         super(repositoryFullPath);

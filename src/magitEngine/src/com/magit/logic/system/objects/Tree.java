@@ -31,11 +31,7 @@ public class Tree extends FileItem {
         this.mFiles = new TreeSet<>();
     }
 
-    public String getName() {
-        return super.getmName();
-    }
-
-    public static ArrayList<String[]> treeItemsToStringArray(String treeItems) throws ParseException {
+    public static ArrayList<String[]> treeItemsToStringArray(String treeItems) {
         ArrayList<String[]> files = new ArrayList<>();
         String[] filesToSplit = treeItems.split(System.lineSeparator());
         for (String file : filesToSplit) {
@@ -44,48 +40,45 @@ public class Tree extends FileItem {
         return files;
     }
 
+    public String getName() {
+        return super.getName();
+    }
+
     public void addFileItem(FileItem fileItem) {
         mFiles.add(fileItem);
         this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
-    public void setmFiles(SortedSet<FileItem> mFiles) {
-        this.mFiles = mFiles;
-        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
+    @Override
+    public String getFileContent() {
+        StringBuilder content = new StringBuilder();
+        for (FileItem item : mFiles) {
+            content.append(item.toString());
+            content.append(System.lineSeparator());
+        }
+        return content.toString();
     }
 
     public SortedSet<FileItem> listFiles() {
         return mFiles;
     }
 
-    @Override
-    public String getFileContent() {
-        String content = "";
-        for (FileItem item : mFiles) {
-            content += item.toString();
-            content += System.lineSeparator();
-        }
-        return content;
-    }
-
     public String getMinimizedFileContentForSha1() {
-        String content = "";
+        StringBuilder content = new StringBuilder();
         for (FileItem item : mFiles) {
-            content += item.getMinimizedFileDetails();
-            content += System.lineSeparator();
+            content.append(item.getMinimizedFileDetails());
+            content.append(System.lineSeparator());
         }
-        return content;
+        return content.toString();
     }
-
-
 
     @Override
     public String toString() {
         DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
-        return super.getmName() + ";" +
+        return super.getName() + ";" +
                 mSha1Code + ";" +
-                super.getmFileType() + ";" +
-                super.getmLastUpdater() + ";" +
+                super.getFileType() + ";" +
+                super.getLastUpdater() + ";" +
                 dateFormat.format(super.getLastModified());
     }
 
@@ -95,8 +88,13 @@ public class Tree extends FileItem {
         if (!(o instanceof Tree)) return false;
         if (!super.equals(o)) return false;
         Tree tree = (Tree) o;
-        return Objects.equals(super.getmName(), tree.getName()) &&
+        return Objects.equals(super.getName(), tree.getName()) &&
                 CollectionUtils.isEqualCollection(mFiles, tree.mFiles);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), super.getName());
     }
 
     @Override
@@ -109,17 +107,17 @@ public class Tree extends FileItem {
         return folderContent.toString();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), super.getmName());
+    public SortedSet<FileItem> getFiles() {
+        return mFiles;
     }
 
     public int getNumberOfFiles() {
         return (mFiles == null) ? 0 : mFiles.size();
     }
 
-    public SortedSet<FileItem> getmFiles() {
-        return mFiles;
+    public void setFiles(SortedSet<FileItem> mFiles) {
+        this.mFiles = mFiles;
+        this.mSha1Code = new Sha1(getMinimizedFileContentForSha1(), false);
     }
 
 }

@@ -22,7 +22,6 @@ import java.util.SortedSet;
 public class Repository {
 
     private final String BRANCHES = "branches";
-    private final String REPOSITORY_NAME = "REPOSITORY_NAME";
     private String mRepositoryName;
     private String mRepositoryLocation;
     private HashMap<String, Branch> mBranches;
@@ -30,7 +29,7 @@ public class Repository {
     private Path pathToMagit;
     private Path pathToHead;
 
-    public Repository(String mRepositoryLocation, String mUserName, String mRepositoryName) {
+    public Repository(String mRepositoryLocation, String mRepositoryName) {
         this.mRepositoryLocation = mRepositoryLocation;
         this.mBranches = new HashMap<>();
         this.pathToRepository = Paths.get(mRepositoryLocation);
@@ -66,10 +65,11 @@ public class Repository {
         return FileHandler.readFile(pathToCommitsFile.toString()).split(System.lineSeparator());
     }
 
-    public boolean isValid() {
+    public boolean isValid() throws IOException {
         return Files.exists(Paths.get(mRepositoryLocation)) &&
-                Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead)
-                && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, "master"));
+                Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead) &&
+                !FileHandler.readFile(pathToHead.toString()).isEmpty()
+                && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, mBranches.get("HEAD").getBranchName()));
     }
 
     public Path getCommitPath()throws IOException {
@@ -91,6 +91,7 @@ public class Repository {
     }
 
     public void create() throws IllegalPathException, IOException {
+        final String REPOSITORY_NAME = "REPOSITORY_NAME";
         boolean validPath;
         String headBranch = "master";
         File repository;
@@ -105,7 +106,7 @@ public class Repository {
                     if (!branchEntry.getKey().equals("HEAD")) {
                         branchEntry.getValue().create(getRepositoryPath().toString());
                     } else {
-                        headBranch = branchEntry.getValue().getmBranchName();
+                        headBranch = branchEntry.getValue().getBranchName();
                     }
                 }
             }
@@ -153,7 +154,7 @@ public class Repository {
     }
 
     public void changeBranchPointer(Branch branch, Sha1 newCommit) throws IOException {
-        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getmBranchName()).toString(), newCommit.toString());
+        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newCommit.toString());
         branch.setPointedCommitSha1(newCommit);
     }
 

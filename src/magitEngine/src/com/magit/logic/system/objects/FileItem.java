@@ -15,12 +15,11 @@ import java.util.Objects;
 
 public abstract class FileItem implements Comparator<FileItem>, Comparable<FileItem> {
     private String mName;
-    private FileType mFileType;
-    String mLastUpdater;
+    protected final String mDateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
+    final String mLastUpdater;
     Date mLastModified;
     Sha1 mSha1Code;
-
-    protected String mDateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
+    private final FileType mFileType;
 
     FileItem(String mName, FileType mFileType, String mLastUpdater, Date mLastModified, Sha1 sha1Code) {
         this.mName = mName;
@@ -68,15 +67,15 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         return fileItemContent.toString();
     }
 
-    public String getmLastUpdater() {
+    public String getLastUpdater() {
         return mLastUpdater;
     }
 
-    public String getmName() {
+    public String getName() {
         return mName;
     }
 
-    public FileType getmFileType() {
+    public FileType getFileType() {
         return mFileType;
     }
 

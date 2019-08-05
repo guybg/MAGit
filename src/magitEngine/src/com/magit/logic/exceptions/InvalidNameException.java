@@ -1,7 +1,7 @@
 package com.magit.logic.exceptions;
 
 public class InvalidNameException extends Exception {
-    private String mMessage;
+    private final String mMessage;
 
     public InvalidNameException(String message) {
         super(message);

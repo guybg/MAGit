@@ -2,12 +2,10 @@ package com.magit.logic.exceptions;
 
 
 public class RepositoryNotFoundException extends Exception {
-    private String repositoryName;
-    private String mMessege;
+    private final String mMessage;
 
-    public RepositoryNotFoundException(String messege) {
-        this.repositoryName = repositoryName;
-        this.mMessege = messege;
+    public RepositoryNotFoundException(String message) {
+        this.mMessage = message;
     }
 
     @Override
@@ -17,6 +15,6 @@ public class RepositoryNotFoundException extends Exception {
 
     @Override
     public String getMessage() {
-        return mMessege;
+        return mMessage;
     }
 }

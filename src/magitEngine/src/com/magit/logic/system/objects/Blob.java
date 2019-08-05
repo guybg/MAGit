@@ -32,10 +32,10 @@ public class Blob extends FileItem {
     @Override
     public String toString() {
         DateFormat dateFormat = new SimpleDateFormat(this.mDateFormat);
-        return super.getmName() + ";" +
+        return super.getName() + ";" +
                 mSha1Code + ";" +
-                super.getmFileType() + ";" +
-                super.getmLastUpdater() + ";" +
+                super.getFileType() + ";" +
+                super.getLastUpdater() + ";" +
                 dateFormat.format(super.getLastModified());
     }
 

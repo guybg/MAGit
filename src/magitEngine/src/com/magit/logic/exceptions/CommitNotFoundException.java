@@ -1,8 +1,7 @@
 package com.magit.logic.exceptions;
 
 public class CommitNotFoundException extends Exception {
-
-    private String mError;
+    private final String mError;
 
     public CommitNotFoundException(String mError) {
         this.mError = mError;

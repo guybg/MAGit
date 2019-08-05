@@ -23,8 +23,9 @@ public class MagitEngine {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
     }
-    private RepositoryManager mRepositoryManager;
-    private BranchManager mBranchManager;
+
+    private final RepositoryManager mRepositoryManager;
+    private final BranchManager mBranchManager;
 
     private String mUserName = "Administrator";
 
@@ -42,7 +43,7 @@ public class MagitEngine {
     public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
-        mRepositoryManager.setmActiveRepository(repository);
+        mRepositoryManager.setActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
@@ -71,7 +72,7 @@ public class MagitEngine {
 
     public void workingCopyChangedComparedToCommit() throws ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, UncommitedChangesException {
         repositoryNotFoundCheck();
-        if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit()))
+        if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit()))
             throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
     }
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
@@ -89,7 +90,7 @@ public class MagitEngine {
         try {
             if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
                 throw new InvalidNameException("Repository name should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
-            mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, mUserName, repositoryName);
+            mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, repositoryName);
         } catch (NullPointerException | InvalidPathException | IOException e) {
             throw new IllegalPathException(pathToFile.toString() + " is not a valid path.");
         }
@@ -110,7 +111,7 @@ public class MagitEngine {
         if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty())
             throw new InvalidNameException("Branch name cannot be empty or with whitespace.");
         return mBranchManager.pickHeadBranch(branchName,
-                mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit());
+                mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit());
     }
 
     public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {

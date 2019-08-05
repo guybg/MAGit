@@ -1,7 +1,7 @@
 package com.magit.logic.exceptions;
 
 public class ActiveBranchDeletedException extends Exception {
-    private String mError;
+    private final String mError;
 
     public ActiveBranchDeletedException(String mError) {
         this.mError = mError;

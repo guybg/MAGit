@@ -18,7 +18,7 @@ public class Delta {
                         .stream()
                         .map(DeltaFileItem::getPathAndSha1)
                         .anyMatch(secondPathAndSha1 -> secondPathAndSha1.equals(deltaItem.getPathAndSha1()))
-                        && deltaItem.mFileItem.getmFileType().equals(FileType.FILE))
+                        && deltaItem.mFileItem.getFileType().equals(FileType.FILE))
                 .collect(Collectors.toSet()));
         return deltaAction.execute(firstItems, secondItems);
     }
@@ -34,34 +34,33 @@ public class Delta {
         return deltaAction.execute(firstItems, secondItems);
     }
 
-    public static SortedSet<DeltaFileItem> getNewFiles(SortedSet<DeltaFileItem> firstItems,
-                                                       SortedSet<DeltaFileItem> secondItems) {
-        return new TreeSet<>(getNewOrEditedFiles(firstItems, secondItems)
+    private static SortedSet<DeltaFileItem> getNewFiles(SortedSet<DeltaFileItem> firstItems,
+                                                        SortedSet<DeltaFileItem> secondItems) {
+        return getNewOrEditedFiles(firstItems, secondItems)
                 .stream()
                 .filter(item -> secondItems
                         .stream()
                         .map(DeltaFileItem::getFullPath)
                         .noneMatch(secondItem -> item.getFullPath().equals(secondItem))
-                        && item.mFileItem.getmFileType().equals(FileType.FILE))
-                .collect(Collectors.toSet()));
+                        && item.mFileItem.getFileType().equals(FileType.FILE)).distinct().collect(Collectors.toCollection(TreeSet::new));
     }
 
-    public static SortedSet<DeltaFileItem> getEditedFiles(SortedSet<DeltaFileItem> firstItems,
-                                                          SortedSet<DeltaFileItem> secondItems) {
+    private static SortedSet<DeltaFileItem> getEditedFiles(SortedSet<DeltaFileItem> firstItems,
+                                                           SortedSet<DeltaFileItem> secondItems) {
         return new TreeSet<>(
                 CollectionUtils
                         .intersection(getNewOrEditedFiles(firstItems, secondItems)
                 .stream()
-                                .filter(item -> item.mFileItem.getmFileType().equals(FileType.FILE))
+                                .filter(item -> item.mFileItem.getFileType().equals(FileType.FILE))
                                 .collect(Collectors.toSet()), secondItems));
     }
 
-    public static SortedSet<DeltaFileItem> getDeletedFiles(SortedSet<DeltaFileItem> firstItems,
-                                                           SortedSet<DeltaFileItem> secondItems) {
+    private static SortedSet<DeltaFileItem> getDeletedFiles(SortedSet<DeltaFileItem> firstItems,
+                                                            SortedSet<DeltaFileItem> secondItems) {
         return new TreeSet<>(
                 CollectionUtils.subtract(secondItems
                         .stream()
-                        .filter(item -> item.mFileItem.getmFileType().equals(FileType.FILE))
+                        .filter(item -> item.mFileItem.getFileType().equals(FileType.FILE))
                         .collect(Collectors.toSet()), firstItems));
     }
 
@@ -77,8 +76,8 @@ public class Delta {
 
     public static class DeltaFileItem implements Comparable<DeltaFileItem>,
             Comparator<DeltaFileItem> {
-        private FileItem mFileItem;
-        private String mFilePath;
+        private final FileItem mFileItem;
+        private final String mFilePath;
 
         public DeltaFileItem(FileItem fileItem, String mFilePath) {
             this.mFileItem = fileItem;
@@ -89,7 +88,7 @@ public class Delta {
             return mFilePath;
         }
 
-        public String getPathAndSha1() {
+        String getPathAndSha1() {
             return getFullPath() + ";" + mFileItem.getSha1Code();
         }
 

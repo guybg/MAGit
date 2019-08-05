@@ -1,8 +1,8 @@
 package com.magit.logic.exceptions;
 
 public class BranchNotFoundException extends Exception {
-    private String mBranchName;
-    private String mMessage;
+    private final String mBranchName;
+    private final String mMessage;
 
     public BranchNotFoundException(String branchName) {
         this.mBranchName = branchName;
