@@ -31,23 +31,21 @@ public class Branch {
         return mPointedCommitSha1;
     }
 
-    void create(String path) throws IllegalPathException {
+    void create(String path) throws IllegalPathException, IOException {
         try {
             Path filePath = Paths.get(path, ".magit", "branches", mBranchName);
             File branch = new File(filePath.toString());
             boolean newFile = !branch.exists();
             if (!newFile) {
-                System.out.println("file exists");
+                //System.out.println("file exists"); TODO(REMOVE WHEN SUBMITTING)
                 throw new FileAlreadyExistsException(".magit already exists");
             } else {
                 FileHandler.writeNewFile(filePath.toString(), mPointedCommitSha1.toString());
-                System.out.println("file created");
+                //System.out.println("file created"); TODO(REMOVE WHEN SUBMITTING)
             }
 
         } catch (InvalidPathException e) {
             throw new IllegalPathException(path + " is not a valid path.");
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
         }
     }
 

@@ -111,7 +111,6 @@ public class Repository {
                 }
             }
         } catch (InvalidPathException e) {
-            System.out.println(e.getMessage());
             throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
 
         }
