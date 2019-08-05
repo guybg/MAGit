@@ -156,18 +156,24 @@ public class RepositoryManager {
             return workingCopyStatusContent.append(String.format("%s%s", "There are no open changes.", System.lineSeparator())).toString();
         workingCopyStatusContent.append(String.format("New Files: %s", System.lineSeparator()));
         workingCopyStatusContent.append(String.format("==========%s", System.lineSeparator()));
+        if (differences.get(FileStatus.NEW).isEmpty())
+            workingCopyStatusContent.append("-NONE-" + System.lineSeparator());
         for (Delta.DeltaFileItem item : differences.get(FileStatus.NEW)) {
             workingCopyStatusContent.append(String.format("(+) %s%s", item.getFullPath(), System.lineSeparator()));
         }
         workingCopyStatusContent.append(String.format("%s", System.lineSeparator()));
         workingCopyStatusContent.append(String.format("Edited Files: %s", System.lineSeparator()));
         workingCopyStatusContent.append(String.format("==========%s", System.lineSeparator()));
+        if (differences.get(FileStatus.EDITED).isEmpty())
+            workingCopyStatusContent.append("-NONE-" + System.lineSeparator());
         for (Delta.DeltaFileItem item : differences.get(FileStatus.EDITED)) {
             workingCopyStatusContent.append(String.format("%s%s", item.getFullPath(), System.lineSeparator()));
         }
         workingCopyStatusContent.append(String.format("%s", System.lineSeparator()));
         workingCopyStatusContent.append(String.format("Deleted Files: %s", System.lineSeparator()));
         workingCopyStatusContent.append(String.format("==========%s", System.lineSeparator()));
+        if (differences.get(FileStatus.REMOVED).isEmpty())
+            workingCopyStatusContent.append("-NONE-" + System.lineSeparator());
         for (Delta.DeltaFileItem item : differences.get(FileStatus.REMOVED)) {
             workingCopyStatusContent.append(String.format("(-) %s%s", item.getFullPath(), System.lineSeparator()));
         }
