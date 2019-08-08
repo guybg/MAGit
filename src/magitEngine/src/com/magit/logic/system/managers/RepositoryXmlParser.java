@@ -328,10 +328,12 @@ public class RepositoryXmlParser {
     private HashMap<String,String> mapCommitSha1ToId(Repository repository)throws IOException {
         HashMap<String,String> sha1toId = new HashMap<>();
         Integer id = 1;
-        for (String sha1 : repository.getAllCommitsOfRepository()) {
-            sha1toId.put(sha1, id.toString());
-            id++;
-        }
+        String[] commitsSha1CodesOfRepository = repository.getAllCommitsOfRepository();
+        if (commitsSha1CodesOfRepository != null)
+            for (String sha1 : commitsSha1CodesOfRepository) {
+                sha1toId.put(sha1, id.toString());
+                id++;
+            }
 
         return sha1toId;
     }
