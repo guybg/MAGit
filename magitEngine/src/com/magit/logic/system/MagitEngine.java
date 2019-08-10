@@ -15,6 +15,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.NoSuchElementException;
 
 public class MagitEngine {
 
@@ -39,7 +40,7 @@ public class MagitEngine {
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
 
-    public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException {
+    public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
         mRepositoryManager.setActiveRepository(repository);
@@ -52,14 +53,15 @@ public class MagitEngine {
             Path fullPath = Paths.get(path, fileName.concat(".xml"));
             FileHandler.writeNewFolder(Paths.get(path).toString());
             RepositoryXmlParser parser = new RepositoryXmlParser();
-            parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toString());
+            parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toAbsolutePath().toString());
         } catch (IllegalArgumentException | IOException e) {
             throw new IllegalPathException("Invalid file path: " + e.getMessage());
         }
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
-        mRepositoryManager.switchRepository(pathOfRepository, mBranchManager, mUserName);
+        mRepositoryManager.switchRepository(Paths.get(pathOfRepository).toAbsolutePath().toString(), mBranchManager, mUserName);
+
     }
 
     public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException, PreviousCommitsLimitExceededException {
@@ -96,7 +98,7 @@ public class MagitEngine {
         return mUserName;
     }
 
-    public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException {
+    public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException, RepositoryAlreadyExistsException {
         try {
             if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
                 throw new InvalidNameException("Repository name should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");

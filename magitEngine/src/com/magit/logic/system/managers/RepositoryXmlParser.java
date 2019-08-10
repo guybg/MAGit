@@ -29,12 +29,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RepositoryXmlParser {
-    private HashMap<String, String> blobSha1ToId;
-    private HashMap<String, String> treeSha1ToId;
+    private HashMap<String, String> blobSha1AndNameToId;
+    private HashMap<String, String> treeSha1AndNameToId;
 
 
     public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser, boolean forceCreation)
-            throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException {
+            throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
         checkIfXmlFile(xmlPath);
 
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
@@ -54,7 +54,7 @@ public class RepositoryXmlParser {
     }
 
     private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser, boolean forceCreation)
-            throws ParseException, IOException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException {
+            throws ParseException, IOException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
         MagitRepository magitRepository = jaxbElement.getValue();
 
         /* check for xml errors */
@@ -83,7 +83,7 @@ public class RepositoryXmlParser {
         return repository;
     }
 
-    private void checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(String repositoryPath) throws FileAlreadyExistsException {
+    private void checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(String repositoryPath) throws FileAlreadyExistsException, RepositoryAlreadyExistsException {
         if (Files.exists(Paths.get(repositoryPath)) &&
                 Files.exists(Paths.get(repositoryPath, ".magit")) &&
                 Files.exists(Paths.get(repositoryPath, ".magit", "REPOSITORY_NAME")) &&
@@ -95,7 +95,7 @@ public class RepositoryXmlParser {
 
     private void checkIfXmlFile(String pathToXml) throws XmlFileException, IllegalPathException {
         try {
-            if (!Paths.get(pathToXml).getFileName().toString().endsWith(".xml"))
+            if (!Paths.get(pathToXml).toAbsolutePath().getFileName().toString().endsWith(".xml"))
                 throw new XmlFileException("XML error : Given file is not xml file, file does not end with .xml.");
         } catch (InvalidPathException e) {
             throw new IllegalPathException(pathToXml + " is not a valid path.");
@@ -270,8 +270,8 @@ public class RepositoryXmlParser {
     public void writeRepositoryToXML(Repository repository, String saveFileTo)
             throws IOException, ParseException, PreviousCommitsLimitExceededException, JAXBException {
 
-        blobSha1ToId = new HashMap<>();
-        treeSha1ToId = new HashMap<>();
+        blobSha1AndNameToId = new HashMap<>();
+        treeSha1AndNameToId = new HashMap<>();
 
         MagitRepository magitRepository = createMagitRepository(repository);
         HashMap<String, String> sha1OfCommits = buildObjectsFromCommits(repository, magitRepository);
@@ -305,6 +305,7 @@ public class RepositoryXmlParser {
         StringBuilder sha1OfFiles = new StringBuilder();
 
         for (String sha1OfCommit : sha1ToId.keySet()) {
+            ArrayList<MagitSingleFolder> magitSingleFoldersOfCommit = new ArrayList<>();
             Commit currentCommit = Commit.createCommitInstanceByPath(
                     Paths.get(repository.getObjectsFolderPath().toString(), sha1OfCommit));
             if (currentCommit == null)
@@ -313,12 +314,13 @@ public class RepositoryXmlParser {
             MagitSingleCommit currentMagitCommit = analyzeCommitToMagitSingleCommit(currentCommit, sha1ToId);
             magitCommitsList.add(currentMagitCommit);
             Tree foldersOfCommit = WorkingCopyUtils.getWorkingCopyTreeFromCommit(currentCommit, repository.getRepositoryPath().toString());
-            createMagitObjectsFromTree(sha1OfFiles, foldersOfCommit, magitBlobs, magitSingleFolders);
+            createMagitObjectsFromTree(sha1OfFiles, foldersOfCommit, magitBlobs, magitSingleFoldersOfCommit);
             RootFolder rootFolder = new RootFolder();
-            String idOfRootFolder = magitSingleFolders.size() > 0 ? magitSingleFolders.get(0).getId() : null;
+            String idOfRootFolder = magitSingleFoldersOfCommit.size() > 0 ? magitSingleFoldersOfCommit.get(0).getId() : null;
             if (idOfRootFolder != null)
                 rootFolder.setId(idOfRootFolder);
             currentMagitCommit.setRootFolder(rootFolder);
+            magitSingleFolders.addAll(magitSingleFoldersOfCommit);
         }
         insertObjectToMagitRepository(magitRepository, magitBlobs, magitSingleFolders, magitCommitsList);
         return sha1ToId;
@@ -366,7 +368,7 @@ public class RepositoryXmlParser {
         objectsOfTree.add(folder);
 
         while (objectsOfTree.size() != empty) {
-            handleFileItem(objectsOfTree, sha1OfFiles, blobSha1ToId, treeSha1ToId, magitBlobsList, magitFoldersList);
+            handleFileItem(objectsOfTree, sha1OfFiles, blobSha1AndNameToId, treeSha1AndNameToId, magitBlobsList, magitFoldersList);
         }
         MagitBlobs magitBlobs = MagitObjectsFactory.createMagitBlobs();
         magitBlobs.getMagitBlob().addAll(magitBlobsList);
@@ -375,9 +377,9 @@ public class RepositoryXmlParser {
     }
 
     private void handleFileItem(LinkedList<FileItem> objectsOfTree, StringBuilder sha1OfFiles,
-                                HashMap<String, String> blobSha1ToId, HashMap<String, String> treeSha1ToId,
+                                HashMap<String, String> blobSha1AndNameToId, HashMap<String, String> treeSha1AndNameToId,
                                 ArrayList<MagitBlob> magitBlobsList, ArrayList<MagitSingleFolder> magitFoldersList) {
-        Integer idTree = treeSha1ToId.size() + 1;
+        Integer idTree = treeSha1AndNameToId.size() + 1;
         FileItem item = objectsOfTree.poll();
         String sha1Code = item.getSha1Code().toString();
         if (sha1OfFiles.toString().contains(sha1Code + item.getName()))
@@ -385,13 +387,13 @@ public class RepositoryXmlParser {
 
         sha1OfFiles.append(String.format("%s%s%s", sha1Code, item.getName(), ';'));
         if (item.getFileType().equals(FileType.FILE)) {
-            String id = blobSha1ToId.get(sha1Code);
+            String id = blobSha1AndNameToId.get(sha1Code + item.getName());
             magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, Integer.parseInt(id)));
         } else if (item.getFileType().equals(FileType.FOLDER)) {
-            if (!treeSha1ToId.containsKey(sha1Code)) {
-                treeSha1ToId.put(sha1Code, idTree.toString());
+            if (!treeSha1AndNameToId.containsKey(sha1Code + item.getName())) {
+                treeSha1AndNameToId.put(sha1Code + item.getName(), idTree.toString());
             }
-            String id = treeSha1ToId.get(sha1Code);
+            String id = treeSha1AndNameToId.get(sha1Code + item.getName());
             MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getName() == null);
 
             ArrayList<Item> itemsOfFolder = new ArrayList<>();
@@ -414,17 +416,17 @@ public class RepositoryXmlParser {
         String sha1OfChild = childInFolder.getSha1Code().toString();
 
         if (childInFolder.getFileType().equals(FileType.FILE)) {
-            boolean containsKey = blobSha1ToId.containsKey(sha1OfChild);
-            Integer idBlob = containsKey ? Integer.parseInt(blobSha1ToId.get(sha1OfChild)) : blobSha1ToId.size() + 1;
+            boolean containsKey = blobSha1AndNameToId.containsKey(sha1OfChild + childInFolder.getName());
+            Integer idBlob = containsKey ? Integer.parseInt(blobSha1AndNameToId.get(sha1OfChild + childInFolder.getName())) : blobSha1AndNameToId.size() + 1;
             if (!containsKey) {
-                blobSha1ToId.put(childInFolder.getSha1Code().toString(), idBlob.toString());
+                blobSha1AndNameToId.put(childInFolder.getSha1Code().toString() + childInFolder.getName(), idBlob.toString());
             }
             return MagitObjectsFactory.createItem(idBlob, "blob");
         } else if (childInFolder.getFileType().equals(FileType.FOLDER)) {
-            boolean containsKey = treeSha1ToId.containsKey(sha1OfChild);
-            Integer idTree = containsKey ? Integer.parseInt(treeSha1ToId.get(sha1OfChild)) : treeSha1ToId.size() + 1;
+            boolean containsKey = treeSha1AndNameToId.containsKey(sha1OfChild + childInFolder.getName());
+            Integer idTree = containsKey ? Integer.parseInt(treeSha1AndNameToId.get(sha1OfChild + childInFolder.getName())) : treeSha1AndNameToId.size() + 1;
             if (!containsKey) {
-                treeSha1ToId.put(childInFolder.getSha1Code().toString(), idTree.toString());
+                treeSha1AndNameToId.put(childInFolder.getSha1Code().toString() + childInFolder.getName(), idTree.toString());
             }
             return MagitObjectsFactory.createItem(idTree, "folder");
         }

@@ -91,13 +91,14 @@ public class RepositoryManager {
         return WorkingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getLastUpdater());
     }
 
-    public void createNewRepository(String fullPath, BranchManager branchManager, String repositoryName) throws IllegalPathException, IOException {
+    public void createNewRepository(String fullPath, BranchManager branchManager, String repositoryName) throws IllegalPathException, IOException, RepositoryAlreadyExistsException {
+        if(isValidRepository(fullPath))
+            throw new RepositoryAlreadyExistsException(fullPath);
         Repository repository = new Repository(fullPath, repositoryName);
         repository.create();
         mActiveRepository = repository;
         branchManager.setActiveBranch(repository.getmBranches().get("master"));
     }
-
 
     public void commit(String commitMessage, String creator, Branch mActiveBranch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
         Commit commit = new Commit(commitMessage, creator, FileType.COMMIT, new Date());

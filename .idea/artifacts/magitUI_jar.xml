@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="magitUI:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/magitUI_jar</output-path>
+    <root id="archive" name="magitUI.jar">
+      <element id="module-output" name="magitUI" />
+    </root>
+  </artifact>
+</component>

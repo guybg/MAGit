@@ -34,9 +34,6 @@ public class UserInterface {
         MagitEngine maGitSystem = new MagitEngine();
         try {
             run(maGitSystem);
-        } catch (RepositoryAlreadyExistsException e) {
-            System.out.println(e.getMessage() + "\n" +
-                    e.getCause());
         } catch (IOException e) {
             System.out.println(e.getMessage());
         }
@@ -149,6 +146,8 @@ public class UserInterface {
                     magitEngine.loadRepositoryFromXML(xmlPath, true);
                 } catch (IOException | PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException ex) {
                     System.out.println(ex.getMessage());
+                } catch (RepositoryAlreadyExistsException ex) {
+                    System.out.println();
                 }
             }
         } catch (PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException | FileAlreadyExistsException | FileNotFoundException e) {
@@ -251,6 +250,8 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (InvalidPathException e) {
             throw new IllegalPathException(pathToRepositoryInput + " is not a valid path.");
+        } catch (RepositoryAlreadyExistsException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -318,13 +319,16 @@ public class UserInterface {
         System.out.println("Please enter repository path:" + System.lineSeparator());
         String pathOfRepositoryString = input.nextLine();
         try {
-            Path pathOfRepository = Paths.get(pathOfRepositoryString);
-            magitEngine.switchRepository(pathOfRepository.toString());
+            magitEngine.switchRepository(pathOfRepositoryString);
         } catch (RepositoryNotFoundException ex) {
             if (yesNoQuestion("Repository not found, would you like to create one? Press Y/y to create one, any other button to cancel operation.",
                     input)) {
                 System.out.println("Please enter repository name");
-                magitEngine.createNewRepository(Paths.get(pathOfRepositoryString), input.nextLine());
+                try {
+                    magitEngine.createNewRepository(Paths.get(pathOfRepositoryString), input.nextLine());
+                } catch (RepositoryAlreadyExistsException e) {
+                    System.out.println();
+                }
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());

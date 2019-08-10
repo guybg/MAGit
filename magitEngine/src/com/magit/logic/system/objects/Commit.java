@@ -29,7 +29,7 @@ public class Commit extends FileItem {
     private Sha1 mWorkingCopySha1;
     private Sha1 mFirstPreviousCommit;
     private Sha1 mSecondPreviousCommit;
-    private String mCommitMessage;
+    private String mCommitMessage = "";
 
     public Commit(String commitMessage, String creator, FileType fileType, Date mCommitDate) {
         super(null, fileType, creator, mCommitDate, null);
@@ -72,7 +72,11 @@ public class Commit extends FileItem {
         String commitContent = FileItemHandler.zipToString(pathToCommit.getParent().toString(), sha1Code);
         String[] commitLines = commitContent.split(String.format("%s", System.lineSeparator()));
         Sha1 workingCopySha1 = new Sha1(commitLines[shaOfCommit1Index].split(separator)[valueOfSplit], true);
-        String commitMessage = commitLines[commitMessageIndex].split(separator)[valueOfSplit];
+        String commitMessage;
+        if (commitLines[commitMessageIndex].split(separator).length != twoPartsOfSplitting)
+            commitMessage = "";
+        else
+            commitMessage = commitLines[commitMessageIndex].split(separator)[valueOfSplit];
         String commitDate = commitLines[commitDateIndex].split(separator)[valueOfSplit];
         String commitCreator = commitLines[commitCreatorIndex].split(separator)[valueOfSplit];
         DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
