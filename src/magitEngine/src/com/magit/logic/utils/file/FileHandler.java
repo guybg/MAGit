@@ -37,7 +37,7 @@ public class FileHandler {
         FileUtils.writeStringToFile(file, fileContent, StandardCharsets.UTF_8);
     }
 
-    static void writeNewFolder(String destinationPath) {
+    public static void writeNewFolder(String destinationPath) {
         File file = new File(destinationPath);
         file.mkdirs();
     }

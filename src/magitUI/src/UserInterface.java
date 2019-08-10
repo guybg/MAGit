@@ -159,11 +159,17 @@ public class UserInterface {
     }
 
     private static void exportRepositoryToXML(MagitEngine magitEngine, Scanner input) {
+        String pathToExportedXml;
+        String fileName;
         try {
             magitEngine.repositoryNotFoundCheck();
-            System.out.println("Enter destination of XML file:");
-            magitEngine.exportRepositoryToXML(input.nextLine());
-        } catch (RepositoryNotFoundException | IOException | ParseException | PreviousCommitsLimitExceededException | JAXBException ex) {
+            System.out.println("Please enter destination path for xml file to be created: (i.e: c:/folder)");
+            pathToExportedXml = input.nextLine();
+            System.out.println("Please enter xml file name (without .xml extension): (i.e: myXmlFile)");
+            fileName = input.nextLine();
+
+            magitEngine.exportRepositoryToXML(pathToExportedXml, fileName);
+        } catch (RepositoryNotFoundException | IOException | ParseException | PreviousCommitsLimitExceededException | JAXBException | IllegalPathException ex) {
             System.out.println(ex.getMessage());
         }
     }

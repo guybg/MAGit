@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 
 public class MagitEngine {
@@ -47,10 +48,16 @@ public class MagitEngine {
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
-    public void exportRepositoryToXML(String path) throws IOException, ParseException, PreviousCommitsLimitExceededException
-    , JAXBException {
-        RepositoryXmlParser parser = new RepositoryXmlParser();
-        parser.writeRepositoryToXML(mRepositoryManager.getRepository(), path);
+    public void exportRepositoryToXML(String path, String fileName) throws IOException, ParseException, PreviousCommitsLimitExceededException
+            , JAXBException, IllegalPathException {
+        try {
+            Path fullPath = Paths.get(path, fileName.concat(".xml"));
+            FileHandler.writeNewFolder(Paths.get(path).toString());
+            RepositoryXmlParser parser = new RepositoryXmlParser();
+            parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toString());
+        } catch (IllegalArgumentException | IOException e) {
+            throw new IllegalPathException("Invalid file path: " + e.getMessage());
+        }
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
