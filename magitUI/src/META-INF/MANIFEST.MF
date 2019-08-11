@@ -1,4 +1,6 @@
 Manifest-Version: 1.0
-Class-Path: magitEngine.jar
-Main-Class: com.magit.ui.UserInterface
+Class-Path: magitEngine.jar external-Libs/commons-codec-1.12.jar exter
+ nal-Libs/commons-collections4-4.3.jar external-Libs/commons-io-2.6.ja
+ r external-Libs/commons-lang3-3.9.jar
+Main-Class: com.magit.ui.UIMain
 
