@@ -139,11 +139,13 @@ public class UserInterface {
         try {
             xmlPath = input.nextLine();
             magitEngine.loadRepositoryFromXML(xmlPath, false);
+            System.out.println("Repository loaded successfully.");
         } catch (RepositoryAlreadyExistsException e) {
             System.out.println(e.getMessage());
             if (yesNoQuestion("Would you like to replace current repository with XML repository?, press y/Y to replace, any other key to abort.", input)) {
                 try {
                     magitEngine.loadRepositoryFromXML(xmlPath, true);
+                    System.out.println("Repository loaded successfully.");
                 } catch (IOException | PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException ex) {
                     System.out.println(ex.getMessage());
                 } catch (RepositoryAlreadyExistsException ex) {
@@ -168,6 +170,7 @@ public class UserInterface {
             fileName = input.nextLine();
 
             magitEngine.exportRepositoryToXML(pathToExportedXml, fileName);
+            System.out.println("XML file generated successfully and created at " + Paths.get(pathToExportedXml).toAbsolutePath().toString() +".");
         } catch (RepositoryNotFoundException | IOException | ParseException | PreviousCommitsLimitExceededException | JAXBException | IllegalPathException ex) {
             System.out.println(ex.getMessage());
         }
@@ -177,6 +180,7 @@ public class UserInterface {
         System.out.println("Please enter user name:");
         try {
             magitEngine.updateUserName(input.nextLine());
+            System.out.println("Username changed successfully.");
         } catch (InvalidNameException e) {
             System.out.println(e.getMessage());
         }
@@ -195,6 +199,7 @@ public class UserInterface {
     private static void switchRepository(MagitEngine magitEngine, Scanner input) throws ParseException {
         try {
             executeSwitchRepository(magitEngine, input);
+            System.out.println("Repository loaded successfully.");
         } catch (IllegalPathException | InvalidNameException e) {
             System.out.println(e.getMessage());
         }
@@ -217,6 +222,7 @@ public class UserInterface {
             magitEngine.repositoryNotFoundCheck();
             System.out.println("Please enter your commit message ");
             magitEngine.commit(input.nextLine());
+            System.out.println("Commit generated successfully.");
         } catch (WorkingCopyIsEmptyException e) {
             System.out.println(e.toString());
         } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {
@@ -246,6 +252,7 @@ public class UserInterface {
             Path pathToRepository = Paths.get(pathToRepositoryInput);
             System.out.println("Please enter repository name");
             magitEngine.createNewRepository(pathToRepository, input.nextLine());
+            System.out.println("Repository created successfully.");
         } catch (InvalidNameException e) {
             System.out.println(e.getMessage());
         } catch (InvalidPathException e) {
@@ -261,6 +268,7 @@ public class UserInterface {
             System.out.println("Pick branch name:");
             String branchName = input.nextLine();
             magitEngine.createNewBranch(branchName);
+            System.out.println("Branch created successfully.");
             if (yesNoQuestion("Would you like to perform checkout to this branch right now? press Y/y to perform checkout or press any other key to cancel",
                     input)) {
                 changeBranchOperation(magitEngine, branchName, input);
@@ -275,6 +283,7 @@ public class UserInterface {
             magitEngine.repositoryNotFoundCheck();
             System.out.println("Enter branch name:");
             magitEngine.deleteBranch(input.nextLine());
+            System.out.println("Branch Deleted.");
         } catch (RepositoryNotFoundException | ActiveBranchDeletedException | BranchNotFoundException | IOException e) {
             System.out.println(e.getMessage());
         }
@@ -316,7 +325,7 @@ public class UserInterface {
 
 
     private static void executeSwitchRepository(MagitEngine magitEngine, Scanner input) throws ParseException, IllegalPathException, InvalidNameException {
-        System.out.println("Please enter repository path:" + System.lineSeparator());
+        System.out.println("Please enter repository path:");
         String pathOfRepositoryString = input.nextLine();
         try {
             magitEngine.switchRepository(pathOfRepositoryString);
@@ -351,7 +360,8 @@ public class UserInterface {
         try {
             magitEngine.repositoryNotFoundCheck();
             System.out.println("Please enter branch name:");
-            changeBranchOperation(magitEngine, input.nextLine(), input);
+            String branchName = input.nextLine();
+            changeBranchOperation(magitEngine, branchName, input);
         } catch (RepositoryNotFoundException e) {
             System.out.println(e.getMessage());
         }

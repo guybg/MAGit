@@ -138,7 +138,7 @@ public class BranchManager {
                     activeRepository.getRepositoryPath().toString());
         }
         mActiveBranch = activeRepository.getmBranches().get(wantedBranchName);
-        return "Active branch has changed successfully";
+        return "Active branch has changed successfully.";
     }
 
     public void changeBranchPointedCommit(Repository repository, Sha1 commitSha1) throws CommitNotFoundException, IOException {
