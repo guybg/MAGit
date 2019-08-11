@@ -1,3 +1,5 @@
+package com.magit.ui;
+
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 
@@ -30,18 +32,6 @@ public class UserInterface {
     private final static String CHANGE_HEAD_BRANCH_POINTED_COMMIT = "Change Head Branch Pointed Commit";
     private final static String EXIT = "Exit";
 
-    public static void main(String[] args) {
-        MagitEngine maGitSystem = new MagitEngine();
-        try {
-            run(maGitSystem);
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        }
-        catch (Exception e) {
-            System.out.println(e.toString());
-        }
-    }
-
     private static void printMenu(MagitEngine magitEngine) {
         System.out.println("Menu:                 Active User: " + magitEngine.getUserName() + System.lineSeparator() +
                 "1." + UPDATE_USER_NAME + System.lineSeparator() +
@@ -61,7 +51,7 @@ public class UserInterface {
                 "15." + EXIT);
     }
 
-    private static void run(MagitEngine magitEngine) throws
+    static void run(MagitEngine magitEngine) throws
             IOException, ParseException, JAXBException {
         Scanner input = new Scanner(System.in);
         MenuOptions optionsToActivate = MenuOptions.Default;
