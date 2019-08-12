@@ -7,32 +7,28 @@ import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.NoSuchElementException;
 
 public class MagitEngine {
-
-    private final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
-    private final RepositoryManager mRepositoryManager;
-    private final BranchManager mBranchManager;
-    private String mUserName = "Administrator";
 
     public MagitEngine() {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
     }
+    private RepositoryManager mRepositoryManager;
+    private BranchManager mBranchManager;
 
-    public void updateUserName(String userNameToSet) throws InvalidNameException {
-        if (StringUtils.containsOnly(userNameToSet, BLANK_SPACE) || userNameToSet.isEmpty())
-            throw new InvalidNameException("Username should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
+    private String mUserName = "Administrator";
+
+    public void updateUserName(String userNameToSet) {
         mUserName = userNameToSet;
+        ////mRepositoryManager.setUserName(userNameToSet);
+
     }
 
     public void repositoryNotFoundCheck() throws RepositoryNotFoundException {
@@ -40,103 +36,86 @@ public class MagitEngine {
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
 
-    public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
+    public void loadRepositoryFromXML(String path) throws JAXBException, IOException, ParseException, PreviousCommitsLimitexceededException, XmlFileException, IllegalPathException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
-        Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
-        mRepositoryManager.setActiveRepository(repository);
+        Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName);
+        mRepositoryManager.setmActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
-    public void exportRepositoryToXML(String path, String fileName) throws IOException, ParseException, PreviousCommitsLimitExceededException
-            , JAXBException, IllegalPathException {
-        try {
-            Path fullPath = Paths.get(path, fileName.concat(".xml"));
-            FileHandler.writeNewFolder(Paths.get(path).toString());
-            RepositoryXmlParser parser = new RepositoryXmlParser();
-            parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toAbsolutePath().toString());
-        } catch (IllegalArgumentException | IOException e) {
-            throw new IllegalPathException("Invalid file path: " + e.getMessage());
-        }
-    }
-
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
-        mRepositoryManager.switchRepository(Paths.get(pathOfRepository).toAbsolutePath().toString(), mBranchManager, mUserName);
-
+        mRepositoryManager.switchRepository(pathOfRepository, mBranchManager, mUserName);
     }
 
-    public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException, PreviousCommitsLimitExceededException {
+    public String presentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
-        return mRepositoryManager.presentCurrentCommitAndHistory();
+        return mRepositoryManager.presentCurrentCommitAndHistory(mUserName);
     }
 
-    public String changeBranchPointedCommit(String commitSha1) throws IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+    public void checkDifferenceBetweenCurrentWCandLastCommit() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
+        repositoryNotFoundCheck();
+        mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit();
+    }
+
+    public String changeBranchPointedCommit(String commitSha1) throws IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         mBranchManager.changeBranchPointedCommit(mRepositoryManager.getRepository(), new Sha1(commitSha1, true));
         FileHandler.clearFolder(mRepositoryManager.getRepository().getRepositoryPath());
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
-        return mRepositoryManager.presentCurrentCommitAndHistory();
+        return mRepositoryManager.presentCurrentCommitAndHistory(mUserName);
     }
 
-    public void workingCopyChangedComparedToCommit() throws ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, UncommitedChangesException {
+    public void workingCopyChangedComparedToCommit() throws ParseException, PreviousCommitsLimitexceededException, IOException, RepositoryNotFoundException, UncommitedChangesException {
         repositoryNotFoundCheck();
-        if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit()))
+        if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit()))
             throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
     }
-
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
-            WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
+            WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
     }
 
-    public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException, PreviousCommitsLimitExceededException {
+    public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getBranchesInfo();
     }
 
-    public String getUserName() {
-        return mUserName;
-    }
-
-    public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException, RepositoryAlreadyExistsException {
+    public void createNewRepository(Path pathToFile, String repositoryName) throws IOException, IllegalPathException {
         try {
-            if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
-                throw new InvalidNameException("Repository name should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
-            mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, repositoryName);
-        } catch (NullPointerException | InvalidPathException | IOException e) {
+            mRepositoryManager.createNewRepository(pathToFile.toString(), mBranchManager, mUserName, repositoryName);
+        } catch (NullPointerException | InvalidPathException e) {
             throw new IllegalPathException(pathToFile.toString() + " is not a valid path.");
         }
     }
 
-    public void createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
+    public boolean createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException {
         repositoryNotFoundCheck();
-        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
+        return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
     }
 
-    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException {
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedExpcetion, RepositoryNotFoundException, BranchNotFoundException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
-    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, InvalidNameException {
+    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
-        if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty())
-            throw new InvalidNameException("Branch name cannot be empty or with whitespace.");
         return mBranchManager.pickHeadBranch(branchName,
-                mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit());
+                mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCandLastCommit());
     }
 
-    public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+    public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
     }
 
-    public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+    public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitexceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getWorkingCopyStatus(mUserName);
     }
 
-    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitExceededException {
+    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitexceededException {
         return mBranchManager.forcedChangeBranch(branchName,
                 mRepositoryManager.getRepository());
     }

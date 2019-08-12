@@ -2,18 +2,13 @@ package com.magit.logic.exceptions;
 
 import java.nio.file.FileAlreadyExistsException;
 
-public class RepositoryAlreadyExistsException extends Exception {
-    private final String message;
+public class RepositoryAlreadyExistsException extends FileAlreadyExistsException {
+    private String message;
 
-    public RepositoryAlreadyExistsException(String repositoryFullPath) {
+    public RepositoryAlreadyExistsException(String repositoryFullPath, String repositoryName) {
         super(repositoryFullPath);
-        message = "Functioning repository already exists at location " + repositoryFullPath
-                + " ,Please consider using another location and try again.";
-    }
-
-    public RepositoryAlreadyExistsException(String message, String repositoryFullPath) {
-        super(repositoryFullPath);
-        this.message = message;
+        message = "Theres already a repository named " + repositoryName + " at " + repositoryFullPath
+                + " ,Please consider using another repository name/location and try again.";
     }
 
     @Override

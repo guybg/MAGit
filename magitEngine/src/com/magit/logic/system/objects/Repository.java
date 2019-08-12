@@ -22,6 +22,7 @@ import java.util.SortedSet;
 public class Repository {
 
     private final String BRANCHES = "branches";
+    private final String REPOSITORY_NAME = "REPOSITORY_NAME";
     private String mRepositoryName;
     private String mRepositoryLocation;
     private HashMap<String, Branch> mBranches;
@@ -29,7 +30,7 @@ public class Repository {
     private Path pathToMagit;
     private Path pathToHead;
 
-    public Repository(String mRepositoryLocation, String mRepositoryName) {
+    public Repository(String mRepositoryLocation, String mUserName, String mRepositoryName) {
         this.mRepositoryLocation = mRepositoryLocation;
         this.mBranches = new HashMap<>();
         this.pathToRepository = Paths.get(mRepositoryLocation);
@@ -41,23 +42,18 @@ public class Repository {
     public void addBranch(String key, Branch value) {
         this.mBranches.put(key, value);
     }
-
     private Path getBranchPath(String branchName) {
         return Paths.get(pathToMagit.toString(), BRANCHES, branchName);
     }
-
     public Path getRepositoryPath() {
         return Paths.get(mRepositoryLocation);
     }
-
     public Path getMagitFolderPath() {
         return pathToMagit;
     }
-
     public Path getHeadPath() {
         return pathToHead;
     }
-
     public Path getBranchDirectoryPath() {
         return Paths.get(pathToMagit.toString(), BRANCHES);
     }
@@ -70,14 +66,13 @@ public class Repository {
         return FileHandler.readFile(pathToCommitsFile.toString()).split(System.lineSeparator());
     }
 
-    public boolean isValid() throws IOException {
+    public boolean isValid() {
         return Files.exists(Paths.get(mRepositoryLocation)) &&
-                Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead) &&
-                !FileHandler.readFile(pathToHead.toString()).isEmpty()
-                && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, mBranches.get("HEAD").getBranchName()));
+                Files.exists(pathToRepository) && Files.exists(pathToMagit) && Files.exists(pathToHead)
+                && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, "master"));
     }
 
-    public Path getCommitPath() throws IOException {
+    public Path getCommitPath()throws IOException {
 
         String branchName = FileHandler.readFile(pathToHead.toString());
         Path pathToBranchFile = getBranchPath(branchName);
@@ -91,12 +86,11 @@ public class Repository {
         return Paths.get(pathToMagit.toString(), "objects", sha1OfCommit);
     }
 
-    public Path getObjectsFolderPath() {
+    public Path getObjectsFolderPath(){
         return Paths.get(pathToMagit.toString(), "objects");
     }
 
     public void create() throws IllegalPathException, IOException {
-        final String REPOSITORY_NAME = "REPOSITORY_NAME";
         boolean validPath;
         String headBranch = "master";
         File repository;
@@ -107,27 +101,30 @@ public class Repository {
             Path repositoryNamePath = Paths.get(mRepositoryLocation, ".magit", REPOSITORY_NAME);
             FileHandler.writeNewFile(repositoryNamePath.toString(), mRepositoryName);
             if (!mBranches.isEmpty()) {
-                for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {
-                    if (!branchEntry.getKey().equals("HEAD")) {
-                        branchEntry.getValue().create(getRepositoryPath().toString());
+                for (Branch branch : mBranches.values()) {
+                    if (!branch.getmBranchName().equals("HEAD")) {
+                        branch.create(getRepositoryPath().toString());
                     } else {
-                        headBranch = branchEntry.getValue().getBranchName();
+                        headBranch = branch.getmBranchName();
                     }
                 }
             }
         } catch (InvalidPathException e) {
+            System.out.println(e.getMessage());
             throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
 
         }
 
         if (!validPath) {
-            throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
+            if (repository.exists())
+                throw new RepositoryAlreadyExistsException(mRepositoryLocation, getRepositoryName());
+            else
+                throw new IllegalPathException(mRepositoryLocation + " is not a valid path.");
         }
         if (mBranches.isEmpty()) {
             Branch branch = new Branch("master");
             branch.create(Paths.get(mRepositoryLocation).toString());
             mBranches.put("master", branch);
-            mBranches.put("HEAD", branch);
         }
         createHeadFile(headBranch);
     }
@@ -156,7 +153,7 @@ public class Repository {
     }
 
     public void changeBranchPointer(Branch branch, Sha1 newCommit) throws IOException {
-        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newCommit.toString());
+        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getmBranchName()).toString(), newCommit.toString());
         branch.setPointedCommitSha1(newCommit);
     }
 
