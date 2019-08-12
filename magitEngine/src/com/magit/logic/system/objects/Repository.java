@@ -127,6 +127,7 @@ public class Repository {
             Branch branch = new Branch("master");
             branch.create(Paths.get(mRepositoryLocation).toString());
             mBranches.put("master", branch);
+            mBranches.put("HEAD", branch);
         }
         createHeadFile(headBranch);
     }
