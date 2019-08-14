@@ -27,7 +27,7 @@
 
 .menu-bar {
   -fx-padding: 0 0 0 0;
-  -fx-spacing: 2;
+    -fx-spacing: 2;
 }
 
 .context-menu {
@@ -94,7 +94,7 @@
     -fx-padding: 0 0 0 0;
 }
 .button-bar-button .label{
-    -fx-text-fill:#ffffff;
+    -fx-text-fill: #ffffff;
 }
 
 .pane{
