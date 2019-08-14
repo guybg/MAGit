@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-collections4-4.3.jar!/" />
+      <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-codec-1.12.jar!/" />
+      <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-io-2.6.jar!/" />
+      <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-lang3-3.9.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
