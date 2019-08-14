@@ -1,7 +1,7 @@
 .menu-bar .menu-button:hover{
     -fx-background-color:#33393F;
 }
-.menu-bar .menu-button:showing, .menu-bar .menu-button:focus {
+.menu-bar .menu-button:showing, .menu-bar .menu-button:focused {
     -fx-background-color:#FFFFFF;
     -fx-focus-color:white;
 }
@@ -14,7 +14,7 @@
     
 }
 
-.menu .menu-button:showing .label,.menu .menu-button:focus .label  {
+.menu .menu-button:showing .label,.menu .menu-button:focused .label  {
     -fx-text-fill: #292D32;
     -fx-font: 11px Arial;
     -fx-font-weight: bold;
@@ -27,7 +27,7 @@
 
 .menu-bar {
   -fx-padding: 0 0 0 0;
-  -fx-spacing: 2;
+    -fx-spacing: 2;
 }
 
 .context-menu {
@@ -35,7 +35,7 @@
     -fx-focus-color:white;
 }
 
-.context-menu:focus {
+.context-menu:focused {
     -fx-background-color:white;
     -fx-focus-color:white;
 }
@@ -94,7 +94,7 @@
     -fx-padding: 0 0 0 0;
 }
 .button-bar-button .label{
-    -fx-text-fill:#ffffff;
+    -fx-text-fill: #ffffff;
 }
 
 .pane{
