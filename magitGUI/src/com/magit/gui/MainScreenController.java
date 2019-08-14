@@ -59,11 +59,8 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryNameProperty = new SimpleStringProperty();
             repositoryNameProperty.setValue("");
         }
-
         if (repositoryNameProperty.getValue().isEmpty()) repositoryNameProperty.setValue("No repository");
         currentRepositoryMenuButton.textProperty().bind(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty));
-        userNameMenuButton.prefHeightProperty().bind(menuButtonsHbox.heightProperty());
-        currentBranchMenuButton.prefHeightProperty().bind(menuButtonsHbox.heightProperty());
     }
     @FXML
     private HBox menuButtonsHbox;

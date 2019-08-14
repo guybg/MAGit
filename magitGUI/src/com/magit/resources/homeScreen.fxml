@@ -117,9 +117,9 @@
             </HBox>
          </children>
       </HBox>
-      <HBox fx:id="menuButtonsHbox" alignment="CENTER_LEFT" minHeight="67.0" prefHeight="45.0" prefWidth="1211.0" styleClass="button-bar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+      <HBox fx:id="menuButtonsHbox" alignment="CENTER_LEFT" layoutX="2.0" layoutY="29.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="70.0" prefHeight="75.0" prefWidth="1085.0" styleClass="button-bar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
          <children>
-            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Current repository">
+            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Current repository">
                <items>
                   <MenuItem fx:id="menuItem1" mnemonicParsing="false">
                      <graphic>
@@ -134,7 +134,7 @@
                   <ImageView id="iconBranch" fitHeight="26.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text=" Current branch">
+            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text=" Current branch">
                <items>
                   <MenuItem mnemonicParsing="false" text="Action 1" />
                   <MenuItem mnemonicParsing="false" text="Action 2" />
@@ -146,7 +146,7 @@
                   <ImageView id="iconRepository" fitHeight="21.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Hello, User.">
+            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="100.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Hello, User.">
                <items>
                   <MenuItem fx:id="SwitchUserMenuItem" mnemonicParsing="false" onAction="#openUserNameChangeScreen" text="Switch user">
                      <graphic>
