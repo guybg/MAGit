@@ -5,6 +5,8 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.properties.UserName;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
@@ -25,7 +27,6 @@ public class UserNameScreenController implements BasicController, Initializable 
     private StringProperty userNameProperty;
 
 
-
     public void setEngine(MagitEngine engine) {
         this.engine = engine;
     }
@@ -40,8 +41,7 @@ public class UserNameScreenController implements BasicController, Initializable 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //pane.prefWidthProperty().bind(Bindings.length(userNameErrorMessageLabel.textProperty()));
-        userNameErrorMessageLabel.setPrefWidth(userNameErrorMessageLabel.getText().length() * 7);
+       // pane.prefWidthProperty().bind(Bindings.length(userNameErrorMessageLabel.textProperty()));
     }
 
 
