@@ -12,7 +12,10 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="841.0" prefWidth="1087.0" style="-fx-background-color: white;" styleClass="pane" stylesheets="@home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.gui.MainScreenController">
    <children>
@@ -117,14 +120,24 @@
             </HBox>
          </children>
       </HBox>
-      <HBox fx:id="menuButtonsHbox" alignment="CENTER_LEFT" layoutX="2.0" layoutY="29.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="70.0" prefHeight="75.0" prefWidth="1085.0" styleClass="button-bar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+      <GridPane gridLinesVisible="true" layoutX="3.0" layoutY="28.0" prefHeight="64.0" prefWidth="1087.0" style="-fx-background-color: #292D32;" vgap="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
          <children>
-            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Current repository">
+            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Current repository" wrapText="true">
                <items>
                   <MenuItem fx:id="menuItem1" mnemonicParsing="false">
                      <graphic>
                         <Label fx:id="menuItem1Label" />
-                     </graphic></MenuItem>
+                     </graphic>
+                  </MenuItem>
                   <MenuItem mnemonicParsing="false" />
                </items>
                <padding>
@@ -134,7 +147,7 @@
                   <ImageView id="iconBranch" fitHeight="26.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text=" Current branch">
+            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text=" Current branch" wrapText="true" GridPane.columnIndex="1">
                <items>
                   <MenuItem mnemonicParsing="false" text="Action 1" />
                   <MenuItem mnemonicParsing="false" text="Action 2" />
@@ -146,12 +159,13 @@
                   <ImageView id="iconRepository" fitHeight="21.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="100.0" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Hello, User.">
+            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Hello, User." wrapText="true" GridPane.columnIndex="2">
                <items>
-                  <MenuItem fx:id="SwitchUserMenuItem" mnemonicParsing="false" onAction="#openUserNameChangeScreen" text="Switch user">
+                  <MenuItem fx:id="SwitchUserMenuItem1" mnemonicParsing="false" onAction="#openUserNameChangeScreen" text="Switch user">
                      <graphic>
                         <Label fx:id="switchUserLabel" />
-                     </graphic></MenuItem>
+                     </graphic>
+                  </MenuItem>
                   <MenuItem mnemonicParsing="false" text="Action 2" />
                </items>
                <padding>
@@ -162,6 +176,6 @@
                </graphic>
             </MenuButton>
          </children>
-      </HBox>
+      </GridPane>
    </children>
 </AnchorPane>
