@@ -28,6 +28,12 @@ public class MagitEngine {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
     }
+    public String getRepositoryName(){
+        if(mRepositoryManager.getRepository() != null)
+            return mRepositoryManager.getRepository().getRepositoryName();
+        else
+            return "No repository";
+    }
 
     public void updateUserName(String userNameToSet) throws InvalidNameException {
         if (StringUtils.containsOnly(userNameToSet, BLANK_SPACE) || userNameToSet.isEmpty())
