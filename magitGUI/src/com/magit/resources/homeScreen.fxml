@@ -117,7 +117,7 @@
             </HBox>
          </children>
       </HBox>
-      <HBox alignment="CENTER_LEFT" minHeight="67.0" prefHeight="45.0" prefWidth="1211.0" styleClass="button-bar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+      <HBox fx:id="menuButtonsHbox" alignment="CENTER_LEFT" minHeight="67.0" prefHeight="45.0" prefWidth="1211.0" styleClass="button-bar" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
          <children>
             <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Current repository">
                <items>
