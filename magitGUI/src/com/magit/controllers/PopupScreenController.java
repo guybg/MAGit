@@ -1,16 +1,16 @@
-package com.magit.gui;
+package com.magit.controllers;
 
+import com.magit.controllers.interfaces.BasicController;
+import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.logic.system.MagitEngine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 
-public class PopupScreenController implements BasicController{
+public class PopupScreenController implements BasicController {
     private MagitEngine engine;
     private Stage stage;
     private BasicPopupScreenController controller;

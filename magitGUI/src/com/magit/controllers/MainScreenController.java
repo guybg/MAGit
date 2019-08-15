@@ -1,8 +1,10 @@
-package com.magit.gui;
+package com.magit.controllers;
 
+import com.magit.controllers.interfaces.BasicController;
+import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.gui.ResizeHelper;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
-import com.magit.properties.UserName;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -23,7 +25,6 @@ import javafx.scene.layout.*;
 import javafx.stage.*;
 
 import javax.xml.bind.JAXBException;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -60,8 +61,13 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryNameProperty.setValue("");
         }
         if (repositoryNameProperty.getValue().isEmpty()) repositoryNameProperty.setValue("No repository");
+        //buttonbarGridLine.prefHeightProperty().bind(currentRepositoryMenuButton.heightProperty());
         currentRepositoryMenuButton.textProperty().bind(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty));
+
     }
+
+    @FXML
+    private RowConstraints buttonbarGridLine;
 
     @FXML
     private Label menuItem1Label;
@@ -140,6 +146,9 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     private MenuItem aboutMenuItem;
+
+    @FXML
+    private RowConstraints gridButtonsLine;
 
     @FXML
     private HBox windowCloseAndMinimizeHbox;

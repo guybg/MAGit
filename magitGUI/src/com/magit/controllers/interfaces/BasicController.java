@@ -1,4 +1,4 @@
-package com.magit.gui;
+package com.magit.controllers.interfaces;
 
 import com.magit.logic.system.MagitEngine;
 import javafx.stage.Stage;

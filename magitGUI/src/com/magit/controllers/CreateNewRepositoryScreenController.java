@@ -1,5 +1,6 @@
-package com.magit.gui;
+package com.magit.controllers;
 
+import com.magit.controllers.interfaces.BasicController;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
@@ -12,7 +13,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
