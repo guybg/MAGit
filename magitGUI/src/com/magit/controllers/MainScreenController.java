@@ -3,8 +3,10 @@ package com.magit.controllers;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.ResizeHelper;
+import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.utils.compare.Delta;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -30,7 +32,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.SortedSet;
 
 public class MainScreenController implements Initializable, BasicController {
 
@@ -197,10 +201,13 @@ public class MainScreenController implements Initializable, BasicController {
     private VBox deletedFilesVbox;
 
     @FXML
-    private TitledPane newTitlePane;
+    private TitledPane newFilesTitlePane;
 
     @FXML
     private VBox newFilesVbox;
+
+    @FXML
+    private Button openChangesRefreshButton;
 
     @FXML
     void OnCloseButtonAction(ActionEvent event) {
@@ -350,6 +357,44 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryNameProperty.setValue(engine.getRepositoryName());
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
             createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
+        }
+    }
+
+    @FXML
+    void onOpenChangesRefreshButtonClicked(MouseEvent event) {
+        Integer editedCount = 0, deletedCount = 0, newCount = 0;
+        editedFilesVbox.getChildren().clear();
+        deletedFilesVbox.getChildren().clear();
+        newFilesVbox.getChildren().clear();
+        try {
+            Map<FileStatus, SortedSet<Delta.DeltaFileItem>> openChanges =  engine.getWorkingCopyStatusMap();
+            for(Map.Entry<FileStatus, SortedSet<Delta.DeltaFileItem>> entry : openChanges.entrySet()){
+                for(Delta.DeltaFileItem item : entry.getValue()) {
+                    if (entry.getKey().equals(FileStatus.EDITED)) {
+                        editedFilesVbox.getChildren().add(new Label(item.getFullPath()));
+                        editedCount++;
+                    }
+                    if (entry.getKey().equals(FileStatus.REMOVED)) {
+                        deletedFilesVbox.getChildren().add(new Label(item.getFullPath()));
+                        deletedCount++;
+                    }
+                    if(entry.getKey().equals(FileStatus.NEW)) {
+                        newFilesVbox.getChildren().add(new Label(item.getFullPath()));
+                        newCount++;
+                    }
+                }
+            }
+            editedTitlePane.setText(editedCount.toString());
+            deletedTitlePane.setText(deletedCount.toString());
+            newFilesTitlePane.setText(newCount.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
         }
     }
 }
