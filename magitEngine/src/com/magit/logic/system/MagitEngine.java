@@ -1,11 +1,13 @@
 package com.magit.logic.system;
 
+import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +19,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.SortedSet;
 
 public class MagitEngine {
 
@@ -155,6 +159,11 @@ public class MagitEngine {
     public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitExceededException {
         return mBranchManager.forcedChangeBranch(branchName,
                 mRepositoryManager.getRepository());
+    }
+
+    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> getWorkingCopyStatusMap() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+        repositoryNotFoundCheck();
+        return mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit();
     }
 }
 

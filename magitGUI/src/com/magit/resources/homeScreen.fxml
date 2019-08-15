@@ -251,7 +251,7 @@
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deleted" />
                            </graphic>
                       </TitledPane>
-                      <TitledPane fx:id="newTitlePane" animated="false" text="0">
+                      <TitledPane fx:id="newFilesTitlePane" animated="false" text="0">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
@@ -277,6 +277,7 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Label>
+                  <Button id="refresh-button" fx:id="openChangesRefreshButton" layoutX="234.0" layoutY="2.0" mnemonicParsing="false" onMouseClicked="#onOpenChangesRefreshButtonClicked" AnchorPane.rightAnchor="2.0" AnchorPane.topAnchor="2.0" />
                </children>
             </AnchorPane>
          </children>
