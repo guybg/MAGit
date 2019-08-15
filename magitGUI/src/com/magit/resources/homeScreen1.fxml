@@ -136,8 +136,6 @@
             </MenuButton>
             <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" mnemonicParsing="false" prefHeight="27.0" prefWidth="250.0" styleClass="button-bar-button" text=" Current branch">
                <items>
-                  <MenuItem mnemonicParsing="false" text="Action 1" />
-                  <MenuItem mnemonicParsing="false" text="Action 2" />
                </items>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

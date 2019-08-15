@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class MainScreenController implements Initializable, BasicController {
@@ -38,6 +39,7 @@ public class MainScreenController implements Initializable, BasicController {
     private Stage stage;
     private StringProperty userNameProperty;
     private StringProperty repositoryNameProperty;
+    private StringProperty branchNameProperty;
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -241,12 +243,16 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onCommitMessageTextAreaChanged(InputMethodEvent event) {
-
     }
 
     @FXML
     void currentBranchMenuButtonAction(ActionEvent event) {
-
+        ArrayList<String> branchesNames = engine.getBranchesName();
+        for (String branchName : branchesNames) {
+            MenuItem menuItem = new MenuItem();
+            menuItem.textProperty().setValue(branchName);
+            currentBranchMenuButton.getItems().add(menuItem);
+        }
     }
 
     @FXML
