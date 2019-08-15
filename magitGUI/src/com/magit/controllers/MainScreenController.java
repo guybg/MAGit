@@ -73,6 +73,7 @@ public class MainScreenController implements Initializable, BasicController {
         branchNameProperty = new SimpleStringProperty();
         branchNameProperty.setValue("No branch");
         currentBranchMenuButton.textProperty().bind(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty));
+        commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
     }
 
     @FXML
@@ -252,7 +253,7 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onCommitMessageTextAreaChanged(InputMethodEvent event) {
-
+        System.out.println();
     }
 
     @FXML
@@ -270,7 +271,6 @@ public class MainScreenController implements Initializable, BasicController {
             menuItem.setOnAction(event -> {
                 try {
                     onBranchButtonMenuItemClick(menuItem.getText());
-                    branchNameProperty.setValue(menuItem.getText());
                 } catch (ParseException | RepositoryNotFoundException | InvalidNameException | BranchNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -285,12 +285,14 @@ public class MainScreenController implements Initializable, BasicController {
         String bodyMessage = "are you sure you want to switch branch?";
         try {
             engine.pickHeadBranch(branchName);
+            branchNameProperty.setValue(branchName);
         } catch (IOException e) {
             e.printStackTrace();
         } catch (UncommitedChangesException e) {
             BasicPopupScreenController controller = event1 -> {
                 try {
                     engine.forcedChangeBranch(branchName);
+                    branchNameProperty.setValue(branchName);
                 } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {}
             };
             try {
@@ -438,7 +440,12 @@ public class MainScreenController implements Initializable, BasicController {
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (RepositoryNotFoundException e) {
-            e.printStackTrace();
+            BasicPopupScreenController controller = event1 -> {};
+            try {
+                createNotificationPopup(controller,false,"Refresh notification",e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         } catch (PreviousCommitsLimitExceededException e) {
             e.printStackTrace();
         }

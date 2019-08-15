@@ -138,6 +138,7 @@ public class BranchManager {
                     activeRepository.getRepositoryPath().toString());
         }
         mActiveBranch = activeRepository.getBranches().get(wantedBranchName);
+        activeRepository.getBranches().replace("HEAD", mActiveBranch);
         return "Active branch has changed successfully.";
     }
 
