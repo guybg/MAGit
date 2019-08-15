@@ -18,9 +18,9 @@
                   <Font name="Candara Bold" size="16.0" />
                </font>
             </Label>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="371.0">
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="371.0" spacing="5.0">
                <children>
-                  <Label prefHeight="19.0" prefWidth="73.0" text="User name:" wrapText="true" />
+                  <Label text="User name:" wrapText="true" />
                   <TextField fx:id="userNameTextFiled" prefHeight="25.0" prefWidth="196.0" />
                </children>
             </HBox>
