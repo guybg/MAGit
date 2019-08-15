@@ -66,7 +66,9 @@ public class MainScreenController implements Initializable, BasicController {
         if (repositoryNameProperty.getValue().isEmpty()) repositoryNameProperty.setValue("No repository");
         //buttonbarGridLine.prefHeightProperty().bind(currentRepositoryMenuButton.heightProperty());
         currentRepositoryMenuButton.textProperty().bind(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty));
-
+        branchNameProperty = new SimpleStringProperty();
+        branchNameProperty.setValue("No branch");
+        currentBranchMenuButton.textProperty().bind(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty));
     }
 
     @FXML
@@ -243,15 +245,52 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onCommitMessageTextAreaChanged(InputMethodEvent event) {
+
     }
 
     @FXML
-    void currentBranchMenuButtonAction(ActionEvent event) {
+    void onCurrentBranchMenuButtonClicked(MouseEvent event) {
+        loadBranchesToUserInterface();
+    }
+
+    void loadBranchesToUserInterface() {
+        currentBranchMenuButton.getItems().clear();
+        branchNameProperty.setValue(engine.getHeadBranchName());
         ArrayList<String> branchesNames = engine.getBranchesName();
         for (String branchName : branchesNames) {
             MenuItem menuItem = new MenuItem();
             menuItem.textProperty().setValue(branchName);
+            menuItem.setOnAction(event -> {
+                try {
+                    onBranchButtonMenuItemClick(menuItem.getText());
+                    branchNameProperty.setValue(menuItem.getText());
+                } catch (ParseException | RepositoryNotFoundException | InvalidNameException | BranchNotFoundException e) {
+                    e.printStackTrace();
+                }
+            });
             currentBranchMenuButton.getItems().add(menuItem);
+        }
+    }
+
+    void onBranchButtonMenuItemClick(String branchName) throws ParseException, RepositoryNotFoundException,
+            InvalidNameException, BranchNotFoundException{
+        String headMessage = "There are unsaved changes";
+        String bodyMessage = "are you sure you want to switch branch?";
+        try {
+            engine.pickHeadBranch(branchName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (UncommitedChangesException e) {
+            BasicPopupScreenController controller = event1 -> {
+                try {
+                    engine.forcedChangeBranch(branchName);
+                } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {}
+            };
+            try {
+                createNotificationPopup(controller, true, headMessage, bodyMessage, "Cancel");
+            } catch(IOException ignored) {}
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
         }
     }
 
@@ -357,5 +396,6 @@ public class MainScreenController implements Initializable, BasicController {
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
             createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
         }
+        loadBranchesToUserInterface();
     }
 }
