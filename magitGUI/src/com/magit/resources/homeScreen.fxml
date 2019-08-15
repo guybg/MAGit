@@ -164,7 +164,7 @@
                   <ImageView id="iconBranch" fitHeight="26.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="210.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="210.0" styleClass="button-bar-button" text=" Current branch" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="NEVER">
+            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="176.0" mnemonicParsing="false" onAction="#currentBranchMenuButtonAction" prefHeight="55.0" prefWidth="176.0" styleClass="button-bar-button" text=" Current branch" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
                <items>
                   <MenuItem mnemonicParsing="false" text="Action 1" />
                   <MenuItem mnemonicParsing="false" text="Action 2" />
@@ -196,8 +196,8 @@
             <StackPane minHeight="2.0" prefWidth="1327.0" style="-fx-background-color: black;" GridPane.columnSpan="5" GridPane.rowIndex="1" />
             <AnchorPane id="commit-pane" prefHeight="257.0" prefWidth="202.0" styleClass="side-pane" GridPane.rowIndex="6">
                <children>
-                  <TextArea layoutX="7.0" prefHeight="107.0" prefWidth="198.0" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
-                  <Button layoutX="11.0" layoutY="110.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="110.0" />
+                  <TextArea fx:id="commitMessageTextArea" layoutX="7.0" onInputMethodTextChanged="#onCommitMessageTextAreaChanged" prefHeight="107.0" prefWidth="198.0" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                  <Button fx:id="commitToLeftDownButton" layoutX="11.0" layoutY="110.0" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="110.0" />
                   <Label layoutX="7.0" layoutY="165.0" prefHeight="17.0" prefWidth="75.0" text="Last commit" textFill="#5e5ac3" wrapText="true" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="131.0" AnchorPane.topAnchor="165.0">
                      <effect>
                         <InnerShadow />
@@ -205,8 +205,8 @@
                   </Label>
                   <VBox layoutY="187.0" prefHeight="67.0" prefWidth="210.0" spacing="2.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="186.0">
                      <children>
-                        <Label text="date here" textFill="#757575" wrapText="true" />
-                        <Label text="message here" wrapText="true" />
+                        <Label fx:id="commitDateLeftDownLabel" text="date here" textFill="#757575" wrapText="true" />
+                        <Label fx:id="commitMessageLeftDownLabel" text="message here" wrapText="true" />
                      </children>
                   </VBox>
                   <Line endX="176.0" fill="#cdbfbf" layoutX="81.0" layoutY="157.0" startX="401.5" stroke="#c3c3c3" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" />
@@ -219,13 +219,13 @@
                <children>
                   <Accordion layoutY="-107.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
                     <panes>
-                      <TitledPane animated="false" style="-fx-background-color: black;" text="0">
+                      <TitledPane fx:id="editedTitlePane" animated="false" style="-fx-background-color: black;" text="0">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="19.6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
-                                          <VBox prefHeight="177.0" prefWidth="412.0">
+                                          <VBox fx:id="editedFilesVbox" prefHeight="177.0" prefWidth="412.0">
                                              <children>
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
                                              </children>
@@ -239,13 +239,13 @@
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Edited" />
                            </graphic>
                       </TitledPane>
-                      <TitledPane animated="false" text="0">
+                      <TitledPane fx:id="deletedTitlePane" animated="false" text="0">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
-                                          <VBox prefHeight="177.0" prefWidth="412.0" />
+                                          <VBox fx:id="deletedFilesVbox" prefHeight="177.0" prefWidth="412.0" />
                                        </content>
                                     </ScrollPane>
                                  </children>
@@ -255,20 +255,20 @@
                               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deleted" />
                            </graphic>
                       </TitledPane>
-                      <TitledPane animated="false" text="0">
+                      <TitledPane fx:id="newTitlePane" animated="false" text="0">
                         <content>
                           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
                                     <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
-                                          <VBox prefHeight="177.0" prefWidth="412.0" />
+                                          <VBox fx:id="newFilesVbox" prefHeight="177.0" prefWidth="412.0" />
                                        </content>
                                     </ScrollPane>
                                  </children>
                               </AnchorPane>
                         </content>
                            <graphic>
-                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Created" />
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="New" />
                            </graphic>
                       </TitledPane>
                     </panes>
