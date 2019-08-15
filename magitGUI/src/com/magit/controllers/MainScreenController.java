@@ -245,7 +245,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    void currentBranchMenuButtonAction(ActionEvent event) {
+    void onCurrentBranchMenuButtonClicked(MouseEvent event) {
 
     }
 
