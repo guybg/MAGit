@@ -20,6 +20,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.stage.*;
@@ -65,15 +66,6 @@ public class MainScreenController implements Initializable, BasicController {
         currentRepositoryMenuButton.textProperty().bind(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty));
 
     }
-
-    @FXML
-    private RowConstraints buttonbarGridLine;
-
-    @FXML
-    private Label menuItem1Label;
-
-    @FXML
-    private MenuItem menuItem1;
 
     @FXML
     private AnchorPane anchorPane;
@@ -148,9 +140,6 @@ public class MainScreenController implements Initializable, BasicController {
     private MenuItem aboutMenuItem;
 
     @FXML
-    private RowConstraints gridButtonsLine;
-
-    @FXML
     private HBox windowCloseAndMinimizeHbox;
 
     @FXML
@@ -160,7 +149,16 @@ public class MainScreenController implements Initializable, BasicController {
     private Button closeButton;
 
     @FXML
+    private RowConstraints buttonbarGridLine;
+
+    @FXML
     private MenuButton currentRepositoryMenuButton;
+
+    @FXML
+    private MenuItem menuItem1;
+
+    @FXML
+    private Label menuItem1Label;
 
     @FXML
     private MenuButton currentBranchMenuButton;
@@ -169,10 +167,40 @@ public class MainScreenController implements Initializable, BasicController {
     private MenuButton userNameMenuButton;
 
     @FXML
-    private MenuItem SwitchUserMenuItem;
+    private MenuItem SwitchUserMenuItem1;
 
     @FXML
     private Label switchUserLabel;
+
+    @FXML
+    private TextArea commitMessageTextArea;
+
+    @FXML
+    private Button commitToLeftDownButton;
+
+    @FXML
+    private Label commitDateLeftDownLabel;
+
+    @FXML
+    private Label commitMessageLeftDownLabel;
+
+    @FXML
+    private TitledPane editedTitlePane;
+
+    @FXML
+    private VBox editedFilesVbox;
+
+    @FXML
+    private TitledPane deletedTitlePane;
+
+    @FXML
+    private VBox deletedFilesVbox;
+
+    @FXML
+    private TitledPane newTitlePane;
+
+    @FXML
+    private VBox newFilesVbox;
 
     @FXML
     void OnCloseButtonAction(ActionEvent event) {
@@ -203,6 +231,22 @@ public class MainScreenController implements Initializable, BasicController {
     void OnMousePressed(MouseEvent event) {
         xOffset = event.getSceneX();
         yOffset = event.getSceneY();
+    }
+
+
+    @FXML
+    void onClickCommitButton(MouseEvent event) {
+
+    }
+
+    @FXML
+    void onCommitMessageTextAreaChanged(InputMethodEvent event) {
+
+    }
+
+    @FXML
+    void currentBranchMenuButtonAction(ActionEvent event) {
+
     }
 
     @FXML
