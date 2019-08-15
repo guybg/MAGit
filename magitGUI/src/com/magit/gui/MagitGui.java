@@ -33,7 +33,7 @@ public class MagitGui extends Application {
 
         Scene scene = new Scene(root);
         primaryStage.setMinWidth(970);
-        primaryStage.setMinHeight(650);
+        primaryStage.setMinHeight(680);
 
         final String cssURL = this.getClass().getResource("/com/magit/resources/home.css").toExternalForm();
         scene.getStylesheets().addAll(cssURL);

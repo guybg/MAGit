@@ -10,7 +10,10 @@ import com.magit.logic.utils.compare.Delta;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -44,6 +47,7 @@ public class MainScreenController implements Initializable, BasicController {
     private StringProperty userNameProperty;
     private StringProperty repositoryNameProperty;
     private StringProperty branchNameProperty;
+    StringProperty dummy;
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -74,6 +78,12 @@ public class MainScreenController implements Initializable, BasicController {
         branchNameProperty.setValue("No branch");
         currentBranchMenuButton.textProperty().bind(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
+        dummy = new SimpleStringProperty();
+        branchNameProperty.addListener((observable, oldValue, newValue) -> {
+            if(!branchNameProperty.getValue().equals("No branch")){
+                updateDifferences();
+            }
+        });
     }
 
     @FXML
@@ -248,7 +258,26 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onClickCommitButton(MouseEvent event) {
-
+        try {
+            engine.commit(commitMessageTextArea.getText());
+            try {
+                createNotificationPopup((BasicPopupScreenController) event12 -> {
+                }, false, "Commit creation notification", "Files commited successfully", "Close");
+                updateDifferences();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (WorkingCopyIsEmptyException | RepositoryNotFoundException | WorkingCopyStatusNotChangedComparedToLastCommitException | PreviousCommitsLimitExceededException e) {
+            try {
+                createNotificationPopup((BasicPopupScreenController) event1 -> { }, false,"Commit creation notification", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -262,6 +291,8 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     void loadBranchesToUserInterface() {
+        if(repositoryNameProperty.getValue().equals("No repository"))
+            return;
         currentBranchMenuButton.getItems().clear();
         branchNameProperty.setValue(engine.getHeadBranchName());
         ArrayList<String> branchesNames = engine.getBranchesName();
@@ -324,6 +355,7 @@ public class MainScreenController implements Initializable, BasicController {
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
         createNewRepositoryScreenController.bindings();
         createPopup(layout, createNewRepositoryScreenController);
+        loadBranchesToUserInterface();
     }
 
     void createPopup(Parent layout, BasicController basicController) {
@@ -408,7 +440,6 @@ public class MainScreenController implements Initializable, BasicController {
             createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
         }
         loadBranchesToUserInterface();
-        updateDifferences();
     }
 
     @FXML
