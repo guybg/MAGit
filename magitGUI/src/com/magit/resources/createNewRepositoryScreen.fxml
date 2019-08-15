@@ -35,10 +35,10 @@
             <VBox prefHeight="70.0" prefWidth="314.0">
                <children>
                   <Label style="-fx-padding:10;" text="Local path:" />
-                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="20.0">
+                  <HBox spacing="20.0">
                      <children>
                         <TextField fx:id="browsePathTextField" prefHeight="25.0" prefWidth="394.0" />
-                        <Button fx:id="browseButton" mnemonicParsing="false" onMouseClicked="#browseAction" style="-fx-background-color: #FAFBFC; -fx-border-color: #E0E3E7;" text="Browse" wrapText="true" />
+                        <Button fx:id="browseButton" mnemonicParsing="false" onMouseClicked="#browseAction" style="-fx-background-color: #FAFBFC; -fx-border-color: #E0E3E7;" text="Browse" wrapText="true" HBox.hgrow="ALWAYS" />
                      </children>
                      <VBox.margin>
                         <Insets left="10.0" />
