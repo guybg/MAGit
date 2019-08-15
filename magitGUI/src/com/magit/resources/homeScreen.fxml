@@ -2,13 +2,18 @@
 
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.effect.InnerShadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -16,10 +21,15 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="841.0" prefWidth="1087.0" style="-fx-background-color: white;" styleClass="pane" stylesheets="@home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.gui.MainScreenController">
+<AnchorPane fx:id="anchorPane" prefHeight="861.0" prefWidth="1329.0" style="-fx-background-color: white;" styleClass="pane" stylesheets="@home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.MainScreenController">
    <children>
-      <HBox alignment="CENTER" prefHeight="17.0" prefWidth="1211.0" style="-fx-background-color: #292D32;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <HBox alignment="CENTER" prefHeight="25.0" prefWidth="1327.0" style="-fx-background-color: #292D32;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <ImageView fitHeight="17.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
                <image>
@@ -120,18 +130,25 @@
             </HBox>
          </children>
       </HBox>
-      <GridPane gridLinesVisible="true" layoutX="3.0" layoutY="28.0" prefHeight="64.0" prefWidth="1087.0" style="-fx-background-color: #292D32;" vgap="2.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+      <GridPane layoutX="2.0" layoutY="29.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="NEVER" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+            <ColumnConstraints hgrow="NEVER" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+            <ColumnConstraints hgrow="NEVER" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" />
+            <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="693.0" />
+            <ColumnConstraints />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints fx:id="buttonbarGridLine" maxHeight="100.0" minHeight="55.0" prefHeight="94.0" />
+          <RowConstraints maxHeight="2.0" minHeight="2.0" prefHeight="2.0" vgrow="NEVER" />
+          <RowConstraints maxHeight="132.0" minHeight="18.0" percentHeight="10.0" prefHeight="132.0" />
+            <RowConstraints maxHeight="164.0" minHeight="10.0" prefHeight="140.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="201.0" minHeight="0.0" prefHeight="108.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="383.0" minHeight="0.0" prefHeight="123.0" vgrow="SOMETIMES" />
+            <RowConstraints maxHeight="257.0" minHeight="0.0" prefHeight="257.0" />
         </rowConstraints>
          <children>
-            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Current repository" wrapText="true">
+            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="176.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="176.0" styleClass="button-bar-button" text="Current repository" wrapText="true" GridPane.hgrow="NEVER">
                <items>
                   <MenuItem fx:id="menuItem1" mnemonicParsing="false">
                      <graphic>
@@ -147,7 +164,7 @@
                   <ImageView id="iconBranch" fitHeight="26.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text=" Current branch" wrapText="true" GridPane.columnIndex="1">
+            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="210.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="210.0" styleClass="button-bar-button" text=" Current branch" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="NEVER">
                <items>
                   <MenuItem mnemonicParsing="false" text="Action 1" />
                   <MenuItem mnemonicParsing="false" text="Action 2" />
@@ -159,7 +176,7 @@
                   <ImageView id="iconRepository" fitHeight="21.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="66.0" prefWidth="250.0" styleClass="button-bar-button" text="Hello, User." wrapText="true" GridPane.columnIndex="2">
+            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="176.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="176.0" styleClass="button-bar-button" text="Hello, User." wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="NEVER">
                <items>
                   <MenuItem fx:id="SwitchUserMenuItem1" mnemonicParsing="false" onAction="#openUserNameChangeScreen" text="Switch user">
                      <graphic>
@@ -175,6 +192,97 @@
                   <ImageView id="iconUser" fitHeight="20.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
                </graphic>
             </MenuButton>
+            <StackPane minHeight="40.0" prefHeight="55.0" style="-fx-background-color: #292D32; -fx-border-color: black;" GridPane.columnIndex="3" />
+            <StackPane minHeight="2.0" prefWidth="1327.0" style="-fx-background-color: black;" GridPane.columnSpan="5" GridPane.rowIndex="1" />
+            <AnchorPane id="commit-pane" prefHeight="257.0" prefWidth="202.0" styleClass="side-pane" GridPane.rowIndex="6">
+               <children>
+                  <TextArea layoutX="7.0" prefHeight="107.0" prefWidth="198.0" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                  <Button layoutX="11.0" layoutY="110.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="110.0" />
+                  <Label layoutX="7.0" layoutY="165.0" prefHeight="17.0" prefWidth="75.0" text="Last commit" textFill="#5e5ac3" wrapText="true" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="131.0" AnchorPane.topAnchor="165.0">
+                     <effect>
+                        <InnerShadow />
+                     </effect>
+                  </Label>
+                  <VBox layoutY="187.0" prefHeight="67.0" prefWidth="210.0" spacing="2.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="186.0">
+                     <children>
+                        <Label text="date here" textFill="#757575" wrapText="true" />
+                        <Label text="message here" wrapText="true" />
+                     </children>
+                  </VBox>
+                  <Line endX="176.0" fill="#cdbfbf" layoutX="81.0" layoutY="157.0" startX="401.5" stroke="#c3c3c3" AnchorPane.leftAnchor="30.0" AnchorPane.rightAnchor="30.0" />
+               </children>
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+            </AnchorPane>
+            <AnchorPane minHeight="202.0" minWidth="176.0" prefHeight="479.0" prefWidth="202.0" styleClass="side-pane" GridPane.rowIndex="2" GridPane.rowSpan="4">
+               <children>
+                  <Accordion layoutY="-107.0" style="-fx-background-color: white;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="20.0">
+                    <panes>
+                      <TitledPane animated="false" style="-fx-background-color: black;" text="0">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="19.6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <content>
+                                          <VBox prefHeight="177.0" prefWidth="412.0">
+                                             <children>
+                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
+                                             </children>
+                                          </VBox>
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                           <graphic>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Edited" />
+                           </graphic>
+                      </TitledPane>
+                      <TitledPane animated="false" text="0">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <content>
+                                          <VBox prefHeight="177.0" prefWidth="412.0" />
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                           <graphic>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Deleted" />
+                           </graphic>
+                      </TitledPane>
+                      <TitledPane animated="false" text="0">
+                        <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <content>
+                                          <VBox prefHeight="177.0" prefWidth="412.0" />
+                                       </content>
+                                    </ScrollPane>
+                                 </children>
+                              </AnchorPane>
+                        </content>
+                           <graphic>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Created" />
+                           </graphic>
+                      </TitledPane>
+                    </panes>
+                  </Accordion>
+                  <Label layoutY="1.0" maxHeight="115.0" maxWidth="333.0" minHeight="18.0" minWidth="18.0" prefHeight="27.0" prefWidth="300.0" style="-fx-background-color: #E0E3E7;" text="Open Changes" wrapText="true">
+                     <padding>
+                        <Insets left="5.0" />
+                     </padding>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
          </children>
       </GridPane>
    </children>

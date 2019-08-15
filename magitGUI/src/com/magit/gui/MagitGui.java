@@ -1,7 +1,7 @@
 package com.magit.gui;
 
+import com.magit.controllers.MainScreenController;
 import com.magit.logic.system.MagitEngine;
-import com.magit.properties.UserName;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

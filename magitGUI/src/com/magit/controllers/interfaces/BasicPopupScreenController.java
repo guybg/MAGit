@@ -1,4 +1,4 @@
-package com.magit.gui;
+package com.magit.controllers.interfaces;
 
 import javafx.event.ActionEvent;
 

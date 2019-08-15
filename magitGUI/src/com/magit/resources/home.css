@@ -1,5 +1,5 @@
 .menu-bar .menu-button:hover{
-    -fx-background-color:#33393F;
+     -fx-background-color:#33393F;
 }
 .menu-bar .menu-button:showing, .menu-bar .menu-button:focused {
     -fx-background-color:#FFFFFF;
@@ -103,7 +103,7 @@
 
 .iconMenuButton {
    
-    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );   
+    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
 }
 
 #iconBranch{
@@ -121,4 +121,14 @@
 #iconRepository .label{
     -fx-color: #fff;
     -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+}
+
+.side-pane{
+    -fx-background-color: #F6F8FA;
+    -fx-border-color: #E0E3E7;
+}
+
+.side-pane .button, #side-pane .button .label  {
+    -fx-background-color: #68A0E4;
+    -fx-text-fill: white;
 }
