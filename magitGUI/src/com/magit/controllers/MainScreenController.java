@@ -294,6 +294,8 @@ public class MainScreenController implements Initializable, BasicController {
                     engine.forcedChangeBranch(branchName);
                     branchNameProperty.setValue(branchName);
                 } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {}
+                Button button = (Button)event1.getSource();
+                ((Stage)(button.getScene().getWindow())).close();
             };
             try {
                 createNotificationPopup(controller, true, headMessage, bodyMessage, "Cancel");
@@ -406,10 +408,15 @@ public class MainScreenController implements Initializable, BasicController {
             createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
         }
         loadBranchesToUserInterface();
+        updateDifferences();
     }
 
     @FXML
     void onOpenChangesRefreshButtonClicked(MouseEvent event) {
+        updateDifferences();
+    }
+
+    void updateDifferences(){
         Integer editedCount = 0, deletedCount = 0, newCount = 0;
         editedFilesVbox.getChildren().clear();
         deletedFilesVbox.getChildren().clear();
