@@ -165,6 +165,9 @@ public class MagitEngine {
         repositoryNotFoundCheck();
         return mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit();
     }
+    public ArrayList<String> guiGetAllCommitsOfRepository() throws IOException {
+        return mRepositoryManager.guiGetRepositoryCommitList();
+    }
 }
 
 

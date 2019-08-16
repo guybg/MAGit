@@ -195,4 +195,8 @@ public class RepositoryManager {
         }
         return branchesName;
     }
+
+    public ArrayList<String> guiGetRepositoryCommitList() throws IOException {
+           return new ArrayList<>(Arrays.asList(mActiveRepository.getAllCommitsOfRepository()));
+    }
 }
