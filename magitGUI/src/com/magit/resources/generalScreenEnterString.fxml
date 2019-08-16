@@ -36,7 +36,7 @@
                   </TextField>
                </children>
             </HBox>
-            <CheckBox mnemonicParsing="false" text="Switch immediatly" visible="false" />
+            <CheckBox fx:id="checkBox" mnemonicParsing="false" text="Switch immediately" visible="false" />
             <HBox alignment="CENTER" spacing="45.0">
                <children>
                   <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#onAcceptClicked" styleClass="accept-button" text="Accept" wrapText="true">

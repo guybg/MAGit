@@ -25,6 +25,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
+import javafx.scene.control.CheckBox;
 import javafx.stage.*;
 
 import javax.xml.bind.JAXBException;
@@ -140,6 +141,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private TitledPane newFilesTitlePane;
     @FXML private ListView<Label> newFilesListView;
     @FXML private Button openChangesRefreshButton;
+    @FXML private CheckBox checkBox;
 
     @FXML void onExitApplication(ActionEvent event) {
         stage.close();
@@ -212,6 +214,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     void loadBranchesToUserInterface() {
+        if(repositoryNameProperty.getValue().equals("")) return;
         currentBranchMenuButton.getItems().clear();
         branchNameProperty.setValue(engine.getHeadBranchName());
         ArrayList<String> branchesNames = engine.getBranchesName();
