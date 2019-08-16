@@ -477,29 +477,19 @@ public class MainScreenController implements Initializable, BasicController {
                 if (newBranchController.getCheckBoxValue()) {
                     try {
                         engine.pickHeadBranch(branchName);
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    } catch (BranchNotFoundException e) {
-                        e.printStackTrace();
+                    } catch (ParseException | BranchNotFoundException | PreviousCommitsLimitExceededException e) {
+                        newBranchController.setError(e.getMessage());
                     } catch (UncommitedChangesException e) {
                         createNotificationPopup(cEvent -> {
-                    forceChangeBranch(branchName);
-                    ((Stage)((Button)cEvent.getSource()).getScene().getWindow()).close();},
-                                true, "Are you sure?","There are unsaved changes, switching branch may cause lose of data.", "Cancel");
-                    } catch (PreviousCommitsLimitExceededException e) {
-                        e.printStackTrace();
+                            forceChangeBranch(branchName);
+                            ((Stage)((Button)cEvent.getSource()).getScene().getWindow()).close();
+                            },true, "Are you sure?","There are unsaved changes, switching branch may cause lose of data.", "Cancel");
                     }
                 }
                 branchNameProperty.setValue(branchName);
                 ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (RepositoryNotFoundException e) {
-                e.printStackTrace();
-            } catch (InvalidNameException e) {
-                e.printStackTrace();
-            } catch (BranchAlreadyExistsException e) {
-                e.printStackTrace();
+            } catch (IOException | InvalidNameException | RepositoryNotFoundException | BranchAlreadyExistsException e ) {
+                newBranchController.setError(e.getMessage());
             }
         });
         createPopup(layout, newBranchController);
