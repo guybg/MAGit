@@ -47,7 +47,10 @@ public class ResetBranchScreenController implements BasicController , Initializa
         comboToolTip.textProperty().bind(comboBox.valueProperty());
         comboBox.setTooltip(comboToolTip);
         acceptButton.setDisable(true);
-        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> acceptButton.setDisable(false)); }
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> acceptButton.setDisable(false));
+        labelTitle.setText("Change head pointed commit");
+        keyLabel.setText("Commits");
+    }
 
     @FXML
     void onComboBoxClicked(MouseEvent event) {

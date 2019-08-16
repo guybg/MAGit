@@ -244,7 +244,6 @@ public class MainScreenController implements Initializable, BasicController {
         loader.setLocation(getClass().getResource("/com/magit/resources/resetBranchScreen.fxml"));
         Parent layout = loader.load();
         ResetBranchScreenController resetBranchScreenController = loader.getController();
-        //resetBranchScreenController.setRepositoryNameProperty(repositoryNameProperty);
         PopupScreen popupScreen = new PopupScreen(stage,engine);
         popupScreen.createPopup(layout, resetBranchScreenController);
         updateDifferences();
