@@ -7,6 +7,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -21,10 +22,10 @@ public class MagitGui extends Application {
         engine = new MagitEngine();
         primaryStage.setTitle("Magit Desktop");
         primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.getIcons().add(new Image("/com/magit/resources/appIcon.png"));
         FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource("/com/magit/resources/homeScreen.fxml");
         fxmlLoader.setLocation(url);
-
         Parent root = fxmlLoader.load(url.openStream());
         root.setEffect(new DropShadow(2d, 0d, +2d, Color.BLACK));
         MainScreenController controller = fxmlLoader.getController();

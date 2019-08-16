@@ -2,19 +2,33 @@ package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.gui.PopupScreen;
+import com.magit.logic.exceptions.CommitNotFoundException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
+import com.magit.logic.exceptions.RepositoryNotFoundException;
+import com.magit.logic.exceptions.UncommitedChangesException;
 import com.magit.logic.system.MagitEngine;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.ResourceBundle;
 
-public class ResetBranchScreenController implements BasicController {
+public class ResetBranchScreenController implements BasicController , Initializable {
 
     @FXML private Label labelTitle;
     @FXML private Label keyLabel;
@@ -25,14 +39,50 @@ public class ResetBranchScreenController implements BasicController {
     private Stage rootStage;
     private MagitEngine engine;
     private BasicPopupScreenController controller;
+    private Tooltip comboToolTip;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        comboToolTip= new Tooltip();
+        comboToolTip.textProperty().bind(comboBox.valueProperty());
+        comboBox.setTooltip(comboToolTip);
+        acceptButton.setDisable(true);
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> acceptButton.setDisable(false)); }
 
     @FXML
-    void onAcceptClicked(ActionEvent event) {
-        controller.onAccept(event);
+    void onComboBoxClicked(MouseEvent event) {
         try {
+            errorLabel.setText("");
+            comboBox.getItems().clear();
             comboBox.getItems().addAll(engine.guiGetAllCommitsOfRepository());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void onAcceptClicked(ActionEvent event) {
+        try {
+            engine.workingCopyChangedComparedToCommit();
+            engine.changeBranchPointedCommit(comboBox.getValue());
+            errorLabel.setText("Head branch pointed commit changed successfully.");
+            acceptButton.setDisable(true);
+        } catch (IOException | CommitNotFoundException | ParseException | RepositoryNotFoundException | PreviousCommitsLimitExceededException ignored) {
+        } catch (UncommitedChangesException e) {
+            PopupScreen popupScreen = new PopupScreen(((Stage)((Button)event.getSource()).getScene().getWindow()),engine);
+            try {
+                popupScreen.createNotificationPopup((BasicPopupScreenController) event1 -> {
+                    try {
+                        engine.changeBranchPointedCommit(comboBox.getValue());
+                        errorLabel.setText("Head branch pointed commit changed successfully.");
+                        acceptButton.setDisable(true);
+                        (((Stage)((Button)event1.getSource()).getScene().getWindow())).close();
+                    } catch (IOException | CommitNotFoundException | ParseException | RepositoryNotFoundException | PreviousCommitsLimitExceededException ignored) {
+                    }
+                },true,"Head branch change notification", "There are unsaved changes, switching pointed commit may cause lose of data.","Cancel");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

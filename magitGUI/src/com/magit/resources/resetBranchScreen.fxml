@@ -2,15 +2,14 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="233.0" prefWidth="457.0" style="-fx-background-color: white; -fx-border-color: #E0E3E7;" stylesheets="@home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.GeneralScreenEnterStringController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="205.0" prefWidth="459.0" style="-fx-background-color: white; -fx-border-color: #E0E3E7;" stylesheets="@home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.ResetBranchScreenController">
    <children>
       <Label fx:id="labelTitle" layoutX="14.0" layoutY="14.0" prefHeight="19.0" prefWidth="496.0" text="Label" wrapText="true" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <font>
@@ -29,14 +28,9 @@
                         <Insets />
                      </HBox.margin>
                   </Label>
-                  <TextField fx:id="valueTextField" HBox.hgrow="SOMETIMES">
-                     <HBox.margin>
-                        <Insets />
-                     </HBox.margin>
-                  </TextField>
+                  <ComboBox fx:id="comboBox" onMouseClicked="#onComboBoxClicked" prefHeight="25.0" prefWidth="282.0" />
                </children>
             </HBox>
-            <CheckBox fx:id="checkBox" mnemonicParsing="false" text="Switch immediately" visible="false" />
             <HBox alignment="CENTER" spacing="45.0">
                <children>
                   <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#onAcceptClicked" styleClass="accept-button" text="Accept" wrapText="true">

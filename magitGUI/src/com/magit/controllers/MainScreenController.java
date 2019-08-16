@@ -3,6 +3,7 @@ package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.gui.PopupScreen;
 import com.magit.gui.ResizeHelper;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
@@ -86,12 +87,15 @@ public class MainScreenController implements Initializable, BasicController {
             updateDifferences();
         });
         commitToLeftDownButton.setDisable(true);
-        repositoryNameProperty.addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                commitToLeftDownButton.setDisable(false);
-                loadBranchesToUserInterface();
-            }
+        resetBranchMenuItem.setDisable(true);
+        deleteBranchMenuItem.setDisable(true);
+        newBranchMenuItem.setDisable(true);
+        repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
+            commitToLeftDownButton.setDisable(false);
+            loadBranchesToUserInterface();
+            resetBranchMenuItem.setDisable(false);
+            deleteBranchMenuItem.setDisable(false);
+            newBranchMenuItem.setDisable(false);
         });
     }
 
@@ -184,7 +188,8 @@ public class MainScreenController implements Initializable, BasicController {
         try {
             engine.commit(commitMessageTextArea.getText());
             try {
-                createNotificationPopup((BasicPopupScreenController) event12 -> {
+                PopupScreen popupScreen = new PopupScreen(stage,engine);
+                popupScreen.createNotificationPopup((BasicPopupScreenController) event12 -> {
                 }, false, "Commit creation notification", "Files commited successfully", "Close");
                 updateDifferences();
             } catch (IOException e) {
@@ -194,7 +199,8 @@ public class MainScreenController implements Initializable, BasicController {
             e.printStackTrace();
         } catch (WorkingCopyIsEmptyException | RepositoryNotFoundException | WorkingCopyStatusNotChangedComparedToLastCommitException | PreviousCommitsLimitExceededException e) {
             try {
-                createNotificationPopup((BasicPopupScreenController) event1 -> { }, false,"Commit creation notification", e.getMessage(),"Close");
+                PopupScreen popupScreen = new PopupScreen(stage,engine);
+                popupScreen.createNotificationPopup((BasicPopupScreenController) event1 -> { }, false,"Commit creation notification", e.getMessage(),"Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -232,6 +238,18 @@ public class MainScreenController implements Initializable, BasicController {
         }
     }
 
+    @FXML
+    void onResetBranchMenuItemClicked(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/com/magit/resources/resetBranchScreen.fxml"));
+        Parent layout = loader.load();
+        ResetBranchScreenController resetBranchScreenController = loader.getController();
+        //resetBranchScreenController.setRepositoryNameProperty(repositoryNameProperty);
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        popupScreen.createPopup(layout, resetBranchScreenController);
+        updateDifferences();
+    }
+
     void onBranchButtonMenuItemClick(String branchName) throws ParseException, RepositoryNotFoundException,
             InvalidNameException, BranchNotFoundException{
         String headMessage = "There are unsaved changes";
@@ -251,7 +269,8 @@ public class MainScreenController implements Initializable, BasicController {
                 ((Stage)(button.getScene().getWindow())).close();
             };
             try {
-                createNotificationPopup(controller, true, headMessage, bodyMessage, "Cancel");
+                PopupScreen popupScreen = new PopupScreen(stage,engine);
+                popupScreen.createNotificationPopup(controller, true, headMessage, bodyMessage, "Cancel");
             } catch(IOException ignored) {}
         } catch (PreviousCommitsLimitExceededException e) {
             e.printStackTrace();
@@ -275,7 +294,8 @@ public class MainScreenController implements Initializable, BasicController {
                 userNameController.setError(e.getMessage());
             }
         });
-        createPopup(layout,userNameController);
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        popupScreen.createPopup(layout,userNameController);
     }
 
     @FXML
@@ -286,59 +306,28 @@ public class MainScreenController implements Initializable, BasicController {
         CreateNewRepositoryScreenController createNewRepositoryScreenController = loader.getController();
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
         createNewRepositoryScreenController.bindings();
-        createPopup(layout, createNewRepositoryScreenController);
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        popupScreen.createPopup(layout, createNewRepositoryScreenController);
         //events on properties handles branches load, diff loads
     }
 
-    void createPopup(Parent layout, BasicController basicController) {
-        Scene scene = new Scene(layout);
-        Stage currStage = new Stage();
-        basicController.setStage(stage);
-        currStage.setScene(scene);
-        currStage.initModality(Modality.WINDOW_MODAL);
-        currStage.initStyle(StageStyle.UNDECORATED);
-        currStage.initOwner(stage);
-        currStage.setMinHeight(300);
-        currStage.setMinWidth(300);
-        basicController.setEngine(engine);
-        ResizeHelper.addResizeListener(currStage);
-        ResizeHelper.setMovable(true);
-        currStage.showAndWait();
-        ResizeHelper.setMovable(false);
-    }
 
-    private void createNotificationPopup(BasicPopupScreenController controllerInterface,
-                                         boolean hasAcceptButton,
-                                         String headMessage, String bodyMessage, String cancelButtonText) throws IOException {
-        if(controllerInterface == null){
-            controllerInterface = event -> { };
-        }
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/popupScreen.fxml"));
-        Parent layout = loader.load();
 
-        PopupScreenController popupScreenController = loader.getController();
-        popupScreenController.setController(controllerInterface);
-        popupScreenController.setPopupAcceptButtonVisibility(hasAcceptButton);
-        popupScreenController.setPopupCancelButtonText(cancelButtonText);
-        popupScreenController.setPopupHeadMessageLableText(headMessage);
-        popupScreenController.setPopupBodyMessageLabel(bodyMessage);
-        createPopup(layout, popupScreenController);
-    }
+
     @FXML
     void openRepositoryFromXmlAction(ActionEvent event) throws IOException {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Xml files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(stage);
-
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
         if(file == null){
             return;
         }
         try{
             engine.loadRepositoryFromXML(file.getAbsolutePath(), false);
         } catch (IllegalPathException | ParseException | XmlFileException | PreviousCommitsLimitExceededException | JAXBException | IOException e) {
-            createNotificationPopup(null, false, "Repository from XML notification", e.getMessage(),"Close");
+            popupScreen.createNotificationPopup(null, false, "Repository from XML notification", e.getMessage(),"Close");
         } catch (RepositoryAlreadyExistsException e) {
             BasicPopupScreenController basicPopupScreenController1 = event1 -> {
                 try {
@@ -346,10 +335,10 @@ public class MainScreenController implements Initializable, BasicController {
                     Button chosen = (Button) event1.getSource();
                     Stage curStage = (Stage) chosen.getScene().getWindow();
                     curStage.close();
-                    createNotificationPopup(null, false, "Repository from XML notification", "Repository created successfully.","Close");
+                    popupScreen.createNotificationPopup(null, false, "Repository from XML notification", "Repository created successfully.","Close");
                 } catch (JAXBException | IOException | ParseException | PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException | RepositoryAlreadyExistsException ex) {
                     try {
-                        createNotificationPopup(event11 -> {
+                        popupScreen.createNotificationPopup(event11 -> {
                             Button chosen = (Button) event11.getSource();
                             Stage curStage = (Stage) chosen.getScene().getWindow();
                             curStage.close();
@@ -359,7 +348,7 @@ public class MainScreenController implements Initializable, BasicController {
                     }
                 }
             };
-            createNotificationPopup(basicPopupScreenController1, true,"Repository already exists notification","Would you like to replace current repository with XML repository?","Cancel");
+            popupScreen.createNotificationPopup(basicPopupScreenController1, true,"Repository already exists notification","Would you like to replace current repository with XML repository?","Cancel");
         }
         repositoryNameProperty.setValue(engine.getRepositoryName());
     }
@@ -376,7 +365,8 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryNameProperty.setValue(engine.getRepositoryName());
             //events on properties handles branches load, diff loads //loadBranchesToUserInterface();
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
-            createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            popupScreen.createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
         }
     }
 
@@ -395,22 +385,13 @@ public class MainScreenController implements Initializable, BasicController {
             for(Map.Entry<FileStatus, SortedSet<Delta.DeltaFileItem>> entry : openChanges.entrySet()){
                 for(Delta.DeltaFileItem item : entry.getValue()) {
                     if (entry.getKey().equals(FileStatus.EDITED)) {
-                        Label itemLocation = new Label(item.getFullPath());
-                        itemLocation.setTooltip(new Tooltip(item.getFullPath()));
-                        editedFilesListView.getItems().add(itemLocation);
-                        editedCount++;
+                        editedCount = createDiffLabels(editedCount, item, editedFilesListView);
                     }
                     if (entry.getKey().equals(FileStatus.REMOVED)) {
-                        Label itemLocation = new Label(item.getFullPath());
-                        itemLocation.setTooltip(new Tooltip(item.getFullPath()));
-                        deletedFilesListView.getItems().add(itemLocation);
-                        deletedCount++;
+                        deletedCount = createDiffLabels(deletedCount, item, deletedFilesListView);
                     }
                     if(entry.getKey().equals(FileStatus.NEW)) {
-                        Label itemLocation = new Label(item.getFullPath());
-                        itemLocation.setTooltip(new Tooltip(item.getFullPath()));
-                        newFilesListView.getItems().add(itemLocation);
-                        newCount++;
+                        newCount = createDiffLabels(newCount, item, newFilesListView);
                     }
                 }
             }
@@ -424,13 +405,28 @@ public class MainScreenController implements Initializable, BasicController {
         } catch (RepositoryNotFoundException e) {
             BasicPopupScreenController controller = event1 -> {};
             try {
-                createNotificationPopup(controller,false,"Refresh notification",e.getMessage(),"Close");
+                PopupScreen popupScreen = new PopupScreen(stage,engine);
+                popupScreen.createNotificationPopup(controller,false,"Refresh notification",e.getMessage(),"Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (PreviousCommitsLimitExceededException e) {
             e.printStackTrace();
         }
+    }
+
+    private Integer createDiffLabels(Integer editedCount, Delta.DeltaFileItem item, ListView<Label> editedFilesListView) {
+        Label itemLocation = new Label(item.getFullPath());
+        String lastModifier = item.getLastUpdater();
+        String commitDate = item.getLastModified();
+        if(item.getLastUpdater().equals("")) {
+            lastModifier = userNameProperty.getValue();
+            commitDate = "not committed";
+        }
+        itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s",item.getFullPath(),System.lineSeparator(),item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(),commitDate)));
+        editedFilesListView.getItems().add(itemLocation);
+        editedCount++;
+        return editedCount;
     }
 
     @FXML
@@ -459,7 +455,8 @@ public class MainScreenController implements Initializable, BasicController {
                 deleteBranchCotnroller.setError("No repository loaded.");
             }
         });
-        createPopup(layout, deleteBranchCotnroller);
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        popupScreen.createPopup(layout, deleteBranchCotnroller);
     }
 
     @FXML
@@ -470,29 +467,32 @@ public class MainScreenController implements Initializable, BasicController {
         GeneralScreenEnterStringController newBranchController =
                 getGeneralScreen(loader, "Create new branch", "Branch name:");
         newBranchController.setCheckBoxVisible();
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
         newBranchController.setController(event -> {
             String branchName = newBranchController.getTextFieldValue();
             try {
                 engine.createNewBranch(branchName);
+                newBranchController.setError("Branch created successfully!");
+                newBranchController.acceptButtonDisabled(true);
                 if (newBranchController.getCheckBoxValue()) {
                     try {
                         engine.pickHeadBranch(branchName);
+                        branchNameProperty.setValue(branchName);
                     } catch (ParseException | BranchNotFoundException | PreviousCommitsLimitExceededException e) {
                         newBranchController.setError(e.getMessage());
                     } catch (UncommitedChangesException e) {
-                        createNotificationPopup(cEvent -> {
+                        popupScreen.createNotificationPopup(cEvent -> {
                             forceChangeBranch(branchName);
+                            branchNameProperty.setValue(branchName);
                             ((Stage)((Button)cEvent.getSource()).getScene().getWindow()).close();
                             },true, "Are you sure?","There are unsaved changes, switching branch may cause lose of data.", "Cancel");
                     }
                 }
-                branchNameProperty.setValue(branchName);
-                ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
             } catch (IOException | InvalidNameException | RepositoryNotFoundException | BranchAlreadyExistsException e ) {
                 newBranchController.setError(e.getMessage());
             }
         });
-        createPopup(layout, newBranchController);
+        popupScreen.createPopup(layout, newBranchController);
     }
 
     private void forceChangeBranch(String branchName) {
@@ -515,4 +515,6 @@ public class MainScreenController implements Initializable, BasicController {
 
         return generalController;
     }
+
+
 }

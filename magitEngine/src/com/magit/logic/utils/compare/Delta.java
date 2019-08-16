@@ -88,6 +88,10 @@ public class Delta {
             return mFilePath;
         }
 
+        public String getFileName() { return mFileItem.getName();}
+        public String getLastModified() { return mFileItem.getLastModified().toString();}
+        public String getLastUpdater() { return  mFileItem.getLastUpdater();}
+
         String getPathAndSha1() {
             return getFullPath() + ";" + mFileItem.getSha1Code();
         }

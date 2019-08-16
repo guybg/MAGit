@@ -87,4 +87,7 @@ public class GeneralScreenEnterStringController implements BasicController {
         return checkBox.isSelected();
     }
 
+    public void acceptButtonDisabled(boolean disabled) {
+        this.acceptButton.setDisable(disabled);
+    }
 }
