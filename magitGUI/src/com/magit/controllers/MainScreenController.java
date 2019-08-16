@@ -465,10 +465,10 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     private void onNewBranchClicked() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/switchBranchScreen.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
-        GeneralScreenEnterStringController newBranchController = getGeneralScreen(loader, "Create new branch",
-                "Branch name:");
+        GeneralScreenEnterStringController newBranchController =
+                getGeneralScreen(loader, "Create new branch", "Branch name:");
         newBranchController.setCheckBoxVisible();
         newBranchController.setController(event -> {
             String branchName = newBranchController.getTextFieldValue();
@@ -482,12 +482,16 @@ public class MainScreenController implements Initializable, BasicController {
                     } catch (BranchNotFoundException e) {
                         e.printStackTrace();
                     } catch (UncommitedChangesException e) {
-                        createNotificationPopup(cEvent -> forceChangeBranch(branchName), true, "Are you sure?",
-                                "There are unsaved changes, switching branch may cause lose of data.", "Cancel");
+                        createNotificationPopup(cEvent -> {
+                    forceChangeBranch(branchName);
+                    ((Stage)((Button)cEvent.getSource()).getScene().getWindow()).close();},
+                                true, "Are you sure?","There are unsaved changes, switching branch may cause lose of data.", "Cancel");
                     } catch (PreviousCommitsLimitExceededException e) {
                         e.printStackTrace();
                     }
                 }
+                branchNameProperty.setValue(branchName);
+                ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (RepositoryNotFoundException e) {
@@ -498,6 +502,7 @@ public class MainScreenController implements Initializable, BasicController {
                 e.printStackTrace();
             }
         });
+        createPopup(layout, newBranchController);
     }
 
     private void forceChangeBranch(String branchName) {
