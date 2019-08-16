@@ -308,11 +308,20 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void openUserNameChangeScreen(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/UserNameScreen.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
-        UserNameScreenController userNameScreenController = loader.getController();
-        userNameScreenController.setUserNameProperty(userNameProperty);
-        createPopup(layout, userNameScreenController);
+        GeneralScreenEnterStringController userNameController = loader.getController();
+        userNameController.setHeadLabel("Switch User Name");
+        userNameController.setKeyLabel("User Name: ");
+        userNameController.setController(buttonEvent -> {
+            try {
+                engine.updateUserName(userNameController.getTextFieldValue());
+                ((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()).close();
+            } catch (InvalidNameException e) {
+                userNameController.setError(e.getMessage());
+            }
+        });
+        createPopup(layout,userNameController);
     }
 
     @FXML
@@ -456,5 +465,10 @@ public class MainScreenController implements Initializable, BasicController {
         } catch (PreviousCommitsLimitExceededException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void onNewBranchMenuItemClick() {
+        //engine.createNewBranch("Ds");
     }
 }
