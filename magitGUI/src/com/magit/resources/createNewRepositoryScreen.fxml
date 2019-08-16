@@ -47,10 +47,10 @@
                </children>
             </VBox>
             <ButtonBar prefHeight="82.0" prefWidth="444.0">
-              <buttons>
-                <Button fx:id="createNewRepositoryButton" mnemonicParsing="false" onMouseClicked="#createNewRepositoryAction" style="-fx-background-color: #6CA3E6;" text="Create repository" />
+               <buttons>
+                  <Button fx:id="createNewRepositoryButton" mnemonicParsing="false" onMouseClicked="#createNewRepositoryAction" style="-fx-background-color: #6CA3E6;" text="Create repository" />
                   <Button fx:id="cancelButton" mnemonicParsing="false" onMouseClicked="#closeAction" style="-fx-background-color: #FAFBFC; -fx-border-color: #E0E3E7;" text="Cancel" />
-              </buttons>
+               </buttons>
             </ButtonBar>
             <Label fx:id="errorLabel" prefHeight="52.0" prefWidth="581.0" wrapText="true" />
          </children>

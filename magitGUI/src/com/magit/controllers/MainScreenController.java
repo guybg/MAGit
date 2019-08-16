@@ -81,7 +81,6 @@ public class MainScreenController implements Initializable, BasicController {
                 .then(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty))
                 .otherwise(" Current Branch" + System.lineSeparator() + "No branch"));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
-        dummy = new SimpleStringProperty();
         branchNameProperty.addListener((observable, oldValue, newValue) -> {
             updateDifferences();
         });
@@ -268,6 +267,7 @@ public class MainScreenController implements Initializable, BasicController {
                 String fieldValue = userNameController.getTextFieldValue();
                 engine.updateUserName(fieldValue);
                 userNameProperty.setValue(fieldValue);
+                ((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()).close();
             } catch (InvalidNameException e) {
                 userNameController.setError(e.getMessage());
             }

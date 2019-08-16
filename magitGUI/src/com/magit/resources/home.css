@@ -142,3 +142,12 @@
     -fx-background-repeat: no-repeat;
     -fx-background-position: 90%;
 }
+
+.accept-button{
+    -fx-background-color: #6CA3E6;
+}
+
+.cancel-button{
+    -fx-background-color: #FAFBFC;
+    -fx-border-color: #E0E3E7;
+}
