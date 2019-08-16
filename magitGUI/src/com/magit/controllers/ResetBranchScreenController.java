@@ -21,7 +21,7 @@ public class ResetBranchScreenController implements BasicController {
     @FXML private Button acceptButton;
     @FXML private Button cancelButton;
     @FXML private Label errorLabel;
-    @FXML private ComboBox<Label> comboBox;
+    @FXML private ComboBox<String> comboBox;
     private Stage rootStage;
     private MagitEngine engine;
     private BasicPopupScreenController controller;
@@ -30,7 +30,7 @@ public class ResetBranchScreenController implements BasicController {
     void onAcceptClicked(ActionEvent event) {
         controller.onAccept(event);
         try {
-            engine.guiGetAllCommitsOfRepository();
+            comboBox.getItems().addAll(engine.guiGetAllCommitsOfRepository());
         } catch (IOException e) {
             e.printStackTrace();
         }
