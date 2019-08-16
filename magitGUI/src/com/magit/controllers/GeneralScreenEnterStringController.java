@@ -6,6 +6,7 @@ import com.magit.logic.system.MagitEngine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -14,7 +15,6 @@ import javafx.stage.Stage;
 public class GeneralScreenEnterStringController implements BasicController {
 
     private BasicPopupScreenController controller;
-
 
     @FXML
     private Label labelTitle;
@@ -33,6 +33,9 @@ public class GeneralScreenEnterStringController implements BasicController {
 
     @FXML
     private Label errorLabel;
+
+    @FXML
+    private CheckBox checkBox;
 
     @FXML
     void onAcceptClicked(ActionEvent event) {
@@ -75,4 +78,13 @@ public class GeneralScreenEnterStringController implements BasicController {
     void setError(String error) {
         errorLabel.setText(error);
     }
+
+    void setCheckBoxVisible(){
+        checkBox.opacityProperty().setValue(1);
+    }
+
+    boolean getCheckBoxValue() {
+        return checkBox.isSelected();
+    }
+
 }

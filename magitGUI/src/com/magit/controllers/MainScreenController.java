@@ -355,13 +355,13 @@ public class MainScreenController implements Initializable, BasicController {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
-        GeneralScreenEnterStringController userNameController = loader.getController();
-        userNameController.setHeadLabel("Switch User Name");
-        userNameController.setKeyLabel("User Name: ");
+        GeneralScreenEnterStringController userNameController =
+                getGeneralScreen(loader, "Switch User Name", "User Name:");
         userNameController.setController(buttonEvent -> {
             try {
-                engine.updateUserName(userNameController.getTextFieldValue());
-                ((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()).close();
+                String fieldValue = userNameController.getTextFieldValue();
+                engine.updateUserName(fieldValue);
+                userNameProperty.setValue(fieldValue);
             } catch (InvalidNameException e) {
                 userNameController.setError(e.getMessage());
             }
@@ -513,7 +513,90 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    private void onNewBranchMenuItemClick() {
-        //engine.createNewBranch("Ds");
+    private void onDeleteBranchClick() throws IOException  {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
+        Parent layout = loader.load();
+        GeneralScreenEnterStringController deleteBranchCotnroller =
+                getGeneralScreen(loader, "Create New Branch", "Branch Name:");
+        deleteBranchCotnroller.setController(event -> {
+            String branchName = deleteBranchCotnroller.getTextFieldValue();
+            try {
+                try {
+                    engine.deleteBranch(branchName);
+                    ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                } catch (IOException e) {
+                    deleteBranchCotnroller.setError("Please enter valid name.");
+                }
+            }
+             catch (ActiveBranchDeletedException ex){
+                 deleteBranchCotnroller.setError("Can't delete active branch");
+             } catch (BranchNotFoundException ex) {
+                deleteBranchCotnroller.setError("Branch doesn't exist, or branch name is written wrong.");
+            }
+            catch (RepositoryNotFoundException ex) {
+                deleteBranchCotnroller.setError("No repository loaded.");
+            }
+        });
+        createPopup(layout, deleteBranchCotnroller);
+    }
+
+    @FXML
+    private void onNewBranchClicked() throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/com/magit/resources/switchBranchScreen.fxml"));
+        Parent layout = loader.load();
+        GeneralScreenEnterStringController newBranchController = getGeneralScreen(loader, "Create new branch",
+                "Branch name:");
+        newBranchController.setCheckBoxVisible();
+        newBranchController.setController(event -> {
+            String branchName = newBranchController.getTextFieldValue();
+            try {
+                engine.createNewBranch(branchName);
+                if (newBranchController.getCheckBoxValue()) {
+                    try {
+                        engine.pickHeadBranch(branchName);
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    } catch (BranchNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (UncommitedChangesException e) {
+                        createNotificationPopup(cEvent -> forceChangeBranch(branchName), true, "Are you sure?",
+                                "There are unsaved changes, switching branch may cause lose of data.", "Cancel");
+                    } catch (PreviousCommitsLimitExceededException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (RepositoryNotFoundException e) {
+                e.printStackTrace();
+            } catch (InvalidNameException e) {
+                e.printStackTrace();
+            } catch (BranchAlreadyExistsException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void forceChangeBranch(String branchName) {
+        try {
+            engine.forcedChangeBranch(branchName);
+        } catch (ParseException ex) {
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private GeneralScreenEnterStringController getGeneralScreen(FXMLLoader loader ,String headLabelValue, String keyLabelValue)
+            throws IOException {
+        GeneralScreenEnterStringController generalController = loader.getController();
+        generalController.setHeadLabel(headLabelValue);
+        generalController.setKeyLabel(keyLabelValue);
+
+        return generalController;
     }
 }
