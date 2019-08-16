@@ -79,8 +79,8 @@
                   </Menu>
                   <Menu fx:id="branchMenu" mnemonicParsing="false" text="Branch">
                      <items>
-                        <MenuItem fx:id="newBranchMenuItem" mnemonicParsing="false" text="New branch" />
-                        <MenuItem fx:id="deleteBranchMenuItem" mnemonicParsing="false" text="Delete" />
+                        <MenuItem fx:id="newBranchMenuItem" mnemonicParsing="false" onAction="#onNewBranchClicked" text="New branch" />
+                        <MenuItem fx:id="deleteBranchMenuItem" mnemonicParsing="false" onAction="#onDeleteBranchClick" text="Delete" />
                         <MenuItem fx:id="resetBranchMenuItem" mnemonicParsing="false" text="Reset" />
                         <MenuItem fx:id="mergeMenuItem" mnemonicParsing="false" text="Merge" />
                      </items>
