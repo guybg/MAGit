@@ -1,5 +1,6 @@
 package com.magit.controllers;
 
+
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.ResizeHelper;
@@ -12,22 +13,22 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.RowConstraints;
+import javafx.scene.text.Text;
 import javafx.stage.*;
 
 import javax.xml.bind.JAXBException;
@@ -39,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
+
 
 public class MainScreenController implements Initializable, BasicController {
 
@@ -218,19 +220,19 @@ public class MainScreenController implements Initializable, BasicController {
     private TitledPane editedTitlePane;
 
     @FXML
-    private VBox editedFilesVbox;
+    private ListView<Label> editedFilesListView;
 
     @FXML
     private TitledPane deletedTitlePane;
 
     @FXML
-    private VBox deletedFilesVbox;
+    private ListView<Label> deletedFilesListView;
 
     @FXML
     private TitledPane newFilesTitlePane;
 
     @FXML
-    private VBox newFilesVbox;
+    private ListView<Label> newFilesListView;
 
     @FXML
     private Button openChangesRefreshButton;
@@ -413,6 +415,10 @@ public class MainScreenController implements Initializable, BasicController {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Xml files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
         File file = fileChooser.showOpenDialog(stage);
+
+        if(file == null){
+            return;
+        }
         try{
             engine.loadRepositoryFromXML(file.getAbsolutePath(), false);
         } catch (IllegalPathException | ParseException | XmlFileException | PreviousCommitsLimitExceededException | JAXBException | IOException e) {
@@ -447,6 +453,8 @@ public class MainScreenController implements Initializable, BasicController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory =
                 directoryChooser.showDialog(stage);
+        if(selectedDirectory == null)
+            return;
         try {
             engine.switchRepository(selectedDirectory.getAbsolutePath());
             repositoryNameProperty.setValue(engine.getRepositoryName());
@@ -463,23 +471,29 @@ public class MainScreenController implements Initializable, BasicController {
 
     void updateDifferences(){
         Integer editedCount = 0, deletedCount = 0, newCount = 0;
-        editedFilesVbox.getChildren().clear();
-        deletedFilesVbox.getChildren().clear();
-        newFilesVbox.getChildren().clear();
+        editedFilesListView.getItems().clear();
+        deletedFilesListView.getItems().clear();
+        newFilesListView.getItems().clear();
         try {
             Map<FileStatus, SortedSet<Delta.DeltaFileItem>> openChanges =  engine.getWorkingCopyStatusMap();
             for(Map.Entry<FileStatus, SortedSet<Delta.DeltaFileItem>> entry : openChanges.entrySet()){
                 for(Delta.DeltaFileItem item : entry.getValue()) {
                     if (entry.getKey().equals(FileStatus.EDITED)) {
-                        editedFilesVbox.getChildren().add(new Label(item.getFullPath()));
+                        Label itemLocation = new Label(item.getFullPath());
+                        itemLocation.setTooltip(new Tooltip(item.getFullPath()));
+                        editedFilesListView.getItems().add(itemLocation);
                         editedCount++;
                     }
                     if (entry.getKey().equals(FileStatus.REMOVED)) {
-                        deletedFilesVbox.getChildren().add(new Label(item.getFullPath()));
+                        Label itemLocation = new Label(item.getFullPath());
+                        itemLocation.setTooltip(new Tooltip(item.getFullPath()));
+                        deletedFilesListView.getItems().add(itemLocation);
                         deletedCount++;
                     }
                     if(entry.getKey().equals(FileStatus.NEW)) {
-                        newFilesVbox.getChildren().add(new Label(item.getFullPath()));
+                        Label itemLocation = new Label(item.getFullPath());
+                        itemLocation.setTooltip(new Tooltip(item.getFullPath()));
+                        newFilesListView.getItems().add(itemLocation);
                         newCount++;
                     }
                 }

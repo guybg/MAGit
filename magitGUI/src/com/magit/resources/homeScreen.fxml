@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuButton?>
@@ -221,11 +222,7 @@
                                  <children>
                                     <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="19.6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
-                                          <VBox fx:id="editedFilesVbox" prefHeight="177.0" prefWidth="412.0">
-                                             <children>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Text" />
-                                             </children>
-                                          </VBox>
+                                          <ListView fx:id="editedFilesListView" />
                                        </content>
                                     </ScrollPane>
                                  </children>
@@ -241,7 +238,7 @@
                                  <children>
                                     <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
-                                          <VBox fx:id="deletedFilesVbox" prefHeight="177.0" prefWidth="412.0" />
+                                          <ListView fx:id="deletedFilesListView" />
                                        </content>
                                     </ScrollPane>
                                  </children>
@@ -257,7 +254,7 @@
                                  <children>
                                     <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <content>
-                                          <VBox fx:id="newFilesVbox" prefHeight="177.0" prefWidth="412.0" />
+                                          <ListView fx:id="newFilesListView" />
                                        </content>
                                     </ScrollPane>
                                  </children>
