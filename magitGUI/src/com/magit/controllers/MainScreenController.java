@@ -71,17 +71,28 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryNameProperty = new SimpleStringProperty();
             repositoryNameProperty.setValue("");
         }
-        if (repositoryNameProperty.getValue().isEmpty()) repositoryNameProperty.setValue("No repository");
-        //buttonbarGridLine.prefHeightProperty().bind(currentRepositoryMenuButton.heightProperty());
-        currentRepositoryMenuButton.textProperty().bind(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty));
+
+        currentRepositoryMenuButton.textProperty().bind(Bindings
+                .when(repositoryNameProperty.isNotEqualTo(""))
+                .then(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty))
+                .otherwise("Current Repository" + System.lineSeparator() + "No repository"));
         branchNameProperty = new SimpleStringProperty();
-        branchNameProperty.setValue("No branch");
-        currentBranchMenuButton.textProperty().bind(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty));
+
+        currentBranchMenuButton.textProperty().bind(Bindings
+                .when(branchNameProperty.isNotEqualTo(""))
+                .then(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty))
+                .otherwise(" Current Branch" + System.lineSeparator() + "No branch"));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
         dummy = new SimpleStringProperty();
         branchNameProperty.addListener((observable, oldValue, newValue) -> {
-            if(!branchNameProperty.getValue().equals("No branch")){
-                updateDifferences();
+            updateDifferences();
+        });
+        commitToLeftDownButton.setDisable(true);
+        repositoryNameProperty.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                commitToLeftDownButton.setDisable(false);
+                loadBranchesToUserInterface();
             }
         });
     }
@@ -225,6 +236,11 @@ public class MainScreenController implements Initializable, BasicController {
     private Button openChangesRefreshButton;
 
     @FXML
+    void onExitApplication(ActionEvent event) {
+        stage.close();
+    }
+
+    @FXML
     void OnCloseButtonAction(ActionEvent event) {
         Button closeButton = (Button)event.getSource();
         Stage stage = (Stage) closeButton.getScene().getWindow();
@@ -291,8 +307,6 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     void loadBranchesToUserInterface() {
-        if(repositoryNameProperty.getValue().equals("No repository"))
-            return;
         currentBranchMenuButton.getItems().clear();
         branchNameProperty.setValue(engine.getHeadBranchName());
         ArrayList<String> branchesNames = engine.getBranchesName();
@@ -355,7 +369,7 @@ public class MainScreenController implements Initializable, BasicController {
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
         createNewRepositoryScreenController.bindings();
         createPopup(layout, createNewRepositoryScreenController);
-        loadBranchesToUserInterface();
+        //events on properties handles branches load, diff loads
     }
 
     void createPopup(Parent layout, BasicController basicController) {
@@ -436,10 +450,10 @@ public class MainScreenController implements Initializable, BasicController {
         try {
             engine.switchRepository(selectedDirectory.getAbsolutePath());
             repositoryNameProperty.setValue(engine.getRepositoryName());
+            //events on properties handles branches load, diff loads //loadBranchesToUserInterface();
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
             createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
         }
-        loadBranchesToUserInterface();
     }
 
     @FXML
