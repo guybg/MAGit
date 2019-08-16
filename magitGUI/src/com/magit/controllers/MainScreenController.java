@@ -10,7 +10,10 @@ import com.magit.logic.utils.compare.Delta;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -44,6 +47,7 @@ public class MainScreenController implements Initializable, BasicController {
     private StringProperty userNameProperty;
     private StringProperty repositoryNameProperty;
     private StringProperty branchNameProperty;
+    StringProperty dummy;
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -67,13 +71,30 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryNameProperty = new SimpleStringProperty();
             repositoryNameProperty.setValue("");
         }
-        if (repositoryNameProperty.getValue().isEmpty()) repositoryNameProperty.setValue("No repository");
-        //buttonbarGridLine.prefHeightProperty().bind(currentRepositoryMenuButton.heightProperty());
-        currentRepositoryMenuButton.textProperty().bind(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty));
+
+        currentRepositoryMenuButton.textProperty().bind(Bindings
+                .when(repositoryNameProperty.isNotEqualTo(""))
+                .then(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty))
+                .otherwise("Current Repository" + System.lineSeparator() + "No repository"));
         branchNameProperty = new SimpleStringProperty();
-        branchNameProperty.setValue("No branch");
-        currentBranchMenuButton.textProperty().bind(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty));
+
+        currentBranchMenuButton.textProperty().bind(Bindings
+                .when(branchNameProperty.isNotEqualTo(""))
+                .then(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty))
+                .otherwise(" Current Branch" + System.lineSeparator() + "No branch"));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
+        dummy = new SimpleStringProperty();
+        branchNameProperty.addListener((observable, oldValue, newValue) -> {
+            updateDifferences();
+        });
+        commitToLeftDownButton.setDisable(true);
+        repositoryNameProperty.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                commitToLeftDownButton.setDisable(false);
+                loadBranchesToUserInterface();
+            }
+        });
     }
 
     @FXML
@@ -215,6 +236,11 @@ public class MainScreenController implements Initializable, BasicController {
     private Button openChangesRefreshButton;
 
     @FXML
+    void onExitApplication(ActionEvent event) {
+        stage.close();
+    }
+
+    @FXML
     void OnCloseButtonAction(ActionEvent event) {
         Button closeButton = (Button)event.getSource();
         Stage stage = (Stage) closeButton.getScene().getWindow();
@@ -248,7 +274,26 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onClickCommitButton(MouseEvent event) {
-
+        try {
+            engine.commit(commitMessageTextArea.getText());
+            try {
+                createNotificationPopup((BasicPopupScreenController) event12 -> {
+                }, false, "Commit creation notification", "Files commited successfully", "Close");
+                updateDifferences();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (WorkingCopyIsEmptyException | RepositoryNotFoundException | WorkingCopyStatusNotChangedComparedToLastCommitException | PreviousCommitsLimitExceededException e) {
+            try {
+                createNotificationPopup((BasicPopupScreenController) event1 -> { }, false,"Commit creation notification", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -333,6 +378,7 @@ public class MainScreenController implements Initializable, BasicController {
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
         createNewRepositoryScreenController.bindings();
         createPopup(layout, createNewRepositoryScreenController);
+        //events on properties handles branches load, diff loads
     }
 
     void createPopup(Parent layout, BasicController basicController) {
@@ -413,11 +459,10 @@ public class MainScreenController implements Initializable, BasicController {
         try {
             engine.switchRepository(selectedDirectory.getAbsolutePath());
             repositoryNameProperty.setValue(engine.getRepositoryName());
+            //events on properties handles branches load, diff loads //loadBranchesToUserInterface();
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
             createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
         }
-        loadBranchesToUserInterface();
-        updateDifferences();
     }
 
     @FXML

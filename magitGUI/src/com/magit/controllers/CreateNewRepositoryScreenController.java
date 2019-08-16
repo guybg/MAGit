@@ -8,10 +8,15 @@ import com.magit.logic.system.MagitEngine;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
+import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
@@ -79,6 +84,8 @@ public class CreateNewRepositoryScreenController implements BasicController, Ini
             engine.createNewRepository(Paths.get(browsePathTextField.getText()), newRepositoryNameTextField.getText());
             errorLabel.setText("Repository created successfully!");
             repositoryNameProperty.setValue(engine.getRepositoryName());
+            Button closeButton = (Button)event.getSource();
+            closeButton.setDisable(true);
         } catch (IllegalPathException | InvalidNameException | RepositoryAlreadyExistsException e) {
             errorLabel.setText(e.getMessage());
         }

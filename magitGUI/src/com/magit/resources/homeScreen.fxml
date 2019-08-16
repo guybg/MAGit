@@ -55,7 +55,7 @@
                               <MenuItem fx:id="browseXMLFileMenuItem" mnemonicParsing="false" onAction="#openRepositoryFromXmlAction" text="Browse XML file" />
                            </items>
                         </Menu>
-                        <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" text="Exit" />
+                        <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#onExitApplication" text="Exit" />
                      </items>
                   </Menu>
                   <Menu fx:id="viewMenu" mnemonicParsing="false" onAction="#onClick" text="View">
