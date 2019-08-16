@@ -13,9 +13,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -28,7 +25,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
-import javafx.scene.text.Text;
 import javafx.stage.*;
 
 import javax.xml.bind.JAXBException;
@@ -99,146 +95,54 @@ public class MainScreenController implements Initializable, BasicController {
         });
     }
 
-    @FXML
-    private AnchorPane anchorPane;
+    @FXML private AnchorPane anchorPane;
+    @FXML private MenuBar menuBar;
+    @FXML private Menu fileMenu;
+    @FXML private MenuItem newRepositoryMenuItem;
+    @FXML private Menu openRepositoryMenu;
+    @FXML private MenuItem browseMenuItem;
+    @FXML private MenuItem browseXMLFileMenuItem;
+    @FXML private MenuItem exitMenuItem;
+    @FXML private Menu viewMenu;
+    @FXML private MenuItem workingCopyStatusMenuItem;
+    @FXML private Menu commitMenu;
+    @FXML private MenuItem newCommitMenuItem;
+    @FXML private MenuItem commitHistoryMenuItem;
+    @FXML private Menu repositoryMenu;
+    @FXML private MenuItem pushMenuItem;
+    @FXML private MenuItem pullMenuItem;
+    @FXML private MenuItem exportXmlMenuItem;
+    @FXML private Menu branchMenu;
+    @FXML private MenuItem newBranchMenuItem;
+    @FXML private MenuItem deleteBranchMenuItem;
+    @FXML private MenuItem resetBranchMenuItem;
+    @FXML private MenuItem mergeMenuItem;
+    @FXML private Menu helpMenu;
+    @FXML private MenuItem aboutMenuItem;
+    @FXML private HBox windowCloseAndMinimizeHbox;
+    @FXML private Button minimizeButton;
+    @FXML private Button closeButton;
+    @FXML private RowConstraints buttonbarGridLine;
+    @FXML private MenuButton currentRepositoryMenuButton;
+    @FXML private MenuItem menuItem1;
+    @FXML private Label menuItem1Label;
+    @FXML private MenuButton currentBranchMenuButton;
+    @FXML private MenuButton userNameMenuButton;
+    @FXML private MenuItem SwitchUserMenuItem1;
+    @FXML private Label switchUserLabel;
+    @FXML private TextArea commitMessageTextArea;
+    @FXML private Button commitToLeftDownButton;
+    @FXML private Label commitDateLeftDownLabel;
+    @FXML private Label commitMessageLeftDownLabel;
+    @FXML private TitledPane editedTitlePane;
+    @FXML private ListView<Label> editedFilesListView;
+    @FXML private TitledPane deletedTitlePane;
+    @FXML private ListView<Label> deletedFilesListView;
+    @FXML private TitledPane newFilesTitlePane;
+    @FXML private ListView<Label> newFilesListView;
+    @FXML private Button openChangesRefreshButton;
 
-    @FXML
-    private MenuBar menuBar;
-
-    @FXML
-    private Menu fileMenu;
-
-    @FXML
-    private MenuItem newRepositoryMenuItem;
-
-    @FXML
-    private Menu openRepositoryMenu;
-
-    @FXML
-    private MenuItem browseMenuItem;
-
-    @FXML
-    private MenuItem browseXMLFileMenuItem;
-
-    @FXML
-    private MenuItem exitMenuItem;
-
-    @FXML
-    private Menu viewMenu;
-
-    @FXML
-    private MenuItem workingCopyStatusMenuItem;
-
-    @FXML
-    private Menu commitMenu;
-
-    @FXML
-    private MenuItem newCommitMenuItem;
-
-    @FXML
-    private MenuItem commitHistoryMenuItem;
-
-    @FXML
-    private Menu repositoryMenu;
-
-    @FXML
-    private MenuItem pushMenuItem;
-
-    @FXML
-    private MenuItem pullMenuItem;
-
-    @FXML
-    private MenuItem exportXmlMenuItem;
-
-    @FXML
-    private Menu branchMenu;
-
-    @FXML
-    private MenuItem newBranchMenuItem;
-
-    @FXML
-    private MenuItem deleteBranchMenuItem;
-
-    @FXML
-    private MenuItem resetBranchMenuItem;
-
-    @FXML
-    private MenuItem mergeMenuItem;
-
-    @FXML
-    private Menu helpMenu;
-
-    @FXML
-    private MenuItem aboutMenuItem;
-
-    @FXML
-    private HBox windowCloseAndMinimizeHbox;
-
-    @FXML
-    private Button minimizeButton;
-
-    @FXML
-    private Button closeButton;
-
-    @FXML
-    private RowConstraints buttonbarGridLine;
-
-    @FXML
-    private MenuButton currentRepositoryMenuButton;
-
-    @FXML
-    private MenuItem menuItem1;
-
-    @FXML
-    private Label menuItem1Label;
-
-    @FXML
-    private MenuButton currentBranchMenuButton;
-
-    @FXML
-    private MenuButton userNameMenuButton;
-
-    @FXML
-    private MenuItem SwitchUserMenuItem1;
-
-    @FXML
-    private Label switchUserLabel;
-
-    @FXML
-    private TextArea commitMessageTextArea;
-
-    @FXML
-    private Button commitToLeftDownButton;
-
-    @FXML
-    private Label commitDateLeftDownLabel;
-
-    @FXML
-    private Label commitMessageLeftDownLabel;
-
-    @FXML
-    private TitledPane editedTitlePane;
-
-    @FXML
-    private ListView<Label> editedFilesListView;
-
-    @FXML
-    private TitledPane deletedTitlePane;
-
-    @FXML
-    private ListView<Label> deletedFilesListView;
-
-    @FXML
-    private TitledPane newFilesTitlePane;
-
-    @FXML
-    private ListView<Label> newFilesListView;
-
-    @FXML
-    private Button openChangesRefreshButton;
-
-    @FXML
-    void onExitApplication(ActionEvent event) {
+    @FXML void onExitApplication(ActionEvent event) {
         stage.close();
     }
 
