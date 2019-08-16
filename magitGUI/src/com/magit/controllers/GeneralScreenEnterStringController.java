@@ -80,7 +80,7 @@ public class GeneralScreenEnterStringController implements BasicController {
     }
 
     void setCheckBoxVisible(){
-        checkBox.opacityProperty().setValue(1);
+        checkBox.setVisible(true);
     }
 
     boolean getCheckBoxValue() {
