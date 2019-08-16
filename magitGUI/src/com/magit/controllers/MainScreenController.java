@@ -74,18 +74,16 @@ public class MainScreenController implements Initializable, BasicController {
 
         currentRepositoryMenuButton.textProperty().bind(Bindings
                 .when(repositoryNameProperty.isNotEqualTo(""))
-                .then(Bindings.format("Current Repository %s%s",System.lineSeparator(),repositoryNameProperty))
-                .otherwise("Current Repository" + System.lineSeparator() + "No repository"));
+                .then(Bindings.format(" Current Repository %s%s",System.lineSeparator(),repositoryNameProperty))
+                .otherwise(" Current Repository" + System.lineSeparator() + " No repository"));
         branchNameProperty = new SimpleStringProperty();
 
         currentBranchMenuButton.textProperty().bind(Bindings
                 .when(branchNameProperty.isNotEqualTo(""))
-                .then(Bindings.format(" Current branch%s %s", System.lineSeparator(),branchNameProperty))
-                .otherwise(" Current Branch" + System.lineSeparator() + "No branch"));
+                .then(Bindings.format("Current branch%s %s", System.lineSeparator(),branchNameProperty))
+                .otherwise("Current Branch" + System.lineSeparator() + "No branch"));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
-        branchNameProperty.addListener((observable, oldValue, newValue) -> {
-            updateDifferences();
-        });
+        branchNameProperty.addListener((observable, oldValue, newValue) -> updateDifferences());
         commitToLeftDownButton.setDisable(true);
         resetBranchMenuItem.setDisable(true);
         deleteBranchMenuItem.setDisable(true);
