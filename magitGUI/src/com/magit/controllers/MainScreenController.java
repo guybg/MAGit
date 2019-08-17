@@ -8,16 +8,23 @@ import com.magit.gui.ResizeHelper;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.objects.FileItemInfo;
+import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
 import com.magit.logic.utils.compare.Delta;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -38,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
+import java.util.function.Consumer;
 
 
 public class MainScreenController implements Initializable, BasicController {
@@ -74,13 +82,13 @@ public class MainScreenController implements Initializable, BasicController {
 
         currentRepositoryMenuButton.textProperty().bind(Bindings
                 .when(repositoryNameProperty.isNotEqualTo(""))
-                .then(Bindings.format(" Current Repository %s%s",System.lineSeparator(),repositoryNameProperty))
+                .then(Bindings.format(" Current Repository %s %s",System.lineSeparator(),repositoryNameProperty))
                 .otherwise(" Current Repository" + System.lineSeparator() + " No repository"));
         branchNameProperty = new SimpleStringProperty();
-
+        middleAnchorPane.minWidthProperty().bind(middleHSplitPane.widthProperty().divide(2));
         currentBranchMenuButton.textProperty().bind(Bindings
                 .when(branchNameProperty.isNotEqualTo(""))
-                .then(Bindings.format("Current branch%s %s", System.lineSeparator(),branchNameProperty))
+                .then(Bindings.format("Current branch%s%s", System.lineSeparator(),branchNameProperty))
                 .otherwise("Current Branch" + System.lineSeparator() + "No branch"));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
         branchNameProperty.addListener((observable, oldValue, newValue) -> updateDifferences());
@@ -88,12 +96,14 @@ public class MainScreenController implements Initializable, BasicController {
         resetBranchMenuItem.setDisable(true);
         deleteBranchMenuItem.setDisable(true);
         newBranchMenuItem.setDisable(true);
+        commitHistoryMenuItem.setDisable(true);
         repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
             commitToLeftDownButton.setDisable(false);
             loadBranchesToUserInterface();
             resetBranchMenuItem.setDisable(false);
             deleteBranchMenuItem.setDisable(false);
             newBranchMenuItem.setDisable(false);
+            commitHistoryMenuItem.setDisable(false);
         });
     }
 
@@ -144,7 +154,10 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private ListView<Label> newFilesListView;
     @FXML private Button openChangesRefreshButton;
     @FXML private CheckBox checkBox;
+    @FXML private AnchorPane middleAnchorPane;
+    @FXML private SplitPane middleHSplitPane;
 
+    private ObservableList<FileItemInfo> fileItemInfos;
     @FXML void onExitApplication(ActionEvent event) {
         stage.close();
     }
@@ -183,28 +196,24 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onClickCommitButton(MouseEvent event) {
-        try {
-            engine.commit(commitMessageTextArea.getText());
+        engine.guiCommit(s -> {
+            PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
-                PopupScreen popupScreen = new PopupScreen(stage,engine);
-                popupScreen.createNotificationPopup((BasicPopupScreenController) event12 -> {
-                }, false, "Commit creation notification", "Files commited successfully", "Close");
-                updateDifferences();
+                popupScreen.createNotificationPopup(event1 -> {
+                }, false, "Commit creation notification", s, "Close");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (WorkingCopyIsEmptyException | RepositoryNotFoundException | WorkingCopyStatusNotChangedComparedToLastCommitException | PreviousCommitsLimitExceededException e) {
+        }, () -> {
             try {
-                PopupScreen popupScreen = new PopupScreen(stage,engine);
-                popupScreen.createNotificationPopup((BasicPopupScreenController) event1 -> { }, false,"Commit creation notification", e.getMessage(),"Close");
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                PopupScreen popupScreen = new PopupScreen(stage, engine);
+                popupScreen.createNotificationPopup(event12 -> {
+                }, false, "Commit creation notification", "Files commited successfully", "Close");
+                updateDifferences();
+            }catch (IOException e){
+                e.printStackTrace();
             }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        },commitMessageTextArea.getText());
     }
 
     @FXML
@@ -309,6 +318,47 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
 
+
+    @FXML
+    void onGetCommitHistoryClicked(ActionEvent event) {
+        engine.guiCollectCommitHistoryInfo(new Consumer<ObservableList<FileItemInfo>>() {
+            @Override
+            public void accept(ObservableList<FileItemInfo> fileItemInfos) {
+                FXMLLoader loader = new FXMLLoader();
+                loader.setLocation(getClass().getResource("/com/magit/resources/tableScreen.fxml"));
+                Node table = null;
+                try {
+                    table = loader.load();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                TableScreenController tableScreenController = loader.getController();
+                tableScreenController.init(fileItemInfos);
+                AnchorPane.setBottomAnchor(table, 0.0);
+                AnchorPane.setLeftAnchor(table, 0.0);
+                AnchorPane.setRightAnchor(table, 0.0);
+                AnchorPane.setTopAnchor(table, 0.0);
+                middleAnchorPane.getChildren().add(table);
+            }
+        }, s -> {
+            PopupScreen popupScreen = new PopupScreen(stage, engine);
+            try {
+                popupScreen.createNotificationPopup(null, false, "Commit Notification", s, "Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+      //  new Thread(collectFileItemsInfoTask).start();
+//
+      //  collectFileItemsInfoTask.setOnFailed(event1 -> {
+      //      PopupScreen popupScreen = new PopupScreen(stage, engine);
+      //      try {
+      //          popupScreen.createNotificationPopup(null, false, "Commit Notification", collectFileItemsInfoTask.getException().getMessage(), "Close");
+      //      } catch (IOException ex) {
+      //          ex.printStackTrace();
+      //      }
+      //  });
+    }
 
 
     @FXML

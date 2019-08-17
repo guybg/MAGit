@@ -137,10 +137,11 @@
     -fx-background-image: url('refresh.png');
     -fx-background-color: #E0E3E7;
     -fx-background-size: 18px;
-    -fx-pref-height: 26px;
-    -fx-pref-width: 26px;
+    -fx-pref-height: 20px;
+    -fx-pref-width: 20px;
     -fx-background-repeat: no-repeat;
     -fx-background-position: 90%;
+
 }
 
 .accept-button{
@@ -151,3 +152,8 @@
     -fx-background-color: #FAFBFC;
     -fx-border-color: #E0E3E7;
 }
+
+.split-pane *.split-pane-divider {
+    -fx-padding: 0 1 0 1;
+}
+

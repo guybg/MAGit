@@ -4,14 +4,17 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.interfaces.WalkAction;
-import com.magit.logic.system.objects.Blob;
-import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.FileItem;
-import com.magit.logic.system.objects.Tree;
+import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import sun.plugin.javascript.navig.Array;
 
 import java.io.File;
 import java.io.IOException;
@@ -165,6 +168,30 @@ public class WorkingCopyUtils {
         else
             wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getLastUpdater(), newWc.getLastModified(), newWc.getName(), new TreeSet<>()));
         return wc;
+    }
+    static ObservableList<FileItemInfo> list;
+    public static ObservableList<FileItemInfo> guiGetWorkingCopyContent(Tree workingCopyFolder, String repositoryDirectoryPath, String userName){
+        ObservableList<FileItemInfo> files = FXCollections.observableArrayList();
+        guiWorkingCopyFilesToArrayList(workingCopyFolder, repositoryDirectoryPath, userName,files);
+        return files;
+    }
+    private static void guiWorkingCopyFilesToArrayList(FileItem item, String repositoryDirectoryPath, String userName, ObservableList<FileItemInfo> files) {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+        String fileName;
+        String fileContent = "";
+        if(item.getName() == null){
+            fileName = "Root folder";
+        }else{
+            fileName = item.getName();
+        }
+        if(item.getFileType().equals(FileType.FILE)) fileContent = item.getFileContent();
+        FileItemInfo file = new FileItemInfo(fileName, item.getFileType().toString(), item.getSha1Code().toString(), item.getLastUpdater(), dateFormat.format(item.getLastModified()),fileContent,repositoryDirectoryPath);
+        files.add(file);
+        if(item.getFileType().equals(FileType.FOLDER)) {
+            for (FileItem fileToAdd : ((Tree)item).listFiles()) {
+                guiWorkingCopyFilesToArrayList(fileToAdd, Paths.get(repositoryDirectoryPath, fileToAdd.getName()).toString(),userName,files);
+            }
+        }
     }
 
     private static String toPrintFormat(Tree workingCopyFolder, String repositoryDirectoryPath, String userName) {

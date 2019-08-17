@@ -6,10 +6,16 @@ import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Branch;
+import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
+import com.magit.logic.system.tasks.NewCommitTask;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import javafx.collections.ObservableList;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
@@ -22,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
+import java.util.function.Consumer;
 
 public class MagitEngine {
 
@@ -81,6 +88,12 @@ public class MagitEngine {
         return mRepositoryManager.presentCurrentCommitAndHistory();
     }
 
+   // private ObservableList<FileItemInfo> guiPresentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException, PreviousCommitsLimitExceededException {
+   //     repositoryNotFoundCheck();
+   //     return mRepositoryManager.guiPresentCurrentCommitAndHistory();
+   // }
+
+
     public String changeBranchPointedCommit(String commitSha1) throws IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         mBranchManager.changeBranchPointedCommit(mRepositoryManager.getRepository(), new Sha1(commitSha1, true));
@@ -94,11 +107,17 @@ public class MagitEngine {
         if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit()))
             throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
     }
-
+    String a;
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
             WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
+    }
+
+    public void guiCommit(Consumer<String> exceptionDelegate, Runnable onSuccess, String inputFromUser){
+        NewCommitTask task = new NewCommitTask(onSuccess, this, inputFromUser);
+        new Thread(task).start();
+        task.setOnFailed(event -> exceptionDelegate.accept(task.getException().getMessage()));
     }
 
     public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException, PreviousCommitsLimitExceededException {
@@ -167,6 +186,13 @@ public class MagitEngine {
     }
     public ArrayList<String> guiGetAllCommitsOfRepository() throws IOException {
         return mRepositoryManager.guiGetRepositoryCommitList();
+    }
+
+    public void guiCollectCommitHistoryInfo(Consumer<ObservableList<FileItemInfo>> infoReadyDelegate, Consumer<String> exceptionHandleDelegate){
+        CollectFileItemsInfoTask collectFileItemsInfoTask = new CollectFileItemsInfoTask(infoReadyDelegate, mRepositoryManager);
+        new Thread(collectFileItemsInfoTask).start();
+
+        collectFileItemsInfoTask.setOnFailed(event1 -> exceptionHandleDelegate.accept(collectFileItemsInfoTask.getException().getMessage()));
     }
 }
 

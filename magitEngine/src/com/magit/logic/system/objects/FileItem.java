@@ -75,6 +75,13 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         return mName;
     }
 
+    public String getFileName(){
+        if(mName == null){
+            return "Root folder";
+        }
+        return mName;
+    }
+
     public FileType getFileType() {
         return mFileType;
     }

@@ -5,10 +5,12 @@ import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
+import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import javafx.collections.ObservableList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
@@ -93,6 +95,18 @@ public class RepositoryManager {
             throw new CommitNotFoundException("There's no commit history to show, please add some files and commit them");
 
         return WorkingCopyUtils.getWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getLastUpdater());
+    }
+
+    public ObservableList<FileItemInfo> guiPresentCurrentCommitAndHistory()
+              throws RepositoryNotFoundException, IOException, ParseException, CommitNotFoundException, PreviousCommitsLimitExceededException {
+            if (!mActiveRepository.isValid())
+                throw new RepositoryNotFoundException("Repository at location " + mActiveRepository.getRepositoryPath().toString() + " is corrupted.");
+
+            Commit commit = Commit.createCommitInstanceByPath(mActiveRepository.getCommitPath());
+            if (commit == null)
+                throw new CommitNotFoundException("There's no commit history to show, please add some files and commit them");
+
+            return WorkingCopyUtils.guiGetWorkingCopyContent(WorkingCopyUtils.getWorkingCopyTreeFromCommit(commit, mActiveRepository.getRepositoryPath().toString()), mActiveRepository.getRepositoryPath().toString(), commit.getLastUpdater());
     }
 
     public void createNewRepository(String fullPath, BranchManager branchManager, String repositoryName) throws IllegalPathException, IOException, RepositoryAlreadyExistsException {
