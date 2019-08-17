@@ -14,6 +14,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -326,6 +327,7 @@ public class MainScreenController implements Initializable, BasicController {
         Thread xmlImportThread = new Thread(task);
         xmlImportThread.run();
     }
+
 
     private void importRepositoryFromXml(File xmlFile, PopupScreen popupScreen) throws IOException {
         if(null == xmlFile)
