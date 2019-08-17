@@ -296,7 +296,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    void openNewRepositoyScreenAction(ActionEvent event) throws IOException {
+    void openNewRepositoryScreenAction(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/createNewRepositoryScreen.fxml"));
         Parent layout = loader.load();
@@ -312,23 +312,33 @@ public class MainScreenController implements Initializable, BasicController {
 
 
     @FXML
-    void openRepositoryFromXmlAction(ActionEvent event) throws IOException {
+    void openRepositoryFromXmlAction(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Xml files (*.xml)", "*.xml");
         fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showOpenDialog(stage);
         PopupScreen popupScreen = new PopupScreen(stage,engine);
-        if(file == null){
+        File file = fileChooser.showOpenDialog(stage);
+        Runnable task = () -> {
+            try {
+                importRepositoryFromXml(file, popupScreen);
+            } catch (IOException ignored) {}
+        };
+        Thread xmlImportThread = new Thread(task);
+        xmlImportThread.run();
+    }
+
+    private void importRepositoryFromXml(File xmlFile, PopupScreen popupScreen) throws IOException {
+        if(null == xmlFile)
             return;
-        }
+
         try{
-            engine.loadRepositoryFromXML(file.getAbsolutePath(), false);
+            engine.loadRepositoryFromXML(xmlFile.getAbsolutePath(), false);
         } catch (IllegalPathException | ParseException | XmlFileException | PreviousCommitsLimitExceededException | JAXBException | IOException e) {
             popupScreen.createNotificationPopup(null, false, "Repository from XML notification", e.getMessage(),"Close");
         } catch (RepositoryAlreadyExistsException e) {
             BasicPopupScreenController basicPopupScreenController1 = event1 -> {
                 try {
-                    engine.loadRepositoryFromXML(file.getAbsolutePath(),true);
+                    engine.loadRepositoryFromXML(xmlFile.getAbsolutePath(),true);
                     Button chosen = (Button) event1.getSource();
                     Stage curStage = (Stage) chosen.getScene().getWindow();
                     curStage.close();
