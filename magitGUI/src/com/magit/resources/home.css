@@ -1,3 +1,5 @@
+
+
 .menu-bar .menu-button:hover{
      -fx-background-color:#33393F;
 }
@@ -88,13 +90,20 @@
 .button-bar-button:hover {
     -fx-background-color: #33393F;
 }
-
 .button-bar-button .menu-item .label{
     -fx-text-fill: #292D32;
     -fx-padding: 0 0 0 0;
 }
+
+#menu-button-title-label {
+    -fx-text-fill: #D0D4D9;
+    -fx-font-size: 11px;
+    -fx-font-weight: normal;
+}
 .button-bar-button .label{
     -fx-text-fill: #ffffff;
+    -fx-font-size: 11px;
+    -fx-font-weight: bold;
 }
 
 .pane{
@@ -156,4 +165,6 @@
 .split-pane *.split-pane-divider {
     -fx-padding: 0 1 0 1;
 }
+
+
 

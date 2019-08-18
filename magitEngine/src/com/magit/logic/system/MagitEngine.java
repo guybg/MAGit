@@ -59,6 +59,16 @@ public class MagitEngine {
             throw new RepositoryNotFoundException("Please load or create a repository before trying this operation");
     }
 
+    public String guiGetRepositoryPath(){
+        try {
+            repositoryNotFoundCheck();
+            return mRepositoryManager.getRepository().getRepositoryPath().toAbsolutePath().toString();
+        } catch (RepositoryNotFoundException e) {
+            return "";
+        }
+
+    }
+
     public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
         RepositoryXmlParser parser = new RepositoryXmlParser();
         Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);

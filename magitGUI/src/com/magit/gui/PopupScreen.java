@@ -4,12 +4,18 @@ import com.magit.controllers.PopupScreenController;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.logic.system.MagitEngine;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.stage.StageStyle;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.stage.*;
 
 import java.io.IOException;
 
@@ -30,8 +36,20 @@ public class PopupScreen {
         currStage.initModality(Modality.WINDOW_MODAL);
         currStage.initStyle(StageStyle.UNDECORATED);
         currStage.initOwner(stage);
-        currStage.setMinHeight(300);
-        currStage.setMinWidth(300);
+        //currStage.setMinHeight(300);
+        //currStage.setMinWidth(300);
+        currStage.setOnShown(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                currStage.setX(stage.getX() + stage.getWidth()/2d - currStage.getWidth()/2d);
+                currStage.setY(stage.getY() + stage.getHeight()/2d - currStage.getHeight()/2d);
+            }
+        });
+        currStage.getScene().addEventFilter(KeyEvent.KEY_PRESSED, ke -> {
+            if (ke.getCode() == KeyCode.ESCAPE) {
+                currStage.close();
+            }
+        });
         basicController.setEngine(engine);
         ResizeHelper.addResizeListener(currStage);
         ResizeHelper.setMovable(true);

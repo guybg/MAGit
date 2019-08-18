@@ -36,6 +36,7 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.control.CheckBox;
 import javafx.stage.*;
 
+import javax.swing.*;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +56,8 @@ public class MainScreenController implements Initializable, BasicController {
     private StringProperty userNameProperty;
     private StringProperty repositoryNameProperty;
     private StringProperty branchNameProperty;
-    StringProperty dummy;
+    private StringProperty repositoryPathProperty;
+
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -73,23 +75,24 @@ public class MainScreenController implements Initializable, BasicController {
         menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(14));
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(78));
         userNameProperty = new SimpleStringProperty();
+        repositoryPathProperty = new SimpleStringProperty();
         userNameProperty.setValue("Administrator");
-        userNameMenuButton.textProperty().bind(Bindings.format("Hello, %s",userNameProperty));
+        userNameMenuButton.textProperty().bind(userNameProperty);
         if(repositoryNameProperty == null) {
             repositoryNameProperty = new SimpleStringProperty();
             repositoryNameProperty.setValue("");
         }
 
-        currentRepositoryMenuButton.textProperty().bind(Bindings
+        menuButtonRepositoryNameLabel.textProperty().bind(Bindings
                 .when(repositoryNameProperty.isNotEqualTo(""))
-                .then(Bindings.format(" Current Repository %s %s",System.lineSeparator(),repositoryNameProperty))
-                .otherwise(" Current Repository" + System.lineSeparator() + " No repository"));
+                .then(repositoryNameProperty)
+                .otherwise("No repository"));
         branchNameProperty = new SimpleStringProperty();
         middleAnchorPane.minWidthProperty().bind(middleHSplitPane.widthProperty().divide(2));
-        currentBranchMenuButton.textProperty().bind(Bindings
+        menuButtonBranchNameLabel.textProperty().bind(Bindings
                 .when(branchNameProperty.isNotEqualTo(""))
-                .then(Bindings.format("Current branch%s%s", System.lineSeparator(),branchNameProperty))
-                .otherwise("Current Branch" + System.lineSeparator() + "No branch"));
+                .then(branchNameProperty)
+                .otherwise("No branch"));
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
         branchNameProperty.addListener((observable, oldValue, newValue) -> updateDifferences());
         commitToLeftDownButton.setDisable(true);
@@ -104,9 +107,17 @@ public class MainScreenController implements Initializable, BasicController {
             deleteBranchMenuItem.setDisable(false);
             newBranchMenuItem.setDisable(false);
             commitHistoryMenuItem.setDisable(false);
+            repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
+        });
+        repositoryPathProperty.addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                currentRepositoryMenuButton.tooltipProperty().setValue(new Tooltip(repositoryPathProperty.getValue()));
+            }
         });
     }
-
+    @FXML private Label menuButtonBranchNameLabel;
+    @FXML private Label menuButtonRepositoryNameLabel;
     @FXML private AnchorPane anchorPane;
     @FXML private MenuBar menuBar;
     @FXML private Menu fileMenu;
@@ -156,6 +167,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private CheckBox checkBox;
     @FXML private AnchorPane middleAnchorPane;
     @FXML private SplitPane middleHSplitPane;
+    @FXML private Label moveScreenLabel;
 
     private ObservableList<FileItemInfo> fileItemInfos;
     @FXML void onExitApplication(ActionEvent event) {

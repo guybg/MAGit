@@ -46,7 +46,7 @@
                   <String fx:value="window-close-button" />
                </styleClass>
             </ImageView>
-            <MenuBar id="MenuBar" fx:id="menuBar" onMouseDragged="#OnMouseDragged" onMousePressed="#OnMousePressed" prefHeight="25.0" prefWidth="1113.0" style="-fx-background-color: #292D32;" HBox.hgrow="ALWAYS">
+            <MenuBar id="MenuBar" fx:id="menuBar" style="-fx-background-color: #292D32;">
                <menus>
                   <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
                      <items>
@@ -101,6 +101,11 @@
                   <Insets />
                </HBox.margin>
             </MenuBar>
+            <Label fx:id="moveScreenLabel" maxWidth="1.7976931348623157E308" onMouseDragged="#OnMouseDragged" onMousePressed="#OnMousePressed" HBox.hgrow="SOMETIMES">
+               <HBox.margin>
+                  <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+               </HBox.margin>
+            </Label>
             <HBox fx:id="windowCloseAndMinimizeHbox" alignment="CENTER" focusTraversable="true" minHeight="20.0" prefHeight="25.0" prefWidth="120.0">
                <children>
                   <Button fx:id="minimizeButton" alignment="CENTER" minHeight="25.0" minWidth="60.0" mnemonicParsing="false" onAction="#OnMinimizeButtonAction" style="-fx-font-size: 14; -fx-font-weight: bold;" styleClass="window-minimize-button" text="-" textFill="WHITE" HBox.hgrow="ALWAYS">
@@ -141,7 +146,7 @@
             <ColumnConstraints />
         </columnConstraints>
         <rowConstraints>
-          <RowConstraints fx:id="buttonbarGridLine" maxHeight="100.0" minHeight="55.0" prefHeight="94.0" vgrow="SOMETIMES" />
+          <RowConstraints fx:id="buttonbarGridLine" vgrow="NEVER" />
           <RowConstraints maxHeight="2.0" minHeight="2.0" prefHeight="2.0" vgrow="NEVER" />
           <RowConstraints maxHeight="132.0" minHeight="18.0" percentHeight="10.0" prefHeight="68.0" vgrow="SOMETIMES" />
             <RowConstraints maxHeight="164.0" minHeight="10.0" prefHeight="140.0" vgrow="SOMETIMES" />
@@ -150,7 +155,7 @@
             <RowConstraints maxHeight="257.0" minHeight="257.0" prefHeight="257.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="176.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="176.0" styleClass="button-bar-button" text="Current repository" wrapText="true" GridPane.hgrow="NEVER">
+            <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" wrapText="true" GridPane.hgrow="NEVER">
                <items>
                   <MenuItem fx:id="menuItem1" mnemonicParsing="false">
                      <graphic>
@@ -159,22 +164,50 @@
                   </MenuItem>
                   <MenuItem mnemonicParsing="false" />
                </items>
+               <graphic>
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <ImageView id="iconRepository" fitHeight="26.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
+                        <VBox alignment="CENTER_LEFT">
+                           <children>
+                              <Label id="menu-button-title-label" text="Current repository">
+                                 <font>
+                                    <Font size="11.0" />
+                                 </font>
+                              </Label>
+                              <Label id="menu-button-name-label" fx:id="menuButtonRepositoryNameLabel" text="Label">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                              </Label>
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
+               </graphic>
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets left="10.0" right="10.0" />
+               </padding>
+            </MenuButton>
+            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" onMouseClicked="#onCurrentBranchMenuButtonClicked" styleClass="button-bar-button" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
+               <padding>
+                  <Insets left="10.0" right="10.0" />
                </padding>
                <graphic>
-                  <ImageView id="iconRepository" fitHeight="26.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
+                  <HBox alignment="CENTER_LEFT" spacing="7.0">
+                     <children>
+                        <ImageView id="iconBranch" fitHeight="21.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
+                        <VBox alignment="CENTER_LEFT">
+                           <children>
+                              <Label id="menu-button-title-label" text="Current branch" />
+                              <Label fx:id="menuButtonBranchNameLabel" text="Label" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </HBox>
                </graphic>
             </MenuButton>
-            <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="176.0" mnemonicParsing="false" onMouseClicked="#onCurrentBranchMenuButtonClicked" prefHeight="55.0" prefWidth="176.0" styleClass="button-bar-button" text=" Current branch" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
-               <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-               </padding>
-               <graphic>
-                  <ImageView id="iconBranch" fitHeight="21.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
-               </graphic>
-            </MenuButton>
-            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="176.0" mnemonicParsing="false" prefHeight="55.0" prefWidth="176.0" styleClass="button-bar-button" text="Hello, User." wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="NEVER">
+            <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" text="user" wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="NEVER">
                <items>
                   <MenuItem fx:id="SwitchUserMenuItem1" mnemonicParsing="false" onAction="#openUserNameChangeScreen" text="Switch user">
                      <graphic>
@@ -184,14 +217,19 @@
                   <MenuItem mnemonicParsing="false" text="Action 2" />
                </items>
                <padding>
-                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  <Insets left="10.0" right="10.0" />
                </padding>
                <graphic>
-                  <ImageView id="iconUser" fitHeight="20.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
+                  <HBox alignment="CENTER_LEFT" spacing="10.0">
+                     <children>
+                        <ImageView id="iconUser" fitHeight="20.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true" styleClass="iconMenuButton" />
+                        <Label text="Hello," />
+                     </children>
+                  </HBox>
                </graphic>
             </MenuButton>
-            <StackPane minHeight="40.0" prefHeight="55.0" style="-fx-background-color: #292D32; -fx-border-color: black;" GridPane.columnIndex="3" />
-            <StackPane minHeight="2.0" prefWidth="1327.0" style="-fx-background-color: black;" GridPane.columnSpan="5" GridPane.rowIndex="1" />
+            <StackPane maxHeight="1.7976931348623157E308" style="-fx-background-color: #292D32; -fx-border-color: black;" GridPane.columnIndex="3" GridPane.hgrow="NEVER" />
+            <StackPane minHeight="2.0" prefWidth="1327.0" style="-fx-background-color: black;" GridPane.columnSpan="5" GridPane.hgrow="NEVER" GridPane.rowIndex="1" />
             <SplitPane fx:id="middleHSplitPane" dividerPositions="0.2242" prefHeight="321.0" prefWidth="350.0" GridPane.columnSpan="4" GridPane.rowIndex="2" GridPane.rowSpan="5">
               <items>
                 <AnchorPane minHeight="0.0" minWidth="300.0" prefHeight="160.0" SplitPane.resizableWithParent="false">
@@ -205,6 +243,9 @@
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                              <RowConstraints />
+                              <RowConstraints />
+                              <RowConstraints />
                           </rowConstraints>
                            <children>
                               <AnchorPane styleClass="side-pane" GridPane.rowSpan="4">
@@ -285,8 +326,12 @@
                               </AnchorPane>
                               <AnchorPane id="commit-pane" prefWidth="202.0" styleClass="side-pane" GridPane.rowIndex="6">
                                  <children>
-                                    <TextArea fx:id="commitMessageTextArea" layoutX="7.0" onInputMethodTextChanged="#onCommitMessageTextAreaChanged" prefHeight="107.0" prefWidth="198.0" AnchorPane.bottomAnchor="152.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
-                                    <Button fx:id="commitToLeftDownButton" layoutX="11.0" layoutY="110.0" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="110.0" />
+                                    <VBox layoutX="8.0" layoutY="8.0" prefHeight="157.0" prefWidth="285.0" spacing="5.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="7.0">
+                                       <children>
+                                          <TextArea fx:id="commitMessageTextArea" onInputMethodTextChanged="#onCommitMessageTextAreaChanged" prefHeight="107.0" prefWidth="198.0" VBox.vgrow="SOMETIMES" />
+                                          <Button fx:id="commitToLeftDownButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" VBox.vgrow="SOMETIMES" />
+                                       </children>
+                                    </VBox>
                                     <Separator layoutX="2.0" layoutY="173.0" prefWidth="297.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="1.0" />
                                     <VBox layoutY="187.0" prefHeight="67.0" prefWidth="210.0" spacing="2.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="186.0">
                                        <children>
