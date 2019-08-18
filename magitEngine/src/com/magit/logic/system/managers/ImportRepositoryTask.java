@@ -1,6 +1,7 @@
 package com.magit.logic.system.managers;
 
 import com.magit.logic.exceptions.*;
+import com.magit.logic.system.MagitEngine;
 import javafx.concurrent.Task;
 
 import java.io.IOException;
@@ -17,11 +18,11 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private boolean forceCreation = false;
     private RepositoryXmlParser xmlParser;
 
-    public ImportRepositoryTask(String filePath,RepositoryManager repositoryManager, BranchManager branchManager, boolean forceCreation) {
+    public ImportRepositoryTask(String filePath, MagitEngine engine, boolean forceCreation) {
         this.filePath = filePath;
-        this.branchManager = branchManager;
+        this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
-        this.repositoryManager = repositoryManager;
+        this.repositoryManager = engine.getmRepositoryManager();
     }
 
 

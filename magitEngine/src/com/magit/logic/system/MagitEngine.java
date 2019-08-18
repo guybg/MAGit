@@ -1,14 +1,9 @@
 package com.magit.logic.system;
 
-import com.magit.controllers.XmlImportController;
-import com.magit.gui.RepositoryXmlComponent;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
-import com.magit.logic.system.managers.RepositoryXmlParser;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
@@ -22,7 +17,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.SortedSet;
 
 public class MagitEngine {
@@ -36,6 +30,15 @@ public class MagitEngine {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
     }
+
+    public RepositoryManager getmRepositoryManager() {
+        return mRepositoryManager;
+    }
+
+    public BranchManager getmBranchManager() {
+        return mBranchManager;
+    }
+
     public String getRepositoryName(){
         if(mRepositoryManager.getRepository() != null)
             return mRepositoryManager.getRepository().getRepositoryName();
@@ -171,11 +174,6 @@ public class MagitEngine {
         return mRepositoryManager.guiGetRepositoryCommitList();
     }
 
-    public void importXmlRepository() {
-        RepositoryXmlComponent xmlComponent = new RepositoryXmlComponent(new XmlImportController());
-
-        xmlComponent.importRepositoryFromXml(mRepositoryManager, mBranchManager, false);
-    }
 }
 
 
