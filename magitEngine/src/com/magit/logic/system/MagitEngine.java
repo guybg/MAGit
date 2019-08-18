@@ -4,18 +4,13 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
-import com.magit.logic.system.managers.RepositoryXmlParser;
-import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.FileItemInfo;
-import com.magit.logic.system.objects.Repository;
 import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
 import com.magit.logic.system.tasks.NewCommitTask;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import javafx.collections.ObservableList;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
@@ -41,6 +36,15 @@ public class MagitEngine {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
     }
+
+    public RepositoryManager getmRepositoryManager() {
+        return mRepositoryManager;
+    }
+
+    public BranchManager getmBranchManager() {
+        return mBranchManager;
+    }
+
     public String getRepositoryName(){
         if(mRepositoryManager.getRepository() != null)
             return mRepositoryManager.getRepository().getRepositoryName();
@@ -70,22 +74,22 @@ public class MagitEngine {
     }
 
     public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
-        RepositoryXmlParser parser = new RepositoryXmlParser();
-        Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
-        mRepositoryManager.setActiveRepository(repository);
+        //RepositoryXmlParser parser = new RepositoryXmlParser();
+        //Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
+        //mRepositoryManager.setActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
     public void exportRepositoryToXML(String path, String fileName) throws IOException, ParseException, PreviousCommitsLimitExceededException
             , JAXBException, IllegalPathException {
-        try {
-            Path fullPath = Paths.get(path, fileName.concat(".xml"));
-            FileHandler.writeNewFolder(Paths.get(path).toString());
-            RepositoryXmlParser parser = new RepositoryXmlParser();
-            parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toAbsolutePath().toString());
-        } catch (IllegalArgumentException | IOException e) {
-            throw new IllegalPathException("Invalid file path: " + e.getMessage());
-        }
+      //  try {
+          //  Path fullPath = Paths.get(path, fileName.concat(".xml"));
+          //  FileHandler.writeNewFolder(Paths.get(path).toString());
+            //RepositoryXmlParser parser = new RepositoryXmlParser();
+            //parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toAbsolutePath().toString());
+       // } catch (IllegalArgumentException | IOException e) {
+       ///     throw new IllegalPathException("Invalid file path: " + e.getMessage());
+       // }
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
@@ -97,12 +101,6 @@ public class MagitEngine {
         repositoryNotFoundCheck();
         return mRepositoryManager.presentCurrentCommitAndHistory();
     }
-
-   // private ObservableList<FileItemInfo> guiPresentCurrentCommitAndHistory() throws IOException, ParseException, RepositoryNotFoundException, CommitNotFoundException, PreviousCommitsLimitExceededException {
-   //     repositoryNotFoundCheck();
-   //     return mRepositoryManager.guiPresentCurrentCommitAndHistory();
-   // }
-
 
     public String changeBranchPointedCommit(String commitSha1) throws IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
@@ -117,7 +115,7 @@ public class MagitEngine {
         if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit()))
             throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
     }
-    String a;
+
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
             WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();

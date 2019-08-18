@@ -4,12 +4,10 @@ package com.magit.controllers;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.PopupScreen;
-import com.magit.gui.ResizeHelper;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.FileItemInfo;
-import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
 import com.magit.logic.utils.compare.Delta;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,16 +15,12 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
@@ -36,7 +30,6 @@ import javafx.scene.layout.RowConstraints;
 import javafx.scene.control.CheckBox;
 import javafx.stage.*;
 
-import javax.swing.*;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
@@ -170,6 +163,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private Label moveScreenLabel;
 
     private ObservableList<FileItemInfo> fileItemInfos;
+
     @FXML void onExitApplication(ActionEvent event) {
         stage.close();
     }
@@ -246,6 +240,8 @@ public class MainScreenController implements Initializable, BasicController {
         for (String branchName : branchesNames) {
             MenuItem menuItem = new MenuItem();
             menuItem.textProperty().setValue(branchName);
+            menuItem.setGraphic(new Label());
+            ((Label)menuItem.getGraphic()).prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(54));
             menuItem.setOnAction(event -> {
                 try {
                     onBranchButtonMenuItemClick(menuItem.getText());
@@ -317,7 +313,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    void openNewRepositoyScreenAction(ActionEvent event) throws IOException {
+    void openNewRepositoryScreenAction(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/createNewRepositoryScreen.fxml"));
         Parent layout = loader.load();
@@ -360,37 +356,34 @@ public class MainScreenController implements Initializable, BasicController {
                 ex.printStackTrace();
             }
         });
-      //  new Thread(collectFileItemsInfoTask).start();
-//
-      //  collectFileItemsInfoTask.setOnFailed(event1 -> {
-      //      PopupScreen popupScreen = new PopupScreen(stage, engine);
-      //      try {
-      //          popupScreen.createNotificationPopup(null, false, "Commit Notification", collectFileItemsInfoTask.getException().getMessage(), "Close");
-      //      } catch (IOException ex) {
-      //          ex.printStackTrace();
-      //      }
-      //  });
     }
 
 
     @FXML
     void openRepositoryFromXmlAction(ActionEvent event) throws IOException {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Xml files (*.xml)", "*.xml");
-        fileChooser.getExtensionFilters().add(extFilter);
-        File file = fileChooser.showOpenDialog(stage);
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/com/magit/resources/importXmlScreen.fxml"));
+        Parent layout = loader.load();
+        XmlImportController xmlController = loader.getController();
+        xmlController.setStage(stage);
+        xmlController.setEngine(engine);
         PopupScreen popupScreen = new PopupScreen(stage,engine);
-        if(file == null){
+        popupScreen.createPopup(layout, xmlController);
+    }
+
+
+    private void importRepositoryFromXml(File xmlFile, PopupScreen popupScreen) throws IOException {
+        if(null == xmlFile)
             return;
-        }
+
         try{
-            engine.loadRepositoryFromXML(file.getAbsolutePath(), false);
+            engine.loadRepositoryFromXML(xmlFile.getAbsolutePath(), false);
         } catch (IllegalPathException | ParseException | XmlFileException | PreviousCommitsLimitExceededException | JAXBException | IOException e) {
             popupScreen.createNotificationPopup(null, false, "Repository from XML notification", e.getMessage(),"Close");
         } catch (RepositoryAlreadyExistsException e) {
             BasicPopupScreenController basicPopupScreenController1 = event1 -> {
                 try {
-                    engine.loadRepositoryFromXML(file.getAbsolutePath(),true);
+                    engine.loadRepositoryFromXML(xmlFile.getAbsolutePath(),true);
                     Button chosen = (Button) event1.getSource();
                     Stage curStage = (Stage) chosen.getScene().getWindow();
                     curStage.close();
