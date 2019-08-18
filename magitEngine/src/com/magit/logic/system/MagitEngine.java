@@ -1,5 +1,7 @@
 package com.magit.logic.system;
 
+import com.magit.controllers.XmlImportController;
+import com.magit.gui.RepositoryXmlComponent;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
@@ -53,22 +55,22 @@ public class MagitEngine {
     }
 
     public void loadRepositoryFromXML(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
-        RepositoryXmlParser parser = new RepositoryXmlParser();
-        Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
-        mRepositoryManager.setActiveRepository(repository);
+        //RepositoryXmlParser parser = new RepositoryXmlParser();
+        //Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
+        //mRepositoryManager.setActiveRepository(repository);
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
     public void exportRepositoryToXML(String path, String fileName) throws IOException, ParseException, PreviousCommitsLimitExceededException
             , JAXBException, IllegalPathException {
-        try {
-            Path fullPath = Paths.get(path, fileName.concat(".xml"));
-            FileHandler.writeNewFolder(Paths.get(path).toString());
-            RepositoryXmlParser parser = new RepositoryXmlParser();
-            parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toAbsolutePath().toString());
-        } catch (IllegalArgumentException | IOException e) {
-            throw new IllegalPathException("Invalid file path: " + e.getMessage());
-        }
+      //  try {
+          //  Path fullPath = Paths.get(path, fileName.concat(".xml"));
+          //  FileHandler.writeNewFolder(Paths.get(path).toString());
+            //RepositoryXmlParser parser = new RepositoryXmlParser();
+            //parser.writeRepositoryToXML(mRepositoryManager.getRepository(), fullPath.toAbsolutePath().toString());
+       // } catch (IllegalArgumentException | IOException e) {
+       ///     throw new IllegalPathException("Invalid file path: " + e.getMessage());
+       // }
     }
 
     public void switchRepository(String pathOfRepository) throws IOException, ParseException, RepositoryNotFoundException {
@@ -167,6 +169,12 @@ public class MagitEngine {
     }
     public ArrayList<String> guiGetAllCommitsOfRepository() throws IOException {
         return mRepositoryManager.guiGetRepositoryCommitList();
+    }
+
+    public void importXmlRepository() {
+        RepositoryXmlComponent xmlComponent = new RepositoryXmlComponent(new XmlImportController());
+
+        xmlComponent.importRepositoryFromXml(mRepositoryManager, mBranchManager, false);
     }
 }
 

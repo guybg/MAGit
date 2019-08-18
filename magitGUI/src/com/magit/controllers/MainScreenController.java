@@ -4,6 +4,7 @@ package com.magit.controllers;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.PopupScreen;
+import com.magit.gui.RepositoryXmlComponent;
 import com.magit.gui.ResizeHelper;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
@@ -313,19 +314,15 @@ public class MainScreenController implements Initializable, BasicController {
 
 
     @FXML
-    void openRepositoryFromXmlAction(ActionEvent event) {
-        FileChooser fileChooser = new FileChooser();
-        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Xml files (*.xml)", "*.xml");
-        fileChooser.getExtensionFilters().add(extFilter);
+    void openRepositoryFromXmlAction(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation((getClass().getResource("/com/magit/resources/importXmlScreen.fxml")));
+        Parent layout = loader.load();
+        XmlImportController xmlController = loader.getController();
+        xmlController.setStage(stage);
+        xmlController.setEngine(engine);
         PopupScreen popupScreen = new PopupScreen(stage,engine);
-        File file = fileChooser.showOpenDialog(stage);
-        Runnable task = () -> {
-            try {
-                importRepositoryFromXml(file, popupScreen);
-            } catch (IOException ignored) {}
-        };
-        Thread xmlImportThread = new Thread(task);
-        xmlImportThread.run();
+        popupScreen.createPopup(layout, xmlController);
     }
 
 

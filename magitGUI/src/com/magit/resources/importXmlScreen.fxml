@@ -7,8 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="623.0" prefWidth="928.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="anchor" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="623.0" prefWidth="928.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.XmlImportController">
    <children>
       <Label layoutX="14.0" layoutY="14.0" text="Import Repository Xml">
          <font>
@@ -17,13 +16,13 @@
       </Label>
       <HBox layoutX="71.0" layoutY="50.0" prefHeight="48.0" prefWidth="790.0">
          <children>
-            <Button fx:id="browseButton" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="45.0" prefWidth="93.0" text="Browse..." />
+            <Button fx:id="browseButton" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onBrowseClicked" prefHeight="45.0" prefWidth="93.0" text="Browse..." />
             <Button fx:id="importButton" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="45.0" prefWidth="93.0" text="Import Repository" wrapText="true" />
-            <Button fx:id="browseButton2" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="45.0" prefWidth="93.0" text="Cancel" wrapText="true" />
+            <Button fx:id="cancelButton" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="45.0" prefWidth="93.0" text="Cancel" wrapText="true" />
          </children>
       </HBox>
       <Label fx:id="fileLabel" layoutX="71.0" layoutY="127.0" text="File:" />
-      <ProgressBar layoutX="71.0" layoutY="408.0" prefHeight="48.0" prefWidth="766.0" progress="0.0" />
+      <ProgressBar fx:id="progressBar" layoutX="71.0" layoutY="408.0" prefHeight="48.0" prefWidth="766.0" progress="0.0" />
       <Label fx:id="statusLabel" layoutX="71.0" layoutY="371.0" text="Status:" wrapText="true" />
       <Label fx:id="currentStatus" layoutX="122.0" layoutY="371.0" wrapText="true" />
    </children>
