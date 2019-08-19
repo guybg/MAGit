@@ -414,13 +414,13 @@ public class MainScreenController implements Initializable, BasicController {
             return;
 
         try{
-            engine.loadRepositoryFromXML(xmlFile.getAbsolutePath(), false);
+            engine.loadHeadBranchCommitFiles(xmlFile.getAbsolutePath(), false);
         } catch (IllegalPathException | ParseException | XmlFileException | PreviousCommitsLimitExceededException | JAXBException | IOException e) {
             popupScreen.createNotificationPopup(null, false, "Repository from XML notification", e.getMessage(),"Close");
         } catch (RepositoryAlreadyExistsException e) {
             BasicPopupScreenController basicPopupScreenController1 = event1 -> {
                 try {
-                    engine.loadRepositoryFromXML(xmlFile.getAbsolutePath(),true);
+                    engine.loadHeadBranchCommitFiles(xmlFile.getAbsolutePath(),true);
                     Button chosen = (Button) event1.getSource();
                     Stage curStage = (Stage) chosen.getScene().getWindow();
                     curStage.close();

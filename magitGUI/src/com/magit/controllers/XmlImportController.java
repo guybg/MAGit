@@ -51,10 +51,10 @@ public class XmlImportController implements BasicController {
 
     private File file;
 
-    public XmlImportController(MagitEngine engine, Stage stage) {
-        this.stage = stage;
-        this.engine = engine;
-    }
+   // public XmlImportController(MagitEngine engine, Stage stage) {
+   //     this.stage = stage;
+   //     this.engine = engine;
+   // }
 
     @FXML
     void onBrowseClicked(ActionEvent event) {

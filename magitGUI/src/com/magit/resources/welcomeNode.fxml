@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.WelcomeNodeController">
+   <children>
+      <VBox alignment="CENTER" fillWidth="false" layoutX="274.0" layoutY="197.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox alignment="CENTER" spacing="2.0">
+               <children>
+                  <Label text="magitHub" wrapText="true">
+                     <font>
+                        <Font name="Tw Cen MT Condensed Extra Bold" size="48.0" />
+                     </font>
+                  </Label>
+                  <Separator />
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </VBox>
+            <Label alignment="CENTER" contentDisplay="CENTER" text="Welcome to M.A.GitHub!">
+               <font>
+                  <Font name="Narkisim" size="26.0" />
+               </font>
+               <VBox.margin>
+                  <Insets top="2.0" />
+               </VBox.margin>
+            </Label>
+            <VBox alignment="CENTER" spacing="5.0">
+               <children>
+                  <HBox alignment="CENTER" onMouseClicked="#onCreateNewRepositoryWelcomeNode" spacing="7.0">
+                     <children>
+                        <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@createRep.png" />
+                           </image>
+                        </ImageView>
+                        <Label alignment="CENTER" text="Create new repository" wrapText="true">
+                           <font>
+                              <Font size="17.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <HBox alignment="CENTER" onMouseClicked="#onLoadRepositoryXmlWelcomeNode" spacing="7.0">
+                     <children>
+                        <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@loadRep.png" />
+                           </image>
+                        </ImageView>
+                        <Label alignment="CENTER" text="Load repository From Xml" wrapText="true">
+                           <font>
+                              <Font size="17.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <Separator />
+                  <HBox alignment="CENTER" onMouseClicked="#onLoadRepositoryWelcomeNode" spacing="7.0">
+                     <children>
+                        <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@loadRep.png" />
+                           </image>
+                        </ImageView>
+                        <Label alignment="CENTER" text="Load repository" wrapText="true">
+                           <font>
+                              <Font size="17.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="30.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

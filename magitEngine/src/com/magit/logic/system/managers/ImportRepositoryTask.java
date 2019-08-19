@@ -2,8 +2,10 @@ package com.magit.logic.system.managers;
 
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.objects.Repository;
 import javafx.concurrent.Task;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.function.Supplier;
@@ -17,12 +19,14 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private RepositoryManager repositoryManager;
     private boolean forceCreation = false;
     private RepositoryXmlParser xmlParser;
+    private MagitEngine engine;
 
     public ImportRepositoryTask(String filePath, MagitEngine engine, boolean forceCreation) {
         this.filePath = filePath;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
         this.repositoryManager = engine.getmRepositoryManager();
+        this.engine = engine;
     }
 
 
@@ -47,12 +51,24 @@ public class ImportRepositoryTask extends Task<Boolean> {
         if (importObject("Importing commits...", this::importCommits))
             return false;
         try {
-             repositoryManager.setActiveRepository(xmlParser.createRepositoryFromXML(branchManager));
+             //repositoryManager.setActiveRepository(xmlParser.createRepositoryFromXML(branchManager));
+            updateMessage("Initializing repository...");
+            xmlParser.initializeRepository(branchManager);
+            importObject("Importing branches...", this::importBranches);
+            updateMessage("Creating repository...");
+            repositoryManager.setActiveRepository(xmlParser.createRepository());
         } catch(IOException | IllegalPathException ex) {
             updateMessage(ex.getMessage());
             return false;
         }
-
+        try {
+            updateMessage("Unziping files...");
+            engine.loadHeadBranchCommitFiles(filePath, true);
+            updateProgress(currentObjectCount+2, objectsCount);
+        } catch (JAXBException | RepositoryAlreadyExistsException | IllegalPathException | XmlFileException | PreviousCommitsLimitExceededException | ParseException | IOException e) {
+            e.printStackTrace();
+        }
+        updateMessage("Repository created successfully!");
         return true;
     }
 
@@ -126,6 +142,11 @@ public class ImportRepositoryTask extends Task<Boolean> {
             updateMessage(e.getMessage());
             return false;
         }
+        return true;
+    }
+
+    private boolean importBranches() {
+        currentObjectCount += xmlParser.createBranches(branchManager);
         return true;
     }
 

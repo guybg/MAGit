@@ -32,6 +32,7 @@ public class RepositoryXmlParser {
 
     private HashMap<String, Blob> blobMap;
     private HashMap<String, Tree> treeMap;
+    private Repository repository = null;
     ArrayList<Commit> commits;
     public RepositoryXmlParser (String xmlPath) throws JAXBException, IOException,XmlFileException, IllegalPathException{
         checkIfXmlFile(xmlPath);
@@ -88,16 +89,34 @@ public class RepositoryXmlParser {
         return commits.size();
     }
 
-    Repository createRepositoryFromXML(BranchManager branchManager)
-            throws IOException, IllegalPathException{
+   // Repository createRepositoryFromXML(BranchManager branchManager)
+   //         throws IOException, IllegalPathException{
+//
+   //     Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
+   //     createBranches(magitRepository, repository, branchManager, commits);
+   //     repository.create();
+   //     zipCommitWorkingCopy(repository, commits, treeMap);
+//
+   //     return repository;
+   // }
+    // ************** create repository task steps ************ //
+    void initializeRepository(BranchManager branchManager){
+        this.repository =  new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
+    }
 
-        Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
-        createBranches(magitRepository, repository, branchManager, commits);
+    public Integer createBranches(BranchManager branchManager){
+        return createBranches(magitRepository, repository, branchManager, commits);
+    }
+
+    public Repository createRepository() throws IOException, IllegalPathException {
         repository.create();
         zipCommitWorkingCopy(repository, commits, treeMap);
 
         return repository;
     }
+    //***********************************************************//
+
+
 
     private void checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(String repositoryPath) throws FileAlreadyExistsException, RepositoryAlreadyExistsException {
         if (Files.exists(Paths.get(repositoryPath)) &&
@@ -190,7 +209,15 @@ public class RepositoryXmlParser {
 
     private void checkXmlRemoteRepositoryLocation(MagitRepository magitRepository) throws XmlFileException {
         MagitRepository.MagitRemoteReference remoteReference = magitRepository.getMagitRemoteReference();
-        if (null != remoteReference && Files.notExists(Paths.get(remoteReference.getLocation())))
+        if(remoteReference.getLocation() == null && remoteReference.getName() == null)
+            return;
+        if(remoteReference.getLocation() == null || remoteReference.getName() == null){
+            if(remoteReference.getLocation() == null)
+                throw new XmlFileException("XML Error : repository has remote reference, but remote repository location not set.");
+            if(remoteReference.getName() == null)
+                throw new XmlFileException("XML Error : repository has remote reference, but remote repository name not set.");
+        }
+        if (Files.notExists(Paths.get(remoteReference.getLocation())))
             throw new XmlFileException("XML Error : Remote reference location does not exist.");
     }
 
@@ -272,8 +299,9 @@ public class RepositoryXmlParser {
         return new ArrayList<>(commitsOfRepository.values());
     }
 
-    private void createBranches(MagitRepository magitRepository, Repository repository,
+    private Integer createBranches(MagitRepository magitRepository, Repository repository,
                                 BranchManager branchManager, ArrayList<Commit> commits) {
+        Integer branchCount = 0;
         String headBranchName = magitRepository.getMagitBranches().getHead();
         for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
             Sha1 branchContent = new Sha1("", true);
@@ -287,11 +315,14 @@ public class RepositoryXmlParser {
                 branchManager.setActiveBranch(headBranch);
                 repository.addBranch(headBranch.getBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
+                branchCount++;
             } else {
                 Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
                 repository.addBranch(branchToAdd.getBranchName(), branchToAdd);
+                branchCount++;
             }
         }
+        return branchCount;
     }
 
     private void zipCommitWorkingCopy(Repository repository, ArrayList<Commit> commits, HashMap<String, Tree> treeMap)
