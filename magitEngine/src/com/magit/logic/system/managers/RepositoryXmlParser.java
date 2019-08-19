@@ -46,7 +46,7 @@ public class RepositoryXmlParser {
         magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
     }
 
-    int getObjectsCount() {
+    public int getObjectsCount() {
         int referenceCount = 1, repositoryCount = 1;
         return magitRepository.getMagitBlobs().getMagitBlob().size() +
                 magitRepository.getMagitBranches().getMagitSingleBranch().size() +
@@ -55,7 +55,7 @@ public class RepositoryXmlParser {
                 referenceCount + repositoryCount;
     }
 
-    void checkXmlValidity() throws XmlFileException {
+    public void checkXmlValidity() throws XmlFileException {
         checkXmlForDuplicateRepositoryItemIdsError(magitRepository);
         checkXmlFoldersForWrongItemIdPointers(magitRepository);
         checkXmlCommitsForWrongFolderIdPointers(magitRepository);
@@ -65,7 +65,7 @@ public class RepositoryXmlParser {
         checkXmlBranchesTracking(magitRepository);
     }
 
-    void handleExistingRepositories(boolean forceCreation) throws IOException, RepositoryAlreadyExistsException {
+    public void handleExistingRepositories(boolean forceCreation) throws IOException, RepositoryAlreadyExistsException {
         if (!forceCreation)
             checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(magitRepository.getLocation());
         if (Files.exists(Paths.get(magitRepository.getLocation()))) {
@@ -74,12 +74,12 @@ public class RepositoryXmlParser {
         }
     }
 
-    Integer importBlobs() throws ParseException {
+    public Integer importBlobs() throws ParseException {
         blobMap = createBlobMap(magitRepository);
         return blobMap.size();
     }
 
-    Integer importFolders() throws ParseException {
+    public Integer importFolders() throws ParseException {
         treeMap = createFolderMap(magitRepository);
         return treeMap.size();
     }
@@ -100,7 +100,7 @@ public class RepositoryXmlParser {
    //     return repository;
    // }
     // ************** create repository task steps ************ //
-    void initializeRepository(BranchManager branchManager){
+    public void initializeRepository(BranchManager branchManager){
         this.repository =  new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
     }
 
@@ -256,7 +256,7 @@ public class RepositoryXmlParser {
         return folderMap;
     }
 
-    void buildTree() {
+    public void buildTree() {
         insertFileItemsToTrees(magitRepository.getMagitFolders(), treeMap, blobMap);
     }
 
@@ -311,13 +311,15 @@ public class RepositoryXmlParser {
             }
 
             if (branch.getName().equals(headBranchName)) {
-                Branch headBranch = new Branch(branch.getName(), branchContent.toString());
+                Branch headBranch = new Branch(branch.getName(), branchContent.toString(),
+                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
                 branchManager.setActiveBranch(headBranch);
                 repository.addBranch(headBranch.getBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
                 branchCount++;
             } else {
-                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
+                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString(),
+                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
                 repository.addBranch(branchToAdd.getBranchName(), branchToAdd);
                 branchCount++;
             }
