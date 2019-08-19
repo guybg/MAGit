@@ -110,6 +110,7 @@ public class MainScreenController implements Initializable, BasicController {
         });
         showWelcomeNode();
     }
+    @FXML private ListView<?> branchesListView;
     @FXML private Label menuButtonBranchNameLabel;
     @FXML private Label menuButtonRepositoryNameLabel;
     @FXML private AnchorPane anchorPane;

@@ -206,6 +206,13 @@
                      </children>
                   </HBox>
                </graphic>
+               <items>
+                  <MenuItem mnemonicParsing="false">
+                     <graphic>
+                        <ListView fx:id="branchesListView" prefHeight="200.0" prefWidth="200.0" />
+                     </graphic>
+                  </MenuItem>
+               </items>
             </MenuButton>
             <MenuButton fx:id="userNameMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" text="user" wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="NEVER">
                <items>
