@@ -135,7 +135,7 @@ public class MagitEngine {
         return mRepositoryManager.getBranchesInfo();
     }
 
-    public Collection<Branch> getBranches() {
+    public ObservableList<Branch> getBranches() {
         return mRepositoryManager.getBranches();
     }
 

@@ -17,6 +17,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -26,12 +27,11 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
+import javafx.scene.layout.*;
 import javafx.scene.control.CheckBox;
 import javafx.scene.text.Font;
 import javafx.stage.*;
+import javafx.util.Callback;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -65,8 +65,10 @@ public class MainScreenController implements Initializable, BasicController {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(14));
-        switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(78));
+        menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
+        switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
+        branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
+        branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
         userNameProperty = new SimpleStringProperty();
         repositoryPathProperty = new SimpleStringProperty();
         userNameProperty.setValue("Administrator");
@@ -93,6 +95,7 @@ public class MainScreenController implements Initializable, BasicController {
         deleteBranchMenuItem.setDisable(true);
         newBranchMenuItem.setDisable(true);
         commitHistoryMenuItem.setDisable(true);
+        branchesMenuItem.setVisible(false);
         repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
             commitToLeftDownButton.setDisable(false);
             loadBranchesToUserInterface();
@@ -100,7 +103,9 @@ public class MainScreenController implements Initializable, BasicController {
             deleteBranchMenuItem.setDisable(false);
             newBranchMenuItem.setDisable(false);
             commitHistoryMenuItem.setDisable(false);
+            branchesMenuItem.setVisible(true);
             repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
+
         });
         repositoryPathProperty.addListener(new ChangeListener<String>() {
             @Override
@@ -110,6 +115,7 @@ public class MainScreenController implements Initializable, BasicController {
         });
         showWelcomeNode();
     }
+    @FXML private MenuItem branchesMenuItem;
     @FXML private ListView<Label> branchesListView;
     @FXML private Label menuButtonBranchNameLabel;
     @FXML private Label menuButtonRepositoryNameLabel;
@@ -239,18 +245,13 @@ public class MainScreenController implements Initializable, BasicController {
         if(repositoryNameProperty.getValue().equals("")) return;
         branchesListView.getItems().clear();
         branchNameProperty.setValue(engine.getHeadBranchName());
-        branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty());
+        branchesListView.setFocusTraversable( false );
         Collection<Branch> branches = engine.getBranches();
         for (Branch branch: branches) {
             Label labelOfBranch = new Label(branch.getBranchName());
-            labelOfBranch.setAlignment(Pos.CENTER);
-            labelOfBranch.setOnMouseClicked(event -> {
-                try {
-                    onBranchButtonMenuItemClick(labelOfBranch.getText());
-                } catch (ParseException | RepositoryNotFoundException | InvalidNameException | BranchNotFoundException e) {
-                    e.printStackTrace();
-                }
-            });
+            labelOfBranch.prefWidthProperty().bind(branchesListView.widthProperty().subtract(20));
+            labelOfBranch.setMaxWidth(Control.USE_PREF_SIZE);
+            labelOfBranch.setAlignment(Pos.BASELINE_LEFT);
             Tooltip branchInfo = new Tooltip();
             try {
                 branchInfo.textProperty().setValue(engine.guiGetBranchInfo(branch));
@@ -261,6 +262,15 @@ public class MainScreenController implements Initializable, BasicController {
             labelOfBranch.setTooltip(branchInfo);
             branchesListView.getItems().add(labelOfBranch);
         }
+        branchesListView.setOnMouseClicked(event -> {
+            try {
+                if(branchesListView.getSelectionModel().getSelectedItem() == null)
+                    return;
+                onBranchButtonMenuItemClick(branchesListView.getSelectionModel().getSelectedItem().textProperty().getValue());
+            } catch (ParseException | BranchNotFoundException | InvalidNameException | RepositoryNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @FXML
