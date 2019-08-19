@@ -108,6 +108,7 @@ public class MainScreenController implements Initializable, BasicController {
                 currentRepositoryMenuButton.tooltipProperty().setValue(new Tooltip(repositoryPathProperty.getValue()));
             }
         });
+        showWelcomeNode();
     }
     @FXML private Label menuButtonBranchNameLabel;
     @FXML private Label menuButtonRepositoryNameLabel;
@@ -313,7 +314,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    void openNewRepositoryScreenAction(ActionEvent event) throws IOException {
+    void openNewRepositoryScreenAction() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/createNewRepositoryScreen.fxml"));
         Parent layout = loader.load();
@@ -325,7 +326,43 @@ public class MainScreenController implements Initializable, BasicController {
         //events on properties handles branches load, diff loads
     }
 
-
+    void showWelcomeNode(){
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/com/magit/resources/welcomenode.fxml"));
+        Node welcomeNode = null;
+        try {
+            welcomeNode = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        WelcomeNodeController controller = loader.getController();
+        controller.setOnLoad(() -> {
+            try {
+                openRepositoryFromFolderChooserAction();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        controller.setOnCreate(() -> {
+            try {
+                openNewRepositoryScreenAction();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        controller.setOnLoadXml(() -> {
+            try {
+                openRepositoryFromXmlAction();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        AnchorPane.setBottomAnchor(welcomeNode, 0.0);
+        AnchorPane.setLeftAnchor(welcomeNode, 0.0);
+        AnchorPane.setRightAnchor(welcomeNode, 0.0);
+        AnchorPane.setTopAnchor(welcomeNode, 0.0);
+        middleAnchorPane.getChildren().add(welcomeNode);
+    }
 
     @FXML
     void onGetCommitHistoryClicked(ActionEvent event) {
@@ -360,7 +397,7 @@ public class MainScreenController implements Initializable, BasicController {
 
 
     @FXML
-    void openRepositoryFromXmlAction(ActionEvent event) throws IOException {
+    void openRepositoryFromXmlAction() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/importXmlScreen.fxml"));
         Parent layout = loader.load();
@@ -406,7 +443,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    void openRepositoryFromFolderChooserAction(ActionEvent event) throws IOException {
+    void openRepositoryFromFolderChooserAction() throws IOException {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory =
                 directoryChooser.showDialog(stage);
