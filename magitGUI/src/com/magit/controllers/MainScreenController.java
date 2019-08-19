@@ -110,7 +110,7 @@ public class MainScreenController implements Initializable, BasicController {
         });
         showWelcomeNode();
     }
-    @FXML private ListView<?> branchesListView;
+    @FXML private ListView<Button> branchesListView;
     @FXML private Label menuButtonBranchNameLabel;
     @FXML private Label menuButtonRepositoryNameLabel;
     @FXML private AnchorPane anchorPane;
@@ -163,6 +163,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private AnchorPane middleAnchorPane;
     @FXML private SplitPane middleHSplitPane;
     @FXML private Label moveScreenLabel;
+    @FXML private AnchorPane progressBarPane;
 
     private ObservableList<FileItemInfo> fileItemInfos;
 
@@ -400,47 +401,23 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void openRepositoryFromXmlAction() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/importXmlScreen.fxml"));
-        Parent layout = loader.load();
-        XmlImportController xmlController = loader.getController();
-        xmlController.setStage(stage);
-        xmlController.setEngine(engine);
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
-        popupScreen.createPopup(layout, xmlController);
-    }
-
-
-    private void importRepositoryFromXml(File xmlFile, PopupScreen popupScreen) throws IOException {
-        if(null == xmlFile)
-            return;
-
-        try{
-            engine.loadHeadBranchCommitFiles(xmlFile.getAbsolutePath(), false);
-        } catch (IllegalPathException | ParseException | XmlFileException | PreviousCommitsLimitExceededException | JAXBException | IOException e) {
-            popupScreen.createNotificationPopup(null, false, "Repository from XML notification", e.getMessage(),"Close");
-        } catch (RepositoryAlreadyExistsException e) {
-            BasicPopupScreenController basicPopupScreenController1 = event1 -> {
-                try {
-                    engine.loadHeadBranchCommitFiles(xmlFile.getAbsolutePath(),true);
-                    Button chosen = (Button) event1.getSource();
-                    Stage curStage = (Stage) chosen.getScene().getWindow();
-                    curStage.close();
-                    popupScreen.createNotificationPopup(null, false, "Repository from XML notification", "Repository created successfully.","Close");
-                } catch (JAXBException | IOException | ParseException | PreviousCommitsLimitExceededException | XmlFileException | IllegalPathException | RepositoryAlreadyExistsException ex) {
-                    try {
-                        popupScreen.createNotificationPopup(event11 -> {
-                            Button chosen = (Button) event11.getSource();
-                            Stage curStage = (Stage) chosen.getScene().getWindow();
-                            curStage.close();
-                        },false,"Repository from XML error",e.getMessage(),"Close");
-                    } catch (IOException exc) {
-                        exc.printStackTrace();
-                    }
-                }
-            };
-            popupScreen.createNotificationPopup(basicPopupScreenController1, true,"Repository already exists notification","Would you like to replace current repository with XML repository?","Cancel");
+        loader.setLocation(getClass().getResource("/com/magit/resources/importXmlNode.fxml"));
+        Node table = null;
+        try {
+            table = loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        repositoryNameProperty.setValue(engine.getRepositoryName());
+        ImportXmlNodeController controller = loader.getController();
+        controller.setEngine(engine);
+        controller.setStage(stage);
+        controller.setRepositoryNameProperty(repositoryNameProperty);
+        AnchorPane.setBottomAnchor(table, 0.0);
+        AnchorPane.setLeftAnchor(table, 0.0);
+        AnchorPane.setRightAnchor(table, 0.0);
+        AnchorPane.setTopAnchor(table, 0.0);
+        progressBarPane.getChildren().add(table);
+        controller.start(false);
     }
 
     @FXML
