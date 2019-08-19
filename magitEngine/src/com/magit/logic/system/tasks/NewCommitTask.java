@@ -22,6 +22,7 @@ public class NewCommitTask extends Task<Void> {
     public NewCommitTask(Runnable onSuccess, MagitEngine engine, String input) {
         this.engine = engine;
         this.onSuccess = onSuccess;
+        this.input = input;
     }
 
     @Override

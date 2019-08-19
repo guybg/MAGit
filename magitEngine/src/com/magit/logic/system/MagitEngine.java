@@ -4,6 +4,8 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
+import com.magit.logic.system.objects.Branch;
+import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
 import com.magit.logic.system.tasks.NewCommitTask;
@@ -20,8 +22,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import java.util.function.Consumer;
 
@@ -133,8 +135,8 @@ public class MagitEngine {
         return mRepositoryManager.getBranchesInfo();
     }
 
-    public ArrayList<String> getBranchesName() {
-        return mRepositoryManager.getBranchesName();
+    public Collection<Branch> getBranches() {
+        return mRepositoryManager.getBranches();
     }
 
     public String getHeadBranchName() {
@@ -201,6 +203,10 @@ public class MagitEngine {
         new Thread(collectFileItemsInfoTask).start();
 
         collectFileItemsInfoTask.setOnFailed(event1 -> exceptionHandleDelegate.accept(collectFileItemsInfoTask.getException().getMessage()));
+    }
+
+    public String guiGetBranchInfo(Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        return mRepositoryManager.guiGetBranchInfo(branch);
     }
 }
 

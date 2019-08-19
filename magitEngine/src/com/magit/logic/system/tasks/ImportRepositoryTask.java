@@ -1,7 +1,10 @@
-package com.magit.logic.system.managers;
+package com.magit.logic.system.tasks;
 
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.managers.BranchManager;
+import com.magit.logic.system.managers.RepositoryManager;
+import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
 import javafx.concurrent.Task;
 
