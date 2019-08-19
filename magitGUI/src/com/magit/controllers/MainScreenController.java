@@ -7,6 +7,7 @@ import com.magit.gui.PopupScreen;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.utils.compare.Delta;
 import javafx.beans.binding.Bindings;
@@ -19,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -28,6 +30,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.control.CheckBox;
+import javafx.scene.text.Font;
 import javafx.stage.*;
 
 import javax.xml.bind.JAXBException;
@@ -35,10 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Consumer;
 
 
@@ -110,7 +110,7 @@ public class MainScreenController implements Initializable, BasicController {
         });
         showWelcomeNode();
     }
-    @FXML private ListView<Button> branchesListView;
+    @FXML private ListView<Label> branchesListView;
     @FXML private Label menuButtonBranchNameLabel;
     @FXML private Label menuButtonRepositoryNameLabel;
     @FXML private AnchorPane anchorPane;
@@ -237,22 +237,29 @@ public class MainScreenController implements Initializable, BasicController {
 
     void loadBranchesToUserInterface() {
         if(repositoryNameProperty.getValue().equals("")) return;
-        currentBranchMenuButton.getItems().clear();
+        branchesListView.getItems().clear();
         branchNameProperty.setValue(engine.getHeadBranchName());
-        ArrayList<String> branchesNames = engine.getBranchesName();
-        for (String branchName : branchesNames) {
-            MenuItem menuItem = new MenuItem();
-            menuItem.textProperty().setValue(branchName);
-            menuItem.setGraphic(new Label());
-            ((Label)menuItem.getGraphic()).prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(54));
-            menuItem.setOnAction(event -> {
+        branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty());
+        Collection<Branch> branches = engine.getBranches();
+        for (Branch branch: branches) {
+            Label labelOfBranch = new Label(branch.getBranchName());
+            labelOfBranch.setAlignment(Pos.CENTER);
+            labelOfBranch.setOnMouseClicked(event -> {
                 try {
-                    onBranchButtonMenuItemClick(menuItem.getText());
+                    onBranchButtonMenuItemClick(labelOfBranch.getText());
                 } catch (ParseException | RepositoryNotFoundException | InvalidNameException | BranchNotFoundException e) {
                     e.printStackTrace();
                 }
             });
-            currentBranchMenuButton.getItems().add(menuItem);
+            Tooltip branchInfo = new Tooltip();
+            try {
+                branchInfo.textProperty().setValue(engine.guiGetBranchInfo(branch));
+                branchInfo.setHeight(20);
+                branchInfo.setWidth(20);
+                branchInfo.setFont(new Font(20));
+            } catch (ParseException | PreviousCommitsLimitExceededException | IOException ignored) {}
+            labelOfBranch.setTooltip(branchInfo);
+            branchesListView.getItems().add(labelOfBranch);
         }
     }
 

@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RepositoryManager {
     private final String EMPTY = "";
@@ -197,16 +198,23 @@ public class RepositoryManager {
     }
 
 
-    public ArrayList<String> getBranchesName() {
-        ArrayList<String> branchesName = new ArrayList<>();
-        for (Map.Entry<String, Branch> keyValue : mActiveRepository.getBranches().entrySet()) {
-            if (!keyValue.getKey().equals("HEAD"))
-                branchesName.add(keyValue.getValue().getBranchName());
-        }
-        return branchesName;
+    public Collection<Branch> getBranches() {
+        return mActiveRepository.getBranches()
+                .entrySet().stream().filter(e -> !e.getKey()
+                        .equals("HEAD")).map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     public ArrayList<String> guiGetRepositoryCommitList() throws IOException {
            return new ArrayList<>(Arrays.asList(mActiveRepository.getAllCommitsOfRepository()));
+    }
+
+    public String guiGetBranchInfo(Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        String sha1OfCommit = branch.getPointedCommitSha1().toString();
+        Path pathToCommit = Paths.get(mActiveRepository.getObjectsFolderPath().toString(), sha1OfCommit);
+        Commit commitOfBranch = Commit.createCommitInstanceByPath(pathToCommit);
+        String commitMessage = commitOfBranch == null ? "" : commitOfBranch.getCommitMessage();
+        return String.format("Branch Name: %s%sSha1: %s%sCommit Message:%s%s",
+                branch.getBranchName(), System.lineSeparator(), branch.getPointedCommitSha1().toString(), System.lineSeparator(),
+                commitMessage, System.lineSeparator());
     }
 }
