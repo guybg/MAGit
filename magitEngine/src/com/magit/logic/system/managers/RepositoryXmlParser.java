@@ -100,7 +100,7 @@ public class RepositoryXmlParser {
    //     return repository;
    // }
     // ************** create repository task steps ************ //
-    public void initializeRepository(BranchManager branchManager){
+   public void initializeRepository(BranchManager branchManager){
         this.repository =  new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
     }
 
@@ -209,7 +209,7 @@ public class RepositoryXmlParser {
 
     private void checkXmlRemoteRepositoryLocation(MagitRepository magitRepository) throws XmlFileException {
         MagitRepository.MagitRemoteReference remoteReference = magitRepository.getMagitRemoteReference();
-        if(remoteReference.getLocation() == null && remoteReference.getName() == null)
+        if(remoteReference == null || remoteReference.getLocation() == null && remoteReference.getName() == null)
             return;
         if(remoteReference.getLocation() == null || remoteReference.getName() == null){
             if(remoteReference.getLocation() == null)
@@ -311,15 +311,13 @@ public class RepositoryXmlParser {
             }
 
             if (branch.getName().equals(headBranchName)) {
-                Branch headBranch = new Branch(branch.getName(), branchContent.toString(),
-                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
+                Branch headBranch = new Branch(branch.getName(), branchContent.toString());
                 branchManager.setActiveBranch(headBranch);
                 repository.addBranch(headBranch.getBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
                 branchCount++;
             } else {
-                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString(),
-                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
+                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
                 repository.addBranch(branchToAdd.getBranchName(), branchToAdd);
                 branchCount++;
             }

@@ -1,12 +1,28 @@
 package com.magit.logic.system.tasks;
 
+import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.managers.RepositoryXmlParser;
 import com.magit.logic.system.objects.Repository;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.animation.TimelineBuilder;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.Button;
+import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -23,18 +39,22 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private boolean forceCreation = false;
     private RepositoryXmlParser xmlParser;
     private MagitEngine engine;
+    private AnchorPane pane;
+    private StringProperty repositoryNameProperty;
+    private Runnable forceCreationRunnable;
 
-    public ImportRepositoryTask(String filePath, MagitEngine engine, boolean forceCreation) {
+    public ImportRepositoryTask(String filePath, MagitEngine engine, AnchorPane pane, StringProperty repositoryNameProperty,Runnable forceCreationRunnable, boolean forceCreation) {
         this.filePath = filePath;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
         this.repositoryManager = engine.getmRepositoryManager();
         this.engine = engine;
+        this.pane = pane;
+        this.repositoryNameProperty = repositoryNameProperty;
+        this.forceCreationRunnable = forceCreationRunnable;
     }
 
-
-    @Override
-    protected Boolean call() {
+    private boolean importRepositoryXML() throws RepositoryAlreadyExistsException {
         if (!initializeXmlParser())
             return false;
 
@@ -54,7 +74,6 @@ public class ImportRepositoryTask extends Task<Boolean> {
         if (importObject("Importing commits...", this::importCommits))
             return false;
         try {
-             //repositoryManager.setActiveRepository(xmlParser.createRepositoryFromXML(branchManager));
             updateMessage("Initializing repository...");
             xmlParser.initializeRepository(branchManager);
             importObject("Importing branches...", this::importBranches);
@@ -65,14 +84,35 @@ public class ImportRepositoryTask extends Task<Boolean> {
             return false;
         }
         try {
-            updateMessage("Unziping files...");
+            updateMessage("Unzipping files...");
             engine.loadHeadBranchCommitFiles(filePath, true);
-            updateProgress(currentObjectCount+2, objectsCount);
+            updateProgress(currentObjectCount + 2, objectsCount);
         } catch (JAXBException | RepositoryAlreadyExistsException | IllegalPathException | XmlFileException | PreviousCommitsLimitExceededException | ParseException | IOException e) {
             e.printStackTrace();
         }
         updateMessage("Repository created successfully!");
+
+        Platform.runLater(() -> repositoryNameProperty.setValue(engine.getRepositoryName()));
         return true;
+    }
+
+    @Override
+    protected Boolean call() {
+        boolean success = false;
+        try {
+            success = importRepositoryXML();
+        } catch (RepositoryAlreadyExistsException e) {
+            Platform.runLater(() -> {
+                forceCreationRunnable.run();
+            });
+        }
+        Platform.runLater(() -> {
+            KeyFrame keyFrame = new KeyFrame(Duration.seconds(10), event -> pane.setVisible(false));
+            Timeline timer = new Timeline(keyFrame);
+            timer.playFromStart();
+        });
+
+       return success;
     }
 
 
@@ -104,12 +144,12 @@ public class ImportRepositoryTask extends Task<Boolean> {
         return true;
     }
 
-    private boolean handleFoldersChecks() {
+    private boolean handleFoldersChecks() throws RepositoryAlreadyExistsException {
         updateMessage("Checking folder validity...");
         updateProgress(0, 1);
         try {
             xmlParser.handleExistingRepositories(forceCreation);
-        } catch (IOException | RepositoryAlreadyExistsException ex) {
+        } catch (IOException ex) {
             updateMessage(ex.getMessage());
             return false;
         }
