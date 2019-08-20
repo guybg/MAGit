@@ -116,7 +116,7 @@ public class MainScreenController implements Initializable, BasicController {
         showWelcomeNode();
     }
     @FXML private MenuItem branchesMenuItem;
-    @FXML private ListView<Label> branchesListView;
+    @FXML private ListView<HBox> branchesListView;
     @FXML private Label menuButtonBranchNameLabel;
     @FXML private Label menuButtonRepositoryNameLabel;
     @FXML private AnchorPane anchorPane;
@@ -248,10 +248,21 @@ public class MainScreenController implements Initializable, BasicController {
         branchesListView.setFocusTraversable( false );
         Collection<Branch> branches = engine.getBranches();
         for (Branch branch: branches) {
+            HBox branchHbox = new HBox();
             Label labelOfBranch = new Label(branch.getBranchName());
-            labelOfBranch.prefWidthProperty().bind(branchesListView.widthProperty().subtract(20));
-            labelOfBranch.setMaxWidth(Control.USE_PREF_SIZE);
+            Button deleteBranchButton = new Button();
+            deleteBranchButton.setText("Delete");
+            branchHbox.setAlignment(Pos.CENTER);
+            branchHbox.getChildren().add(labelOfBranch);
+            branchHbox.getChildren().add(deleteBranchButton);
+            branchHbox.setSpacing(5);
+            HBox.setHgrow(labelOfBranch, Priority.ALWAYS);
+            HBox.setHgrow(deleteBranchButton, Priority.NEVER);
+            labelOfBranch.setMaxWidth(Double.MAX_VALUE);
+            branchHbox.prefWidthProperty().bind(branchesListView.widthProperty().subtract(20));
             labelOfBranch.setAlignment(Pos.BASELINE_LEFT);
+            deleteBranchButton.setOnAction(event -> deleteBranch(((Label) ((HBox) ((Button) event.getSource()).getParent()).getChildren().get(0)).getText()));
+
             Tooltip branchInfo = new Tooltip();
             try {
                 branchInfo.textProperty().setValue(engine.guiGetBranchInfo(branch));
@@ -260,19 +271,40 @@ public class MainScreenController implements Initializable, BasicController {
                 branchInfo.setFont(new Font(20));
             } catch (ParseException | PreviousCommitsLimitExceededException | IOException ignored) {}
             labelOfBranch.setTooltip(branchInfo);
-            branchesListView.getItems().add(labelOfBranch);
+            branchesListView.getItems().add(branchHbox);
         }
         branchesListView.setOnMouseClicked(event -> {
             try {
                 if(branchesListView.getSelectionModel().getSelectedItem() == null)
                     return;
-                onBranchButtonMenuItemClick(branchesListView.getSelectionModel().getSelectedItem().textProperty().getValue());
+                onBranchButtonMenuItemClick(((Label)branchesListView.getSelectionModel().getSelectedItem().getChildren().get(0)).getText());
             } catch (ParseException | BranchNotFoundException | InvalidNameException | RepositoryNotFoundException e) {
                 e.printStackTrace();
             }
         });
     }
 
+    void deleteBranch(String branchName){
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        try {
+            popupScreen.createNotificationPopup(event -> {
+                try {
+                    engine.deleteBranch(branchName);
+                } catch (IOException | RepositoryNotFoundException | BranchNotFoundException e) {
+                    e.printStackTrace();
+                } catch (ActiveBranchDeletedException e) {
+                    try {
+                        popupScreen.createNotificationPopup(event1 -> ((Stage) ((Button) event1.getSource()).getScene().getWindow()).close(), false, "Oops.. something went wrong", "Can't delete active branch", "Close");
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
+            },true,"Are you sure?","Deleting branch cannot be reverted","Cancel");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     @FXML
     void onResetBranchMenuItemClicked(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();

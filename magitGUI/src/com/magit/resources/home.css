@@ -175,10 +175,20 @@
     -fx-text-fill : #FAFBFC;
 }
 
+#branchesListView .list-cell .button:hover {
+    -fx-background-color: #F88080;
+    -fx-border-color: #F88080;
+}
+
+#branchesListView .list-cell .button {
+    -fx-background-color: #FAFFFF;
+    -fx-border-color: #E0E3E7;
+}
 #branchesMenuItem:focused{
     -fx-background-color: transparent;
     -fx-background-insets: -1.4, 0, 1, 2;
 }
+
 
 
 
