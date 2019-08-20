@@ -10,6 +10,7 @@ import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
@@ -198,10 +199,10 @@ public class RepositoryManager {
     }
 
 
-    public Collection<Branch> getBranches() {
-        return mActiveRepository.getBranches()
+    public ObservableList<Branch> getBranches() {
+        return FXCollections.observableArrayList(mActiveRepository.getBranches()
                 .entrySet().stream().filter(e -> !e.getKey()
-                        .equals("HEAD")).map(Map.Entry::getValue).collect(Collectors.toList());
+                        .equals("HEAD")).map(Map.Entry::getValue).collect(Collectors.toList()));
     }
 
     public ArrayList<String> guiGetRepositoryCommitList() throws IOException {
