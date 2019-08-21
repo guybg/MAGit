@@ -1,6 +1,11 @@
 package com.magit.controllers;
 
 
+import com.fxgraph.edges.Edge;
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.ICell;
+import com.fxgraph.graph.Model;
+import com.fxgraph.graph.PannableCanvas;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.PopupScreen;
@@ -10,6 +15,9 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.utils.compare.Delta;
+import com.magit.logic.visual.layout.CommitTreeLayout;
+import com.magit.logic.visual.node.CommitNode;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -24,6 +32,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
@@ -170,6 +179,8 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private SplitPane middleHSplitPane;
     @FXML private Label moveScreenLabel;
     @FXML private AnchorPane progressBarPane;
+    @FXML
+    private MenuItem branchHistoryMenuItem;
 
     private ObservableList<FileItemInfo> fileItemInfos;
 
@@ -207,7 +218,74 @@ public class MainScreenController implements Initializable, BasicController {
         xOffset = event.getSceneX();
         yOffset = event.getSceneY();
     }
+    @FXML
+    void onShowBranchHistory(ActionEvent event) {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        URL url = getClass().getResource("/com/magit/resources/main.fxml");
+        fxmlLoader.setLocation(url);
+        GridPane root = null;
+        try {
+            root = fxmlLoader.load(url.openStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Stage pstage = new Stage();
+        Graph graph = new Graph();
+        Model model = graph.getModel();
 
+        final Scene scene = new Scene(root, 700, 400);
+
+        ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
+        LinkedList<CommitNode> nodes = null;
+        ArrayList<Edge> edges = new ArrayList<>();
+        try {
+            //graph.beginUpdate();
+            nodes = engine.guiBranchHistory(model);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        graph.beginUpdate();
+        Collections.sort(nodes, new Comparator<CommitNode>() {
+            @Override
+            public int compare(CommitNode o1, CommitNode o2) {
+                return o1.getDate().compareTo(o2.getDate());
+            }
+        });
+       for(ICell node : nodes) {
+           if(!model.getAllCells().contains(node))
+               model.addCell(node);
+       }
+       graph.endUpdate();
+      //  for(Edge edge : edges){
+      //      model.addEdge(edge);
+      //  }
+
+
+        graph.layout(new CommitTreeLayout());
+
+        PannableCanvas canvas = graph.getCanvas();
+        //canvas.setPrefWidth(100);
+        //canvas.setPrefHeight(100);
+        scrollPane.setContent(canvas);
+
+        Button button = (Button) scene.lookup("#pannableButton");
+
+
+        pstage.setScene(scene);
+        pstage.show();
+
+        Platform.runLater(() -> {
+            graph.getUseViewportGestures().set(false);
+            graph.getUseNodeGestures().set(false);
+        });
+
+    }
 
     @FXML
     void onClickCommitButton(MouseEvent event) {

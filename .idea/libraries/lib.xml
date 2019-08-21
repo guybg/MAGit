@@ -5,6 +5,7 @@
       <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-codec-1.12.jar!/" />
       <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-io-2.6.jar!/" />
       <root url="jar://$PROJECT_DIR$/magitEngine/lib/commons-lang3-3.9.jar!/" />
+      <root url="jar://$PROJECT_DIR$/magitEngine/lib/fxgraph-0.0.3.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

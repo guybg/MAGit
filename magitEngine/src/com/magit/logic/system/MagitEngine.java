@@ -1,5 +1,8 @@
 package com.magit.logic.system;
 
+import com.fxgraph.edges.Edge;
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.Model;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
@@ -12,6 +15,7 @@ import com.magit.logic.system.tasks.NewCommitTask;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,10 +25,7 @@ import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class MagitEngine {
@@ -178,6 +179,10 @@ public class MagitEngine {
     public String presentCurrentBranch() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
+    }
+
+    public LinkedList<CommitNode> guiBranchHistory(Model model ) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+       return mBranchManager.guiPresentCurrentBranch(mRepositoryManager.getRepository(),model);
     }
 
     public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {

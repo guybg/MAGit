@@ -1,15 +1,20 @@
 package com.magit.controllers;
 
 
+import com.magit.controllers.interfaces.BasicController;
+import com.magit.logic.system.MagitEngine;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.util.function.Consumer;
 
-public class WelcomeNodeController {
+public class WelcomeNodeController implements BasicController {
     Runnable onCreate;
     Runnable onLoad;
     Runnable onLoadXml;
+    private Stage stage;
+    private MagitEngine engine;
 
     @FXML
     void onCreateNewRepositoryWelcomeNode(MouseEvent event) {
@@ -36,5 +41,15 @@ public class WelcomeNodeController {
 
     public void setOnLoadXml(Runnable onLoadXml) {
         this.onLoadXml = onLoadXml;
+    }
+
+    @Override
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    @Override
+    public void setEngine(MagitEngine engine) {
+        this.engine = engine;
     }
 }
