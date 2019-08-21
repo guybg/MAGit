@@ -14,6 +14,8 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import javafx.collections.ObservableList;
 import org.apache.commons.lang3.StringUtils;
+import puk.team.course.magit.ancestor.finder.AncestorFinder;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
@@ -26,6 +28,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class MagitEngine {
 
@@ -207,6 +210,21 @@ public class MagitEngine {
 
     public String guiGetBranchInfo(Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return mRepositoryManager.guiGetBranchInfo(branch);
+    }
+
+    public void findAncestor(String headSha1, String sha1OfBranchToMerge) {
+        AncestorFinder ancestorFinder = new AncestorFinder(sha1 -> {
+            String pathToObjectFolder = mRepositoryManager.getRepository().getObjectsFolderPath().toString();
+            Path pathToCommit = Paths.get(pathToObjectFolder, sha1);
+            try {
+                return Commit.createCommitInstanceByPath(pathToCommit);
+            } catch (IOException | ParseException | PreviousCommitsLimitExceededException e) {
+                e.printStackTrace();
+            }
+            return null;
+        });
+
+        String ancestorSha1 =  ancestorFinder.traceAncestor(headSha1, sha1OfBranchToMerge);
     }
 }
 

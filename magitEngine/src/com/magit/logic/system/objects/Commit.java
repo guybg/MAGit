@@ -10,6 +10,7 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Commit extends FileItem {
+public class Commit extends FileItem implements CommitRepresentative {
     private final String EMPTY = "";
     private final String COMMITS_FILE_NAME = "COMMITS";
     private Sha1 mWorkingCopySha1;
@@ -245,5 +246,20 @@ public class Commit extends FileItem {
 
     public Sha1 getWorkingCopySha1() {
         return mWorkingCopySha1;
+    }
+
+    @Override
+    public String getSha1() {
+        return mSha1Code.toString();
+    }
+
+    @Override
+    public String getFirstPrecedingSha1() {
+        return mFirstPreviousCommit.toString();
+    }
+
+    @Override
+    public String getSecondPrecedingSha1() {
+        return mSecondPreviousCommit.toString();
     }
 }
