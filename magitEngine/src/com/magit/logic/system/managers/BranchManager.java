@@ -117,7 +117,7 @@ public class BranchManager {
     }
 
     public TreeSet<CommitNode> guiBranchesHistory(Commit mostRecentCommit, Repository activeRepository,TreeSet<CommitNode> nodes, ArrayList<Edge> edges, Model model, Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
-        CommitNode child = new CommitNode(mostRecentCommit.getCreationDate().toString(),mostRecentCommit.getLastUpdater(), mostRecentCommit.getCommitMessage());
+        CommitNode child = new CommitNode(mostRecentCommit.getCreationDate(),mostRecentCommit.getLastUpdater(), mostRecentCommit.getCommitMessage());
         child.setActiveBranch(branch);
         if(!nodes.contains(child))
             nodes.add(child);
@@ -145,7 +145,7 @@ public class BranchManager {
             Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
             if (currentCommitInHistory == null) return;
 
-            CommitNode parent = new CommitNode(currentCommitInHistory.getCreationDate().toString(),currentCommitInHistory.getLastUpdater(), currentCommitInHistory.getCommitMessage());
+            CommitNode parent = new CommitNode(currentCommitInHistory.getCreationDate(),currentCommitInHistory.getLastUpdater(), currentCommitInHistory.getCommitMessage());
             commits.add(parent);
             if(!commits.contains(parent)) {
                 guiEdgeExists(currentCommitNode, edges, model, parent);

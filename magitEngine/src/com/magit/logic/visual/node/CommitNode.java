@@ -25,7 +25,7 @@ import java.util.*;
 
 public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
 
-    private String timestamp;
+    private Date timestamp;
     private String committer;
     private String message;
     private CommitNodeController commitNodeController;
@@ -34,7 +34,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private Branch activeBranch;
     private HashSet<Branch> branches = new HashSet<>();
     private boolean alreadySet = false;
-
+    private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
 
     public boolean isAlreadySet() {
         return alreadySet;
@@ -72,7 +72,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         return this.getDate().compareTo(o.getDate());
     }
 
-    public CommitNode(String timestamp, String committer, String message) {
+    public CommitNode(Date timestamp, String committer, String message) {
         this.timestamp = timestamp;
         this.committer = committer;
         this.message = message;
@@ -97,7 +97,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             commitNodeController = fxmlLoader.getController();
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
-            commitNodeController.setCommitTimeStamp(timestamp);
+            commitNodeController.setCommitTimeStamp(formatter.format(timestamp));
             if(activeBranch != null) {
                 commitNodeController.setActiveBranch(activeBranch.getBranchName());
             }
@@ -108,13 +108,13 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     }
 
     public Date getDate(){
-        SimpleDateFormat formatter=new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-        try {
-            return formatter.parse(timestamp);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return timestamp;
+       // try {
+       //     return formatter.parse(timestamp.toString());
+       // } catch (ParseException e) {
+       //     e.printStackTrace();
+       // }
+       // return null;
     }
     @Override
     public DoubleBinding getXAnchor(Graph graph, IEdge edge) {
