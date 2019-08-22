@@ -29,13 +29,13 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="666.0" prefWidth="981.0" style="-fx-background-color: white;" styleClass="pane" stylesheets="@home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.MainScreenController">
+<AnchorPane fx:id="anchorPane" prefHeight="666.0" prefWidth="981.0" style="-fx-background-color: white;" styleClass="pane" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.MainScreenController">
    <children>
       <HBox alignment="CENTER" prefHeight="25.0" prefWidth="1327.0" style="-fx-background-color: #292D32;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
             <ImageView fitHeight="17.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
                <image>
-                  <Image url="@icon1.png" />
+                  <Image url="@../images/appUpperLeftIcon.png" />
                </image>
                <HBox.margin>
                   <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

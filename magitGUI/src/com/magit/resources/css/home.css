@@ -117,15 +117,15 @@
 }
 
 #iconBranch{
-     -fx-image: url("branchIcon.png");
+     -fx-image: url("../images/branchIcon.png");
 }
 
 #iconRepository{
-     -fx-image: url("repositoryIcon.png");
+     -fx-image: url("../images/repositoryIcon.png");
 }
 
 #iconUser{
-     -fx-image: url("userIcon.png");
+     -fx-image: url("../images/userIcon.png");
 }
 
 #iconRepository .label{
@@ -144,7 +144,7 @@
 }
 
 #refresh-button {
-    -fx-background-image: url('refresh.png');
+    -fx-background-image: url('../images/refresh.png');
     -fx-background-color: #E0E3E7;
     -fx-background-size: 18px;
     -fx-pref-height: 20px;

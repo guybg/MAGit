@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CssDialectMappings">
-    <file url="file://$PROJECT_DIR$/magitGUI/src/com/magit/resources/home.css" dialect="CLASSIC" />
+    <file url="file://$PROJECT_DIR$/magitGUI/src/com/magit/resources/css/home.css" dialect="CLASSIC" />
   </component>
 </project>

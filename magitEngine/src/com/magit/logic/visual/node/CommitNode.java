@@ -1,30 +1,22 @@
 package com.magit.logic.visual.node;
 
 import com.fxgraph.cells.AbstractCell;
-import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
-import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.IEdge;
 import com.magit.controllers.BranchesHistoryScreenController;
 import com.magit.controllers.CommitNodeController;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
-import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 
 import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.function.Supplier;
 
 public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private Commit commit;
@@ -104,7 +96,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     public Region getGraphic(Graph graph) {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            URL url = getClass().getResource("/com/magit/resources/commitNode.fxml");
+            URL url = getClass().getResource("/com/magit/resources/fxml/commitNode.fxml");
             fxmlLoader.setLocation(url);
             GridPane root = fxmlLoader.load(url.openStream());
             commitNodeController = fxmlLoader.getController();

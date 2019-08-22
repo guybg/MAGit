@@ -4,13 +4,8 @@ import com.magit.controllers.PopupScreenController;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.logic.system.MagitEngine;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
@@ -64,7 +59,7 @@ public class PopupScreen {
             controllerInterface = event -> { };
         }
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/popupScreen.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/popupScreen.fxml"));
         Parent layout = loader.load();
 
         PopupScreenController popupScreenController = loader.getController();

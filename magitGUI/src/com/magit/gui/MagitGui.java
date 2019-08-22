@@ -22,9 +22,9 @@ public class MagitGui extends Application {
         engine = new MagitEngine();
         primaryStage.setTitle("Magit Desktop");
         primaryStage.initStyle(StageStyle.UNDECORATED);
-        primaryStage.getIcons().add(new Image("/com/magit/resources/appIcon.png"));
+        primaryStage.getIcons().add(new Image("/com/magit/resources/images/appIcon.png"));
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("/com/magit/resources/homeScreen.fxml");
+        URL url = getClass().getResource("/com/magit/resources/fxml/homeScreen.fxml");
         fxmlLoader.setLocation(url);
         Parent root = fxmlLoader.load(url.openStream());
         root.setEffect(new DropShadow(2d, 0d, +2d, Color.BLACK));
@@ -36,7 +36,7 @@ public class MagitGui extends Application {
         primaryStage.setMinWidth(970);
         primaryStage.setMinHeight(680);
 
-        final String cssURL = this.getClass().getResource("/com/magit/resources/home.css").toExternalForm();
+        final String cssURL = this.getClass().getResource("/com/magit/resources/css/home.css").toExternalForm();
         scene.getStylesheets().addAll(cssURL);
         primaryStage.setScene(scene);
         primaryStage.show();

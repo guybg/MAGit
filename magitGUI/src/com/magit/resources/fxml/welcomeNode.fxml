@@ -42,7 +42,7 @@
                      <children>
                         <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@createRep.png" />
+                              <Image url="@../images/createRep.png" />
                            </image>
                         </ImageView>
                         <Label alignment="CENTER" text="Create new repository" wrapText="true">
@@ -57,7 +57,7 @@
                      <children>
                         <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@loadRep.png" />
+                              <Image url="@../images/loadRep.png" />
                            </image>
                         </ImageView>
                         <Label alignment="CENTER" text="Load repository From Xml" wrapText="true">
@@ -72,7 +72,7 @@
                      <children>
                         <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@loadRep.png" />
+                              <Image url="@../images/loadRep.png" />
                            </image>
                         </ImageView>
                         <Label alignment="CENTER" text="Load repository" wrapText="true">

@@ -217,7 +217,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void onShowBranchesHistory(ActionEvent event) {
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("/com/magit/resources/branchesHistoryScreen.fxml");
+        URL url = getClass().getResource("/com/magit/resources/fxml/branchesHistoryScreen.fxml");
         fxmlLoader.setLocation(url);
         SplitPane root = null;
         try {
@@ -366,7 +366,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void onResetBranchMenuItemClicked(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/resetBranchScreen.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/resetBranchScreen.fxml"));
         Parent layout = loader.load();
         ResetBranchScreenController resetBranchScreenController = loader.getController();
         PopupScreen popupScreen = new PopupScreen(stage,engine);
@@ -404,7 +404,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void openUserNameChangeScreen(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
         GeneralScreenEnterStringController userNameController =
                 getGeneralScreen(loader, "Switch User Name", "User Name:");
@@ -425,7 +425,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void openNewRepositoryScreenAction() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/createNewRepositoryScreen.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/createNewRepositoryScreen.fxml"));
         Parent layout = loader.load();
         CreateNewRepositoryScreenController createNewRepositoryScreenController = loader.getController();
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
@@ -437,7 +437,7 @@ public class MainScreenController implements Initializable, BasicController {
 
     void showWelcomeNode(){
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/welcomenode.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/welcomenode.fxml"));
         Node welcomeNode = null;
         try {
             welcomeNode = loader.load();
@@ -479,7 +479,7 @@ public class MainScreenController implements Initializable, BasicController {
             @Override
             public void accept(ObservableList<FileItemInfo> fileItemInfos) {
                 FXMLLoader loader = new FXMLLoader();
-                loader.setLocation(getClass().getResource("/com/magit/resources/tableScreen.fxml"));
+                loader.setLocation(getClass().getResource("/com/magit/resources/fxml/tableScreen.fxml"));
                 Node table = null;
                 try {
                     table = loader.load();
@@ -508,7 +508,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void openRepositoryFromXmlAction() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/importXmlNode.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/importXmlNode.fxml"));
         Node table = null;
         try {
             table = loader.load();
@@ -606,7 +606,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     private void onDeleteBranchClick() throws IOException  {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
         GeneralScreenEnterStringController deleteBranchCotnroller =
                 getGeneralScreen(loader, "Create New Branch", "Branch Name:");
@@ -636,7 +636,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     private void onNewBranchClicked() throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/generalScreenEnterString.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
         GeneralScreenEnterStringController newBranchController =
                 getGeneralScreen(loader, "Create new branch", "Branch name:");

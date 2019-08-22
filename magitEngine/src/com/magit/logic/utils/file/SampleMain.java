@@ -31,7 +31,7 @@ public class SampleMain extends Application {
      //   createCommits(tree);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("/com/magit/resources/branchesHistoryScreen.fxml");
+        URL url = getClass().getResource("/com/magit/resources/fxml/branchesHistoryScreen.fxml");
         fxmlLoader.setLocation(url);
         GridPane root = fxmlLoader.load(url.openStream());
 
