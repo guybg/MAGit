@@ -219,7 +219,7 @@ public class MainScreenController implements Initializable, BasicController {
         yOffset = event.getSceneY();
     }
     @FXML
-    void onShowBranchHistory(ActionEvent event) {
+    void onShowBranchesHistory(ActionEvent event) {
         FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource("/com/magit/resources/main.fxml");
         fxmlLoader.setLocation(url);
@@ -236,12 +236,9 @@ public class MainScreenController implements Initializable, BasicController {
         final Scene scene = new Scene(root, 700, 400);
 
         ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
-        LinkedList<CommitNode> nodes = null;
-        ArrayList<Edge> edges = new ArrayList<>();
+        TreeSet<CommitNode> nodes = null;
         try {
-            //graph.beginUpdate();
-            nodes = engine.guiBranchHistory(model);
-
+            nodes = engine.guiBranchesHistory(model);
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (PreviousCommitsLimitExceededException e) {
@@ -251,35 +248,19 @@ public class MainScreenController implements Initializable, BasicController {
         }
 
         graph.beginUpdate();
-        Collections.sort(nodes, new Comparator<CommitNode>() {
-            @Override
-            public int compare(CommitNode o1, CommitNode o2) {
-                return o1.getDate().compareTo(o2.getDate());
-            }
-        });
        for(ICell node : nodes) {
            if(!model.getAllCells().contains(node))
                model.addCell(node);
        }
        graph.endUpdate();
-      //  for(Edge edge : edges){
-      //      model.addEdge(edge);
-      //  }
-
-
         graph.layout(new CommitTreeLayout());
 
         PannableCanvas canvas = graph.getCanvas();
-        //canvas.setPrefWidth(100);
-        //canvas.setPrefHeight(100);
         scrollPane.setContent(canvas);
 
         Button button = (Button) scene.lookup("#pannableButton");
-
-
         pstage.setScene(scene);
         pstage.show();
-
         Platform.runLater(() -> {
             graph.getUseViewportGestures().set(false);
             graph.getUseNodeGestures().set(false);

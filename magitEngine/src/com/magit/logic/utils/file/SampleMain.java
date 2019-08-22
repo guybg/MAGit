@@ -31,8 +31,8 @@ public class SampleMain extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         FileHandler.writeNewFolder("c:/dzipppppppppped");
-        String a = FileHandler.readFile("C:\\Users\\guybb\\Downloads\\gzipme\\dc53b34d944246d8d11606feb439110b84de3644");
-        try (FileOutputStream fos = new FileOutputStream(Paths.get("c:/dzipppppppppped/dc53b34d944246d8d11606feb439110b84de3644").toString());
+        String a = FileHandler.readFile("C:\\Users\\guybb\\Downloads\\gzipme\\82678fcdc6a3c65bd2745d17c8e4c8f2a2162d94");
+        try (FileOutputStream fos = new FileOutputStream(Paths.get("c:/dzipppppppppped/82678fcdc6a3c65bd2745d17c8e4c8f2a2162d94").toString());
              GZIPOutputStream gzipOutputStream = new GZIPOutputStream(fos)) {
             gzipOutputStream.write(a.getBytes());
             gzipOutputStream.flush();

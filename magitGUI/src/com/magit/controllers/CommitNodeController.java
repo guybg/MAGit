@@ -13,6 +13,7 @@ public class CommitNodeController {
     @FXML private Label commitTimeStampLabel;
     @FXML private Label messageLabel;
     @FXML private Label committerLabel;
+    @FXML private Label activeBranchLabel;
     @FXML private Circle CommitCircle;
     public void setCommitTimeStamp(String timeStamp) {
         commitTimeStampLabel.setText(timeStamp);
@@ -28,7 +29,10 @@ public class CommitNodeController {
         messageLabel.setText(commitMessage);
         messageLabel.setTooltip(new Tooltip(commitMessage));
     }
-
+    public void setActiveBranch(String activeBranch) {
+        activeBranchLabel.setText(activeBranch);
+        messageLabel.setTooltip(new Tooltip(activeBranch));
+    }
     public int getCircleRadius() {
         return (int)CommitCircle.getRadius();
     }

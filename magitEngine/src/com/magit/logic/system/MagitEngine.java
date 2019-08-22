@@ -3,6 +3,7 @@ package com.magit.logic.system;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.Model;
+import com.magit.controllers.MainScreenController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
@@ -181,8 +182,8 @@ public class MagitEngine {
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
     }
 
-    public LinkedList<CommitNode> guiBranchHistory(Model model ) throws ParseException, PreviousCommitsLimitExceededException, IOException {
-       return mBranchManager.guiPresentCurrentBranch(mRepositoryManager.getRepository(),model);
+    public TreeSet<CommitNode> guiBranchesHistory(Model model ) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+       return mBranchManager.guiPresentBranchesHistory(mRepositoryManager.getRepository(),model);
     }
 
     public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
