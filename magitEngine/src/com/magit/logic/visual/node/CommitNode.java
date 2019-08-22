@@ -10,8 +10,10 @@ import com.magit.logic.system.objects.Branch;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 
@@ -32,6 +34,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private Branch activeBranch;
     private HashSet<Branch> branches = new HashSet<>();
     private boolean alreadySet = false;
+
 
     public boolean isAlreadySet() {
         return alreadySet;
@@ -95,8 +98,9 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitTimeStamp(timestamp);
-            if(activeBranch != null)
+            if(activeBranch != null) {
                 commitNodeController.setActiveBranch(activeBranch.getBranchName());
+            }
             return root;
         } catch (IOException e) {
             return new Label("Error when tried to create graphic node !");
