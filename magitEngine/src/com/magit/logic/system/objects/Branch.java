@@ -16,6 +16,10 @@ public class Branch {
     private final String mBranchName;
     private Sha1 mPointedCommitSha1;
 
+    private String mTrackingAfter = null;
+    private boolean mIsRemote = false;
+    private boolean mTracking = false;
+
     Branch(String mBranchName) {
         this.mBranchName = mBranchName;
         final String EMPTY = "";
@@ -25,6 +29,14 @@ public class Branch {
     public Branch(String branchName, String textToSha1) {
         this.mBranchName = branchName;
         mPointedCommitSha1 = new Sha1(textToSha1, true);
+    }
+
+    public Branch(String branchName, String textToSha1, String trackingAfter, boolean isRemote, boolean tracking) {
+        this.mBranchName = branchName;
+        mPointedCommitSha1 = new Sha1(textToSha1, true);
+        mTrackingAfter = trackingAfter;
+        mIsRemote = isRemote;
+        mTracking = tracking;
     }
 
     public Sha1 getPointedCommitSha1() {

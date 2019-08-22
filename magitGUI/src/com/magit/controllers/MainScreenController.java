@@ -326,7 +326,7 @@ public class MainScreenController implements Initializable, BasicController {
             try {
                 branchInfo.textProperty().setValue(engine.guiGetBranchInfo(branch));
                 branchInfo.setHeight(20);
-                branchInfo.setWidth(20);
+                branchInfo.setWidth(branchesListView.getWidth());
                 branchInfo.setFont(new Font(20));
             } catch (ParseException | PreviousCommitsLimitExceededException | IOException ignored) {}
             labelOfBranch.setTooltip(branchInfo);

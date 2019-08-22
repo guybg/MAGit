@@ -89,18 +89,7 @@ public class RepositoryXmlParser {
         return commits.size();
     }
 
-   // Repository createRepositoryFromXML(BranchManager branchManager)
-   //         throws IOException, IllegalPathException{
-//
-   //     Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
-   //     createBranches(magitRepository, repository, branchManager, commits);
-   //     repository.create();
-   //     zipCommitWorkingCopy(repository, commits, treeMap);
-//
-   //     return repository;
-   // }
-    // ************** create repository task steps ************ //
-   public void initializeRepository(BranchManager branchManager){
+   public void initializeRepository(){
         this.repository =  new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
     }
 
@@ -114,9 +103,6 @@ public class RepositoryXmlParser {
 
         return repository;
     }
-    //***********************************************************//
-
-
 
     private void checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(String repositoryPath) throws FileAlreadyExistsException, RepositoryAlreadyExistsException {
         if (Files.exists(Paths.get(repositoryPath)) &&
@@ -311,16 +297,17 @@ public class RepositoryXmlParser {
             }
 
             if (branch.getName().equals(headBranchName)) {
-                Branch headBranch = new Branch(branch.getName(), branchContent.toString());
+                Branch headBranch = new Branch(branch.getName(), branchContent.toString(),
+                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
                 branchManager.setActiveBranch(headBranch);
                 repository.addBranch(headBranch.getBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
-                branchCount++;
             } else {
-                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
+                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString(),
+                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
                 repository.addBranch(branchToAdd.getBranchName(), branchToAdd);
-                branchCount++;
             }
+            branchCount++;
         }
         return branchCount;
     }
@@ -452,7 +439,7 @@ public class RepositoryXmlParser {
     private void handleFileItem(LinkedList<FileItem> objectsOfTree, StringBuilder sha1OfFiles,
                                 HashMap<String, String> blobSha1AndNameToId, HashMap<String, String> treeSha1AndNameToId,
                                 ArrayList<MagitBlob> magitBlobsList, ArrayList<MagitSingleFolder> magitFoldersList) {
-        Integer idTree = treeSha1AndNameToId.size() + 1;
+        int idTree = treeSha1AndNameToId.size() + 1;
         FileItem item = objectsOfTree.poll();
         String sha1Code = item.getSha1Code().toString();
         if (sha1OfFiles.toString().contains(sha1Code + item.getName()))
@@ -464,7 +451,7 @@ public class RepositoryXmlParser {
             magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, Integer.parseInt(id)));
         } else if (item.getFileType().equals(FileType.FOLDER)) {
             if (!treeSha1AndNameToId.containsKey(sha1Code + item.getName())) {
-                treeSha1AndNameToId.put(sha1Code + item.getName(), idTree.toString());
+                treeSha1AndNameToId.put(sha1Code + item.getName(), Integer.toString(idTree));
             }
             String id = treeSha1AndNameToId.get(sha1Code + item.getName());
             MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getName() == null);
