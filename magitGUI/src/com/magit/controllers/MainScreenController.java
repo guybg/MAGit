@@ -1,7 +1,6 @@
 package com.magit.controllers;
 
 
-import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
@@ -25,7 +24,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -40,9 +38,7 @@ import javafx.scene.layout.*;
 import javafx.scene.control.CheckBox;
 import javafx.scene.text.Font;
 import javafx.stage.*;
-import javafx.util.Callback;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -221,9 +217,9 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void onShowBranchesHistory(ActionEvent event) {
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("/com/magit/resources/main.fxml");
+        URL url = getClass().getResource("/com/magit/resources/branchesHistoryScreen.fxml");
         fxmlLoader.setLocation(url);
-        GridPane root = null;
+        SplitPane root = null;
         try {
             root = fxmlLoader.load(url.openStream());
         } catch (IOException e) {
@@ -235,10 +231,10 @@ public class MainScreenController implements Initializable, BasicController {
 
         final Scene scene = new Scene(root, 700, 400);
 
-        ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
+
         TreeSet<CommitNode> nodes = null;
         try {
-            nodes = engine.guiBranchesHistory(model);
+            nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (PreviousCommitsLimitExceededException e) {
@@ -255,13 +251,16 @@ public class MainScreenController implements Initializable, BasicController {
        graph.endUpdate();
         graph.layout(new CommitTreeLayout());
 
-        PannableCanvas canvas = graph.getCanvas();
-        scrollPane.setContent(canvas);
+       // PannableCanvas canvas = graph.getCanvas();
+       // scrollPane.setContent(canvas);
 
-        Button button = (Button) scene.lookup("#pannableButton");
+       // Button button = (Button) scene.lookup("#pannableButton");
         pstage.setScene(scene);
         pstage.show();
         Platform.runLater(() -> {
+            ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
+            PannableCanvas canvas = graph.getCanvas();
+            scrollPane.setContent(canvas);
             graph.getUseViewportGestures().set(false);
             graph.getUseNodeGestures().set(false);
         });

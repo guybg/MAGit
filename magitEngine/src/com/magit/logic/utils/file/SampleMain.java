@@ -1,24 +1,14 @@
 package com.magit.logic.utils.file;
-import com.fxgraph.edges.Edge;
-import com.fxgraph.graph.ICell;
-import com.fxgraph.graph.Model;
-import com.fxgraph.graph.PannableCanvas;
-import com.magit.logic.system.objects.FileItem;
-import com.magit.logic.visual.layout.CommitTreeLayout;
-import com.magit.logic.visual.node.CommitNode;
 
 
 import com.fxgraph.graph.Graph;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import org.apache.commons.io.FileUtils;
 
 
 import java.io.FileOutputStream;
@@ -41,28 +31,28 @@ public class SampleMain extends Application {
      //   createCommits(tree);
 
         FXMLLoader fxmlLoader = new FXMLLoader();
-        URL url = getClass().getResource("/com/magit/resources/main.fxml");
+        URL url = getClass().getResource("/com/magit/resources/branchesHistoryScreen.fxml");
         fxmlLoader.setLocation(url);
         GridPane root = fxmlLoader.load(url.openStream());
 
         final Scene scene = new Scene(root, 700, 400);
 
         ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
-        PannableCanvas canvas = tree.getCanvas();
-        //canvas.setPrefWidth(100);
-        //canvas.setPrefHeight(100);
-        scrollPane.setContent(canvas);
-
-        Button button = (Button) scene.lookup("#pannableButton");
-       // button.setOnAction(e -> addMoreCommits(tree));
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-        Platform.runLater(() -> {
-            tree.getUseViewportGestures().set(false);
-            tree.getUseNodeGestures().set(false);
-        });
+    //    PannableCanvas canvas = tree.getCanvas();
+    //    //canvas.setPrefWidth(100);
+    //    //canvas.setPrefHeight(100);
+    //    scrollPane.setContent(canvas);
+//
+    //    Button button = (Button) scene.lookup("#pannableButton");
+    //   // button.setOnAction(e -> addMoreCommits(tree));
+//
+    //    primaryStage.setScene(scene);
+    //    primaryStage.show();
+//
+    //    Platform.runLater(() -> {
+    //        tree.getUseViewportGestures().set(false);
+    //        tree.getUseNodeGestures().set(false);
+    //    });
 
     }
 

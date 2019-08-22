@@ -2,6 +2,7 @@ package com.magit.logic.system.managers;
 
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Model;
+import com.magit.controllers.BranchesHistoryScreenController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.Branch;
@@ -55,7 +56,7 @@ public class BranchManager {
     }
 
 
-    public TreeSet<CommitNode> guiPresentBranchesHistory(Repository activeRepository, Model model  ) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    public TreeSet<CommitNode> guiPresentBranchesHistory(Repository activeRepository, Model model, BranchesHistoryScreenController branchesHistoryScreenController) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         TreeSet<CommitNode> nodes = new TreeSet<>();
         ArrayList<Edge> edges = new ArrayList<>();
         for(Map.Entry<String,Branch> branchEntry :  activeRepository.getBranches().entrySet()){
@@ -72,7 +73,7 @@ public class BranchManager {
 
             Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
             assert mostRecentCommit != null; // checking if file exists first, if not, throws FileNotFoundException.
-            guiBranchesHistory(mostRecentCommit, activeRepository,nodes, edges, model, branchEntry.getValue());
+            guiBranchesHistory(mostRecentCommit, activeRepository,nodes, edges, model, branchEntry.getValue(), branchesHistoryScreenController);
         }
         return nodes;
     }
@@ -116,8 +117,8 @@ public class BranchManager {
         }
     }
 
-    public TreeSet<CommitNode> guiBranchesHistory(Commit mostRecentCommit, Repository activeRepository,TreeSet<CommitNode> nodes, ArrayList<Edge> edges, Model model, Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
-        CommitNode child = new CommitNode(mostRecentCommit.getCreationDate(),mostRecentCommit.getLastUpdater(), mostRecentCommit.getCommitMessage());
+    public TreeSet<CommitNode> guiBranchesHistory(Commit mostRecentCommit, Repository activeRepository,TreeSet<CommitNode> nodes, ArrayList<Edge> edges, Model model, Branch branch, BranchesHistoryScreenController branchesHistoryScreenController) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        CommitNode child = new CommitNode(mostRecentCommit, branchesHistoryScreenController);
         child.setActiveBranch(branch);
         if(!nodes.contains(child))
             nodes.add(child);
@@ -129,11 +130,11 @@ public class BranchManager {
                 }
             }
         }
-        guiGetAllPreviousCommitsHistoryString(mostRecentCommit,activeRepository,child,nodes,edges, model,branch);
+        guiGetAllPreviousCommitsHistoryString(mostRecentCommit,activeRepository,child,nodes,edges, model,branch, branchesHistoryScreenController);
         return nodes;
     }
 
-    private void guiGetAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository,CommitNode currentCommitNode, TreeSet<CommitNode> commits,ArrayList<Edge> edges, Model model, Branch branch) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    private void guiGetAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository,CommitNode currentCommitNode, TreeSet<CommitNode> commits,ArrayList<Edge> edges, Model model, Branch branch, BranchesHistoryScreenController branchesHistoryScreenController) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         //final String separator = "===================================================";
         if (mostRecentCommit.getSha1Code().toString().equals("")) return;
         for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
@@ -145,7 +146,7 @@ public class BranchManager {
             Commit currentCommitInHistory = Commit.createCommitInstanceByPath(currentCommitPath);
             if (currentCommitInHistory == null) return;
 
-            CommitNode parent = new CommitNode(currentCommitInHistory.getCreationDate(),currentCommitInHistory.getLastUpdater(), currentCommitInHistory.getCommitMessage());
+            CommitNode parent = new CommitNode(currentCommitInHistory, branchesHistoryScreenController);
             commits.add(parent);
             if(!commits.contains(parent)) {
                 guiEdgeExists(currentCommitNode, edges, model, parent);
@@ -159,7 +160,7 @@ public class BranchManager {
                 }
             }
             parent.addBranch(branch);
-            guiGetAllPreviousCommitsHistoryString(currentCommitInHistory, activeRepository, parent, commits,edges,model, branch);
+            guiGetAllPreviousCommitsHistoryString(currentCommitInHistory, activeRepository, parent, commits,edges,model, branch,branchesHistoryScreenController);
         }
     }
 

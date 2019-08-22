@@ -5,8 +5,10 @@ import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.IEdge;
+import com.magit.controllers.BranchesHistoryScreenController;
 import com.magit.controllers.CommitNodeController;
 import com.magit.logic.system.objects.Branch;
+import com.magit.logic.system.objects.Commit;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -22,19 +24,27 @@ import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Supplier;
 
 public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
-
+    private Commit commit;
     private Date timestamp;
     private String committer;
     private String message;
     private CommitNodeController commitNodeController;
+    private String sha1;
+    private String parent1Sha1;
+    private String parent2Sha1;
+    private BranchesHistoryScreenController branchesHistoryScreenController;
+
     private Integer posX;
     private Integer posY;
+
     private Branch activeBranch;
     private HashSet<Branch> branches = new HashSet<>();
     private boolean alreadySet = false;
     private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+
 
     public boolean isAlreadySet() {
         return alreadySet;
@@ -72,10 +82,15 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         return this.getDate().compareTo(o.getDate());
     }
 
-    public CommitNode(Date timestamp, String committer, String message) {
-        this.timestamp = timestamp;
-        this.committer = committer;
-        this.message = message;
+    public CommitNode(Commit commit, BranchesHistoryScreenController branchesHistoryScreenController) {
+        this.timestamp = commit.getCreationDate();
+        this.committer = commit.getLastUpdater();
+        this.message = commit.getCommitMessage();
+        this.commit = commit;
+        this.sha1 = commit.getSha1();
+        this.parent1Sha1 = commit.getFirstPrecedingSha1();
+        this.parent2Sha1 = commit.getSecondPrecedingSha1();
+        this.branchesHistoryScreenController = branchesHistoryScreenController;
     }
 
     public Integer getPos() {
@@ -87,9 +102,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     }
     @Override
     public Region getGraphic(Graph graph) {
-
         try {
-
             FXMLLoader fxmlLoader = new FXMLLoader();
             URL url = getClass().getResource("/com/magit/resources/commitNode.fxml");
             fxmlLoader.setLocation(url);
@@ -98,6 +111,10 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitTimeStamp(formatter.format(timestamp));
+            commitNodeController.setParent1Sha1(parent1Sha1);
+            commitNodeController.setParent2Sha1(parent2Sha1);
+            commitNodeController.setBranchesHistoryScreenController(branchesHistoryScreenController);
+            commitNodeController.setSha1(sha1);
             if(activeBranch != null) {
                 commitNodeController.setActiveBranch(activeBranch.getBranchName());
             }
@@ -109,12 +126,6 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
 
     public Date getDate(){
         return timestamp;
-       // try {
-       //     return formatter.parse(timestamp.toString());
-       // } catch (ParseException e) {
-       //     e.printStackTrace();
-       // }
-       // return null;
     }
     @Override
     public DoubleBinding getXAnchor(Graph graph, IEdge edge) {
@@ -130,7 +141,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
 
         CommitNode that = (CommitNode) o;
 
-        return timestamp != null ? timestamp.equals(that.timestamp) : that.timestamp == null;
+        return Objects.equals(timestamp, that.timestamp);
     }
 
     @Override
