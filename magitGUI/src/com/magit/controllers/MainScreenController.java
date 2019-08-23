@@ -231,7 +231,8 @@ public class MainScreenController implements Initializable, BasicController {
 
         final Scene scene = new Scene(root, 700, 400);
 
-
+        ((BranchesHistoryScreenController)fxmlLoader.getController()).setEngine(engine);
+        ((BranchesHistoryScreenController)fxmlLoader.getController()).setStage(stage);
         TreeSet<CommitNode> nodes = null;
         try {
             nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());

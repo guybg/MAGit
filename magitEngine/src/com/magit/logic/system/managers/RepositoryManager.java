@@ -133,6 +133,18 @@ public class RepositoryManager {
         return WorkingCopyUtils.getDifferencesBetweenCurrentWcAndLastCommit(curWcDeltaFiles, commitDeltaFiles);
     }
 
+    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> checkDifferencesBetweenTwoCommits(String sha1OfFirstCommit, String sha1OfSecondCommit) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        SortedSet<Delta.DeltaFileItem> firstCommitDeltaFiles;
+        SortedSet<Delta.DeltaFileItem> secondCommitDeltaFiles;
+        Commit firstCommit = Commit.createCommitInstanceByPath(Paths.get(mActiveRepository.getObjectsFolderPath().toString(), sha1OfFirstCommit));
+        Commit secondCommit = Commit.createCommitInstanceByPath(Paths.get(mActiveRepository.getObjectsFolderPath().toString(), sha1OfSecondCommit));
+        firstCommitDeltaFiles = WorkingCopyUtils.getDeltaFileItemSetFromCommit(firstCommit, mActiveRepository.getRepositoryPath().toString());
+        secondCommitDeltaFiles = WorkingCopyUtils.getDeltaFileItemSetFromCommit(secondCommit, mActiveRepository.getRepositoryPath().toString());
+        if (firstCommitDeltaFiles == null) firstCommitDeltaFiles = new TreeSet<>();
+        if (secondCommitDeltaFiles == null) secondCommitDeltaFiles = new TreeSet<>();
+        return WorkingCopyUtils.getDifferencesBetweenCurrentWcAndLastCommit(firstCommitDeltaFiles, secondCommitDeltaFiles);
+    }
+
     public String getBranchesInfo() throws IOException, ParseException, PreviousCommitsLimitExceededException {
         final String separator = "============================================";
         StringBuilder branchesContent = new StringBuilder();
@@ -160,6 +172,7 @@ public class RepositoryManager {
         }
         return branchesContent.toString();
     }
+
 
     public String getWorkingCopyStatus(String userName) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         StringBuilder workingCopyStatusContent = new StringBuilder();
