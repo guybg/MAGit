@@ -101,6 +101,7 @@ public class MainScreenController implements Initializable, BasicController {
         newBranchMenuItem.setDisable(true);
         commitHistoryMenuItem.setDisable(true);
         branchesMenuItem.setVisible(false);
+        branchesHistoryMenuItem.setDisable(true);
         repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
             commitToLeftDownButton.setDisable(false);
             loadBranchesToUserInterface();
@@ -110,7 +111,7 @@ public class MainScreenController implements Initializable, BasicController {
             commitHistoryMenuItem.setDisable(false);
             branchesMenuItem.setVisible(true);
             repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
-
+            branchesHistoryMenuItem.setDisable(false);
         });
         repositoryPathProperty.addListener(new ChangeListener<String>() {
             @Override
@@ -175,8 +176,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private SplitPane middleHSplitPane;
     @FXML private Label moveScreenLabel;
     @FXML private AnchorPane progressBarPane;
-    @FXML
-    private MenuItem branchHistoryMenuItem;
+    @FXML private MenuItem branchesHistoryMenuItem;
 
     private ObservableList<FileItemInfo> fileItemInfos;
 
@@ -225,7 +225,8 @@ public class MainScreenController implements Initializable, BasicController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Stage pstage = new Stage();
+        Stage pStage = new Stage();
+        pStage.initModality(Modality.APPLICATION_MODAL);
         Graph graph = new Graph();
         Model model = graph.getModel();
 
@@ -256,8 +257,8 @@ public class MainScreenController implements Initializable, BasicController {
        // scrollPane.setContent(canvas);
 
        // Button button = (Button) scene.lookup("#pannableButton");
-        pstage.setScene(scene);
-        pstage.show();
+        pStage.setScene(scene);
+        pStage.show();
         Platform.runLater(() -> {
             ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
             PannableCanvas canvas = graph.getCanvas();

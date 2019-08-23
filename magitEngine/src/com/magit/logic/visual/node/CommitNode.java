@@ -11,6 +11,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
 import java.io.IOException;
@@ -98,7 +99,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             FXMLLoader fxmlLoader = new FXMLLoader();
             URL url = getClass().getResource("/com/magit/resources/fxml/commitNode.fxml");
             fxmlLoader.setLocation(url);
-            GridPane root = fxmlLoader.load(url.openStream());
+            HBox root = fxmlLoader.load(url.openStream());
             commitNodeController = fxmlLoader.getController();
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);

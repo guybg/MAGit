@@ -62,11 +62,10 @@ public class CommitNodeController {
     }
 
     public void onCommitClicked(MouseEvent mouseEvent) {
+        branchesHistoryScreenController.setCurCommitSha1Label(sha1);
         branchesHistoryScreenController.setCommitMessageLabel(messageLabel.getText());
         branchesHistoryScreenController.setLastCommit1Label(parent1Sha1);
         branchesHistoryScreenController.setLastCommit2Label(parent2Sha1);
         branchesHistoryScreenController.setCreatorLabel(committerLabel.getText());
-        branchesHistoryScreenController.setCurCommitSha1Label(sha1);
-        branchesHistoryScreenController.showDifferencesBetweenCommitAndFirstParent();
     }
 }

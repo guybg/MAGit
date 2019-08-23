@@ -189,6 +189,22 @@
     -fx-background-insets: -1.4, 0, 1, 2;
 }
 
+#scrollpaneContainer{
+    -fx-border-color: #E0E3E7;
+    -fx-background: #94929F;
+}
+
+.commit-details-label{
+    -fx-font: 14px Arial;
+    -fx-text-fill: Gray;
+}
+
+
+
+#bottomGridPartOfBranchesHistoryWindow{
+    -fx-border-color: #E0E3E7;
+    -fx-background-color: #DBDBDB;
+}
 
 
 
