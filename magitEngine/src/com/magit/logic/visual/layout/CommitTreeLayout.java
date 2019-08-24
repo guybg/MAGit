@@ -48,7 +48,7 @@ public class CommitTreeLayout implements Layout {
                         unionBranches.add(curNode.getActiveBranch());
                 }
                 if (unionBranches.containsAll(commitNode.getBranches())) {
-                    startX+=5;
+                    startX+=15;
                     curNode.setAlreadySet(true);
                     graph.getGraphic(curNode).relocate(posX * startX, curNode.getPosY());
                     fixParentsXPosition(commitNode,graph,startX);
