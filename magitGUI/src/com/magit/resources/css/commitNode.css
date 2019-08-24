@@ -19,6 +19,14 @@
     -fx-background-color: beige;
     -fx-border-radius: 15px;
 }
+
+#single-commit-row-container-chosen {
+    -fx-border-color: black;
+    -fx-background-color: green;
+    -fx-opacity: 0.8;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+}
 .single-commit-row-container {
     -fx-border-color: black;
     -fx-background-color: lightGray;
@@ -26,9 +34,20 @@
     -fx-background-radius: 15px;
     -fx-border-radius: 15px;
 }
-
+.single-commit-row-container:focused {
+    -fx-border-color: black;
+    -fx-background-color: #90EE90;
+    -fx-opacity: 0.8;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
+}
 /*override separator style*/
 .separator .line {
     -fx-border-color: black;
     -fx-border-width: 1;
+}
+
+#activeBranchLabel{
+    -fx-font-weight: bold;
+    -fx-text-fill: #112059;
 }

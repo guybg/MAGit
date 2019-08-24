@@ -10,7 +10,6 @@ import com.magit.logic.system.objects.Commit;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 
@@ -18,6 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private Commit commit;
@@ -28,6 +28,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private String sha1;
     private String parent1Sha1;
     private String parent2Sha1;
+    private HashMap<String, CommitNode> parents;
     private BranchesHistoryScreenController branchesHistoryScreenController;
 
     private Integer posX;
@@ -76,6 +77,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     }
 
     public CommitNode(Commit commit, BranchesHistoryScreenController branchesHistoryScreenController) {
+        parents = new HashMap<>();
         this.timestamp = commit.getCreationDate();
         this.committer = commit.getLastUpdater();
         this.message = commit.getCommitMessage();
@@ -93,6 +95,14 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     public void setPos(int pos) {
         this.posX = pos;
     }
+
+    public void addParent(CommitNode parent) {
+        if(!parents.containsKey(parent.sha1)){
+            parents.put(parent.sha1,parent);
+        }
+    }
+
+
     @Override
     public Region getGraphic(Graph graph) {
         try {
@@ -108,6 +118,11 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             commitNodeController.setParent2Sha1(parent2Sha1);
             commitNodeController.setBranchesHistoryScreenController(branchesHistoryScreenController);
             commitNodeController.setSha1(sha1);
+            commitNodeController.setParents(parents);
+            ArrayList<String> allBranches = branches.stream().map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new));
+            if(activeBranch!=null)
+                allBranches.add(activeBranch.getBranchName());
+            commitNodeController.setBranches(allBranches);
             if(activeBranch != null) {
                 commitNodeController.setActiveBranch(activeBranch.getBranchName());
             }
@@ -120,6 +135,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     public Date getDate(){
         return timestamp;
     }
+
     @Override
     public DoubleBinding getXAnchor(Graph graph, IEdge edge) {
         Region graphic = graph.getGraphic(this);
@@ -140,5 +156,9 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     @Override
     public int hashCode() {
         return timestamp != null ? timestamp.hashCode() : 0;
+    }
+
+    public void showMe(){
+        commitNodeController.onCommitClicked(null);
     }
 }
