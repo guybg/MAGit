@@ -40,6 +40,7 @@ import javafx.scene.text.Font;
 import javafx.stage.*;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -229,7 +230,6 @@ public class MainScreenController implements Initializable, BasicController {
         pStage.initModality(Modality.APPLICATION_MODAL);
         Graph graph = new Graph();
         Model model = graph.getModel();
-
         final Scene scene = new Scene(root, 700, 400);
 
         ((BranchesHistoryScreenController)fxmlLoader.getController()).setEngine(engine);
@@ -237,36 +237,34 @@ public class MainScreenController implements Initializable, BasicController {
         TreeSet<CommitNode> nodes = null;
         try {
             nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (PreviousCommitsLimitExceededException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+            graph.beginUpdate();
+            for(ICell node : nodes) {
+                if(!model.getAllCells().contains(node))
+                    model.addCell(node);
+            }
+            graph.endUpdate();
+            graph.layout(new CommitTreeLayout());
+            pStage.setMinWidth(936);
+            pStage.setMinHeight(534);
+            pStage.setScene(scene);
+            pStage.show();
+            Platform.runLater(() -> {
+                ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
+                PannableCanvas canvas = graph.getCanvas();
+                scrollPane.setContent(canvas);
+                graph.getUseViewportGestures().set(false);
+                graph.getUseNodeGestures().set(false);
+            });
+        } catch (FileNotFoundException e){
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            try {
+                popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", e.getMessage(), "Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (PreviousCommitsLimitExceededException | ParseException | IOException e) {
             e.printStackTrace();
         }
-
-        graph.beginUpdate();
-       for(ICell node : nodes) {
-           if(!model.getAllCells().contains(node))
-               model.addCell(node);
-       }
-       graph.endUpdate();
-        graph.layout(new CommitTreeLayout());
-
-       // PannableCanvas canvas = graph.getCanvas();
-       // scrollPane.setContent(canvas);
-
-       // Button button = (Button) scene.lookup("#pannableButton");
-        pStage.setScene(scene);
-        pStage.show();
-        Platform.runLater(() -> {
-            ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
-            PannableCanvas canvas = graph.getCanvas();
-            scrollPane.setContent(canvas);
-            graph.getUseViewportGestures().set(false);
-            graph.getUseNodeGestures().set(false);
-        });
-
     }
 
     @FXML

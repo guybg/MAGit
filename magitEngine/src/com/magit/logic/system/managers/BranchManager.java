@@ -135,7 +135,6 @@ public class BranchManager {
     }
 
     private void guiGetAllPreviousCommitsHistoryString(Commit mostRecentCommit, Repository activeRepository,CommitNode currentCommitNode, TreeSet<CommitNode> commits,ArrayList<Edge> edges, Model model, Branch branch, BranchesHistoryScreenController branchesHistoryScreenController) throws IOException, ParseException, PreviousCommitsLimitExceededException {
-        //final String separator = "===================================================";
         if (mostRecentCommit.getSha1Code().toString().equals("")) return;
         for (Sha1 currentSha1 : mostRecentCommit.getLastCommitsSha1Codes()) {
             if (currentSha1.toString().equals("")) return;
@@ -151,11 +150,13 @@ public class BranchManager {
             if(!commits.contains(parent)) {
                 guiEdgeExists(currentCommitNode, edges, model, parent);
                 parent.addBranch(branch);
+                currentCommitNode.addParent(parent);
             }else{
                 for(CommitNode commitNode: commits){
                     if(commitNode.equals(parent)){
                         guiEdgeExists(currentCommitNode, edges, model, commitNode);
                         parent = commitNode;
+                        currentCommitNode.addParent(commitNode);
                     }
                 }
             }

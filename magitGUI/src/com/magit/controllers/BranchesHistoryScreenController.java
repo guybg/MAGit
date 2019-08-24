@@ -6,9 +6,10 @@ import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.utils.compare.Delta;
+import com.magit.logic.visual.node.CommitNode;
+import com.sun.javafx.beans.IDProperty;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
@@ -22,6 +23,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
@@ -29,8 +31,9 @@ import java.util.SortedSet;
 public class BranchesHistoryScreenController implements BasicController, Initializable {
     private Stage stage;
     private MagitEngine engine;
+    public BooleanProperty focusChanged = new SimpleBooleanProperty();
     @FXML
-    private ScrollPane scrollPaneContainer;
+    public ScrollPane scrollPaneContainer;
 
     @FXML
     private ListView<Label> editedListView;
@@ -48,14 +51,25 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     private Label commitMessageLabel;
 
     @FXML
+    private Label creationDateLabel;
+
+    @FXML
     private Label creatorLabel;
 
     @FXML
-    private Label lastCommit1Label;
+    private Label allBranchesLabel;
 
     @FXML
-    private Label lastCommit2Label;
+    private Label allBranchesTitleLabel;
 
+    @FXML
+    private Hyperlink lastCommit1HyperLink;
+
+    @FXML
+    private Hyperlink lastCommit2HyperLink;
+
+    private CommitNode lastCommit1Node;
+    private CommitNode lastCommit2Node;
     @FXML
     private ComboBox<Label> switchDiffComboBox;
 
@@ -65,62 +79,62 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     public void initialize(URL location, ResourceBundle resources) {
         chosenFather = new SimpleStringProperty();
         chosenFather.addListener((observable, oldValue, newValue) -> {
-                    switchDiffComboBox.promptTextProperty().setValue(String.format("Current commit vs %s", chosenFather.getValue()));
-                    showDifferencesBetweenCommitAndChosenParent(chosenFather.getValue());
-                }
-        );
-    }
-
-    public void setEditedListView(ListView<Label> editedListView) {
-        this.editedListView = editedListView;
-    }
-
-    public void setNewListView(ListView<Label> newListView) {
-        this.newListView = newListView;
-    }
-
-    public void setDeletedListView(ListView<Label> deletedListView) {
-        this.deletedListView = deletedListView;
+            if(!lastCommit1HyperLink.getText().isEmpty())
+                switchDiffComboBox.promptTextProperty().setValue(String.format("Current commit vs %s", chosenFather.getValue()));
+            else
+                switchDiffComboBox.promptTextProperty().setValue("");
+            showDifferencesBetweenCommitAndChosenParent(chosenFather.getValue());
+        });
     }
 
     public void setCurCommitSha1Label(String curCommitSha1) {
         this.curCommitSha1Label.setText(curCommitSha1);
+        setCommitLabelToolTip(curCommitSha1Label);
     }
 
     public void setCommitMessageLabel(String commitMessage) {
         this.commitMessageLabel.setText(commitMessage);
+        setCommitLabelToolTip(commitMessageLabel);
     }
 
     public void setCreatorLabel(String creator) {
         this.creatorLabel.setText(creator);
+        setCommitLabelToolTip(creatorLabel);
     }
 
-    public void setLastCommit1Label(String lastCommit1) {
-        this.lastCommit1Label.setText(lastCommit1);
+    public void setLastCommit1HyperLink(String lastCommit1) {
+        lastCommit1HyperLink.setVisible(!lastCommit1.isEmpty());
+        this.lastCommit1HyperLink.setText(lastCommit1);
         this.chosenFather.setValue(lastCommit1);
+    }
+
+    public void setLastCommit2HyperLink(String lastCommit2) {
+        lastCommit2HyperLink.setVisible(!lastCommit2.isEmpty());
+        this.lastCommit2HyperLink.setText(lastCommit2);
     }
 
     @FXML
     private void onComboBoxClicked(MouseEvent event) {
         this.switchDiffComboBox.getItems().clear();
-        createComboLabel(lastCommit1Label);
-        if(!lastCommit2Label.textProperty().getValue().equals("")) {
-            createComboLabel(lastCommit2Label);
+        createComboLabel(lastCommit1HyperLink);
+        if(!lastCommit2HyperLink.textProperty().getValue().equals("")) {
+            createComboLabel(lastCommit2HyperLink);
         }
     }
 
-    private void createComboLabel(Label lastCommitLabel) {
+    public void setCreationDateLabel(String creationDate) {
+        this.creationDateLabel.setText(creationDate);
+        setCommitLabelToolTip(creationDateLabel);
+    }
+
+    private void createComboLabel(Hyperlink lastCommitLabel) {
         Label comboLabel = new Label();
-        comboLabel.textProperty().bind(Bindings.format("%s vs %s", "Current commit", lastCommitLabel.textProperty()));
+        comboLabel.textProperty().bind(Bindings.when(lastCommit1HyperLink.textProperty().isNotEqualTo("")).then(Bindings.format("%s vs %s", "Current commit", lastCommitLabel.textProperty())).otherwise(""));
         comboLabel.setTextFill(Color.BLACK);
         comboLabel.onMouseClickedProperty().addListener((observable, oldValue, newValue) -> {
             chosenFather.setValue(lastCommitLabel.getText());
         });
         this.switchDiffComboBox.getItems().add(comboLabel);
-    }
-
-    public void setLastCommit2Label(String lastCommit2) {
-        this.lastCommit2Label.setText(lastCommit2);
     }
 
     public Stage getStage() {
@@ -177,7 +191,34 @@ public class BranchesHistoryScreenController implements BasicController, Initial
         editedFilesListView.getItems().add(itemLocation);
     }
 
+    @FXML
+    void onClickFirstParent(MouseEvent event) {
+        if(lastCommit1Node!=null)
+            lastCommit1Node.showMe();
+    }
 
+    @FXML
+    void onClickSecondParent(MouseEvent event) {
+        if(lastCommit2Node!=null)
+            lastCommit2Node.showMe();
+    }
 
+    public void setLastCommit1Node(CommitNode lastCommit1Node) {
+        this.lastCommit1Node = lastCommit1Node;
+    }
+
+    public void setLastCommit2Node(CommitNode lastCommit2Node) {
+        this.lastCommit2Node = lastCommit2Node;
+    }
+
+    public void setAllBranchesLabel(String allBranches, int numberOfBranches) {
+        this.allBranchesLabel.setText(allBranches);
+        this.allBranchesTitleLabel.setText("in " + numberOfBranches + " branches:");
+        setCommitLabelToolTip(allBranchesLabel);
+    }
+
+    private void setCommitLabelToolTip(Label commitLabel){
+        commitLabel.setTooltip(new Tooltip(commitLabel.getText()));
+    }
 }
 

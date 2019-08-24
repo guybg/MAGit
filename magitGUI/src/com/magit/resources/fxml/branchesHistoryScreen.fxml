@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
@@ -29,31 +30,46 @@
                <children>
                   <VBox GridPane.rowSpan="2">
                      <children>
+                        <Label text="Commit information:" underline="true" />
                         <HBox spacing="5.0">
                            <children>
-                              <Label styleClass="commit-details-label" text="Current Sha1:" wrapText="true" />
+                              <Label styleClass="commit-details-label" text="Sha1 code:" wrapText="true" HBox.hgrow="ALWAYS" />
                               <Label fx:id="curCommitSha1Label" text="none" wrapText="true" />
                            </children>
                         </HBox>
                         <HBox spacing="5.0">
                            <children>
-                              <Label styleClass="commit-details-label" text="Message:" wrapText="true" />
-                              <Label fx:id="commitMessageLabel" text="none" wrapText="true" />
+                              <Label styleClass="commit-details-label" text="Creator:" wrapText="true" HBox.hgrow="SOMETIMES" />
+                              <Label fx:id="creatorLabel" maxWidth="1.7976931348623157E308" text="none" HBox.hgrow="SOMETIMES" />
                            </children>
                         </HBox>
                         <HBox spacing="5.0">
                            <children>
-                              <Label styleClass="commit-details-label" text="Creator:" wrapText="true" />
-                              <Label fx:id="creatorLabel" text="none" wrapText="true" />
+                              <Label styleClass="commit-details-label" text="Message:" wrapText="true" HBox.hgrow="SOMETIMES" />
+                              <Label fx:id="commitMessageLabel" maxWidth="1.7976931348623157E308" prefWidth="200.0" text="none" wrapText="true" HBox.hgrow="SOMETIMES" />
                            </children>
                         </HBox>
                         <HBox spacing="5.0">
                            <children>
-                              <Label styleClass="commit-details-label" text="Last Commits:" wrapText="true" />
+                              <Label styleClass="commit-details-label" text="Creation date:" wrapText="true" HBox.hgrow="SOMETIMES" />
+                              <Label fx:id="creationDateLabel" text="none" wrapText="true" />
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0">
+                           <children>
+                              <Label fx:id="allBranchesTitleLabel" styleClass="commit-details-label" text="branches:" wrapText="true" HBox.hgrow="SOMETIMES" />
+                              <Label fx:id="allBranchesLabel" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" prefWidth="200.0" text="none" wrapText="true" HBox.hgrow="SOMETIMES" />
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0">
+                           <children>
+                              <Label styleClass="commit-details-label" text="Last Commits:" wrapText="true" HBox.hgrow="SOMETIMES" />
                               <VBox HBox.hgrow="SOMETIMES">
                                  <children>
-                                    <Label fx:id="lastCommit1Label" text="none" wrapText="true" />
-                                    <Label fx:id="lastCommit2Label" wrapText="true" />
+                                    <Hyperlink fx:id="lastCommit1HyperLink" onMouseClicked="#onClickFirstParent" textFill="#2200ff" visible="false" />
+                                    <Hyperlink fx:id="lastCommit2HyperLink" onMouseClicked="#onClickSecondParent" textFill="#2200ff" visible="false" />
+                                    <Label fx:id="lastCommit1Label" onMouseClicked="#onClickFirstParent" textFill="#070bf8" underline="true" wrapText="true" />
+                                    <Label fx:id="lastCommit2Label" onMouseClicked="#onClickSecondParent" textFill="#070bf8" underline="true" wrapText="true" />
                                  </children>
                               </VBox>
                            </children>
