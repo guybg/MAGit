@@ -19,7 +19,6 @@ import java.util.TreeSet;
 
 public class MergeEngine {
 
-
     public void merge(Repository repository, Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         String headSha1 = branch.getPointedCommitSha1().toString();
 
@@ -40,8 +39,14 @@ public class MergeEngine {
         SortedSet<Delta.DeltaFileItem> theirsDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(theirsCommit, repositoryPath);
         SortedSet<Delta.DeltaFileItem> ancestorDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(ancestorCommit, repositoryPath);
         //check fast forward merge
-        getMergeState(oursDelta, theirsDelta, ancestorDelta);
+        SortedSet<Pair<String, MergeStateFileItem>> i = getMergeState(oursDelta, theirsDelta, ancestorDelta);
+        foo(i);
+    }
 
+    private void foo(SortedSet<Pair<String, MergeStateFileItem>> i) {
+        for (Pair<String, MergeStateFileItem> pair : i) {
+            pair.getValue().getStatus();
+        }
     }
 
     private SortedSet<Pair<String, MergeStateFileItem>> getMergeState(SortedSet<Delta.DeltaFileItem> oursDelta, SortedSet<Delta.DeltaFileItem> theirsDelta,
@@ -53,7 +58,7 @@ public class MergeEngine {
         pathsOfFiles.addAll((setPaths(ancestorDelta)));
         Map<String, Pair<FileStatus, Delta.DeltaFileItem>> oursTheirs = Delta.getDiffrencesByPath(oursDelta, theirsDelta);
         Map<String, Pair<FileStatus, Delta.DeltaFileItem>>  theirsAncestor = Delta.getDiffrencesByPath(theirsDelta, ancestorDelta);
-        Map<String, Pair<FileStatus, Delta.DeltaFileItem>>  ancestorOurs = Delta.getDiffrencesByPath(ancestorDelta, oursDelta);
+        Map<String, Pair<FileStatus, Delta.DeltaFileItem>>  ancestorOurs = Delta.getDiffrencesByPath(oursDelta, ancestorDelta);
 
         for (String path : pathsOfFiles) {
             FileItem ours, theirs, ancestor;

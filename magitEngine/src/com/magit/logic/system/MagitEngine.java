@@ -8,6 +8,7 @@ import com.magit.controllers.MainScreenController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
+import com.magit.logic.system.managers.MergeEngine;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
@@ -41,10 +42,13 @@ public class MagitEngine {
     private final RepositoryManager mRepositoryManager;
     private final BranchManager mBranchManager;
     private String mUserName = "Administrator";
+    private MergeEngine mergeEngine;
+
 
     public MagitEngine() {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
+        mergeEngine = new MergeEngine();
     }
 
     public RepositoryManager getmRepositoryManager() {
@@ -227,7 +231,17 @@ public class MagitEngine {
         return mRepositoryManager.guiGetBranchInfo(branch);
     }
 
-
+    public void merge() {
+        try {
+            mergeEngine.merge(mRepositoryManager.getRepository(), mBranchManager.getActiveBranch());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
 
 
