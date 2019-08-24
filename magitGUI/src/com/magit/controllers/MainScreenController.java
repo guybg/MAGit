@@ -405,15 +405,6 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void openUserNameChangeScreen(ActionEvent event) throws IOException {
-        try {
-            engine.merge();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (PreviousCommitsLimitExceededException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
