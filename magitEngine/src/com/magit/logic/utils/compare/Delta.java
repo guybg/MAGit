@@ -4,6 +4,7 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.system.interfaces.DeltaAction;
 import com.magit.logic.system.objects.FileItem;
+import javafx.util.Pair;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.nio.file.Paths;
@@ -73,6 +74,19 @@ public class Delta {
         return differences;
     }
 
+    public static Map<String, Pair<FileStatus, DeltaFileItem>> getDiffrencesByPath( SortedSet<DeltaFileItem> firstItems,
+             SortedSet<DeltaFileItem> secondItems) {
+        Map<String, Pair<FileStatus, DeltaFileItem>> output = new TreeMap<>();
+
+        Map<FileStatus, SortedSet<DeltaFileItem>> getDifferencesMap = getDifferences(firstItems, secondItems);
+
+        for (Map.Entry<FileStatus, SortedSet<DeltaFileItem>> keyvalue : getDifferencesMap.entrySet()) {
+            for (DeltaFileItem item : keyvalue.getValue()) {
+                output.put(item.getFullPath(), new Pair<>(keyvalue.getKey(), item));
+            }
+        }
+        return output;
+    }
 
     public static class DeltaFileItem implements Comparable<DeltaFileItem>,
             Comparator<DeltaFileItem> {
@@ -83,6 +97,8 @@ public class Delta {
             this.mFileItem = fileItem;
             this.mFilePath = Paths.get(mFilePath).toAbsolutePath().toString().toLowerCase();
         }
+
+        public FileItem getFileItem() {return mFileItem;}
 
         public String getFullPath() {
             return mFilePath;

@@ -1,5 +1,5 @@
 package com.magit.logic.enums;
 
 public enum FileStatus {
-    NEW, EDITED, REMOVED
+    NEW, EDITED, REMOVED, UNCHANGED
 }
