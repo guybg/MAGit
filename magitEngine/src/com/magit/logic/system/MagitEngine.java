@@ -206,6 +206,12 @@ public class MagitEngine {
         repositoryNotFoundCheck();
         return mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit();
     }
+
+    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> getDifferencesBetweenTwoCommits(String sha1OfFirstCommit, String sha1OfSecondCommit) throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+        repositoryNotFoundCheck();
+        return mRepositoryManager.checkDifferencesBetweenTwoCommits(sha1OfFirstCommit,sha1OfSecondCommit);
+    }
+
     public ArrayList<String> guiGetAllCommitsOfRepository() throws IOException {
         return mRepositoryManager.guiGetRepositoryCommitList();
     }

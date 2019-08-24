@@ -1,84 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="531.0" prefWidth="881.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.BranchesHistoryScreenController">
+<SplitPane dividerPositions="0.5733082706766918" minHeight="200.0" minWidth="200.0" orientation="VERTICAL" prefHeight="534.0" prefWidth="936.0" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.BranchesHistoryScreenController">
    <items>
-      <ScrollPane id="scrollpaneContainer" fx:id="scrollPaneContainer" prefHeight="200.0" prefWidth="200.0" style="-fx-border-color: red;" />
-      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+      <ScrollPane id="scrollpaneContainer" fx:id="scrollPaneContainer" prefHeight="200.0" prefWidth="200.0" />
+      <AnchorPane id="bottomAnchorPartOfBranchesHistoryWindow" minHeight="200.0" minWidth="160.0" prefHeight="200.0" prefWidth="160.0" SplitPane.resizableWithParent="false">
          <children>
-            <TabPane prefHeight="152.0" prefWidth="244.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-               <tabs>
-                  <Tab text="Edited">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <ListView fx:id="editedListView" layoutX="-16.0" layoutY="-65.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </Tab>
-                  <Tab text="New">
-                     <content>
-                        <AnchorPane prefWidth="200.0">
-                           <children>
-                              <ListView fx:id="newListView" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </Tab>
-                  <Tab text="Deleted">
-                     <content>
-                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                           <children>
-                              <ListView fx:id="deletedListView" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-                     </content>
-                  </Tab>
-               </tabs>
-            </TabPane>
-            <VBox layoutX="45.0" layoutY="31.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <GridPane id="bottomGridPartOfBranchesHistoryWindow" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" />
+                  <ColumnConstraints maxWidth="500.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints vgrow="NEVER" />
+                  <RowConstraints vgrow="ALWAYS" />
+               </rowConstraints>
                <children>
-                  <HBox spacing="5.0">
+                  <VBox GridPane.rowSpan="2">
                      <children>
-                        <Label text="CurrentCommit Sha1:" wrapText="true" />
-                        <Label fx:id="curCommitSha1Label" text="Label" wrapText="true" />
-                     </children>
-                  </HBox>
-                  <HBox spacing="5.0">
-                     <children>
-                        <Label text="Message:" wrapText="true" />
-                        <Label fx:id="commitMessageLabel" text="Label" wrapText="true" />
-                     </children>
-                  </HBox>
-                  <HBox spacing="5.0">
-                     <children>
-                        <Label text="Creator:" wrapText="true" />
-                        <Label fx:id="creatorLabel" text="Label" wrapText="true" />
-                     </children>
-                  </HBox>
-                  <HBox spacing="5.0">
-                     <children>
-                        <Label text="Last Commits:" wrapText="true" />
-                        <VBox prefWidth="300.0">
+                        <HBox spacing="5.0">
                            <children>
-                              <Label fx:id="lastCommit1Label" wrapText="true" />
-                              <Label fx:id="lastCommit2Label" wrapText="true" />
+                              <Label styleClass="commit-details-label" text="Current Sha1:" wrapText="true" />
+                              <Label fx:id="curCommitSha1Label" text="none" wrapText="true" />
                            </children>
-                        </VBox>
+                        </HBox>
+                        <HBox spacing="5.0">
+                           <children>
+                              <Label styleClass="commit-details-label" text="Message:" wrapText="true" />
+                              <Label fx:id="commitMessageLabel" text="none" wrapText="true" />
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0">
+                           <children>
+                              <Label styleClass="commit-details-label" text="Creator:" wrapText="true" />
+                              <Label fx:id="creatorLabel" text="none" wrapText="true" />
+                           </children>
+                        </HBox>
+                        <HBox spacing="5.0">
+                           <children>
+                              <Label styleClass="commit-details-label" text="Last Commits:" wrapText="true" />
+                              <VBox HBox.hgrow="SOMETIMES">
+                                 <children>
+                                    <Label fx:id="lastCommit1Label" text="none" wrapText="true" />
+                                    <Label fx:id="lastCommit2Label" wrapText="true" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
                      </children>
-                  </HBox>
+                  </VBox>
+                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <items>
+                      <AnchorPane>
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Edited" />
+                                    <ListView fx:id="editedListView" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="New" />
+                                    <ListView fx:id="newListView" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                        <AnchorPane>
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Label alignment="CENTER" maxWidth="1.7976931348623157E308" text="Deleted" />
+                                    <ListView fx:id="deletedListView" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </AnchorPane>
+                    </items>
+                  </SplitPane>
+                  <ComboBox fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" />
                </children>
-            </VBox>
+            </GridPane>
          </children>
       </AnchorPane>
    </items>

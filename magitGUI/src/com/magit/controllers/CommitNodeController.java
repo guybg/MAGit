@@ -1,18 +1,12 @@
 package com.magit.controllers;
 
-import com.magit.controllers.interfaces.BasicController;
-import com.magit.logic.system.MagitEngine;
-import com.magit.logic.system.objects.Commit;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
-
 
 
 public class CommitNodeController {
@@ -32,7 +26,6 @@ public class CommitNodeController {
         commitTimeStampLabel.setText(timeStamp);
         commitTimeStampLabel.setTooltip(new Tooltip(timeStamp));
     }
-
 
     public void setBranchesHistoryScreenController(BranchesHistoryScreenController branchesHistoryScreenController) {
         this.branchesHistoryScreenController = branchesHistoryScreenController;
@@ -69,10 +62,10 @@ public class CommitNodeController {
     }
 
     public void onCommitClicked(MouseEvent mouseEvent) {
+        branchesHistoryScreenController.setCurCommitSha1Label(sha1);
         branchesHistoryScreenController.setCommitMessageLabel(messageLabel.getText());
         branchesHistoryScreenController.setLastCommit1Label(parent1Sha1);
         branchesHistoryScreenController.setLastCommit2Label(parent2Sha1);
         branchesHistoryScreenController.setCreatorLabel(committerLabel.getText());
-        branchesHistoryScreenController.setCurCommitSha1Label(sha1);
     }
 }
