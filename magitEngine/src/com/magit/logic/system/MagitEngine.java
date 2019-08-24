@@ -9,16 +9,18 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.FileItemInfo;
+import com.magit.logic.system.objects.*;
 import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
 import com.magit.logic.system.tasks.NewCommitTask;
 import com.magit.logic.utils.compare.Delta;
+import com.magit.logic.utils.compare.Delta.DeltaFileItem;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import com.magit.logic.utils.file.WorkingCopyUtils;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
@@ -200,7 +202,7 @@ public class MagitEngine {
                 mRepositoryManager.getRepository());
     }
 
-    public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> getWorkingCopyStatusMap() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+    public Map<FileStatus, SortedSet<DeltaFileItem>> getWorkingCopyStatusMap() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit();
     }
@@ -219,20 +221,7 @@ public class MagitEngine {
         return mRepositoryManager.guiGetBranchInfo(branch);
     }
 
-    public void findAncestor(String headSha1, String sha1OfBranchToMerge) {
-        AncestorFinder ancestorFinder = new AncestorFinder(sha1 -> {
-            String pathToObjectFolder = mRepositoryManager.getRepository().getObjectsFolderPath().toString();
-            Path pathToCommit = Paths.get(pathToObjectFolder, sha1);
-            try {
-                return Commit.createCommitInstanceByPath(pathToCommit);
-            } catch (IOException | ParseException | PreviousCommitsLimitExceededException e) {
-                e.printStackTrace();
-            }
-            return null;
-        });
 
-        String ancestorSha1 =  ancestorFinder.traceAncestor(headSha1, sha1OfBranchToMerge);
-    }
 }
 
 
