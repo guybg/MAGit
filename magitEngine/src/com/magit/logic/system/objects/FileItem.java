@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Objects;
 
 public abstract class FileItem implements Comparator<FileItem>, Comparable<FileItem> {
-    protected final String mDateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
+    final String mDateFormat = "dd.MM.yyyy-HH:mm:ss:SSS";
     final String mLastUpdater;
     private final FileType mFileType;
     Date mLastModified;

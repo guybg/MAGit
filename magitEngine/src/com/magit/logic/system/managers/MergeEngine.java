@@ -19,18 +19,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static com.magit.logic.enums.Resolve.TheirsNewFile;
 
 public class MergeEngine {
-    Repository repository;
-    String oursCommitSha1;
-    String theirCommitSha1;
-    String ancestorCommitSha1;
+    private Repository repository;
+    private String oursCommitSha1;
+    private String theirCommitSha1;
+    private String ancestorCommitSha1;
     public void merge(Repository repository, Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         this.repository = repository;
         String headSha1 = branch.getPointedCommitSha1().toString();
@@ -218,5 +215,43 @@ public class MergeEngine {
         });
 
         return ancestorFinder.traceAncestor(headSha1, sha1OfBranchToMerge);
+    }
+
+    private void parseMergeFiles(Repository repository) {
+        HashMap<FileStatus, FileItemInfo> openChangesMap = parseOpenChanges(repository);
+    }
+
+    private HashMap<FileStatus, FileItemInfo> parseOpenChanges(Repository repository) {
+        final int path = 0, state = 1, name = 2, sha1 = 3, createdBy = 5, date = 6;
+        HashMap<FileStatus, FileItemInfo> changesMap = new HashMap<>();
+        String branchName = repository.getBranches().get("HEAD").getBranchName();
+        Path pathToOpenChanges = Paths.get(repository.getMagitFolderPath().toString(), ".merge", branchName, "open-changes");
+
+        if (Files.notExists(pathToOpenChanges))
+            return null;
+
+        String filesContent = "";
+        try {
+            filesContent = FileHandler.readFile(pathToOpenChanges.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String[] linesOfOpenChanges = filesContent.split(System.lineSeparator());
+        for (String line : linesOfOpenChanges) {
+            String[] fieldsOfFileItemInfo = line.split(";");
+            Path fullPath = Paths.get(repository.getRepositoryPath().toString(), fieldsOfFileItemInfo[path]);
+            FileItemInfo fileItemInfo =
+                    new FileItemInfo(fieldsOfFileItemInfo[name], "FILE", fieldsOfFileItemInfo[sha1],
+                        fieldsOfFileItemInfo[createdBy], fieldsOfFileItemInfo[date],
+                            filesContent, fullPath.toString());
+
+            changesMap.put(FileStatus.valueOf(fieldsOfFileItemInfo[state]), fileItemInfo);
+        }
+        return changesMap;
+    }
+
+    private void parseConflitsFile() {
+
     }
 }
