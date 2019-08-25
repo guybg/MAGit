@@ -27,22 +27,22 @@ import java.util.TreeSet;
 import static com.magit.logic.enums.Resolve.TheirsNewFile;
 
 public class MergeEngine {
-    Repository repository;
-    String oursCommitSha1;
-    String theirCommitSha1;
-    String ancestorCommitSha1;
+    private Repository repository;
+    private String oursCommitSha1;
+    private String theirCommitSha1;
+    private String ancestorCommitSha1;
     public void merge(Repository repository, Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         this.repository = repository;
         String headSha1 = branch.getPointedCommitSha1().toString();
 
-        String sha1OfAncestor = findAncestor(headSha1, "f5f9b338cd0d0bce96221fa3a06a739ab738ccc8", repository);
+        String sha1OfAncestor = findAncestor(headSha1, "e28358e4abba57e16a93325b844f784aa013e214", repository);
         if (sha1OfAncestor.equals(""))
             return;
 
         String pathToObjectsFolder = repository.getObjectsFolderPath().toString();
         Commit oursCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, headSha1));
         Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
-        Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, "f5f9b338cd0d0bce96221fa3a06a739ab738ccc8"));
+        Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, "e28358e4abba57e16a93325b844f784aa013e214"));
 
         if (null == oursCommit || null == ancestorCommit || null == theirsCommit)
             return; // is that the way it should be handled?? todo
@@ -190,7 +190,7 @@ public class MergeEngine {
             FileStatus oursTheirsStatus = oursTheirs.containsKey(path) ? oursTheirs.get(path).getKey() : FileStatus.UNCHANGED;
             FileStatus theirsAncestorStatus = theirsAncestor.containsKey(path) ? theirsAncestor.get(path).getKey() : FileStatus.UNCHANGED;
             FileStatus ancestorOursStatus = ancestorOurs.containsKey(path) ? ancestorOurs.get(path).getKey() : FileStatus.UNCHANGED;
-            MergeStateFileItem currentItem = new MergeStateFileItem(ours, theirs, ancestor, oursTheirsStatus, theirsAncestorStatus, ancestorOursStatus, path);
+            MergeStateFileItem currentItem = new MergeStateFileItem(ours, theirs, ancestor, oursTheirsStatus, theirsAncestorStatus, ancestorOursStatus);
             mergeStates.add(new Pair<>(path, currentItem));
         }
 

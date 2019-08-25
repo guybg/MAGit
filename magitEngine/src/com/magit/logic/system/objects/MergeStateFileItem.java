@@ -3,7 +3,6 @@ package com.magit.logic.system.objects;
 import com.magit.logic.enums.FileStatus;
 
 public class MergeStateFileItem {
-    private String path;
     private FileItem ours;
     private FileItem theirs;
     private FileItem ancestor;
@@ -13,8 +12,7 @@ public class MergeStateFileItem {
     private FileStatus oursAncestor;
 
     public MergeStateFileItem(FileItem ours, FileItem theirs, FileItem ancestor,
-                              FileStatus oursTheirs, FileStatus theirsAncestor, FileStatus oursAncestor, String path) {
-        this.path = path;
+                              FileStatus oursTheirs, FileStatus theirsAncestor, FileStatus oursAncestor) {
         this.ours = ours;
         this.theirs = theirs;
         this.ancestor = ancestor;
@@ -41,10 +39,6 @@ public class MergeStateFileItem {
             output |= 0b000001;
 
         return output;
-    }
-
-    public String getPath() {
-        return path;
     }
 
     public FileItem getOurs() {
