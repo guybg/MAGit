@@ -5,7 +5,8 @@ import com.fxgraph.graph.ICell;
 import com.fxgraph.layout.Layout;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.visual.node.CommitNode;
-
+import javafx.geometry.Bounds;
+import javafx.scene.shape.Shape;
 
 
 import java.util.*;
@@ -15,10 +16,8 @@ public class CommitTreeLayout implements Layout {
     @Override
     public void execute(Graph graph) {
         final List<ICell> cells = graph.getModel().getAllCells();
-        Collections.sort(cells, (o1, o2) -> ((CommitNode) o2).getDate().compareTo(((CommitNode) o1).getDate()));
-
+        cells.sort((o1, o2) -> ((CommitNode) o2).getDate().compareTo(((CommitNode) o1).getDate()));
         int startY = 50;
-
         for (ICell cell : cells) {
             CommitNode commitNode = (CommitNode) cell;
             if (commitNode.getCellParents().size() == 0) commitNode.setPos(0);
@@ -31,7 +30,6 @@ public class CommitTreeLayout implements Layout {
 
     private void setPosX(List<ICell> cells, Graph graph) {
         double startX = 30;
-
         Collections.reverse(cells);
         for (ICell cell : cells) {
             CommitNode commitNode = (CommitNode) cell;

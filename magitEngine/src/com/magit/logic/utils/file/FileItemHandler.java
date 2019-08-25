@@ -6,6 +6,7 @@ import com.magit.logic.system.objects.FileItem;
 import com.magit.logic.utils.digest.Sha1;
 import org.apache.commons.io.IOUtils;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class FileItemHandler {
     public static String unzip(String sourcePath, Sha1 sourceSha1, String destinationPath, String fileName) throws IOException {
         try (FileInputStream fis = new FileInputStream(Paths.get(sourcePath, sourceSha1.toString()).toString());
              GZIPInputStream gzipInputStream = new GZIPInputStream(fis)) {
+            new File(destinationPath).mkdirs();
             String fileContent = new String(IOUtils.toByteArray(gzipInputStream));
             FileHandler.writeNewFile(Paths.get(destinationPath, fileName).toString(), fileContent);
             return fileContent;

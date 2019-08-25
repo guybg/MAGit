@@ -11,6 +11,7 @@ import com.magit.gui.PopupScreen;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.managers.MergeEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.utils.compare.Delta;
@@ -215,6 +216,13 @@ public class MainScreenController implements Initializable, BasicController {
         xOffset = event.getSceneX();
         yOffset = event.getSceneY();
     }
+
+    @FXML
+    void onMerge(ActionEvent event) {
+        engine.merge();
+    }
+
+
     @FXML
     void onShowBranchesHistory(ActionEvent event) {
         FXMLLoader fxmlLoader = new FXMLLoader();
@@ -524,6 +532,7 @@ public class MainScreenController implements Initializable, BasicController {
         AnchorPane.setRightAnchor(table, 0.0);
         AnchorPane.setTopAnchor(table, 0.0);
         progressBarPane.getChildren().add(table);
+        progressBarPane.toFront();
         controller.start(false);
     }
 
