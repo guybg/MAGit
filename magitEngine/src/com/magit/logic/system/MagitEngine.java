@@ -231,9 +231,11 @@ public class MagitEngine {
         return mRepositoryManager.guiGetBranchInfo(branch);
     }
 
-    public void merge() {
+    public void merge(String branchName) throws UnhandledMergeException{
         try {
-            mergeEngine.merge(mRepositoryManager.getRepository(), mBranchManager.getActiveBranch());
+            if(mRepositoryManager.headBranchHasUnhandledMerge())
+                throw new UnhandledMergeException("Unhandled merge already exists, please solve conflicts and commit open changes");
+            mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName));
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (PreviousCommitsLimitExceededException e) {
@@ -241,6 +243,13 @@ public class MagitEngine {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public HashMap<FileStatus, ArrayList<FileItemInfo>> getMergeOpenChanges(){
+        if(mRepositoryManager.headBranchHasMergeOpenChanges()){
+            return mergeEngine.getOpenChanges(mRepositoryManager.getRepository());
+        }
+        return null;
     }
 }
 

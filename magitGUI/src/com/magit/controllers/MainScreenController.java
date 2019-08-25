@@ -13,6 +13,7 @@ import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.managers.MergeEngine;
 import com.magit.logic.system.objects.Branch;
+import com.magit.logic.system.objects.FileItem;
 import com.magit.logic.system.objects.FileItemInfo;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.visual.layout.CommitTreeLayout;
@@ -219,7 +220,12 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onMerge(ActionEvent event) {
-        engine.merge();
+        try {
+            engine.merge("master");
+        } catch (UnhandledMergeException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
@@ -567,14 +573,40 @@ public class MainScreenController implements Initializable, BasicController {
             Map<FileStatus, SortedSet<Delta.DeltaFileItem>> openChanges =  engine.getWorkingCopyStatusMap();
             for(Map.Entry<FileStatus, SortedSet<Delta.DeltaFileItem>> entry : openChanges.entrySet()){
                 for(Delta.DeltaFileItem item : entry.getValue()) {
-                    if (entry.getKey().equals(FileStatus.EDITED)) {
-                        editedCount = createDiffLabels(editedCount, item, editedFilesListView);
+                    switch (entry.getKey()){
+                        case EDITED:
+                            createDiffLabels(item, editedFilesListView);
+                            editedCount++;
+                            break;
+                        case REMOVED:
+                            createDiffLabels(item, deletedFilesListView);
+                            deletedCount++;
+                            break;
+                        case NEW:
+                            createDiffLabels(item, newFilesListView);
+                            newCount++;
+                            break;
                     }
-                    if (entry.getKey().equals(FileStatus.REMOVED)) {
-                        deletedCount = createDiffLabels(deletedCount, item, deletedFilesListView);
-                    }
-                    if(entry.getKey().equals(FileStatus.NEW)) {
-                        newCount = createDiffLabels(newCount, item, newFilesListView);
+                }
+            }
+            HashMap<FileStatus, ArrayList<FileItemInfo>> mergeOpenChanges = engine.getMergeOpenChanges();
+            if(mergeOpenChanges != null){
+                for(Map.Entry<FileStatus, ArrayList<FileItemInfo>> infoEntry : mergeOpenChanges.entrySet()){
+                    for(FileItemInfo item : infoEntry.getValue()) {
+                        switch (infoEntry.getKey()){
+                            case EDITED:
+                                editedCount++;
+                                createDiffLabels(item, editedFilesListView);
+                                break;
+                            case REMOVED:
+                                deletedCount++;
+                                createDiffLabels(item, deletedFilesListView);
+                                break;
+                            case NEW:
+                                newCount++;
+                                createDiffLabels(item, newFilesListView);
+                                break;
+                        }
                     }
                 }
             }
@@ -598,7 +630,9 @@ public class MainScreenController implements Initializable, BasicController {
         }
     }
 
-    private Integer createDiffLabels(Integer editedCount, Delta.DeltaFileItem item, ListView<Label> editedFilesListView) {
+
+
+    private void createDiffLabels(Delta.DeltaFileItem item, ListView<Label> editedFilesListView) {
         Label itemLocation = new Label(item.getFullPath());
         String lastModifier = item.getLastUpdater();
         String commitDate = item.getLastModified();
@@ -608,8 +642,18 @@ public class MainScreenController implements Initializable, BasicController {
         }
         itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s",item.getFullPath(),System.lineSeparator(),item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(),commitDate)));
         editedFilesListView.getItems().add(itemLocation);
-        editedCount++;
-        return editedCount;
+    }
+
+    private void createDiffLabels(FileItemInfo item, ListView<Label> editedFilesListView) {
+        Label itemLocation = new Label(item.getFileLocation());
+        String lastModifier = item.getFileLastUpdater();
+        String commitDate = item.getFileLastModified();
+        if(item.getFileLastUpdater().equals("")) {
+            lastModifier = userNameProperty.getValue();
+            commitDate = "not committed";
+        }
+        itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s",item.getFileLocation(),System.lineSeparator(),item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(),commitDate)));
+        editedFilesListView.getItems().add(itemLocation);
     }
 
     @FXML

@@ -167,4 +167,6 @@ public class Repository {
                 changes.get(FileStatus.EDITED).size() != changesWereMade ||
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
+
+
 }

@@ -26,18 +26,18 @@ public class MergeEngine {
     private String oursCommitSha1;
     private String theirCommitSha1;
     private String ancestorCommitSha1;
-    public void merge(Repository repository, Branch branch) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         this.repository = repository;
-        String headSha1 = branch.getPointedCommitSha1().toString();
+        String headSha1 = repository.getBranches().get("HEAD").getPointedCommitSha1().toString();
 
-        String sha1OfAncestor = findAncestor(headSha1, "e28358e4abba57e16a93325b844f784aa013e214", repository);
+        String sha1OfAncestor = findAncestor(headSha1, branchToBeMergedWith.getPointedCommitSha1().toString(), repository);
         if (sha1OfAncestor.equals(""))
             return;
 
         String pathToObjectsFolder = repository.getObjectsFolderPath().toString();
         Commit oursCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, headSha1));
         Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
-        Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, "e28358e4abba57e16a93325b844f784aa013e214"));
+        Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, branchToBeMergedWith.getPointedCommitSha1().toString()));
 
         if (null == oursCommit || null == ancestorCommit || null == theirsCommit)
             return; // is that the way it should be handled?? todo
@@ -216,15 +216,21 @@ public class MergeEngine {
         return ancestorFinder.traceAncestor(headSha1, sha1OfBranchToMerge);
     }
 
+    public HashMap<FileStatus, ArrayList<FileItemInfo>> getOpenChanges(Repository repository){
+        return parseOpenChanges(repository);
+    }
     private void parseMergeFiles(Repository repository) {
-        HashMap<FileStatus, FileItemInfo> openChangesMap = parseOpenChanges(repository);
+        HashMap<FileStatus, ArrayList<FileItemInfo>> openChangesMap = parseOpenChanges(repository);
         ArrayList<ConflictItem> conflictItems = parseConflictsFile(repository);
 
     }
 
-    private HashMap<FileStatus, FileItemInfo> parseOpenChanges(Repository repository) {
+    private HashMap<FileStatus, ArrayList<FileItemInfo>> parseOpenChanges(Repository repository) {
         final int path = 0, state = 1, name = 2, sha1 = 3, createdBy = 5, date = 6;
-        HashMap<FileStatus, FileItemInfo> openChangesMap = new HashMap<>();
+        ArrayList<FileItemInfo> editedFiles = new ArrayList<>();
+        ArrayList<FileItemInfo> deletedFiles = new ArrayList<>();
+        ArrayList<FileItemInfo> newFiles = new ArrayList<>();
+        HashMap<FileStatus, ArrayList<FileItemInfo>> openChangesMap = new HashMap<>();
         String branchName = repository.getBranches().get("HEAD").getBranchName();
         Path pathToOpenChanges = Paths.get(repository.getMagitFolderPath().toString(), ".merge", branchName, "open-changes");
 
@@ -242,9 +248,21 @@ public class MergeEngine {
         for (String line : linesOfOpenChanges) {
             String[] fieldsOfFileItemInfo = line.split(";");
             Path fullPath = Paths.get(repository.getRepositoryPath().toString(), fieldsOfFileItemInfo[path]);
-            openChangesMap.put(FileStatus.valueOf(fieldsOfFileItemInfo[state]),
-                    createFileItemInfoWrapper(repository, name, sha1, createdBy, date, fullPath.toString(), fieldsOfFileItemInfo));
+            switch (FileStatus.valueOf(fieldsOfFileItemInfo[state])){
+                case EDITED:
+                    editedFiles.add(createFileItemInfoWrapper(repository, name, sha1, createdBy, date, fullPath.toString(), fieldsOfFileItemInfo));
+                    break;
+                case REMOVED:
+                    deletedFiles.add(createFileItemInfoWrapper(repository, name, sha1, createdBy, date, fullPath.toString(), fieldsOfFileItemInfo));
+                    break;
+                case NEW:
+                    newFiles.add(createFileItemInfoWrapper(repository, name, sha1, createdBy, date, fullPath.toString(), fieldsOfFileItemInfo));
+                    break;
+            }
         }
+        openChangesMap.put(FileStatus.EDITED, editedFiles);
+        openChangesMap.put(FileStatus.REMOVED, deletedFiles);
+        openChangesMap.put(FileStatus.NEW, newFiles);
         return openChangesMap;
     }
 
