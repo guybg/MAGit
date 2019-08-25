@@ -67,6 +67,6 @@ public class MergeStateFileItem {
         if(ancestor != null){
             ancestorFileContent = ancestor.toString();
         }
-        return String.format("ours:%s;theirs:%s;ancestor:%s", oursFileContent,theirsFileContent,ancestorFileContent);
+        return String.format("ours==%s=/=theirs==%s=/=ancestor==%s", oursFileContent,theirsFileContent,ancestorFileContent);
     }
 }

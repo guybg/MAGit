@@ -6,11 +6,11 @@ import com.magit.logic.enums.Resolve;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.compare.Delta;
+import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import javafx.util.Pair;
-import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 
 import java.io.File;
@@ -19,12 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import static com.magit.logic.enums.Resolve.TheirsNewFile;
+import java.util.*;
 
 public class MergeEngine {
     private Repository repository;
@@ -58,6 +53,7 @@ public class MergeEngine {
         //check fast forward merge
         SortedSet<Pair<String, MergeStateFileItem>> mergeItemsMap = getMergeState(oursDelta, theirsDelta, ancestorDelta);
         executeMerge(mergeItemsMap);
+        parseMergeFiles(repository);
     }
 
     private void executeMerge(SortedSet<Pair<String, MergeStateFileItem>> mergeStateItemsMap) {
@@ -163,7 +159,7 @@ public class MergeEngine {
 
     private void addFileToConflictsFile(String pathToConflicts, String pathToFile, MergeStateFileItem mergeStateFileItemileItem){
         try {
-            FileHandler.appendFileWithContentAndLine(pathToConflicts,String.format("path:%s;%s", pathToFile.toLowerCase().replace(repository.getRepositoryPath().toString().toLowerCase(), ""),mergeStateFileItemileItem.toString()));
+            FileHandler.appendFileWithContentAndLine(pathToConflicts,String.format("path==%s=/=%s", pathToFile.toLowerCase().replace(repository.getRepositoryPath().toString().toLowerCase(), ""),mergeStateFileItemileItem.toString()));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -218,5 +214,89 @@ public class MergeEngine {
         });
 
         return ancestorFinder.traceAncestor(headSha1, sha1OfBranchToMerge);
+    }
+
+    private void parseMergeFiles(Repository repository) {
+        HashMap<FileStatus, FileItemInfo> openChangesMap = parseOpenChanges(repository);
+        ArrayList<ConflictItem> conflictItems = parseConflictsFile(repository);
+
+    }
+
+    private HashMap<FileStatus, FileItemInfo> parseOpenChanges(Repository repository) {
+        final int path = 0, state = 1, name = 2, sha1 = 3, createdBy = 5, date = 6;
+        HashMap<FileStatus, FileItemInfo> openChangesMap = new HashMap<>();
+        String branchName = repository.getBranches().get("HEAD").getBranchName();
+        Path pathToOpenChanges = Paths.get(repository.getMagitFolderPath().toString(), ".merge", branchName, "open-changes");
+
+        if (Files.notExists(pathToOpenChanges))
+            return null;
+
+        String filesContent = "";
+        try {
+            filesContent = FileHandler.readFile(pathToOpenChanges.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String[] linesOfOpenChanges = filesContent.split(System.lineSeparator());
+        for (String line : linesOfOpenChanges) {
+            String[] fieldsOfFileItemInfo = line.split(";");
+            Path fullPath = Paths.get(repository.getRepositoryPath().toString(), fieldsOfFileItemInfo[path]);
+            openChangesMap.put(FileStatus.valueOf(fieldsOfFileItemInfo[state]),
+                    createFileItemInfoWrapper(repository, name, sha1, createdBy, date, fullPath.toString(), fieldsOfFileItemInfo));
+        }
+        return openChangesMap;
+    }
+
+    private ArrayList<ConflictItem> parseConflictsFile(Repository repository) {
+        final int name = 0, sha1 = 1, updatedBy = 3, date = 4,
+                pathIndex = 0, oursIndex = 1, theirsIndex = 2, ancestorIndex =3;
+        ArrayList<ConflictItem> conflictItems = new ArrayList<>();
+        String branchName = repository.getBranches().get("HEAD").getBranchName();
+        Path pathToConflictsFiles = Paths.get(repository.getMagitFolderPath().toString(), ".merge", branchName, "conflicts");
+
+        if (Files.notExists(pathToConflictsFiles))
+            return null; //throw
+
+        String fileContent = "";
+
+        try {
+            fileContent = FileHandler.readFile(pathToConflictsFiles.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String[] linesOfFile = fileContent.split(System.lineSeparator());
+        for (String line : linesOfFile) {
+            String[] splitted = fileContent.split("=/=");
+            String path = splitted[pathIndex].split("==")[1];
+            String ours = splitted[oursIndex];
+            String theirs = splitted[theirsIndex];
+            String ancestor = splitted[ancestorIndex];
+            ConflictItem conflictItem = new ConflictItem();
+
+            for (String fileItemString : new String[]{ours, theirs, ancestor}) {
+                String[] nameInfo = fileItemString.split("==");
+                String commitSide = nameInfo[0];
+                String[] info = nameInfo[1].split(";");
+                if (info[0].equals("none"))
+                    continue;
+
+                FileItemInfo itemInfo = createFileItemInfoWrapper(repository, name, sha1, updatedBy, date, path, info);
+                conflictItem.set(commitSide, itemInfo);
+            }
+            conflictItems.add(conflictItem);
+        }
+        return conflictItems;
+    }
+
+    private FileItemInfo createFileItemInfoWrapper(Repository repository, int name, int sha1, int updatedBy, int date, String path, String[] info) {
+        String content = "";
+        try {
+            content = FileItemHandler.zipToString(repository.getObjectsFolderPath().toString(), new Sha1(info[sha1], true));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new FileItemInfo(info[name], "FILE", info[sha1],
+                info[updatedBy], info[date], content, path);
     }
 }
