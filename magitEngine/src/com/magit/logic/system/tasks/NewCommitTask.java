@@ -1,9 +1,6 @@
 package com.magit.logic.system.tasks;
 
-import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
-import com.magit.logic.exceptions.RepositoryNotFoundException;
-import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
-import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -26,7 +23,7 @@ public class NewCommitTask extends Task<Void> {
     }
 
     @Override
-    protected Void call() throws WorkingCopyStatusNotChangedComparedToLastCommitException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, WorkingCopyIsEmptyException {
+    protected Void call() throws WorkingCopyStatusNotChangedComparedToLastCommitException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, WorkingCopyIsEmptyException, UnhandledConflictsException {
         engine.commit(input);
         Platform.runLater(() -> onSuccess.run());
         return null;

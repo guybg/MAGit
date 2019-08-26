@@ -231,15 +231,4 @@ public class RepositoryManager {
                 branch.getBranchName(), System.lineSeparator(), branch.getPointedCommitSha1().toString(), System.lineSeparator(),
                 commitMessage, System.lineSeparator());
     }
-
-    public boolean headBranchHasUnhandledMerge(){
-        return Files.exists(Paths.get(getRepository().getMagitFolderPath().toString(),".merge",getHeadBranch()));
-    }
-
-    public boolean headBranchHasMergeConflicts(){
-        return Files.exists(Paths.get(getRepository().getMagitFolderPath().toString(),".merge",getHeadBranch(), "conflicts"));
-    }
-    public boolean headBranchHasMergeOpenChanges(){
-        return Files.exists(Paths.get(getRepository().getMagitFolderPath().toString(),".merge",getHeadBranch(), "open-changes"));
-    }
 }

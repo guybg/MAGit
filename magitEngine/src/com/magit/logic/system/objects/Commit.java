@@ -171,6 +171,9 @@ public class Commit extends FileItem implements CommitRepresentative {
             mWorkingCopySha1 = fixedWc.getSha1Code();
             if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code())) {
                 mFirstPreviousCommit = lastCommit.getSha1Code();
+                if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName()))){
+                    mSecondPreviousCommit = new Sha1(getTheirsSha1(repository),true);
+                }
                 workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
                 super.mSha1Code = new Sha1(getFileContent(), false);
                 branch.setPointedCommitSha1(super.mSha1Code);
@@ -183,6 +186,17 @@ public class Commit extends FileItem implements CommitRepresentative {
         addCommitToCommitsFile(repository);
     }
 
+    public String getTheirsSha1(Repository repository){
+        String mergeInfoPath = Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName(), "merge-info").toString();
+        try {
+            String fileInfoToString = FileHandler.readFile(mergeInfoPath);
+            String theirsLine = fileInfoToString.split(System.lineSeparator())[1];
+            return theirsLine.split(":")[1];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     private void addCommitToCommitsFile(Repository repository) throws IOException {
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getMagitFolderPath().toString(), COMMITS_FILE_NAME).toString(), this.getSha1Code().toString());
     }

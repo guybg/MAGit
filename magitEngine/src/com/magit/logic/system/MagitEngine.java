@@ -22,6 +22,7 @@ import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.util.Pair;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
@@ -130,10 +131,16 @@ public class MagitEngine {
             throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
     }
 
-    public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException,
+    public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException, UnhandledConflictsException,
             WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
+        if(mergeEngine.headBranchHasMergeConflicts(mRepositoryManager.getRepository())){
+            throw new UnhandledConflictsException("Please solve conflicts before committing changes.");
+        }
         mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
+        if(mergeEngine.headBranchHasUnhandledMerge(mRepositoryManager.getRepository())){
+            FileUtils.deleteQuietly(Paths.get(mRepositoryManager.getRepository().getMagitFolderPath().toString(),".merge", mBranchManager.getActiveBranch().getBranchName()).toFile());
+        }
     }
 
     public void guiCommit(Consumer<String> exceptionDelegate, Runnable onSuccess, String inputFromUser){
@@ -233,8 +240,8 @@ public class MagitEngine {
 
     public void merge(String branchName) throws UnhandledMergeException{
         try {
-            if(mRepositoryManager.headBranchHasUnhandledMerge())
-                throw new UnhandledMergeException("Unhandled merge already exists, please solve conflicts and commit open changes");
+            //if(mRepositoryManager.headBranchHasUnhandledMerge())
+            //    throw new UnhandledMergeException("Unhandled merge already exists, please solve conflicts and commit open changes");
             mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName));
         } catch (ParseException e) {
             e.printStackTrace();
@@ -246,11 +253,23 @@ public class MagitEngine {
     }
 
     public HashMap<FileStatus, ArrayList<FileItemInfo>> getMergeOpenChanges(){
-        if(mRepositoryManager.headBranchHasMergeOpenChanges()){
+        if(mergeEngine.headBranchHasMergeOpenChanges(mRepositoryManager.getRepository())){
             return mergeEngine.getOpenChanges(mRepositoryManager.getRepository());
         }
         return null;
     }
+
+    public ArrayList<ConflictItem> getMergeConflicts(){
+        if(mergeEngine.headBranchHasMergeConflicts(mRepositoryManager.getRepository())){
+            return mergeEngine.getConflictItems(mRepositoryManager.getRepository());
+        }
+        return null;
+    }
+
+    public void updateSolvedConflict(String path, String fileName, String fileContent){
+        mergeEngine.saveSolvedConflictItem(path,fileName,fileContent,mRepositoryManager.getRepository());
+    }
+
 }
 
 

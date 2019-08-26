@@ -207,5 +207,31 @@
 }
 
 
+/* merge screen */
+
+.merge-screen-main-grid, .merge-screen-main-grid .label{
+    -fx-background-color: #3C3F41;
+    -fx-text-fill: white;
+}
+.merge-screen-main-grid .text-area{
+    -fx-background-color: #2B2B2B;
+    -fx-text-fill: white;
+}
+#merge-screen-button-bars{
+    -fx-background-color: #3C3F41;
+    -fx-border-color: #3C3F41;
+}
+
+.info-and-text .content, .info-and-text, .info-and-text .label{
+    -fx-background-color: #2B2B2B;
+    -fx-text-fill: white;
+}
+
+.merge-screen-main-grid .button{
+    -fx-background-color: #365880;
+    -fx-border-color: #4C708C;
+    -fx-text-fill: white;
+}
+
 
 

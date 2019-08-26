@@ -4,6 +4,8 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.enums.Resolve;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
+import com.magit.logic.exceptions.UnhandledConflictsException;
+import com.magit.logic.exceptions.UnhandledMergeException;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
@@ -11,6 +13,7 @@ import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import javafx.util.Pair;
+import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
 
 import java.io.File;
@@ -26,7 +29,10 @@ public class MergeEngine {
     private String oursCommitSha1;
     private String theirCommitSha1;
     private String ancestorCommitSha1;
-    public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException, UnhandledMergeException {
+        if(headBranchHasUnhandledMerge(repository)){
+            throw new UnhandledMergeException("there is already unsolved merge at this branch, information loaded.");
+        }
         this.repository = repository;
         String headSha1 = repository.getBranches().get("HEAD").getPointedCommitSha1().toString();
 
@@ -225,6 +231,10 @@ public class MergeEngine {
 
     }
 
+    public ArrayList<ConflictItem> getConflictItems(Repository repository){
+        return parseConflictsFile(repository);
+    }
+
     private HashMap<FileStatus, ArrayList<FileItemInfo>> parseOpenChanges(Repository repository) {
         final int path = 0, state = 1, name = 2, sha1 = 3, createdBy = 5, date = 6;
         ArrayList<FileItemInfo> editedFiles = new ArrayList<>();
@@ -285,12 +295,12 @@ public class MergeEngine {
         }
         String[] linesOfFile = fileContent.split(System.lineSeparator());
         for (String line : linesOfFile) {
-            String[] splitted = fileContent.split("=/=");
-            String path = splitted[pathIndex].split("==")[1];
-            String ours = splitted[oursIndex];
-            String theirs = splitted[theirsIndex];
-            String ancestor = splitted[ancestorIndex];
-            ConflictItem conflictItem = new ConflictItem();
+            String[] splitter = line.split("=/=");
+            String path = splitter[pathIndex].split("==")[1];
+            String ours = splitter[oursIndex];
+            String theirs = splitter[theirsIndex];
+            String ancestor = splitter[ancestorIndex];
+            ConflictItem conflictItem = new ConflictItem(Paths.get(repository.getRepositoryPath().toString(),path).toString());
 
             for (String fileItemString : new String[]{ours, theirs, ancestor}) {
                 String[] nameInfo = fileItemString.split("==");
@@ -300,6 +310,7 @@ public class MergeEngine {
                     continue;
 
                 FileItemInfo itemInfo = createFileItemInfoWrapper(repository, name, sha1, updatedBy, date, path, info);
+                conflictItem.setFileName(info[name]);
                 conflictItem.set(commitSide, itemInfo);
             }
             conflictItems.add(conflictItem);
@@ -317,4 +328,35 @@ public class MergeEngine {
         return new FileItemInfo(info[name], "FILE", info[sha1],
                 info[updatedBy], info[date], content, path);
     }
+
+    public void saveSolvedConflictItem(String path, String fileName,String fileContent, Repository repository){
+        try {String conflictsPath = Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName(), "conflicts").toString();
+            String conflicts = FileHandler.readFile(conflictsPath);
+            StringBuilder updatedConflicts = new StringBuilder();
+            for(String line : conflicts.split(System.lineSeparator())){
+                if(!line.contains(path.toLowerCase().replace(repository.getRepositoryPath().toString().toLowerCase(), ""))){
+                    updatedConflicts.append(String.format("%s%s",line, System.lineSeparator()));
+                }
+            }
+            FileHandler.writeNewFile(conflictsPath, updatedConflicts.toString());
+            FileHandler.writeNewFile(path, fileContent);
+            if(updatedConflicts.toString().isEmpty()){
+                FileUtils.deleteQuietly(new File(conflictsPath));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean headBranchHasUnhandledMerge(Repository repository){
+        return Files.exists(Paths.get(repository.getMagitFolderPath().toString(),".merge",repository.getBranches().get("HEAD").getBranchName()));
+    }
+
+    public boolean headBranchHasMergeConflicts(Repository repository){
+        return Files.exists(Paths.get(repository.getMagitFolderPath().toString(),".merge",repository.getBranches().get("HEAD").getBranchName(), "conflicts"));
+    }
+    public boolean headBranchHasMergeOpenChanges(Repository repository){
+        return Files.exists(Paths.get(repository.getMagitFolderPath().toString(),".merge",repository.getBranches().get("HEAD").getBranchName(), "open-changes"));
+    }
+
 }

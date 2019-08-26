@@ -221,8 +221,12 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void onMerge(ActionEvent event) {
         try {
-            engine.merge("master");
-        } catch (UnhandledMergeException e) {
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
+            Parent layout = loader.load();
+            popupScreen.createPopup(layout, loader.getController());
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -586,27 +590,6 @@ public class MainScreenController implements Initializable, BasicController {
                             createDiffLabels(item, newFilesListView);
                             newCount++;
                             break;
-                    }
-                }
-            }
-            HashMap<FileStatus, ArrayList<FileItemInfo>> mergeOpenChanges = engine.getMergeOpenChanges();
-            if(mergeOpenChanges != null){
-                for(Map.Entry<FileStatus, ArrayList<FileItemInfo>> infoEntry : mergeOpenChanges.entrySet()){
-                    for(FileItemInfo item : infoEntry.getValue()) {
-                        switch (infoEntry.getKey()){
-                            case EDITED:
-                                editedCount++;
-                                createDiffLabels(item, editedFilesListView);
-                                break;
-                            case REMOVED:
-                                deletedCount++;
-                                createDiffLabels(item, deletedFilesListView);
-                                break;
-                            case NEW:
-                                newCount++;
-                                createDiffLabels(item, newFilesListView);
-                                break;
-                        }
                     }
                 }
             }
