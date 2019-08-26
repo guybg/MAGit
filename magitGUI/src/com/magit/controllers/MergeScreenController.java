@@ -71,7 +71,7 @@ public class MergeScreenController implements BasicController, Initializable {
             }
         }, () -> {
             try {
-                PopupScreen popupScreen = new PopupScreen(stage, engine);
+                PopupScreen popupScreen = new PopupScreen(((Stage)(((Button)event.getSource()).getScene().getWindow())), engine);
                 popupScreen.createNotificationPopup(event12 -> {
                 }, false, "Commit creation notification", "Files commited successfully", "Close");
             }catch (IOException e){
@@ -91,10 +91,14 @@ public class MergeScreenController implements BasicController, Initializable {
         } catch (UnhandledMergeException e) {
             PopupScreen popupScreen = new PopupScreen(stage,engine);
             try {
+                branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
                 popupScreen.createNotificationPopup(null,false,"Unhandled merge",e.getMessage(),"Close");
+
                 updateOpenChanges();
                 updateConflicts();
+                branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
                 mergeButton.setDisable(true);
+                branchToMergeWithComboBox.setDisable(true);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

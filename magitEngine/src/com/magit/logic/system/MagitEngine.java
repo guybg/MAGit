@@ -138,12 +138,20 @@ public class MagitEngine {
         if(mergeEngine.headBranchHasMergeConflicts(mRepositoryManager.getRepository())){
             throw new UnhandledConflictsException("Please solve conflicts before committing changes.");
         }
-        mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
+        try {
+            mRepositoryManager.commit(inputFromUser, mUserName, mBranchManager.getActiveBranch());
+        }catch (FastForwardException e){
+            deleteBranchMergeFolder();
+            throw new FastForwardException(e.getMessage());
+        }
+        deleteBranchMergeFolder();
+    }
+
+    private void deleteBranchMergeFolder(){
         if(mergeEngine.headBranchHasUnhandledMerge(mRepositoryManager.getRepository())){
             FileUtils.deleteQuietly(Paths.get(mRepositoryManager.getRepository().getMagitFolderPath().toString(),".merge", mBranchManager.getActiveBranch().getBranchName()).toFile());
         }
     }
-
     public void guiCommit(Consumer<String> exceptionDelegate, Runnable onSuccess, String inputFromUser){
         NewCommitTask task = new NewCommitTask(onSuccess, this, inputFromUser);
         new Thread(task).start();
@@ -291,6 +299,13 @@ public class MagitEngine {
 
     public void updateSolvedConflict(String path, String fileName, String fileContent){
         mergeEngine.saveSolvedConflictItem(path,fileName,fileContent,mRepositoryManager.getRepository());
+    }
+
+    public String getMergedWithBranchNameFromUnhandledMerge() throws IOException {
+        String content = FileHandler.readFile(Paths.get(mRepositoryManager.getRepository().getMagitFolderPath().toString()
+                ,".merge", mBranchManager.getActiveBranch().getBranchName(),"merge-info").toString());
+        return content.split(System.lineSeparator())[3];
+
     }
 
 }

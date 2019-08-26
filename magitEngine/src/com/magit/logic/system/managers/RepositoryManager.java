@@ -69,8 +69,10 @@ public class RepositoryManager {
             if (!branchFile.getName().equals("HEAD"))
                 mActiveRepository.addBranch(branchFile.getName()
                         , new Branch(branchFile.getName(), FileHandler.readFile(branchFile.getPath())));
-            else {
-                branchManager.loadBranch(branchFile);
+        }
+        for (File branchFile : branchesFiles) {
+            if (branchFile.getName().equals("HEAD")){
+                branchManager.setActiveBranch(mActiveRepository.getBranches().get(FileHandler.readFile(branchFile.getPath())));
                 mActiveRepository.addBranch(branchFile.getName(), branchManager.getActiveBranch());
             }
         }

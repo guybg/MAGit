@@ -158,7 +158,8 @@ public class Commit extends FileItem implements CommitRepresentative {
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException, FastForwardException {
         if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName(),"fast-forward"))){
             repository.changeBranchPointer(branch, new Sha1(getTheirsSha1(repository),true));
-            throw new FastForwardException("Fast forward - active branch pointed sha1 changed to targed branch's pointed sha1");
+            branch.setPointedCommitSha1(new Sha1(getTheirsSha1(repository),true));
+            throw new FastForwardException("Fast forward - active branch pointed sha1 changed to target branch's pointed sha1");
         }
 
         if (branch.getPointedCommitSha1().toString().equals(EMPTY)) {
@@ -175,7 +176,7 @@ public class Commit extends FileItem implements CommitRepresentative {
             WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, mLastModified);
             Tree fixedWc = WorkingCopyUtils.getWcWithOnlyNewChanges(curWc, oldWcFromCommit);
             mWorkingCopySha1 = fixedWc.getSha1Code();
-            if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code())) {
+            if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code()) || Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName()))) {
                 mFirstPreviousCommit = lastCommit.getSha1Code();
                 if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName()))){
                     mSecondPreviousCommit = new Sha1(getTheirsSha1(repository),true);

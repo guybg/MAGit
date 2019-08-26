@@ -27,10 +27,12 @@ public class MergeEngine {
     private String oursCommitSha1;
     private String theirCommitSha1;
     private String ancestorCommitSha1;
+    private String theirsBranchName;
     public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException, UnhandledMergeException, MergeNotNeededException, FastForwardException {
         if(headBranchHasUnhandledMerge(repository)){
             throw new UnhandledMergeException("there is already unsolved merge at this branch, information loaded.");
         }
+        theirsBranchName = branchToBeMergedWith.getBranchName();
         this.repository = repository;
         String headSha1 = repository.getBranches().get("HEAD").getPointedCommitSha1().toString();
 
@@ -65,11 +67,11 @@ public class MergeEngine {
     }
 
     private boolean isFastForward() throws FastForwardException, MergeNotNeededException {
-        if(oursCommitSha1.equals(ancestorCommitSha1)){
-            return true;
-        }
-        else if(theirCommitSha1.equals(ancestorCommitSha1)){
+
+        if(theirCommitSha1.equals(ancestorCommitSha1) || oursCommitSha1.equals(theirCommitSha1)){
             throw new MergeNotNeededException("Merge not needed, last commit already contains another branch's commit");
+        } else if(oursCommitSha1.equals(ancestorCommitSha1)){
+            return true;
         }
         return false;
     }
@@ -90,10 +92,12 @@ public class MergeEngine {
                     FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "merge-info").toString()
                             , String.format("ours:%s%s" +
                                             "theirs:%s%s" +
-                                            "ancestor:%s",
+                                            "ancestor:%s%s" +
+                                            "%s",
                                     oursCommitSha1,System.lineSeparator()
                             , theirCommitSha1, System.lineSeparator()
-                            ,ancestorCommitSha1));
+                            ,ancestorCommitSha1,System.lineSeparator()
+                            , theirsBranchName));
                 }
                 handleMergeStateFileItem(pair.getValue(), status, pair.getKey());
             } catch (Exception e) {
@@ -149,7 +153,7 @@ public class MergeEngine {
                 break;
             case OursDeleted:
             case BothDeleted:
-                addFileToOpenChangesFile(pathToOpenChanges,location,FileStatus.REMOVED,fileItem.getOurs());
+                addFileToOpenChangesFile(pathToOpenChanges,location,FileStatus.REMOVED,fileItem.getAncestor());
                 break;
             case UnChanged:
                 try {
@@ -352,7 +356,7 @@ public class MergeEngine {
             }
             FileHandler.writeNewFile(conflictsPath, updatedConflicts.toString());
             FileHandler.writeNewFile(path, fileContent);
-            if(updatedConflicts.toString().isEmpty()){
+                if(updatedConflicts.toString().isEmpty()){
                 FileUtils.deleteQuietly(new File(conflictsPath));
             }
         } catch (IOException e) {
@@ -370,5 +374,4 @@ public class MergeEngine {
     public boolean headBranchHasMergeOpenChanges(Repository repository){
         return Files.exists(Paths.get(repository.getMagitFolderPath().toString(),".merge",repository.getBranches().get("HEAD").getBranchName(), "open-changes"));
     }
-
 }

@@ -225,6 +225,8 @@ public class UserInterface {
             e.printStackTrace();
         } catch (UnhandledConflictsException e) {
             e.printStackTrace();
+        } catch (FastForwardException e) {
+            e.printStackTrace();
         }
     }
 
