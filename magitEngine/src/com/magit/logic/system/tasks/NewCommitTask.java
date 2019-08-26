@@ -23,7 +23,7 @@ public class NewCommitTask extends Task<Void> {
     }
 
     @Override
-    protected Void call() throws WorkingCopyStatusNotChangedComparedToLastCommitException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, WorkingCopyIsEmptyException, UnhandledConflictsException {
+    protected Void call() throws WorkingCopyStatusNotChangedComparedToLastCommitException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, WorkingCopyIsEmptyException, UnhandledConflictsException, FastForwardException {
         engine.commit(input);
         Platform.runLater(() -> onSuccess.run());
         return null;

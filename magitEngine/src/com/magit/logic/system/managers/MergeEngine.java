@@ -3,9 +3,7 @@ package com.magit.logic.system.managers;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.enums.Resolve;
-import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
-import com.magit.logic.exceptions.UnhandledConflictsException;
-import com.magit.logic.exceptions.UnhandledMergeException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
@@ -29,7 +27,7 @@ public class MergeEngine {
     private String oursCommitSha1;
     private String theirCommitSha1;
     private String ancestorCommitSha1;
-    public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException, UnhandledMergeException {
+    public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException, UnhandledMergeException, MergeNotNeededException, FastForwardException {
         if(headBranchHasUnhandledMerge(repository)){
             throw new UnhandledMergeException("there is already unsolved merge at this branch, information loaded.");
         }
@@ -44,22 +42,36 @@ public class MergeEngine {
         Commit oursCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, headSha1));
         Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
         Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, branchToBeMergedWith.getPointedCommitSha1().toString()));
-
         if (null == oursCommit || null == ancestorCommit || null == theirsCommit)
             return; // is that the way it should be handled?? todo
         oursCommitSha1 = oursCommit.getSha1();
         theirCommitSha1 = theirsCommit.getSha1();
         ancestorCommitSha1 = ancestorCommit.getSha1();
-
         String repositoryPath = repository.getRepositoryPath().toString();
 
         SortedSet<Delta.DeltaFileItem> oursDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(oursCommit, repositoryPath);
         SortedSet<Delta.DeltaFileItem> theirsDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(theirsCommit, repositoryPath);
         SortedSet<Delta.DeltaFileItem> ancestorDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(ancestorCommit, repositoryPath);
         //check fast forward merge
+        if(isFastForward()){
+            File file = new File(Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName()).toString());
+            file.mkdirs();
+            FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "fast-forward").toString(),theirCommitSha1);
+            return;
+        }
         SortedSet<Pair<String, MergeStateFileItem>> mergeItemsMap = getMergeState(oursDelta, theirsDelta, ancestorDelta);
         executeMerge(mergeItemsMap);
         parseMergeFiles(repository);
+    }
+
+    private boolean isFastForward() throws FastForwardException, MergeNotNeededException {
+        if(oursCommitSha1.equals(ancestorCommitSha1)){
+            return true;
+        }
+        else if(theirCommitSha1.equals(ancestorCommitSha1)){
+            throw new MergeNotNeededException("Merge not needed, last commit already contains another branch's commit");
+        }
+        return false;
     }
 
     private void executeMerge(SortedSet<Pair<String, MergeStateFileItem>> mergeStateItemsMap) {

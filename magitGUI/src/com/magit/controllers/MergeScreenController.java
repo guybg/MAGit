@@ -98,6 +98,16 @@ public class MergeScreenController implements BasicController, Initializable {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        } catch (FastForwardException e) {
+            e.printStackTrace();
+        } catch (MergeNotNeededException e) {
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            try {
+                popupScreen.createNotificationPopup(null,false,"Fast forward notification",e.getMessage(),"Close");
+                ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -159,12 +169,22 @@ public class MergeScreenController implements BasicController, Initializable {
 
     private void updateOpenChanges(){
         openChangesListView.getItems().clear();
-        for(Map.Entry<FileStatus, ArrayList<FileItemInfo>> entry : engine.getMergeOpenChanges().entrySet()){
-            for(FileItemInfo openChange : entry.getValue()){
-                Label openChangeLabel = new Label(openChange.getFileLocation() + "(" + entry.getKey() + ")");
-                //tooltip here
-                openChangesListView.getItems().add(openChangeLabel);
+        try {
+            for(Map.Entry<FileStatus, ArrayList<FileItemInfo>> entry : engine.getMergeOpenChanges().entrySet()){
+                for(FileItemInfo openChange : entry.getValue()){
+                    Label openChangeLabel = new Label(openChange.getFileLocation() + "(" + entry.getKey() + ")");
+                    //tooltip here
+                    openChangesListView.getItems().add(openChangeLabel);
+                }
             }
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

@@ -223,6 +223,8 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (UnhandledConflictsException e) {
+            e.printStackTrace();
         }
     }
 

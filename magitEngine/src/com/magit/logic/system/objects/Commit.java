@@ -1,6 +1,7 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.exceptions.FastForwardException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
@@ -154,7 +155,12 @@ public class Commit extends FileItem implements CommitRepresentative {
         FileItemHandler.zip(this, pathToObjectsFolder.toString(), mSha1Code);
     }
 
-    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
+    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException, FastForwardException {
+        if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName(),"fast-forward"))){
+            repository.changeBranchPointer(branch, new Sha1(getTheirsSha1(repository),true));
+            throw new FastForwardException("Fast forward - active branch pointed sha1 changed to targed branch's pointed sha1");
+        }
+
         if (branch.getPointedCommitSha1().toString().equals(EMPTY)) {
             generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch, new Sha1(getFileContent(), false));
@@ -189,6 +195,9 @@ public class Commit extends FileItem implements CommitRepresentative {
     public String getTheirsSha1(Repository repository){
         String mergeInfoPath = Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName(), "merge-info").toString();
         try {
+            if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", repository.getBranches().get("HEAD").getBranchName(),"fast-forward"))){
+                return FileHandler.readFile(Paths.get(repository.getMagitFolderPath().toString(), ".merge", repository.getBranches().get("HEAD").getBranchName(),"fast-forward").toString());
+            }
             String fileInfoToString = FileHandler.readFile(mergeInfoPath);
             String theirsLine = fileInfoToString.split(System.lineSeparator())[1];
             return theirsLine.split(":")[1];

@@ -116,7 +116,7 @@ public class RepositoryManager {
         branchManager.setActiveBranch(repository.getBranches().get("master"));
     }
 
-    public void commit(String commitMessage, String creator, Branch mActiveBranch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
+    public void commit(String commitMessage, String creator, Branch mActiveBranch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException, FastForwardException {
         Commit commit = new Commit(commitMessage, creator, FileType.COMMIT, new Date());
         commit.generate(mActiveRepository, mActiveBranch);
     }
