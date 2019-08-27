@@ -8,6 +8,7 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.visual.node.CommitNode;
 import com.sun.javafx.beans.IDProperty;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
@@ -71,23 +72,22 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     private CommitNode lastCommit1Node;
     private CommitNode lastCommit2Node;
     @FXML
-    private ComboBox<Label> switchDiffComboBox;
-
-    private StringProperty chosenFather;
+    private ComboBox<String> switchDiffComboBox;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        chosenFather = new SimpleStringProperty();
-        chosenFather.addListener((observable, oldValue, newValue) -> {
-            if(!lastCommit1HyperLink.getText().isEmpty())
-                switchDiffComboBox.promptTextProperty().setValue(String.format("Current commit vs %s", chosenFather.getValue()));
-            else
-                switchDiffComboBox.promptTextProperty().setValue("");
-            showDifferencesBetweenCommitAndChosenParent(chosenFather.getValue());
+        switchDiffComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null)
+                showDifferencesBetweenCommitAndChosenParent(newValue);
+        });
+        switchDiffComboBox.promptTextProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue != null)
+                showDifferencesBetweenCommitAndChosenParent(newValue);
         });
     }
 
     public void setCurCommitSha1Label(String curCommitSha1) {
+        switchDiffComboBox.getItems().clear();
         this.curCommitSha1Label.setText(curCommitSha1);
         setCommitLabelToolTip(curCommitSha1Label);
     }
@@ -105,21 +105,20 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     public void setLastCommit1HyperLink(String lastCommit1) {
         lastCommit1HyperLink.setVisible(!lastCommit1.isEmpty());
         this.lastCommit1HyperLink.setText(lastCommit1);
-        this.chosenFather.setValue(lastCommit1);
+        switchDiffComboBox.setPromptText(lastCommit1);
+        createComboLabel(lastCommit1HyperLink);
     }
 
     public void setLastCommit2HyperLink(String lastCommit2) {
         lastCommit2HyperLink.setVisible(!lastCommit2.isEmpty());
         this.lastCommit2HyperLink.setText(lastCommit2);
+        if(!lastCommit2HyperLink.textProperty().getValue().equals("")) {
+            createComboLabel(lastCommit2HyperLink);
+        }
     }
 
     @FXML
     private void onComboBoxClicked(MouseEvent event) {
-        this.switchDiffComboBox.getItems().clear();
-        createComboLabel(lastCommit1HyperLink);
-        if(!lastCommit2HyperLink.textProperty().getValue().equals("")) {
-            createComboLabel(lastCommit2HyperLink);
-        }
     }
 
     public void setCreationDateLabel(String creationDate) {
@@ -128,13 +127,8 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     }
 
     private void createComboLabel(Hyperlink lastCommitLabel) {
-        Label comboLabel = new Label();
-        comboLabel.textProperty().bind(Bindings.when(lastCommit1HyperLink.textProperty().isNotEqualTo("")).then(Bindings.format("%s vs %s", "Current commit", lastCommitLabel.textProperty())).otherwise(""));
-        comboLabel.setTextFill(Color.BLACK);
-        comboLabel.onMouseClickedProperty().addListener((observable, oldValue, newValue) -> {
-            chosenFather.setValue(lastCommitLabel.getText());
-        });
-        this.switchDiffComboBox.getItems().add(comboLabel);
+        String comboString = lastCommitLabel.getText();
+        this.switchDiffComboBox.getItems().add(comboString);
     }
 
     public Stage getStage() {

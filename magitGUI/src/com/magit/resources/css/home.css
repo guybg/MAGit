@@ -255,4 +255,7 @@
     -fx-text-fill: white;
 }
 
+#branches-history-combo:selected .label, #branches-history-combo .label{
+    -fx-text-fill: black;
+}
 
