@@ -28,6 +28,8 @@ public class Repository {
     private Path pathToRepository;
     private Path pathToMagit;
     private Path pathToHead;
+    private RemoteReference remoteReference;
+
 
     public Repository(String mRepositoryLocation, String mRepositoryName) {
         this.mRepositoryLocation = mRepositoryLocation;
@@ -36,6 +38,10 @@ public class Repository {
         this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
         this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
         this.mRepositoryName = mRepositoryName;
+    }
+
+    public void setRemoteReference(RemoteReference remoteReference) {
+        this.remoteReference = remoteReference;
     }
 
     public void addBranch(String key, Branch value) {
