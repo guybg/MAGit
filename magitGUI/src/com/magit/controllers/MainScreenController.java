@@ -105,6 +105,7 @@ public class MainScreenController implements Initializable, BasicController {
         commitHistoryMenuItem.setDisable(true);
         branchesMenuItem.setVisible(false);
         branchesHistoryMenuItem.setDisable(true);
+        mergeMenuItem.setDisable(true);
         repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
             commitToLeftDownButton.setDisable(false);
             loadBranchesToUserInterface();
@@ -115,6 +116,7 @@ public class MainScreenController implements Initializable, BasicController {
             branchesMenuItem.setVisible(true);
             repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
             branchesHistoryMenuItem.setDisable(false);
+            mergeMenuItem.setDisable(false);
         });
         repositoryPathProperty.addListener(new ChangeListener<String>() {
             @Override
