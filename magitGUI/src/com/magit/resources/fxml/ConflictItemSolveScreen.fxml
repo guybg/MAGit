@@ -8,65 +8,78 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="999.0" prefWidth="1433.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.magit.controllers.ConflictItemSolveScreenController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="999.0" prefWidth="1433.0" styleClass="conflict-solve-screen" stylesheets="@../css/home.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.magit.controllers.ConflictItemSolveScreenController">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
   </columnConstraints>
   <rowConstraints>
+      <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+      <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
       <RowConstraints />
       <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <SplitPane dividerPositions="0.2976939203354298, 0.6491963661774982" prefHeight="160.0" prefWidth="200.0" GridPane.columnIndex="1">
+      <SplitPane dividerPositions="0.2976939203354298, 0.6491963661774982" prefHeight="160.0" prefWidth="200.0" styleClass="conflict-solve-screen" GridPane.columnIndex="1" GridPane.rowIndex="1">
         <items>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+            <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="conflict-solve-screen">
                <children>
                   <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Ours" />
-                        <TextArea fx:id="oursTextArea" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="oursTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox styleClass="conflict-solve-screen" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Ancestor" />
-                        <TextArea fx:id="ancestorTextArea" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="ancestorTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="498.0" prefWidth="583.0">
                <children>
-                  <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <VBox styleClass="conflict-solve-screen" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Theirs" />
-                        <TextArea fx:id="theirsTextArea" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="theirsTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                </children>
             </AnchorPane>
         </items>
       </SplitPane>
-      <VBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+      <VBox GridPane.columnIndex="1" GridPane.rowIndex="2">
          <children>
             <Label text="Final version" />
-            <TextArea fx:id="mergeResultTextArea" VBox.vgrow="ALWAYS" />
+            <TextArea fx:id="mergeResultTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
          </children>
       </VBox>
-      <ButtonBar GridPane.columnIndex="1" GridPane.rowIndex="2">
+      <ButtonBar styleClass="conflict-solve-screen" GridPane.columnIndex="1" GridPane.rowIndex="4">
         <buttons>
-          <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveConflictChanges" text="Save" />
+          <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveConflictChanges" styleClass="conflict-solve-screen-button" text="Save" />
+        </buttons>
+      </ButtonBar>
+      <ButtonBar prefHeight="40.0" prefWidth="200.0" styleClass="conflict-solve-screen" GridPane.columnIndex="1" GridPane.columnSpan="2">
+        <buttons>
+            <HBox alignment="CENTER">
+               <children>
+                  <Button fx:id="minimizeButton" mnemonicParsing="false" onAction="#onMinimize" prefHeight="27.0" prefWidth="70.0" styleClass="window-minimize-button" text="-" />
+                <Button fx:id="closeButton" mnemonicParsing="false" onAction="#onClose" prefHeight="27.0" prefWidth="70.0" styleClass="window-close-button" text="X" />
+               </children>
+            </HBox>
         </buttons>
       </ButtonBar>
    </children>

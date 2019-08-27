@@ -1,6 +1,7 @@
 package com.magit.controllers;
 
 import com.magit.animations.PulseTransition;
+import com.magit.logic.system.objects.Branch;
 import com.magit.logic.visual.node.CommitNode;
 import com.sun.org.apache.xml.internal.security.Init;
 import javafx.beans.binding.Bindings;
@@ -22,6 +23,7 @@ import javafx.scene.shape.Circle;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -79,9 +81,11 @@ public class CommitNodeController implements Initializable {
         messageLabel.setText(commitMessage);
         messageLabel.setTooltip(new Tooltip(commitMessage));
     }
-    public void setActiveBranch(String activeBranch) {
-        activeBranchLabel.setText("[" + activeBranch + "]");
-        activeBranchLabel.setTooltip(new Tooltip(activeBranch));
+    public void setActiveBranch(HashSet<Branch> activeBranches) {
+        ArrayList<String> activeBranchesToolTipArray = activeBranches.stream().map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<String> activeBranchesLabelArray = activeBranches.stream().map(b -> "[" + b.getBranchName() + "]").collect(Collectors.toCollection(ArrayList::new));
+        activeBranchLabel.setText(String.join(" | ", activeBranchesLabelArray));
+        activeBranchLabel.setTooltip(new Tooltip(String.join(", ", activeBranchesToolTipArray)));
         CommitCircle.setFill(Color.YELLOW);
     }
     public int getCircleRadius() {

@@ -42,8 +42,8 @@ public class CommitTreeLayout implements Layout {
                 HashSet<Branch> unionBranches = new HashSet<>();
                 if (!curNode.isAlreadySet()) {
                     unionBranches.addAll(curNode.getBranches());
-                    if (curNode.getActiveBranch() != null)
-                        unionBranches.add(curNode.getActiveBranch());
+                    if (curNode.getActiveBranches().size() != 0)
+                        unionBranches.addAll(curNode.getActiveBranches());
                 }
                 if (unionBranches.containsAll(commitNode.getBranches())) {
                     startX+=15;

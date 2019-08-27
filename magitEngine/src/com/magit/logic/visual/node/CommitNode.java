@@ -34,7 +34,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private Integer posX;
     private Integer posY;
 
-    private Branch activeBranch;
+    private HashSet<Branch> activeBranches = new HashSet<>();
     private HashSet<Branch> branches = new HashSet<>();
     private boolean alreadySet = false;
     private SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
@@ -48,12 +48,12 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         this.alreadySet = alreadySet;
     }
 
-    public Branch getActiveBranch() {
-        return activeBranch;
+    public HashSet<Branch> getActiveBranches() {
+        return activeBranches;
     }
 
-    public void setActiveBranch(Branch activeBranch) {
-        this.activeBranch = activeBranch;
+    public void addActiveBranch(Branch activeBranch) {
+        this.activeBranches.add(activeBranch);
     }
 
     public HashSet<Branch> getBranches() {
@@ -120,11 +120,11 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             commitNodeController.setSha1(sha1);
             commitNodeController.setParents(parents);
             ArrayList<String> allBranches = branches.stream().map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new));
-            if(activeBranch!=null)
-                allBranches.add(activeBranch.getBranchName());
+            if(activeBranches!=null)
+                allBranches.addAll(activeBranches.stream().map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new)));
             commitNodeController.setBranches(allBranches);
-            if(activeBranch != null) {
-                commitNodeController.setActiveBranch(activeBranch.getBranchName());
+            if(activeBranches.size() != 0) {
+                commitNodeController.setActiveBranch(activeBranches);
             }
             return root;
         } catch (IOException e) {

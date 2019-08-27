@@ -119,14 +119,14 @@ public class BranchManager {
 
     public TreeSet<CommitNode> guiBranchesHistory(Commit mostRecentCommit, Repository activeRepository,TreeSet<CommitNode> nodes, ArrayList<Edge> edges, Model model, Branch branch, BranchesHistoryScreenController branchesHistoryScreenController) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         CommitNode child = new CommitNode(mostRecentCommit, branchesHistoryScreenController);
-        child.setActiveBranch(branch);
+        child.addActiveBranch(branch);
         if(!nodes.contains(child))
             nodes.add(child);
         else{
             for(CommitNode node : nodes){
                 if(child.equals(node)){
                     child = node;
-                    child.setActiveBranch(branch);
+                    child.addActiveBranch(branch);
                 }
             }
         }
