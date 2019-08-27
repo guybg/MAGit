@@ -44,6 +44,17 @@ public class Repository {
         this.remoteReference = remoteReference;
     }
 
+    @Override
+    public Repository clone() {
+        Repository repository = new Repository(mRepositoryLocation, mRepositoryName);
+        for (Map.Entry<String, Branch> keyValue : mBranches.entrySet()) {
+            Branch branch = new Branch(keyValue.getKey());
+            branch.setPointedCommitSha1(keyValue.getValue().getPointedCommitSha1());
+            branch.setIsRemote(true);
+        }
+        return repository;
+    }
+
     public void addBranch(String key, Branch value) {
         this.mBranches.put(key, value);
     }
