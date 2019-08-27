@@ -34,7 +34,7 @@
                   <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Ours" />
-                        <TextArea fx:id="oursTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="oursTextArea" editable="false" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                </children>
@@ -44,7 +44,7 @@
                   <VBox styleClass="conflict-solve-screen" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Ancestor" />
-                        <TextArea fx:id="ancestorTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="ancestorTextArea" editable="false" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                </children>
@@ -54,7 +54,7 @@
                   <VBox styleClass="conflict-solve-screen" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <children>
                         <Label text="Theirs" />
-                        <TextArea fx:id="theirsTextArea" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
+                        <TextArea fx:id="theirsTextArea" editable="false" styleClass="info-and-text-conflict-screen" VBox.vgrow="ALWAYS" />
                      </children>
                   </VBox>
                </children>
