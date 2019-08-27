@@ -31,6 +31,10 @@ public class Branch {
         mPointedCommitSha1 = new Sha1(textToSha1, true);
     }
 
+    public void setIsRemote(boolean mIsRemote) {
+        this.mIsRemote = mIsRemote;
+    }
+
     public Branch(String branchName, String textToSha1, String trackingAfter, boolean isRemote, boolean tracking) {
         this.mBranchName = branchName;
         mPointedCommitSha1 = new Sha1(textToSha1, true);

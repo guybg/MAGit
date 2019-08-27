@@ -45,7 +45,7 @@ public class RepositoryManager {
             throw new RepositoryNotFoundException("Repository not found or corrupted.");
 
         Path repositoryPath = Paths.get(pathOfRepository);
-        loadRepository(repositoryPath, branchManager);
+        initializeActiveRepository(repositoryPath, branchManager);
     }
 
     private boolean isValidRepository(String repositoryPath) throws IOException {
@@ -58,24 +58,30 @@ public class RepositoryManager {
                 Files.exists((Paths.get(repositoryPath, magit, "REPOSITORY_NAME")));
     }
 
-    private void loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
+    public static Repository loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
         String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
-        mActiveRepository = new Repository(repositoryPath.toString(), repositoryName);
+        Repository repository = new Repository(repositoryPath.toString(), repositoryName);
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
         for (File branchFile : branchesFiles) {
             if (!branchFile.getName().equals("HEAD"))
-                mActiveRepository.addBranch(branchFile.getName()
+                repository.addBranch(branchFile.getName()
                         , new Branch(branchFile.getName(), FileHandler.readFile(branchFile.getPath())));
         }
         for (File branchFile : branchesFiles) {
             if (branchFile.getName().equals("HEAD")){
-                branchManager.setActiveBranch(mActiveRepository.getBranches().get(FileHandler.readFile(branchFile.getPath())));
-                mActiveRepository.addBranch(branchFile.getName(), branchManager.getActiveBranch());
+                branchManager.setActiveBranch(repository.getBranches().get(FileHandler.readFile(branchFile.getPath())));
+                repository.addBranch(branchFile.getName(), branchManager.getActiveBranch());
             }
         }
+        return repository;
+    }
+
+    private void initializeActiveRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
+
+        mActiveRepository = loadRepository(repositoryPath, branchManager);
     }
 
     public void unzipHeadBranchCommitWorkingCopy() throws IOException, ParseException, PreviousCommitsLimitExceededException {
