@@ -92,7 +92,10 @@ public class ImportRepositoryTask extends Task<Boolean> {
         }
         updateMessage("Repository created successfully!");
 
-        Platform.runLater(() -> repositoryNameProperty.setValue(engine.getRepositoryName()));
+        Platform.runLater(() -> {
+            repositoryNameProperty.setValue("");
+            repositoryNameProperty.setValue(engine.getRepositoryName());
+        });
         return true;
     }
 

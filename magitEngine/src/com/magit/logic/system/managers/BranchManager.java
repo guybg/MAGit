@@ -204,7 +204,8 @@ public class BranchManager {
         String headFileContent = FileHandler.readFile(activeRepository.getHeadPath().toString());
         if (headFileContent.equals(wantedBranchName))
             return "Wanted branch is already active.";
-
+        if (activeRepository.headBranchHasUnhandledMerge())
+            throw new UncommitedChangesException("There is unsolved merge at that branch, are you sure you want to switch branch without solving the merge?");
         if (activeRepository.areThereChanges(changes))
             throw new UncommitedChangesException("There are unsaved changes, are you sure you want to change branch without generating a commit?");
 
@@ -219,6 +220,9 @@ public class BranchManager {
         Commit branchLatestCommit = Commit.createCommitInstanceByPath(
                 Paths.get(activeRepository.getObjectsFolderPath().toString(), wantedBranchSha1));
         FileHandler.clearFolder(activeRepository.getRepositoryPath());
+        if (activeRepository.headBranchHasUnhandledMerge()){
+            FileUtils.deleteDirectory(Paths.get(activeRepository.getMagitFolderPath().toString(),".merge",getActiveBranch().getBranchName()).toFile());
+        }
 
         if (branchLatestCommit != null) {
             WorkingCopyUtils.unzipWorkingCopyFromCommit(branchLatestCommit,

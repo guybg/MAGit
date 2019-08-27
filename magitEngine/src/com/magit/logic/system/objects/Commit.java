@@ -159,7 +159,7 @@ public class Commit extends FileItem implements CommitRepresentative {
         if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName(),"fast-forward"))){
             repository.changeBranchPointer(branch, new Sha1(getTheirsSha1(repository),true));
             branch.setPointedCommitSha1(new Sha1(getTheirsSha1(repository),true));
-            throw new FastForwardException("Fast forward - active branch pointed sha1 changed to target branch's pointed sha1");
+            return;
         }
 
         if (branch.getPointedCommitSha1().toString().equals(EMPTY)) {

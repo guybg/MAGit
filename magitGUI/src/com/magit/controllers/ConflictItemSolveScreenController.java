@@ -39,6 +39,27 @@ public class ConflictItemSolveScreenController implements BasicController {
     private Button saveButton;
 
     @FXML
+    private Button minimizeButton;
+
+    @FXML
+    private Button closeButton;
+
+
+    @FXML
+    void onClose(ActionEvent event) {
+        Button closeButton = (Button)event.getSource();
+        Stage stage = (Stage) closeButton.getScene().getWindow();
+        stage.close();
+    }
+
+    @FXML
+    void onMinimize(ActionEvent event) {
+        Button minimizeButton = (Button)event.getSource();
+        Stage stage = (Stage) minimizeButton.getScene().getWindow();
+        stage.setIconified(true);
+    }
+
+    @FXML
     void onSaveConflictChanges(ActionEvent event) {
         engine.updateSolvedConflict(conflictItem.getLocation(), conflictItem.getFileName(), mergeResultTextArea.getText().replaceAll("\n", System.getProperty("line.separator")));
         booleanProperty.setValue(true);

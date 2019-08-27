@@ -168,5 +168,9 @@ public class Repository {
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
     }
 
+    public boolean headBranchHasUnhandledMerge(){
+        return Files.exists(Paths.get(getMagitFolderPath().toString(),".merge",getBranches().get("HEAD").getBranchName()));
+    }
+
 
 }

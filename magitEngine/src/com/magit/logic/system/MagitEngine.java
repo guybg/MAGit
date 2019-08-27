@@ -122,6 +122,7 @@ public class MagitEngine {
         repositoryNotFoundCheck();
         mBranchManager.changeBranchPointedCommit(mRepositoryManager.getRepository(), new Sha1(commitSha1, true));
         FileHandler.clearFolder(mRepositoryManager.getRepository().getRepositoryPath());
+        deleteBranchMergeFolder();
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
         return mRepositoryManager.presentCurrentCommitAndHistory();
     }
@@ -247,7 +248,7 @@ public class MagitEngine {
         return mRepositoryManager.guiGetBranchInfo(branch);
     }
 
-    public void merge(String branchName) throws UnhandledMergeException, FastForwardException, MergeNotNeededException {
+    public void merge(String branchName) throws UnhandledMergeException, MergeNotNeededException, FastForwardException {
         try {
             //if(mRepositoryManager.headBranchHasUnhandledMerge())
             //    throw new UnhandledMergeException("Unhandled merge already exists, please solve conflicts and commit open changes");
@@ -262,32 +263,7 @@ public class MagitEngine {
     }
 
     public HashMap<FileStatus, ArrayList<FileItemInfo>> getMergeOpenChanges() throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException {
-        if(mergeEngine.headBranchHasMergeOpenChanges(mRepositoryManager.getRepository())){
-            return mergeEngine.getOpenChanges(mRepositoryManager.getRepository());
-        }else{
-            HashMap<FileStatus, ArrayList<FileItemInfo>> convertedChanges = new HashMap<>();
-            ArrayList<FileItemInfo> editedFiles = new ArrayList<>();
-            ArrayList<FileItemInfo> deletedFiles = new ArrayList<>();
-            ArrayList<FileItemInfo> newFiles = new ArrayList<>();
-            Map<FileStatus,SortedSet<Delta.DeltaFileItem>> changes = getWorkingCopyStatusMap();
-            for(Map.Entry<FileStatus,SortedSet<Delta.DeltaFileItem>> deltaEntry: changes.entrySet()){
-                for(DeltaFileItem deltaFile : deltaEntry.getValue()){
-                    FileItemInfo fileItemInfo = new FileItemInfo(deltaFile.getFileName(),"FILE", deltaFile.getFileItem().getSha1Code().toString(),deltaFile.getLastUpdater()
-                            ,deltaFile.getLastModified(),deltaFile.getFileItem().getFileContent(),deltaFile.getFullPath());
-                    if(deltaEntry.getKey().equals(FileStatus.EDITED)){
-                        editedFiles.add(fileItemInfo);
-                    }else if(deltaEntry.getKey().equals(FileStatus.REMOVED)){
-                        deletedFiles.add(fileItemInfo);
-                    }else{
-                        newFiles.add(fileItemInfo);
-                    }
-                }
-            }
-            convertedChanges.put(FileStatus.EDITED, editedFiles);
-            convertedChanges.put(FileStatus.REMOVED, deletedFiles);
-            convertedChanges.put(FileStatus.NEW, newFiles);
-            return convertedChanges;
-        }
+        return mergeEngine.getOpenChanges(mRepositoryManager.getRepository());
     }
 
     public ArrayList<ConflictItem> getMergeConflicts(){
@@ -308,6 +284,10 @@ public class MagitEngine {
 
     }
 
+    public void activeBranchHasUnhandeledMerge() throws UnhandledMergeException {
+        if(mRepositoryManager.getRepository().headBranchHasUnhandledMerge())
+            throw new UnhandledMergeException("");
+    }
 }
 
 

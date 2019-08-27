@@ -412,7 +412,7 @@ public class MainScreenController implements Initializable, BasicController {
             };
             try {
                 PopupScreen popupScreen = new PopupScreen(stage,engine);
-                popupScreen.createNotificationPopup(controller, true, headMessage, bodyMessage, "Cancel");
+                popupScreen.createNotificationPopup(controller, true, headMessage, e.getMessage(), "Cancel");
             } catch(IOException ignored) {}
         } catch (PreviousCommitsLimitExceededException e) {
             e.printStackTrace();

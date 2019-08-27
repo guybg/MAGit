@@ -73,7 +73,8 @@ public class MergeScreenController implements BasicController, Initializable {
             try {
                 PopupScreen popupScreen = new PopupScreen(((Stage)(((Button)event.getSource()).getScene().getWindow())), engine);
                 popupScreen.createNotificationPopup(event12 -> {
-                }, false, "Commit creation notification", "Files commited successfully", "Close");
+                }, false, "Commit creation notification", "Files committed successfully", "Close");
+                ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
             }catch (IOException e){
                 e.printStackTrace();
             }
@@ -102,13 +103,10 @@ public class MergeScreenController implements BasicController, Initializable {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-        } catch (FastForwardException e) {
-            e.printStackTrace();
-        } catch (MergeNotNeededException e) {
+        } catch (MergeNotNeededException | FastForwardException e) {
             PopupScreen popupScreen = new PopupScreen(stage,engine);
             try {
                 popupScreen.createNotificationPopup(null,false,"Fast forward notification",e.getMessage(),"Close");
-                ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -124,7 +122,7 @@ public class MergeScreenController implements BasicController, Initializable {
                 conflictLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent event) {
-                        PopupScreen popupScreen = new PopupScreen(stage, engine);
+                        PopupScreen popupScreen = new PopupScreen(((Stage)((Label)event.getSource()).getScene().getWindow()), engine);
                         FXMLLoader loader = new FXMLLoader();
                         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/conflictItemSolveScreen.fxml"));
                         try {

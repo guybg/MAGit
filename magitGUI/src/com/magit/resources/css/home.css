@@ -233,5 +233,26 @@
     -fx-text-fill: white;
 }
 
+.info-and-text-conflict-screen .content, .info-and-text-conflict-screen .label{
+    -fx-background-color: #2B2B2B;
+    -fx-border-color: #CDCDCD;
+    -fx-text-fill: white;
+}
+
+.info-and-text-conflict-screen{
+    -fx-text-fill: white;
+}
+
+.conflict-solve-screen, .conflict-solve-screen .label, .conflict-solve-screen .split-pane-divider{
+    -fx-background-color: #3C3F41;
+    -fx-text-fill: white;
+    -fx-border-color: #3C3F41;
+}
+
+.conflict-solve-screen-button{
+    -fx-background-color: #365880;
+    -fx-border-color: #4C708C;
+    -fx-text-fill: white;
+}
 
 

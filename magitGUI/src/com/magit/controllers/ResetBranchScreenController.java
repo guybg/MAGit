@@ -3,10 +3,7 @@ package com.magit.controllers;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.PopupScreen;
-import com.magit.logic.exceptions.CommitNotFoundException;
-import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
-import com.magit.logic.exceptions.RepositoryNotFoundException;
-import com.magit.logic.exceptions.UncommitedChangesException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -66,12 +63,13 @@ public class ResetBranchScreenController implements BasicController , Initializa
     @FXML
     void onAcceptClicked(ActionEvent event) {
         try {
+            engine.activeBranchHasUnhandeledMerge();
             engine.workingCopyChangedComparedToCommit();
             engine.changeBranchPointedCommit(comboBox.getValue());
             errorLabel.setText("Head branch pointed commit changed successfully.");
             acceptButton.setDisable(true);
         } catch (IOException | CommitNotFoundException | ParseException | RepositoryNotFoundException | PreviousCommitsLimitExceededException ignored) {
-        } catch (UncommitedChangesException e) {
+        } catch (UncommitedChangesException | UnhandledMergeException e) {
             PopupScreen popupScreen = new PopupScreen(((Stage)((Button)event.getSource()).getScene().getWindow()),engine);
             try {
                 popupScreen.createNotificationPopup((BasicPopupScreenController) event1 -> {

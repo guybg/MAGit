@@ -233,4 +233,6 @@ public class RepositoryManager {
                 branch.getBranchName(), System.lineSeparator(), branch.getPointedCommitSha1().toString(), System.lineSeparator(),
                 commitMessage, System.lineSeparator());
     }
+
+
 }

@@ -59,7 +59,9 @@ public class MergeEngine {
             File file = new File(Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName()).toString());
             file.mkdirs();
             FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "fast-forward").toString(),theirCommitSha1);
-            return;
+            FileHandler.clearFolder(Paths.get(repositoryPath));
+            WorkingCopyUtils.unzipWorkingCopyFromCommit(theirsCommit,repositoryPath,repositoryPath);
+            throw new FastForwardException("Fast forward merge - please commit the operation.");
         }
         SortedSet<Pair<String, MergeStateFileItem>> mergeItemsMap = getMergeState(oursDelta, theirsDelta, ancestorDelta);
         executeMerge(mergeItemsMap);
@@ -256,12 +258,11 @@ public class MergeEngine {
         ArrayList<FileItemInfo> editedFiles = new ArrayList<>();
         ArrayList<FileItemInfo> deletedFiles = new ArrayList<>();
         ArrayList<FileItemInfo> newFiles = new ArrayList<>();
-        HashMap<FileStatus, ArrayList<FileItemInfo>> openChangesMap = new HashMap<>();
         String branchName = repository.getBranches().get("HEAD").getBranchName();
         Path pathToOpenChanges = Paths.get(repository.getMagitFolderPath().toString(), ".merge", branchName, "open-changes");
 
         if (Files.notExists(pathToOpenChanges))
-            return null;
+            return createMergeDiffMap(editedFiles,deletedFiles,newFiles);
 
         String filesContent = "";
         try {
@@ -286,6 +287,11 @@ public class MergeEngine {
                     break;
             }
         }
+        return createMergeDiffMap(editedFiles,deletedFiles,newFiles);
+    }
+
+    private HashMap<FileStatus, ArrayList<FileItemInfo>> createMergeDiffMap(ArrayList<FileItemInfo> editedFiles,ArrayList<FileItemInfo> deletedFiles,ArrayList<FileItemInfo> newFiles){
+        HashMap<FileStatus, ArrayList<FileItemInfo>> openChangesMap = new HashMap<>();
         openChangesMap.put(FileStatus.EDITED, editedFiles);
         openChangesMap.put(FileStatus.REMOVED, deletedFiles);
         openChangesMap.put(FileStatus.NEW, newFiles);
