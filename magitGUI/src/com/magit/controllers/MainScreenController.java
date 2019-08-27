@@ -146,7 +146,8 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private Menu repositoryMenu;
     @FXML private MenuItem pushMenuItem;
     @FXML private MenuItem pullMenuItem;
-    @FXML private MenuItem exportXmlMenuItem;
+    @FXML private MenuItem fetchMenuItem;
+    @FXML private MenuItem cloneMenuItem;
     @FXML private Menu branchMenu;
     @FXML private MenuItem newBranchMenuItem;
     @FXML private MenuItem deleteBranchMenuItem;
@@ -383,6 +384,32 @@ public class MainScreenController implements Initializable, BasicController {
             e.printStackTrace();
         }
     }
+
+    @FXML
+    void onPull(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onPush(ActionEvent event) {
+
+    }
+
+    @FXML
+    void onClone(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/cloneScreen.fxml"));
+        Parent layout = loader.load();
+        CloneScreenController createNewRepositoryScreenController = loader.getController();
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        popupScreen.createPopup(layout, createNewRepositoryScreenController);
+    }
+    @FXML
+    void onFetch(ActionEvent event) {
+
+    }
+
+
     @FXML
     void onResetBranchMenuItemClicked(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();

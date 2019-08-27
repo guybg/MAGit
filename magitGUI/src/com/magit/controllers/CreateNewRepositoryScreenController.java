@@ -1,6 +1,7 @@
 package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
+import com.magit.gui.utils.BrowseHandler;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
@@ -93,17 +94,7 @@ public class CreateNewRepositoryScreenController implements BasicController, Ini
 
     @FXML
     void browseAction(MouseEvent event) {
-        Button chosen = (Button)event.getSource();
-        Stage curStage = (Stage) chosen.getScene().getWindow();
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        File selectedDirectory =
-                directoryChooser.showDialog(curStage);
-
-        if(selectedDirectory == null){
-            browsePathTextField.setText("No Directory selected");
-        }else{
-            browsePathTextField.setText(selectedDirectory.getAbsolutePath());
-        }
+        BrowseHandler.browseFolder((Button) event.getSource(), browsePathTextField);
     }
 
 }

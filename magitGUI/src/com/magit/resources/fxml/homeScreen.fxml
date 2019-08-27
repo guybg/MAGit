@@ -73,9 +73,10 @@
                   </Menu>
                   <Menu fx:id="repositoryMenu" mnemonicParsing="false" text="Repository">
                      <items>
-                        <MenuItem fx:id="pushMenuItem" mnemonicParsing="false" text="Push" />
-                        <MenuItem fx:id="pullMenuItem" mnemonicParsing="false" text="Pull" />
-                        <MenuItem fx:id="exportXmlMenuItem" mnemonicParsing="false" text="Export to XML file" />
+                        <MenuItem fx:id="pushMenuItem" mnemonicParsing="false" onAction="#onPush" text="Push" />
+                        <MenuItem fx:id="pullMenuItem" mnemonicParsing="false" onAction="#onPull" text="Pull" />
+                        <MenuItem fx:id="fetchMenuItem" mnemonicParsing="false" onAction="#onFetch" text="Fetch" />
+                        <MenuItem fx:id="cloneMenuItem" mnemonicParsing="false" onAction="#onClone" text="Clone" />
                      </items>
                   </Menu>
                   <Menu fx:id="branchMenu" mnemonicParsing="false" text="Branch">

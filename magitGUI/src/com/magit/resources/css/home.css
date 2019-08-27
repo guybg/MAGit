@@ -162,7 +162,10 @@
     -fx-background-color: #FAFBFC;
     -fx-border-color: #E0E3E7;
 }
-
+.browse-button{
+    -fx-background-color: #FAFBFC;
+    -fx-border-color: #E0E3E7;
+}
 .split-pane *.split-pane-divider {
     -fx-padding: 0 1 0 1;
 }

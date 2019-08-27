@@ -78,6 +78,7 @@ public class ImportXmlNodeController implements BasicController {
         fileChooser.getExtensionFilters().add(extFilter);
         file = fileChooser.showOpenDialog(stage);
     }
+
     @Override
     public void setStage(Stage stage) {
         this.stage = stage;
