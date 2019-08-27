@@ -57,7 +57,7 @@ public class RepositoryManager {
                 !FileHandler.readFile(Paths.get(repositoryPath, magit, "branches", "HEAD").toString()).isEmpty() &&
                 Files.exists((Paths.get(repositoryPath, magit, "REPOSITORY_NAME")));
     }
-
+    // (todo) handle load of remote branches, right now it skips them.
     public static Repository loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
         String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
         Repository repository = new Repository(repositoryPath.toString(), repositoryName);
