@@ -76,6 +76,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         try {
             updateMessage("Initializing repository...");
             xmlParser.initializeRepository();
+            xmlParser.setRemoteReference();
             importObject("Importing branches...", this::importBranches);
             updateMessage("Creating repository...");
             repositoryManager.setActiveRepository(xmlParser.createRepository());

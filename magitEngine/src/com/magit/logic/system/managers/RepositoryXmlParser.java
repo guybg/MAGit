@@ -33,7 +33,8 @@ public class RepositoryXmlParser {
     private HashMap<String, Blob> blobMap;
     private HashMap<String, Tree> treeMap;
     private Repository repository = null;
-    ArrayList<Commit> commits;
+    private ArrayList<Commit> commits;
+
     public RepositoryXmlParser (String xmlPath) throws JAXBException, IOException,XmlFileException, IllegalPathException{
         checkIfXmlFile(xmlPath);
 
@@ -544,5 +545,14 @@ public class RepositoryXmlParser {
             }
         }
         return magitBranches;
+    }
+
+    public void setRemoteReference() {
+        MagitRepository.MagitRemoteReference reference = magitRepository.getMagitRemoteReference();
+        if (null == reference)
+            return;
+
+        RemoteReference remoteReference = new RemoteReference(reference.getName(), reference.getLocation());
+        repository.setRemoteReference(remoteReference);
     }
 }
