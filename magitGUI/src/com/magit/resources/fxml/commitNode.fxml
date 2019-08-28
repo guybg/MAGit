@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -9,13 +11,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.shape.Circle?>
 
-
 <HBox alignment="CENTER" spacing="5.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.CommitNodeController">
    <children>
       <Circle fx:id="CommitCircle" fill="DODGERBLUE" radius="7.0" stroke="BLACK" strokeType="INSIDE" />
       <GridPane fx:id="gridPane" hgap="5.0" maxHeight="60.0" maxWidth="1.7976931348623157E308" minHeight="44.0" minWidth="-Infinity" onMouseClicked="#onCommitClicked" prefHeight="44.0" styleClass="single-commit-row-container" stylesheets="@../css/commitNode.css">
         <columnConstraints>
           <ColumnConstraints hgrow="NEVER" minWidth="-Infinity" />
+            <ColumnConstraints hgrow="NEVER" minWidth="-Infinity" />
             <ColumnConstraints hgrow="NEVER" minWidth="-Infinity" />
             <ColumnConstraints hgrow="SOMETIMES" />
             <ColumnConstraints hgrow="SOMETIMES" />
@@ -31,16 +33,28 @@
             <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
         </rowConstraints>
          <children>
-            <Label fx:id="commitTimeStampLabel" alignment="CENTER" styleClass="timestamp-label" text="02.07.2019-22:36:57" wrapText="true" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES" />
-            <Label fx:id="messageLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="8" GridPane.rowIndex="1">
+            <Label fx:id="commitTimeStampLabel" alignment="CENTER" styleClass="timestamp-label" text="02.07.2019-22:36:57" wrapText="true" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.vgrow="SOMETIMES" />
+            <Label fx:id="messageLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="9" GridPane.rowIndex="1">
                <padding>
                   <Insets right="10.0" />
                </padding>
             </Label>
-            <Label fx:id="committerLabel" styleClass="committer-label" text="ccc" GridPane.columnIndex="6" GridPane.rowIndex="1" />
-            <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-            <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="7" GridPane.rowIndex="1" />
-            <Label id="#activeBranchLabel" fx:id="activeBranchLabel" textFill="#000757" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <Label fx:id="committerLabel" styleClass="committer-label" text="ccc" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+            <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+            <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="8" GridPane.rowIndex="1" />
+            <Label id="#activeBranchLabel" fx:id="activeBranchLabel" textFill="#000757" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+            <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" GridPane.columnSpan="10" GridPane.hgrow="SOMETIMES" GridPane.rowSpan="3" GridPane.vgrow="SOMETIMES">
+               <contextMenu>
+                  <ContextMenu>
+                    <items>
+                      <MenuItem fx:id="newBranchButton" mnemonicParsing="false" onAction="#onNewBranch" text="New branch" />
+                        <MenuItem fx:id="resetHeadButton" mnemonicParsing="false" onAction="#onResetHead" text="Reset head to there" />
+                        <MenuItem fx:id="mergeWithHeadButton" mnemonicParsing="false" onAction="#onMergeWithHead" text="Merge with head" />
+                        <MenuItem fx:id="deleteBranchButton" mnemonicParsing="false" onAction="#onDeletePointingBranch" text="Delete branch" />
+                    </items>
+                  </ContextMenu>
+               </contextMenu>
+            </Label>
          </children>
       </GridPane>
    </children>

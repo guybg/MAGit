@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 
-public class Repository {
+public class Repository implements Cloneable{
 
     private final String BRANCHES = "branches";
     private String mRepositoryName;
@@ -46,13 +46,28 @@ public class Repository {
 
     @Override
     public Repository clone() {
-        Repository repository = new Repository(mRepositoryLocation, mRepositoryName);
-        for (Map.Entry<String, Branch> keyValue : mBranches.entrySet()) {
-            Branch branch = new Branch(keyValue.getKey());
-            branch.setPointedCommitSha1(keyValue.getValue().getPointedCommitSha1());
-            branch.setIsRemote(true);
+        try {
+            Repository clonedRepository = (Repository)super.clone();
+            clonedRepository.mBranches = new HashMap<>();
+            for (Map.Entry<String, Branch> keyValue : mBranches.entrySet()) {
+                if(keyValue.getKey().equals("HEAD")) {
+                    clonedRepository.mBranches.put(keyValue.getKey(),keyValue.getValue());
+                    continue;
+                }
+                String remoteBranchName = String.format("%s/%s", getRepositoryName(),keyValue.getKey());
+                Branch branch = new Branch(remoteBranchName);
+                branch.setPointedCommitSha1(keyValue.getValue().getPointedCommitSha1());
+                branch.setIsRemote(true);
+                clonedRepository.mBranches.put(remoteBranchName,branch);
+            }
+            remoteReference = new RemoteReference(mRepositoryName,mRepositoryLocation);
+            return clonedRepository;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
         }
-        return repository;
+
+
+        return null;
     }
 
     public void addBranch(String key, Branch value) {
@@ -189,5 +204,11 @@ public class Repository {
         return Files.exists(Paths.get(getMagitFolderPath().toString(),".merge",getBranches().get("HEAD").getBranchName()));
     }
 
+    protected void setRepositoryName(String name){
+        mRepositoryName = name;
+    }
 
+    protected void setBranches(HashMap<String,Branch> branches){
+        mBranches = branches;
+    }
 }

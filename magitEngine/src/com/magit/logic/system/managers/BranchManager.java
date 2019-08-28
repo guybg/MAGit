@@ -55,6 +55,19 @@ public class BranchManager {
         FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), mActiveBranch.getPointedCommitSha1().toString());
     }
 
+    public void createNewBranch(String branchName, Repository repository, String sha1OfCommit) throws IOException, InvalidNameException, BranchAlreadyExistsException {
+        final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
+        if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) {
+            throw new InvalidNameException("Branch name cannot contain blank spaces, please choose a name without blank space and try again.");
+        }
+        if (Files.exists(Paths.get(repository.getBranchDirectoryPath().toString(), branchName)))
+            throw new BranchAlreadyExistsException(branchName);
+
+
+        repository.addBranch(branchName, new Branch(branchName, sha1OfCommit));
+        FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), sha1OfCommit);
+    }
+
 
     public TreeSet<CommitNode> guiPresentBranchesHistory(Repository activeRepository, Model model, BranchesHistoryScreenController branchesHistoryScreenController) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         TreeSet<CommitNode> nodes = new TreeSet<>();

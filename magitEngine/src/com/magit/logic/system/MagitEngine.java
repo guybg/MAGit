@@ -8,6 +8,7 @@ import com.magit.controllers.MainScreenController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
+import com.magit.logic.system.managers.CollaborationEngine;
 import com.magit.logic.system.managers.MergeEngine;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.objects.*;
@@ -176,6 +177,17 @@ public class MagitEngine {
         return mUserName;
     }
 
+    public void cloneTest(){
+        CollaborationEngine collaborationEngine = new CollaborationEngine();
+        try {
+            collaborationEngine.cloneRepository("c:/repo2","d:/repoCloned",new BranchManager(),"test");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (IllegalPathException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException, RepositoryAlreadyExistsException {
         try {
             if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
@@ -189,6 +201,11 @@ public class MagitEngine {
     public void createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
         repositoryNotFoundCheck();
         mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
+    }
+
+    public void createNewBranch(String branchName, String sha1OfCommit) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
+        repositoryNotFoundCheck();
+        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),sha1OfCommit);
     }
 
     public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException {

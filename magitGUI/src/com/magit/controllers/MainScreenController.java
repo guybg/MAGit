@@ -15,6 +15,7 @@ import com.magit.logic.system.managers.MergeEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.FileItem;
 import com.magit.logic.system.objects.FileItemInfo;
+import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
@@ -387,7 +388,7 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onPull(ActionEvent event) {
-
+        engine.cloneTest();
     }
 
     @FXML
@@ -699,7 +700,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    private void onNewBranchClicked() throws IOException {
+    void onNewBranchClicked() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
@@ -746,7 +747,7 @@ public class MainScreenController implements Initializable, BasicController {
         }
     }
 
-    private GeneralScreenEnterStringController getGeneralScreen(FXMLLoader loader ,String headLabelValue, String keyLabelValue)
+    public static GeneralScreenEnterStringController getGeneralScreen(FXMLLoader loader ,String headLabelValue, String keyLabelValue)
             throws IOException {
         GeneralScreenEnterStringController generalController = loader.getController();
         generalController.setHeadLabel(headLabelValue);
