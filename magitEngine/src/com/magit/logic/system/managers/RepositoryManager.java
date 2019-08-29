@@ -259,9 +259,13 @@ public class RepositoryManager {
         Path pathToCommit = Paths.get(mActiveRepository.getObjectsFolderPath().toString(), sha1OfCommit);
         Commit commitOfBranch = Commit.createCommitInstanceByPath(pathToCommit);
         String commitMessage = commitOfBranch == null ? "" : commitOfBranch.getCommitMessage();
-        return String.format("Branch Name: %s%sSha1: %s%sCommit Message:%s%s",
+        String info =  String.format("Branch Name: %s%sSha1: %s%sCommit Message:%s%sRemote: %s",
                 branch.getBranchName(), System.lineSeparator(), branch.getPointedCommitSha1().toString(), System.lineSeparator(),
-                commitMessage, System.lineSeparator());
+                commitMessage, System.lineSeparator(),branch.getIsRemote());
+        if(branch.getIsTracking()){
+            info = info.concat(String.format("%sTracking after: %s", System.lineSeparator(),branch.getTrackingAfter()));
+        }
+        return info;
     }
 
 
