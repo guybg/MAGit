@@ -50,7 +50,6 @@ public class BranchManager {
     }
 
     public static void writeBranch(Repository repository, String branchName,String sha1OfCommit,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException {
-        //TODO PROBLEM HERE!
         FileHandler.writeNewFile(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(),"");
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), sha1OfCommit);
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), isRemote.toString());
