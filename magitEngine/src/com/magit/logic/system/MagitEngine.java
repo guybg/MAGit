@@ -200,12 +200,12 @@ public class MagitEngine {
 
     public void createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
         repositoryNotFoundCheck();
-        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository());
+        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),false,false,null);
     }
 
     public void createNewBranch(String branchName, String sha1OfCommit) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
         repositoryNotFoundCheck();
-        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),sha1OfCommit);
+        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),sha1OfCommit,false,false,null);
     }
 
     public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException {

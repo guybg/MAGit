@@ -534,7 +534,7 @@ public class RepositoryXmlParser {
                 MagitSingleBranch magitSingleBranch = new MagitSingleBranch();
                 MagitSingleBranch.PointedCommit pointedCommit = new MagitSingleBranch.PointedCommit();
                 magitSingleBranch.setName(child.getName());
-                String key = FileHandler.readFile(child.getAbsolutePath());
+                String key = Repository.readBranchContent(child).get("sha1");
                 if (sha1ToId != null && sha1ToId.containsKey(key))
                     pointedCommit.setId(sha1ToId.get(key));
                 else

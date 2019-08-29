@@ -59,6 +59,8 @@ public class RepositoryManager {
     }
     // (todo) handle load of remote branches, right now it skips them.
     public static Repository loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
+        final String sha1 = "sha1", isRemote = "isRemote", isTracking = "isTracking", trackingAfter = "trackingAfter";
+
         String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
         Repository repository = new Repository(repositoryPath.toString(), repositoryName);
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
@@ -66,9 +68,15 @@ public class RepositoryManager {
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
 
         for (File branchFile : branchesFiles) {
-            if (!branchFile.getName().equals("HEAD"))
+            if (!branchFile.getName().equals("HEAD")) {
+                String trackingAfterValue = null;
+                HashMap<String,String> branchContent = Repository.readBranchContent(branchFile);
+                if(!branchContent.get(trackingAfter).equals("null")){
+                    trackingAfterValue = branchContent.get(trackingAfter);
+                }
                 repository.addBranch(branchFile.getName()
-                        , new Branch(branchFile.getName(), FileHandler.readFile(branchFile.getPath())));
+                        , new Branch(branchFile.getName(), branchContent.get(sha1),trackingAfterValue, Boolean.valueOf(branchContent.get(isRemote)), Boolean.valueOf(branchContent.get(isTracking))));
+            }
         }
         for (File branchFile : branchesFiles) {
             if (branchFile.getName().equals("HEAD")){
@@ -78,6 +86,7 @@ public class RepositoryManager {
         }
         return repository;
     }
+
 
     private void initializeActiveRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
 
@@ -164,7 +173,7 @@ public class RepositoryManager {
 
 
         for (File branchFile : files) {
-            String commitSha1 = FileHandler.readFile(branchFile.getPath());
+            String commitSha1 = Repository.readBranchContent(branchFile).get("sha1");
             String commitMessage = "none";
             if (commitSha1.isEmpty()) commitSha1 = "none";
             if (!branchFile.getName().equals("HEAD")) {

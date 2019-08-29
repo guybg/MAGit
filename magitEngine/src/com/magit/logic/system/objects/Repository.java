@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
 public class Repository implements Cloneable{
 
@@ -113,15 +114,29 @@ public class Repository implements Cloneable{
 
         String branchName = FileHandler.readFile(pathToHead.toString());
         Path pathToBranchFile = getBranchPath(branchName);
+
         String branchFileContent = FileHandler.readFile(pathToBranchFile.toString());
         if (branchFileContent.equals(""))
             return null;
 
         if (Files.notExists(pathToBranchFile))
             return null;
-        String sha1OfCommit = FileHandler.readFile(pathToBranchFile.toString());
+        String sha1OfCommit = readBranchContent(pathToBranchFile.toFile()).get("sha1");
         return Paths.get(pathToMagit.toString(), "objects", sha1OfCommit);
     }
+
+    public static HashMap<String, String> readBranchContent(File branchFile) throws IOException {
+        final String sha1 = "sha1", isRemote = "isRemote", isTracking = "isTracking", trackingAfter = "trackingAfter";
+        String content = FileHandler.readFile(branchFile.getPath());
+        String[] branchContentArray = content.split(System.lineSeparator());
+        HashMap<String,String> branchContent = new HashMap<>();
+        branchContent.put(sha1,branchContentArray[0]);
+        branchContent.put(isRemote, branchContentArray[1]);
+        branchContent.put(isTracking, branchContentArray[2]);
+        branchContent.put(trackingAfter, branchContentArray[3]);
+        return branchContent;
+    }
+
 
     public Path getObjectsFolderPath() {
         return Paths.get(pathToMagit.toString(), "objects");
@@ -188,7 +203,10 @@ public class Repository implements Cloneable{
     }
 
     public void changeBranchPointer(Branch branch, Sha1 newCommit) throws IOException {
-        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newCommit.toString());
+        HashMap<String,String> branchContent = Repository.readBranchContent(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toFile());
+        branchContent.replace("sha1", newCommit.toString());
+        String newBranchContent = branchContent.values().stream().collect(Collectors.joining(System.lineSeparator()));
+        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newBranchContent);
         branch.setPointedCommitSha1(newCommit);
     }
 

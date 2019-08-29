@@ -17,8 +17,8 @@ public class Branch {
     private Sha1 mPointedCommitSha1;
 
     private String mTrackingAfter = null;
-    private boolean mIsRemote = false;
-    private boolean mTracking = false;
+    private Boolean mIsRemote = false;
+    private Boolean mTracking = false;
 
     Branch(String mBranchName) {
         this.mBranchName = mBranchName;
@@ -60,7 +60,10 @@ public class Branch {
                 //System.out.println("file exists"); TODO(REMOVE WHEN SUBMITTING)
                 throw new FileAlreadyExistsException(".magit already exists");
             } else {
-                FileHandler.writeNewFile(filePath.toString(), mPointedCommitSha1.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(), mPointedCommitSha1.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(),mIsRemote.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(),mTracking.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(),mTrackingAfter);
                 //System.out.println("file created"); TODO(REMOVE WHEN SUBMITTING)
             }
 
