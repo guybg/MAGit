@@ -35,6 +35,18 @@ public class Branch {
         this.mIsRemote = mIsRemote;
     }
 
+    public String getTrackingAfter() {
+        return mTrackingAfter;
+    }
+
+    public Boolean getIsRemote() {
+        return mIsRemote;
+    }
+
+    public Boolean getIsTracking() {
+        return mTracking;
+    }
+
     public Branch(String branchName, String textToSha1, String trackingAfter, boolean isRemote, boolean tracking) {
         this.mBranchName = branchName;
         mPointedCommitSha1 = new Sha1(textToSha1, true);

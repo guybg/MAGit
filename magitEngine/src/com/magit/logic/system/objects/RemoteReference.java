@@ -9,4 +9,12 @@ public class RemoteReference {
         this.repositoryName = repositoryName;
         this.location = location;
     }
+
+    public String getRepositoryName() {
+        return repositoryName;
+    }
+
+    public String getLocation() {
+        return location;
+    }
 }

@@ -45,6 +45,10 @@ public class Repository implements Cloneable{
         this.remoteReference = remoteReference;
     }
 
+    public RemoteReference getRemoteReference() {
+        return remoteReference;
+    }
+
     @Override
     public Repository clone() {
         try {

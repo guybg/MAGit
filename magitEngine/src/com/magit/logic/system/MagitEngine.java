@@ -213,7 +213,7 @@ public class MagitEngine {
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
-    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, InvalidNameException {
+    public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, InvalidNameException, RemoteBranchException {
         repositoryNotFoundCheck();
         if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty())
             throw new InvalidNameException("Branch name cannot be empty or with whitespace.");

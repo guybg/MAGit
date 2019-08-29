@@ -170,7 +170,7 @@
     -fx-padding: 0 1 0 1;
 }
 
-#branchesListView .list-cell .label{
+.branchesListView .list-cell .label{
     -fx-alignment: center;
     -fx-font-weight: bold;
     -fx-font-size: 18px;
@@ -178,12 +178,12 @@
     -fx-text-fill : #FAFBFC;
 }
 
-#branchesListView .list-cell .button:hover {
+.branchesListView .list-cell .button:hover {
     -fx-background-color: #F88080;
     -fx-border-color: #F88080;
 }
 
-#branchesListView .list-cell .button {
+.branchesListView .list-cell .button {
     -fx-background-color: #FAFFFF;
     -fx-border-color: #E0E3E7;
 }
@@ -260,5 +260,13 @@
 
 #branches-history-combo:selected .label, #branches-history-combo .label{
     -fx-text-fill: black;
+}
+
+#remote-branch-cell .label{
+    -fx-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 18px;
+    -fx-background-color: #292D32;
+    -fx-text-fill : red;
 }
 

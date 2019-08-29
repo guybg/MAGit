@@ -39,6 +39,7 @@ import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.control.CheckBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.*;
 
@@ -333,14 +334,19 @@ public class MainScreenController implements Initializable, BasicController {
             Button deleteBranchButton = new Button();
             deleteBranchButton.setText("Delete");
             branchHbox.setAlignment(Pos.CENTER);
+
             branchHbox.getChildren().add(labelOfBranch);
             branchHbox.getChildren().add(deleteBranchButton);
             branchHbox.setSpacing(5);
+            if(branch.getIsRemote()) {
+                branchHbox.setId("remote-branch-cell");
+            }
             HBox.setHgrow(labelOfBranch, Priority.ALWAYS);
             HBox.setHgrow(deleteBranchButton, Priority.NEVER);
             labelOfBranch.setMaxWidth(Double.MAX_VALUE);
             branchHbox.prefWidthProperty().bind(branchesListView.widthProperty().subtract(20));
             labelOfBranch.setAlignment(Pos.BASELINE_LEFT);
+
             deleteBranchButton.setOnAction(event -> deleteBranch(((Label) ((HBox) ((Button) event.getSource()).getParent()).getChildren().get(0)).getText()));
 
             Tooltip branchInfo = new Tooltip();
@@ -436,14 +442,25 @@ public class MainScreenController implements Initializable, BasicController {
                 try {
                     engine.forcedChangeBranch(branchName);
                     branchNameProperty.setValue(branchName);
-                } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {}
-                Button button = (Button)event1.getSource();
-                ((Stage)(button.getScene().getWindow())).close();
+                } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {
+                }
+                Button button = (Button) event1.getSource();
+                ((Stage) (button.getScene().getWindow())).close();
             };
             try {
-                PopupScreen popupScreen = new PopupScreen(stage,engine);
+                PopupScreen popupScreen = new PopupScreen(stage, engine);
                 popupScreen.createNotificationPopup(controller, true, headMessage, e.getMessage(), "Cancel");
-            } catch(IOException ignored) {}
+            } catch (IOException ignored) {
+            }
+        } catch (RemoteBranchException e){
+            PopupScreen popupScreen = new PopupScreen(stage, engine);
+            try {
+                popupScreen.createNotificationPopup(event -> {
+                    // create remote tracking branch todo
+                }, true, "Oops, cannot switch to chosen branch", e.getMessage(), "Cancel");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         } catch (PreviousCommitsLimitExceededException e) {
             e.printStackTrace();
         }
@@ -726,6 +743,8 @@ public class MainScreenController implements Initializable, BasicController {
                             branchNameProperty.setValue(branchName);
                             ((Stage)((Button)cEvent.getSource()).getScene().getWindow()).close();
                             },true, "Are you sure?","There are unsaved changes, switching branch may cause lose of data.", "Cancel");
+                    } catch (RemoteBranchException e) {
+                        //needed ?? todo
                     }
                 }
             } catch (IOException | InvalidNameException | RepositoryNotFoundException | BranchAlreadyExistsException e ) {

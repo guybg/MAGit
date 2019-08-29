@@ -216,7 +216,7 @@ public class BranchManager {
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,
-                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException {
+                                 Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, RemoteBranchException {
         if (Files.notExists(Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
             throw new BranchNotFoundException(wantedBranchName);
 
@@ -227,6 +227,9 @@ public class BranchManager {
             throw new UncommitedChangesException("There is unsolved merge at that branch, are you sure you want to switch branch without solving the merge?");
         if (activeRepository.areThereChanges(changes))
             throw new UncommitedChangesException("There are unsaved changes, are you sure you want to change branch without generating a commit?");
+        if(activeRepository.getBranches().get(wantedBranchName).getIsRemote()){
+            throw new RemoteBranchException("You are trying to checkout into a remote branch, this operation is forbidden, would you like to create a remote tracking branch instead?");
+        }
 
 
         return forcedChangeBranch(wantedBranchName, activeRepository);

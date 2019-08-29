@@ -211,7 +211,7 @@
                <items>
                   <MenuItem id="branchesMenuItem" fx:id="branchesMenuItem" mnemonicParsing="false">
                      <graphic>
-                        <ListView id="branchesListView" fx:id="branchesListView" />
+                        <ListView fx:id="branchesListView" styleClass="branchesListView" stylesheets="@../css/home.css" />
                      </graphic>
                   </MenuItem>
                </items>

@@ -59,7 +59,6 @@ public class RepositoryManager {
     }
     // (todo) handle load of remote branches, right now it skips them.
     public static Repository loadRepository(Path repositoryPath, BranchManager branchManager) throws IOException {
-        final String sha1 = "sha1", isRemote = "isRemote", isTracking = "isTracking", trackingAfter = "trackingAfter";
 
         String repositoryName = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REPOSITORY_NAME").toString());
         Repository repository = new Repository(repositoryPath.toString(), repositoryName);
@@ -69,13 +68,13 @@ public class RepositoryManager {
 
         for (File branchFile : branchesFiles) {
             if (!branchFile.getName().equals("HEAD")) {
-                String trackingAfterValue = null;
-                HashMap<String,String> branchContent = Repository.readBranchContent(branchFile);
-                if(!branchContent.get(trackingAfter).equals("null")){
-                    trackingAfterValue = branchContent.get(trackingAfter);
+                if(!branchFile.getParentFile().getName().equals("branches")){
+                    for(File branchInDirectory : Objects.requireNonNull(branchFile.getParentFile().listFiles())){
+                        loadBranchFromFile(branchInDirectory,repository, true);
+                    }
+                }else {
+                    loadBranchFromFile(branchFile, repository, false);
                 }
-                repository.addBranch(branchFile.getName()
-                        , new Branch(branchFile.getName(), branchContent.get(sha1),trackingAfterValue, Boolean.valueOf(branchContent.get(isRemote)), Boolean.valueOf(branchContent.get(isTracking))));
             }
         }
         for (File branchFile : branchesFiles) {
@@ -85,6 +84,22 @@ public class RepositoryManager {
             }
         }
         return repository;
+    }
+
+    private static void loadBranchFromFile(File branchFile, Repository repository, Boolean isBranchInDirectory) throws IOException {
+        final String sha1 = "sha1", isRemote = "isRemote", isTracking = "isTracking", trackingAfter = "trackingAfter";
+
+        String trackingAfterValue = null;
+        HashMap<String,String> branchContent = Repository.readBranchContent(branchFile);
+        if(!branchContent.get(trackingAfter).equals("null")){
+            trackingAfterValue = branchContent.get(trackingAfter);
+        }
+        String branchName = branchFile.getName();
+        if(isBranchInDirectory){
+            branchName = String.join("/",branchFile.getParentFile().getName(),branchName);
+        }
+        repository.addBranch(branchName
+                , new Branch(branchName, branchContent.get(sha1),trackingAfterValue, Boolean.valueOf(branchContent.get(isRemote)), Boolean.valueOf(branchContent.get(isTracking))));
     }
 
 
