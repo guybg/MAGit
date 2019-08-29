@@ -300,6 +300,9 @@ public class MagitEngine {
         collaborationEngine.cloneRepository(toClonePath,clonedPath,new BranchManager());
     }
 
+    public void fetch() throws PreviousCommitsLimitExceededException, RemoteReferenceException, CommitNotFoundException, ParseException, IOException, IllegalPathException {
+        collaborationEngine.fetch(mRepositoryManager.getRepository());
+    }
 }
 
 

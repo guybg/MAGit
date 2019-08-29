@@ -2,6 +2,8 @@ package com.magit.logic.utils.file;
 
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
+import com.magit.logic.exceptions.CommitNotFoundException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.interfaces.WalkAction;
 import com.magit.logic.system.objects.*;
@@ -105,6 +107,32 @@ public class WorkingCopyUtils {
             }
         };
         fileItemWalk(wc, destinationPath, walkAction);
+    }
+
+    public static void updateNewObjects(Repository source, Repository destination) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        for(String sha1OfCommit : source.getAllCommitsOfRepository()){
+            if(!Arrays.asList(destination.getAllCommitsOfRepository()).contains(sha1OfCommit)){
+                Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
+                if(commit == null)
+                    throw new CommitNotFoundException("commit not found, repository corrupted");
+                FileHandler.appendFileWithContentAndLine(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(), sha1OfCommit);
+                commit.generateCommitFile(destination.getObjectsFolderPath());
+                Tree wc = getWorkingCopyTreeFromCommit(commit,source.getRepositoryPath().toString());
+                fileItemWalk(wc, destination.getObjectsFolderPath().toString(), new WalkAction() {
+                    @Override
+                    public void onWalkAction(FileItem file, Object... params) throws IOException {
+                        for(File objectsFile : Objects.requireNonNull(destination.getObjectsFolderPath().toFile().listFiles())){
+                            if(objectsFile.getName().equals(file.getSha1Code().toString())) return;
+                        }
+                        FileItemHandler.zip(file, destination.getObjectsFolderPath().toString());
+                    }
+
+                    @Override
+                    public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) {
+                    }
+                });
+            }
+        }
     }
 
     private static void fileItemWalk(FileItem fileItem, String destinationPath, WalkAction aAction) throws IOException {

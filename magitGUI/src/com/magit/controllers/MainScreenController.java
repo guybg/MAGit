@@ -413,7 +413,18 @@ public class MainScreenController implements Initializable, BasicController {
     }
     @FXML
     void onFetch(ActionEvent event) {
-
+        try {
+            engine.fetch();
+        } catch (PreviousCommitsLimitExceededException | CommitNotFoundException | ParseException | IOException | RemoteReferenceException e) {
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            try {
+                popupScreen.createNotificationPopup(null,false,"Oops could not fetch", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (IllegalPathException e) {
+            e.printStackTrace();
+        }
     }
 
 

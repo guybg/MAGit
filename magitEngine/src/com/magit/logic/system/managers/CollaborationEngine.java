@@ -1,16 +1,20 @@
 package com.magit.logic.system.managers;
 
-import com.magit.logic.exceptions.CloneException;
-import com.magit.logic.exceptions.IllegalPathException;
+import com.magit.logic.exceptions.*;
+import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.ClonedRepository;
+import com.magit.logic.system.objects.RemoteReference;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.utils.file.FileHandler;
+import com.magit.logic.utils.file.WorkingCopyUtils;
+import com.sun.xml.internal.ws.api.pipe.Engine;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 
 public class CollaborationEngine {
 
@@ -29,6 +33,25 @@ public class CollaborationEngine {
         clonedRepository.create();
 
 
+    }
+
+    public void fetch(Repository repository) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, IllegalPathException {
+        if(repository.getRemoteReference() == null)
+            throw new RemoteReferenceException("Repository does not have remote reference");
+        Repository remoteRepository = RepositoryManager.loadRepository(Paths.get(repository.getRemoteReference().getLocation()), new BranchManager());
+        for(Branch branch : remoteRepository.getBranches().values()){
+            if(!repository.getBranches().containsKey(branch.getBranchName())){
+                Branch remoteBranch = new Branch(
+                        String.join("/",repository.getRemoteReference().getRepositoryName()
+                                , branch.getBranchName()),branch.getPointedCommitSha1().toString(),null, true,false);
+                repository.getBranches().put(branch.getBranchName(),remoteBranch);
+                BranchManager.writeBranch(repository,remoteBranch.getBranchName(),remoteBranch.getPointedCommitSha1().toString(),true,false,null);
+            }else{
+                repository.changeBranchPointer(repository.getBranches().get(branch.getBranchName()),branch.getPointedCommitSha1());
+                BranchManager.writeBranch(repository,branch.getBranchName(),branch.getPointedCommitSha1().toString(),true,false,null);
+            }
+        }
+        WorkingCopyUtils.updateNewObjects(remoteRepository,repository);
     }
 
     public boolean isValid(String repositoryLocation) throws IOException {
