@@ -40,15 +40,15 @@ public class CollaborationEngine {
             throw new RemoteReferenceException("Repository does not have remote reference");
         Repository remoteRepository = RepositoryManager.loadRepository(Paths.get(repository.getRemoteReference().getLocation()), new BranchManager());
         for(Branch branch : remoteRepository.getBranches().values()){
-            if(!repository.getBranches().containsKey(branch.getBranchName())){
+            String remoteBranchName = String.join("/",repository.getRemoteReference().getRepositoryName(),branch.getBranchName());
+            if(!repository.getBranches().containsKey(remoteBranchName)){
                 Branch remoteBranch = new Branch(
-                        String.join("/",repository.getRemoteReference().getRepositoryName()
-                                , branch.getBranchName()),branch.getPointedCommitSha1().toString(),null, true,false);
-                repository.getBranches().put(branch.getBranchName(),remoteBranch);
-                BranchManager.writeBranch(repository,remoteBranch.getBranchName(),remoteBranch.getPointedCommitSha1().toString(),true,false,null);
+                        remoteBranchName,branch.getPointedCommitSha1().toString(),null, true,false);
+                repository.getBranches().put(remoteBranchName,remoteBranch);
+                BranchManager.writeBranch(repository,remoteBranchName,remoteBranch.getPointedCommitSha1().toString(),true,false,null);
             }else{
-                repository.changeBranchPointer(repository.getBranches().get(branch.getBranchName()),branch.getPointedCommitSha1());
-                BranchManager.writeBranch(repository,branch.getBranchName(),branch.getPointedCommitSha1().toString(),true,false,null);
+                repository.changeBranchPointer(repository.getBranches().get(remoteBranchName),branch.getPointedCommitSha1());
+                BranchManager.writeBranch(repository,remoteBranchName,branch.getPointedCommitSha1().toString(),true,false,null);
             }
         }
         WorkingCopyUtils.updateNewObjects(remoteRepository,repository);

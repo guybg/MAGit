@@ -118,11 +118,15 @@ public class WorkingCopyUtils {
                 FileHandler.appendFileWithContentAndLine(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(), sha1OfCommit);
                 commit.generateCommitFile(destination.getObjectsFolderPath());
                 Tree wc = getWorkingCopyTreeFromCommit(commit,source.getRepositoryPath().toString());
-                fileItemWalk(wc, destination.getObjectsFolderPath().toString(), new WalkAction() {
+                FileItemHandler.zip(wc,destination.getObjectsFolderPath().toString());
+                fileItemWalk(wc, source.getObjectsFolderPath().toString(), new WalkAction() {
                     @Override
                     public void onWalkAction(FileItem file, Object... params) throws IOException {
                         for(File objectsFile : Objects.requireNonNull(destination.getObjectsFolderPath().toFile().listFiles())){
-                            if(objectsFile.getName().equals(file.getSha1Code().toString())) return;
+                            if(objectsFile.getName().equals(file.getSha1Code().toString())) {
+                                return;
+                            }
+
                         }
                         FileItemHandler.zip(file, destination.getObjectsFolderPath().toString());
                     }

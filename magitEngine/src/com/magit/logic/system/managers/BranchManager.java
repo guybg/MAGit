@@ -50,6 +50,7 @@ public class BranchManager {
     }
 
     public static void writeBranch(Repository repository, String branchName,String sha1OfCommit,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException {
+        FileUtils.deleteQuietly(Paths.get(repository.getBranchDirectoryPath().toString()).toFile());
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), sha1OfCommit);
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), isRemote.toString());
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getBranchDirectoryPath().toString(), branchName).toString(), isTracking.toString());
