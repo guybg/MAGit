@@ -36,12 +36,6 @@ public class BranchManager {
         mActiveBranch = branch;
     }
 
-    void loadBranch(File branchFile) throws IOException {
-        String headContent = FileHandler.readFile(branchFile.getPath());
-        File headBranch = new File(Paths.get(branchFile.getParent(), headContent).toString());
-        mActiveBranch = new Branch(headContent, FileHandler.readFile(headBranch.getPath()));
-    }
-
     public void createNewBranch(String branchName, Repository repository,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException, InvalidNameException, BranchAlreadyExistsException {
         final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
         if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) {

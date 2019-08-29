@@ -60,7 +60,7 @@ public class Repository implements Cloneable{
                     continue;
                 }
                 String remoteBranchName = String.format("%s/%s", getRepositoryName(),keyValue.getKey());
-                Branch branch = new Branch(remoteBranchName);
+                Branch branch = new Branch(remoteBranchName, keyValue.getValue().getPointedCommitSha1().toString(),keyValue.getValue().getTrackingAfter(),keyValue.getValue().getIsRemote(),keyValue.getValue().getIsTracking());
                 branch.setPointedCommitSha1(keyValue.getValue().getPointedCommitSha1());
                 branch.setIsRemote(true);
                 clonedRepository.mBranches.put(remoteBranchName,branch);
