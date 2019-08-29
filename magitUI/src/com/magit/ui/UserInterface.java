@@ -381,6 +381,8 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (InvalidNameException e) {
             System.out.println(e.getMessage());
+        } catch (RemoteBranchException e) {
+            e.printStackTrace(); //todo
         }
     }
 
