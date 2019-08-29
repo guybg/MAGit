@@ -35,6 +35,14 @@ public class Branch {
         this.mIsRemote = mIsRemote;
     }
 
+    public void setTrackingAfter(String mTrackingAfter) {
+        this.mTrackingAfter = mTrackingAfter;
+    }
+
+    public void setIsTracking(Boolean mTracking) {
+        this.mTracking = mTracking;
+    }
+
     public String getTrackingAfter() {
         return mTrackingAfter;
     }

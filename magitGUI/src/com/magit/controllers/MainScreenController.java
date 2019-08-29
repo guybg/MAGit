@@ -394,7 +394,7 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onPull(ActionEvent event) {
-        engine.cloneTest();
+
     }
 
     @FXML

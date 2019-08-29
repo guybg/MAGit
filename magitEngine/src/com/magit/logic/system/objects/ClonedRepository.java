@@ -2,6 +2,8 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
+import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import org.apache.commons.io.FileUtils;
@@ -41,6 +43,13 @@ public class ClonedRepository extends Repository {
         createInitialMagitFolder();
         createObjectsFiles();
         createCommitsFile();
+        try {
+            RepositoryManager.unzipHeadBranchCommitWorkingCopy(this);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        }
     }
 
     private void createObjectsFiles() throws IOException {

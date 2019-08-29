@@ -3,10 +3,7 @@ package com.magit.logic.system.managers;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.FileItemInfo;
-import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
@@ -65,7 +62,11 @@ public class RepositoryManager {
         List<File> branchesFiles = (List<File>) FileUtils.listFiles(
                 new File(Paths.get(repositoryPath.toString(), ".magit", "branches").toString()),
                 TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE);
-
+        if(Files.exists(Paths.get(repositoryPath.toString(), ".magit", "REMOTE_REFERENCE"))){
+            String[] remoteReferenceInfo = FileHandler.readFile(Paths.get(repositoryPath.toString(), ".magit", "REMOTE_REFERENCE").toString()).split(System.lineSeparator());
+            RemoteReference remoteReference = new RemoteReference(remoteReferenceInfo[0],remoteReferenceInfo[1]);
+            repository.setRemoteReference(remoteReference);
+        }
         for (File branchFile : branchesFiles) {
             if (!branchFile.getName().equals("HEAD")) {
                 if(!branchFile.getParentFile().getName().equals("branches")){
@@ -113,6 +114,13 @@ public class RepositoryManager {
         if (commit == null) return;
         WorkingCopyUtils.unzipWorkingCopyFromCommit(commit, mActiveRepository.getRepositoryPath().toString(),
                 mActiveRepository.getRepositoryPath().toString());
+    }
+
+    public static void unzipHeadBranchCommitWorkingCopy(Repository repository) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        Commit commit = Commit.createCommitInstanceByPath(repository.getCommitPath());
+        if (commit == null) return;
+        WorkingCopyUtils.unzipWorkingCopyFromCommit(commit, repository.getRepositoryPath().toString(),
+                repository.getRepositoryPath().toString());
     }
 
     public String presentCurrentCommitAndHistory()

@@ -2,6 +2,7 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.IllegalPathException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
@@ -15,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
@@ -55,14 +57,14 @@ public class Repository implements Cloneable{
             Repository clonedRepository = (Repository)super.clone();
             clonedRepository.mBranches = new HashMap<>();
             for (Map.Entry<String, Branch> keyValue : mBranches.entrySet()) {
+                if(keyValue.getValue().getIsRemote()) continue;
                 if(keyValue.getKey().equals("HEAD")) {
                     clonedRepository.mBranches.put(keyValue.getKey(),keyValue.getValue());
                     continue;
                 }
                 String remoteBranchName = String.format("%s/%s", getRepositoryName(),keyValue.getKey());
-                Branch branch = new Branch(remoteBranchName, keyValue.getValue().getPointedCommitSha1().toString(),keyValue.getValue().getTrackingAfter(),keyValue.getValue().getIsRemote(),keyValue.getValue().getIsTracking());
+                Branch branch = new Branch(remoteBranchName, keyValue.getValue().getPointedCommitSha1().toString(),null,true,false);
                 branch.setPointedCommitSha1(keyValue.getValue().getPointedCommitSha1());
-                branch.setIsRemote(true);
                 clonedRepository.mBranches.put(remoteBranchName,branch);
             }
             remoteReference = new RemoteReference(mRepositoryName,mRepositoryLocation);
@@ -137,7 +139,10 @@ public class Repository implements Cloneable{
         branchContent.put(sha1,branchContentArray[0]);
         branchContent.put(isRemote, branchContentArray[1]);
         branchContent.put(isTracking, branchContentArray[2]);
-        branchContent.put(trackingAfter, branchContentArray[3]);
+        if(branchContentArray.length != 4)
+            branchContent.put(trackingAfter,"null");
+        else
+            branchContent.put(trackingAfter, branchContentArray[3]);
         return branchContent;
     }
 
@@ -147,7 +152,7 @@ public class Repository implements Cloneable{
     }
 
     public void create() throws IllegalPathException, IOException {
-        final String REPOSITORY_NAME = "REPOSITORY_NAME";
+        final String REPOSITORY_NAME = "REPOSITORY_NAME",REMOTE_REFERENCE = "REMOTE_REFERENCE";
         boolean validPath;
         String headBranch = "master";
         File repository;
@@ -156,6 +161,10 @@ public class Repository implements Cloneable{
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
             Path repositoryNamePath = Paths.get(mRepositoryLocation, ".magit", REPOSITORY_NAME);
+            if(remoteReference != null){
+                Path remoteReferencePath = Paths.get(mRepositoryLocation, ".magit", REMOTE_REFERENCE);
+                FileHandler.writeNewFile(remoteReferencePath.toString(), String.format("%s%s%s",remoteReference.getRepositoryName(),System.lineSeparator(),remoteReference.getLocation()));
+            }
             FileHandler.writeNewFile(repositoryNamePath.toString(), mRepositoryName);
             if (!mBranches.isEmpty()) {
                 for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {

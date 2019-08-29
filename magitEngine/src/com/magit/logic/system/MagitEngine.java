@@ -46,12 +46,13 @@ public class MagitEngine {
     private final BranchManager mBranchManager;
     private String mUserName = "Administrator";
     private MergeEngine mergeEngine;
-
+    private CollaborationEngine collaborationEngine;
 
     public MagitEngine() {
         mRepositoryManager = new RepositoryManager();
         mBranchManager = new BranchManager();
         mergeEngine = new MergeEngine();
+        collaborationEngine = new CollaborationEngine();
     }
 
     public RepositoryManager getmRepositoryManager() {
@@ -177,17 +178,6 @@ public class MagitEngine {
         return mUserName;
     }
 
-    public void cloneTest(){
-        CollaborationEngine collaborationEngine = new CollaborationEngine();
-        try {
-            collaborationEngine.cloneRepository("c:/repo2","d:/repoCloned",new BranchManager(),"test");
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (IllegalPathException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void createNewRepository(Path pathToFile, String repositoryName) throws IllegalPathException, InvalidNameException, RepositoryAlreadyExistsException {
         try {
             if (StringUtils.containsOnly(repositoryName, BLANK_SPACE) || repositoryName.isEmpty())
@@ -215,7 +205,7 @@ public class MagitEngine {
 
     public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, InvalidNameException, RemoteBranchException {
         repositoryNotFoundCheck();
-        if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty())
+        if ((StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) && !mRepositoryManager.getRepository().getBranches().get(branchName).getIsRemote())
             throw new InvalidNameException("Branch name cannot be empty or with whitespace.");
         return mBranchManager.pickHeadBranch(branchName,
                 mRepositoryManager.getRepository(), mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit());
@@ -305,6 +295,11 @@ public class MagitEngine {
         if(mRepositoryManager.getRepository().headBranchHasUnhandledMerge())
             throw new UnhandledMergeException("");
     }
+
+    public void clone(String toClonePath, String clonedPath) throws IOException, IllegalPathException, CloneException {
+        collaborationEngine.cloneRepository(toClonePath,clonedPath,new BranchManager());
+    }
+
 }
 
 
