@@ -121,7 +121,7 @@ public class WorkingCopyUtils {
         if(Files.notExists(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS"))) FileHandler.writeNewFile(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(),"");
         Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
         if(commit == null)
-            throw new CommitNotFoundException("commit not found.");
+            throw new CommitNotFoundException("commit not found at remote repository.");
         ArrayList<String> allPrevSha1s = new ArrayList<>();
         allPrevSha1s.add(commit.getSha1Code().toString());
         getAllPreviousCommitSha1s(source,commit,allPrevSha1s);
