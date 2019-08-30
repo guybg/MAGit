@@ -62,4 +62,6 @@ public class CollaborationEngine {
                 !FileHandler.readFile(pathToHead.toString()).isEmpty()
                 && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, FileHandler.readFile(pathToHead.toString())));
     }
+
+
 }

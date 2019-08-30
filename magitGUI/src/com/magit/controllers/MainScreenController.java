@@ -467,7 +467,20 @@ public class MainScreenController implements Initializable, BasicController {
             PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
                 popupScreen.createNotificationPopup(event -> {
-                    // create remote tracking branch todo
+                    PopupScreen popupScreen1 = new PopupScreen(((Stage)((Button)event.getSource()).getScene().getWindow()), engine);
+                    try {
+                        engine.createRemoteTrackingBranch(e.getBranchName());
+                        popupScreen1.createNotificationPopup(null, false, "Remote tracking branch creation notification", "Remote tracking branch created successfully!", "Cancel");
+                        ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                    } catch (BranchNotFoundException | RepositoryNotFoundException | InvalidNameException | RemoteReferenceException | IOException | BranchAlreadyExistsException ex) {
+                        try {
+                            popupScreen1.createNotificationPopup(null, false, "Oops.. cannot create remote tracking branch", ex.getMessage(), "Cancel");
+                        } catch (IOException exc) {
+                            exc.printStackTrace();
+                        } finally {
+                            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                        }
+                    }
                 }, true, "Oops, cannot switch to chosen branch", e.getMessage(), "Cancel");
             } catch (IOException ex) {
                 ex.printStackTrace();

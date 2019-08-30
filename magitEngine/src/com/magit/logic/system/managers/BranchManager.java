@@ -16,7 +16,6 @@ import com.magit.logic.visual.node.CommitNode;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,6 +35,14 @@ public class BranchManager {
         mActiveBranch = branch;
     }
 
+    public void createRemoteTrackingBranch(Branch branch, Repository repository) throws RemoteReferenceException, BranchAlreadyExistsException, InvalidNameException, IOException, BranchNotFoundException {
+        if(repository.getRemoteReference() == null)
+            throw new RemoteReferenceException("Current repository is not tracking after other repository.");
+        if(!branch.getIsRemote())
+            throw new BranchNotFoundException("Given Branch is not remote branch at current repository.", branch.getBranchName());
+        createNewBranch(branch.getBranchName().split("/")[1],
+                repository, branch.getPointedCommitSha1().toString(),false, true, branch.getBranchName());
+    }
     public void createNewBranch(String branchName, Repository repository,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException, InvalidNameException, BranchAlreadyExistsException {
         final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
         if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) {
@@ -223,7 +230,7 @@ public class BranchManager {
         if (activeRepository.areThereChanges(changes))
             throw new UncommitedChangesException("There are unsaved changes, are you sure you want to change branch without generating a commit?");
         if(activeRepository.getBranches().get(wantedBranchName).getIsRemote()){
-            throw new RemoteBranchException("You are trying to checkout into a remote branch, this operation is forbidden, would you like to create a remote tracking branch instead?");
+            throw new RemoteBranchException("You are trying to checkout into a remote branch, this operation is forbidden, would you like to create a remote tracking branch instead?", wantedBranchName);
         }
 
 

@@ -303,6 +303,14 @@ public class MagitEngine {
     public void fetch() throws PreviousCommitsLimitExceededException, RemoteReferenceException, CommitNotFoundException, ParseException, IOException, IllegalPathException {
         collaborationEngine.fetch(mRepositoryManager.getRepository());
     }
+
+    public void createRemoteTrackingBranch(String remoteBranchName) throws BranchNotFoundException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException, RemoteReferenceException, IOException {
+        repositoryNotFoundCheck();
+        if (!mRepositoryManager.getRepository().getBranches().containsKey(remoteBranchName))
+            throw new BranchNotFoundException("Remote branch does not exist");
+
+        mBranchManager.createRemoteTrackingBranch(mRepositoryManager.getRepository().getBranches().get(remoteBranchName), mRepositoryManager.getRepository());
+    }
 }
 
 

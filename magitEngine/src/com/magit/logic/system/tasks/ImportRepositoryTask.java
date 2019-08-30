@@ -1,27 +1,16 @@
 package com.magit.logic.system.tasks;
 
-import com.magit.controllers.interfaces.BasicPopupScreenController;
-import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.managers.RepositoryXmlParser;
-import com.magit.logic.system.objects.Repository;
-import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.animation.TimelineBuilder;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import javax.xml.bind.JAXBException;
