@@ -1,6 +1,8 @@
 package com.magit.logic.system.managers;
 
+import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
+import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.ClonedRepository;
 import com.magit.logic.system.objects.RemoteReference;
@@ -35,23 +37,41 @@ public class CollaborationEngine {
 
     }
 
-    public void fetch(Repository repository) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, IllegalPathException {
+    public void fetch(Repository repository) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
         if(repository.getRemoteReference() == null)
             throw new RemoteReferenceException("Repository does not have remote reference");
         Repository remoteRepository = RepositoryManager.loadRepository(Paths.get(repository.getRemoteReference().getLocation()), new BranchManager());
         for(Branch branch : remoteRepository.getBranches().values()){
-            String remoteBranchName = String.join("/",repository.getRemoteReference().getRepositoryName(),branch.getBranchName());
-            if(!repository.getBranches().containsKey(remoteBranchName)){
-                Branch remoteBranch = new Branch(
-                        remoteBranchName,branch.getPointedCommitSha1().toString(),null, true,false);
-                repository.getBranches().put(remoteBranchName,remoteBranch);
-                BranchManager.writeBranch(repository,remoteBranchName,remoteBranch.getPointedCommitSha1().toString(),true,false,null);
-            }else{
-                repository.changeBranchPointer(repository.getBranches().get(remoteBranchName),branch.getPointedCommitSha1());
-                BranchManager.writeBranch(repository,remoteBranchName,branch.getPointedCommitSha1().toString(),true,false,null);
-            }
+            updateRemoteBranch(repository, branch);
         }
         WorkingCopyUtils.updateNewObjects(remoteRepository,repository);
+    }
+
+    private String updateRemoteBranch(Repository repository, Branch branch) throws IOException {
+        String remoteBranchName = String.join("/",repository.getRemoteReference().getRepositoryName(),branch.getBranchName());
+        if(!repository.getBranches().containsKey(remoteBranchName)){
+            Branch remoteBranch = new Branch(
+                    remoteBranchName,branch.getPointedCommitSha1().toString(),null, true,false);
+            repository.getBranches().put(remoteBranchName,remoteBranch);
+            BranchManager.writeBranch(repository,remoteBranchName,remoteBranch.getPointedCommitSha1().toString(),true,false,null);
+        }else{
+            repository.changeBranchPointer(repository.getBranches().get(remoteBranchName),branch.getPointedCommitSha1());
+            BranchManager.writeBranch(repository,remoteBranchName,branch.getPointedCommitSha1().toString(),true,false,null);
+        }
+        return remoteBranchName;
+    }
+
+    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException {
+        Repository repository = engine.getmRepositoryManager().getRepository();
+        if(repository.getRemoteReference() == null)
+            throw new RemoteReferenceException("Repository does not have remote reference");
+        Repository remoteRepository = RepositoryManager.loadRepository(Paths.get(repository.getRemoteReference().getLocation()), new BranchManager());
+
+        Branch activeBranch = remoteRepository.getBranches().get(repository.getBranches().get("HEAD").getBranchName());
+        String remoteBranchName = updateRemoteBranch(repository, activeBranch);
+        WorkingCopyUtils.updateNewObjectsOfSpecificCommit(remoteRepository,repository, activeBranch.getPointedCommitSha1().toString());
+
+        engine.merge(remoteBranchName);
     }
 
     public boolean isValid(String repositoryLocation) throws IOException {

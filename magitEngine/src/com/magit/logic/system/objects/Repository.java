@@ -4,6 +4,7 @@ import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.IllegalPathException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
+import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
@@ -216,10 +217,11 @@ public class Repository implements Cloneable{
     }
 
     public void changeBranchPointer(Branch branch, Sha1 newCommit) throws IOException {
-        HashMap<String,String> branchContent = Repository.readBranchContent(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toFile());
-        branchContent.replace("sha1", newCommit.toString());
-        String newBranchContent = branchContent.values().stream().collect(Collectors.joining(System.lineSeparator()));
-        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newBranchContent);
+        //HashMap<String,String> branchContent = Repository.readBranchContent(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toFile());
+        //branchContent.replace("sha1", newCommit.toString());
+      //  String newBranchContent = branchContent.values().stream().collect(Collectors.joining(System.lineSeparator()));
+        BranchManager.writeBranch(this,branch.getBranchName(),newCommit.toString(),branch.getIsRemote(),branch.getIsTracking(),branch.getTrackingAfter());
+     //   FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newBranchContent);
         branch.setPointedCommitSha1(newCommit);
     }
 

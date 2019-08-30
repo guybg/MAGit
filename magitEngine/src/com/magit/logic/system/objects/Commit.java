@@ -155,10 +155,10 @@ public class Commit extends FileItem implements CommitRepresentative {
         FileItemHandler.zip(this, pathToObjectsFolder.toString(), mSha1Code);
     }
 
-    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException, FastForwardException {
+    public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
         if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName(),"fast-forward"))){
             repository.changeBranchPointer(branch, new Sha1(getTheirsSha1(repository),true));
-            branch.setPointedCommitSha1(new Sha1(getTheirsSha1(repository),true));
+            //branch.setPointedCommitSha1(new Sha1(getTheirsSha1(repository),true));
             return;
         }
 

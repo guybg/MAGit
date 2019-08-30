@@ -35,7 +35,7 @@ import java.util.ResourceBundle;
 public class MergeScreenController implements BasicController, Initializable {
     private Stage stage;
     private MagitEngine engine;
-
+    private boolean preReadyMerge = false;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -90,26 +90,12 @@ public class MergeScreenController implements BasicController, Initializable {
             mergeButton.setDisable(true);
             branchToMergeWithComboBox.setDisable(true);
         } catch (UnhandledMergeException e) {
-            PopupScreen popupScreen = new PopupScreen(stage,engine);
-            try {
-                branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
-                popupScreen.createNotificationPopup(null,false,"Unhandled merge",e.getMessage(),"Close");
-
-                updateOpenChanges();
-                updateConflicts();
-                branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
-                mergeButton.setDisable(true);
-                branchToMergeWithComboBox.setDisable(true);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        } catch (MergeNotNeededException | FastForwardException e) {
-            PopupScreen popupScreen = new PopupScreen(stage,engine);
-            try {
-                popupScreen.createNotificationPopup(null,false,"Fast forward notification",e.getMessage(),"Close");
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            unhandledMergeExceptionHandler(e.getMessage());
+        } catch ( FastForwardException e) {
+            fastForwardExceptionHandler(e.getMessage());
+        } catch (MergeNotNeededException e){
+            fastForwardExceptionHandler(e.getMessage());
+            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
         }
     }
 
@@ -159,6 +145,15 @@ public class MergeScreenController implements BasicController, Initializable {
 
     }
 
+    public void preReadyMerge(){
+        if(engine.headBranchHasMergeOpenChanges())
+            updateOpenChanges();
+        if(engine.headBranchHasMergeConflicts())
+            updateConflicts();
+        mergeButton.setVisible(false);
+        branchToMergeWithComboBox.setVisible(false);
+    }
+
     @Override
     public void setStage(Stage stage) {
         this.stage = stage;
@@ -187,6 +182,33 @@ public class MergeScreenController implements BasicController, Initializable {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void unhandledMergeExceptionHandler(String exceptionMessage){
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        try {
+            branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
+            popupScreen.createNotificationPopup(null,false,"Unhandled merge",exceptionMessage,"Close");
+            updateOpenChanges();
+            updateConflicts();
+            if(!engine.headBranchHasMergeConflicts() && !engine.headBranchHasMergeOpenChanges())
+                mergeCommitMessageTextArea.setDisable(true);
+            branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
+            mergeButton.setDisable(true);
+            branchToMergeWithComboBox.setDisable(true);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void fastForwardExceptionHandler(String exceptionMessage){
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        mergeCommitMessageTextArea.setDisable(true);
+        try {
+            popupScreen.createNotificationPopup(null,false,"Fast forward notification",exceptionMessage,"Close");
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 }

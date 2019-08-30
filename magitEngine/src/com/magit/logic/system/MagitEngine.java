@@ -31,6 +31,7 @@ import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -273,6 +274,8 @@ public class MagitEngine {
         return mergeEngine.getOpenChanges(mRepositoryManager.getRepository());
     }
 
+
+
     public ArrayList<ConflictItem> getMergeConflicts(){
         if(mergeEngine.headBranchHasMergeConflicts(mRepositoryManager.getRepository())){
             return mergeEngine.getConflictItems(mRepositoryManager.getRepository());
@@ -296,12 +299,23 @@ public class MagitEngine {
             throw new UnhandledMergeException("");
     }
 
+    public boolean headBranchHasMergeConflicts(){
+        return mergeEngine.headBranchHasMergeConflicts(mRepositoryManager.getRepository());
+    }
+    public boolean headBranchHasMergeOpenChanges(){
+        return mergeEngine.headBranchHasMergeOpenChanges(mRepositoryManager.getRepository());
+    }
+
     public void clone(String toClonePath, String clonedPath) throws IOException, IllegalPathException, CloneException {
         collaborationEngine.cloneRepository(toClonePath,clonedPath,new BranchManager());
     }
 
     public void fetch() throws PreviousCommitsLimitExceededException, RemoteReferenceException, CommitNotFoundException, ParseException, IOException, IllegalPathException {
         collaborationEngine.fetch(mRepositoryManager.getRepository());
+    }
+
+    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException {
+        collaborationEngine.pull(this);
     }
 
     public void createRemoteTrackingBranch(String remoteBranchName) throws BranchNotFoundException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException, RemoteReferenceException, IOException {

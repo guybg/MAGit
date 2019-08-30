@@ -1,5 +1,6 @@
 package com.magit.gui;
 
+import com.magit.controllers.MergeScreenController;
 import com.magit.controllers.PopupScreenController;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
@@ -69,5 +70,31 @@ public class PopupScreen {
         popupScreenController.setPopupHeadMessageLableText(headMessage);
         popupScreenController.setPopupBodyMessageLabel(bodyMessage);
         createPopup(layout, popupScreenController);
+    }
+
+    public void createMergeScreen(){
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
+            Parent layout = loader.load();
+            createPopup(layout, loader.getController());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createMergeScreenWithPreChosenBranch(){
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
+            Parent layout = loader.load();
+            MergeScreenController mergeScreenController = loader.getController();
+            mergeScreenController.setEngine(engine);
+            mergeScreenController.setStage(stage);
+            mergeScreenController.preReadyMerge();
+            createPopup(layout, loader.getController());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

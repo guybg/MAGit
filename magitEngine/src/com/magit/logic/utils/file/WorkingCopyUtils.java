@@ -113,33 +113,62 @@ public class WorkingCopyUtils {
     public static void updateNewObjects(Repository source, Repository destination) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
         if(Files.notExists(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS"))) FileHandler.writeNewFile(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(),"");
         for(String sha1OfCommit : source.getAllCommitsOfRepository()){
-            if(!Arrays.asList(destination.getAllCommitsOfRepository()).contains(sha1OfCommit)){
-                Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
-                if(commit == null)
-                    throw new CommitNotFoundException("commit not found, repository corrupted");
-                FileHandler.appendFileWithContentAndLine(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(), sha1OfCommit);
-                commit.generateCommitFile(destination.getObjectsFolderPath());
-                Tree wc = getWorkingCopyTreeFromCommit(commit,source.getRepositoryPath().toString());
-                FileItemHandler.zip(wc,destination.getObjectsFolderPath().toString());
-                fileItemWalk(wc, source.getObjectsFolderPath().toString(), new WalkAction() {
-                    @Override
-                    public void onWalkAction(FileItem file, Object... params) throws IOException {
-                        for(File objectsFile : Objects.requireNonNull(destination.getObjectsFolderPath().toFile().listFiles())){
-                            if(objectsFile.getName().equals(file.getSha1Code().toString())) {
-                                return;
-                            }
-
-                        }
-                        FileItemHandler.zip(file, destination.getObjectsFolderPath().toString());
-                    }
-
-                    @Override
-                    public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) {
-                    }
-                });
-            }
+            importObjectOfSelectedCommit(source, destination, sha1OfCommit);
         }
     }
+
+    public static void updateNewObjectsOfSpecificCommit(Repository source, Repository destination, String sha1OfCommit) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        if(Files.notExists(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS"))) FileHandler.writeNewFile(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(),"");
+        Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
+        if(commit == null)
+            throw new CommitNotFoundException("commit not found.");
+        ArrayList<String> allPrevSha1s = new ArrayList<>();
+        allPrevSha1s.add(commit.getSha1Code().toString());
+        getAllPreviousCommitSha1s(source,commit,allPrevSha1s);
+        for(String sha1 : allPrevSha1s){
+            importObjectOfSelectedCommit(source, destination, sha1);
+        }
+    }
+
+    private static void getAllPreviousCommitSha1s(Repository repository, Commit commit, ArrayList<String> allSha1s) throws ParseException, PreviousCommitsLimitExceededException, IOException, CommitNotFoundException {
+        if(commit.getSha1().isEmpty()) return;
+        for(Sha1 sha1OfParent : commit.getLastCommitsSha1Codes()){
+            if(sha1OfParent.toString().isEmpty()) return;
+            allSha1s.add(sha1OfParent.toString());
+            Commit prevCommit = Commit.createCommitInstanceByPath(Paths.get(repository.getObjectsFolderPath().toString(),sha1OfParent.toString()));
+            if(commit == null)
+                throw new CommitNotFoundException("commit not found, repository corrupted");
+            getAllPreviousCommitSha1s(repository,prevCommit,allSha1s);
+        }
+    }
+
+    private static void importObjectOfSelectedCommit(Repository source, Repository destination, String sha1OfCommit) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        if(!Arrays.asList(destination.getAllCommitsOfRepository()).contains(sha1OfCommit)){
+            Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
+            if(commit == null)
+                throw new CommitNotFoundException("commit not found, repository corrupted");
+            FileHandler.appendFileWithContentAndLine(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(), sha1OfCommit);
+            commit.generateCommitFile(destination.getObjectsFolderPath());
+            Tree wc = getWorkingCopyTreeFromCommit(commit,source.getRepositoryPath().toString());
+            FileItemHandler.zip(wc,destination.getObjectsFolderPath().toString());
+            fileItemWalk(wc, source.getObjectsFolderPath().toString(), new WalkAction() {
+                @Override
+                public void onWalkAction(FileItem file, Object... params) throws IOException {
+                    for(File objectsFile : Objects.requireNonNull(destination.getObjectsFolderPath().toFile().listFiles())){
+                        if(objectsFile.getName().equals(file.getSha1Code().toString())) {
+                            return;
+                        }
+                    }
+                    FileItemHandler.zip(file, destination.getObjectsFolderPath().toString());
+                }
+
+                @Override
+                public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) { }
+            });
+        }
+    }
+
+
 
     private static void fileItemWalk(FileItem fileItem, String destinationPath, WalkAction aAction) throws IOException {
         if (fileItem.getFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {

@@ -93,7 +93,7 @@ public class BranchManager {
                 throw new FileNotFoundException("No commit file, there is no history to show...");
 
             Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
-            assert mostRecentCommit != null; // checking if file exists first, if not, throws FileNotFoundException.
+            if(mostRecentCommit == null) continue;
             guiBranchesHistory(mostRecentCommit, activeRepository,nodes, edges, model, branchEntry.getValue(), branchesHistoryScreenController);
         }
         return nodes;

@@ -225,16 +225,8 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onMerge(ActionEvent event) {
-        try {
-            PopupScreen popupScreen = new PopupScreen(stage,engine);
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
-            Parent layout = loader.load();
-            popupScreen.createPopup(layout, loader.getController());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        popupScreen.createMergeScreen();
     }
 
 
@@ -394,7 +386,36 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onPull(ActionEvent event) {
-
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        try {
+            engine.pull();
+            popupScreen.createMergeScreenWithPreChosenBranch();
+        } catch (ParseException | CommitNotFoundException | RemoteReferenceException | PreviousCommitsLimitExceededException | IOException e) {
+            try {
+                popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (MergeNotNeededException e) {
+            try {
+                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (UnhandledMergeException e) {
+            try {
+                popupScreen.createNotificationPopup(null, false, "Unhandled merge notification", "Please solve existing unhandled merge by clicking on Branch->merge and try this operation again.","Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (FastForwardException e) {
+            try {
+                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", e.getMessage(),"Close");
+                popupScreen.createMergeScreenWithPreChosenBranch();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
     }
 
     @FXML

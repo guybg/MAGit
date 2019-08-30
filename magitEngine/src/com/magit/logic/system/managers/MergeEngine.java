@@ -34,21 +34,28 @@ public class MergeEngine {
         }
         theirsBranchName = branchToBeMergedWith.getBranchName();
         this.repository = repository;
-        String headSha1 = repository.getBranches().get("HEAD").getPointedCommitSha1().toString();
 
-        String sha1OfAncestor = findAncestor(headSha1, branchToBeMergedWith.getPointedCommitSha1().toString(), repository);
+        String pathToObjectsFolder = repository.getObjectsFolderPath().toString();
+        oursCommitSha1 = repository.getBranches().get("HEAD").getPointedCommitSha1().toString();
+        Commit oursCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, oursCommitSha1));
+        Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, branchToBeMergedWith.getPointedCommitSha1().toString()));
+        theirCommitSha1 = theirsCommit.getSha1();
+        if(isHeadHasNoCommit()){
+            handleFastForward(theirsCommit);
+        }
+        String sha1OfAncestor = findAncestor(oursCommitSha1, branchToBeMergedWith.getPointedCommitSha1().toString(), repository);
+        Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
+        ancestorCommitSha1 = ancestorCommit.getSha1();
         if (sha1OfAncestor.equals(""))
             return;
 
-        String pathToObjectsFolder = repository.getObjectsFolderPath().toString();
-        Commit oursCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, headSha1));
-        Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
-        Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, branchToBeMergedWith.getPointedCommitSha1().toString()));
+
+
+
         if (null == oursCommit || null == ancestorCommit || null == theirsCommit)
             return; // is that the way it should be handled?? todo
-        oursCommitSha1 = oursCommit.getSha1();
-        theirCommitSha1 = theirsCommit.getSha1();
-        ancestorCommitSha1 = ancestorCommit.getSha1();
+
+
         String repositoryPath = repository.getRepositoryPath().toString();
 
         SortedSet<Delta.DeltaFileItem> oursDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(oursCommit, repositoryPath);
@@ -56,25 +63,41 @@ public class MergeEngine {
         SortedSet<Delta.DeltaFileItem> ancestorDelta = WorkingCopyUtils.getDeltaFileItemSetFromCommit(ancestorCommit, repositoryPath);
         //check fast forward merge
         if(isFastForward()){
-            File file = new File(Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName()).toString());
-            file.mkdirs();
-            FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "fast-forward").toString(),theirCommitSha1);
-            FileHandler.clearFolder(Paths.get(repositoryPath));
-            WorkingCopyUtils.unzipWorkingCopyFromCommit(theirsCommit,repositoryPath,repositoryPath);
-            throw new FastForwardException("Fast forward merge - please commit the operation.");
+            handleFastForward(theirsCommit);
+            //File file = new File(Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName()).toString());
+            //createMergeInfoFile(file);
+            //FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "fast-forward").toString(),theirCommitSha1);
+            //FileHandler.clearFolder(Paths.get(repositoryPath));
+            //WorkingCopyUtils.unzipWorkingCopyFromCommit(theirsCommit,repositoryPath,repositoryPath);
+            //throw new FastForwardException("Fast forward merge - please commit the operation.");
         }
         SortedSet<Pair<String, MergeStateFileItem>> mergeItemsMap = getMergeState(oursDelta, theirsDelta, ancestorDelta);
         executeMerge(mergeItemsMap);
         parseMergeFiles(repository);
     }
 
-    private boolean isFastForward() throws FastForwardException, MergeNotNeededException {
+    private void handleFastForward(Commit theirsCommit) throws IOException, ParseException, FastForwardException {
+        final String repositoryPath = repository.getRepositoryPath().toString();
+        File file = new File(Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName()).toString());
+        createMergeInfoFile(file);
+        FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "fast-forward").toString(),theirCommitSha1);
+        FileHandler.clearFolder(Paths.get(repositoryPath));
+        WorkingCopyUtils.unzipWorkingCopyFromCommit(theirsCommit,repositoryPath,repositoryPath);
+        throw new FastForwardException("Fast forward merge - please commit the operation.");
+    }
 
-        if(theirCommitSha1.equals(ancestorCommitSha1) || oursCommitSha1.equals(theirCommitSha1)){
+    private boolean isFastForward() throws MergeNotNeededException {
+        if(theirCommitSha1.equals(ancestorCommitSha1) || oursCommitSha1.equals(theirCommitSha1) || theirCommitSha1.isEmpty()){
             throw new MergeNotNeededException("Merge not needed, last commit already contains another branch's commit");
         } else if(oursCommitSha1.equals(ancestorCommitSha1)){
             return true;
         }
+        return false;
+    }
+
+    private boolean isHeadHasNoCommit(){
+        if(oursCommitSha1.isEmpty())
+            return true;
         return false;
     }
 
@@ -90,16 +113,7 @@ public class MergeEngine {
             try {
                 status = Resolve.resolve(pair.getValue());
                 if(status != Resolve.UnChanged && !file.exists()){
-                    file.mkdirs();
-                    FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "merge-info").toString()
-                            , String.format("ours:%s%s" +
-                                            "theirs:%s%s" +
-                                            "ancestor:%s%s" +
-                                            "%s",
-                                    oursCommitSha1,System.lineSeparator()
-                            , theirCommitSha1, System.lineSeparator()
-                            ,ancestorCommitSha1,System.lineSeparator()
-                            , theirsBranchName));
+                    createMergeInfoFile(file);
                 }
                 handleMergeStateFileItem(pair.getValue(), status, pair.getKey());
             } catch (Exception e) {
@@ -108,6 +122,22 @@ public class MergeEngine {
         }
     }
 
+    private void createMergeInfoFile(File file) throws IOException {
+        file.mkdirs();
+        String ancestorCommitSha1Code = "";
+        if(ancestorCommitSha1 != null)
+            ancestorCommitSha1Code = ancestorCommitSha1;
+
+        FileHandler.writeNewFile(Paths.get(file.getAbsolutePath(), "merge-info").toString()
+                , String.format("ours:%s%s" +
+                                "theirs:%s%s" +
+                                "ancestor:%s%s" +
+                                "%s",
+                        oursCommitSha1,System.lineSeparator()
+                        , theirCommitSha1, System.lineSeparator()
+                        ,ancestorCommitSha1Code,System.lineSeparator()
+                        , theirsBranchName));
+    }
     private void handleMergeStateFileItem(MergeStateFileItem fileItem,Resolve status, String location){
         String pathToBranchMergeFolder = Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName()).toString();
         String pathToConflicts = Paths.get(pathToBranchMergeFolder,"conflicts").toString();
