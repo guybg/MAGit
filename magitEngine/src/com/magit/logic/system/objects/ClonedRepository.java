@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
@@ -53,6 +54,7 @@ public class ClonedRepository extends Repository {
     }
 
     private void createObjectsFiles() throws IOException {
+        if(Files.notExists(repository.getObjectsFolderPath())) return;
         this.getObjectsFolderPath().toFile().mkdirs();
         FileUtils.copyDirectory(repository.getObjectsFolderPath().toFile(),this.getObjectsFolderPath().toFile());
     }

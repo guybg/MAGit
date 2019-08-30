@@ -20,6 +20,7 @@ import sun.plugin.javascript.navig.Array;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -110,6 +111,7 @@ public class WorkingCopyUtils {
     }
 
     public static void updateNewObjects(Repository source, Repository destination) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        if(Files.notExists(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS"))) FileHandler.writeNewFile(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(),"");
         for(String sha1OfCommit : source.getAllCommitsOfRepository()){
             if(!Arrays.asList(destination.getAllCommitsOfRepository()).contains(sha1OfCommit)){
                 Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
