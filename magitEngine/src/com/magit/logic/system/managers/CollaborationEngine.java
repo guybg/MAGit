@@ -61,7 +61,9 @@ public class CollaborationEngine {
         return remoteBranchName;
     }
 
-    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException {
+    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException, UncommitedChangesException, RepositoryNotFoundException {
+        engine.activeBranchHasUnhandeledMerge();
+        engine.workingCopyChangedComparedToCommit();
         Repository repository = engine.getmRepositoryManager().getRepository();
         if(repository.getRemoteReference() == null)
             throw new RemoteReferenceException("Repository does not have remote reference");

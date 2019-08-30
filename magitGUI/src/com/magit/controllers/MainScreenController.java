@@ -385,7 +385,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     @FXML
-    void onPull(ActionEvent event) {
+    void onPull(ActionEvent event) throws IOException {
         PopupScreen popupScreen = new PopupScreen(stage,engine);
         try {
             engine.pull();
@@ -415,6 +415,10 @@ public class MainScreenController implements Initializable, BasicController {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        } catch (UncommitedChangesException e) {
+            popupScreen.createNotificationPopup(null, false, "Oops.. there are open changes", e.getMessage() + ", please commit them before pulling.","Close");
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

@@ -133,7 +133,7 @@ public class MagitEngine {
     public void workingCopyChangedComparedToCommit() throws ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, UncommitedChangesException {
         repositoryNotFoundCheck();
         if (mRepositoryManager.getRepository().areThereChanges(mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit()))
-            throw new UncommitedChangesException("There are unsaved changes compared to current commit.");
+            throw new UncommitedChangesException("There are unsaved changes");
     }
 
     public void commit(String inputFromUser) throws IOException, WorkingCopyIsEmptyException, ParseException, RepositoryNotFoundException, UnhandledConflictsException,
@@ -314,7 +314,7 @@ public class MagitEngine {
         collaborationEngine.fetch(mRepositoryManager.getRepository());
     }
 
-    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException {
+    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException, UncommitedChangesException, RepositoryNotFoundException {
         collaborationEngine.pull(this);
     }
 
