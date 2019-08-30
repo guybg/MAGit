@@ -45,9 +45,10 @@ public class MergeEngine {
         }
         String sha1OfAncestor = findAncestor(oursCommitSha1, branchToBeMergedWith.getPointedCommitSha1().toString(), repository);
         Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
-        ancestorCommitSha1 = ancestorCommit.getSha1();
         if (sha1OfAncestor.equals(""))
             return;
+        ancestorCommitSha1 = ancestorCommit.getSha1();
+
 
 
 

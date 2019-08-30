@@ -3,10 +3,7 @@ package com.magit.logic.system.managers;
 import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.objects.ClonedRepository;
-import com.magit.logic.system.objects.RemoteReference;
-import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
 import com.sun.xml.internal.ws.api.pipe.Engine;
@@ -61,19 +58,56 @@ public class CollaborationEngine {
         return remoteBranchName;
     }
 
-    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException, UncommitedChangesException, RepositoryNotFoundException {
+    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException, UncommitedChangesException, RepositoryNotFoundException, RemoteBranchException {
         engine.activeBranchHasUnhandeledMerge();
         engine.workingCopyChangedComparedToCommit();
         Repository repository = engine.getmRepositoryManager().getRepository();
         if(repository.getRemoteReference() == null)
             throw new RemoteReferenceException("Repository does not have remote reference");
         Repository remoteRepository = RepositoryManager.loadRepository(Paths.get(repository.getRemoteReference().getLocation()), new BranchManager());
-
+        if(!repository.getBranches().get("HEAD").getIsTracking())
+            throw new RemoteBranchException("Active branch is not tracking any remote branch, cannot pull.",repository.getBranches().get("HEAD").getBranchName());
         Branch activeBranch = remoteRepository.getBranches().get(repository.getBranches().get("HEAD").getBranchName());
         String remoteBranchName = updateRemoteBranch(repository, activeBranch);
         WorkingCopyUtils.updateNewObjectsOfSpecificCommit(remoteRepository,repository, activeBranch.getPointedCommitSha1().toString());
 
         engine.merge(remoteBranchName);
+    }
+
+    public void push(MagitEngine engine) throws IOException, RemoteReferenceException, RemoteBranchException, ParseException, PreviousCommitsLimitExceededException, UnhandledMergeException, UncommitedChangesException, PushException, CommitNotFoundException {
+        Repository repository = engine.getmRepositoryManager().getRepository();
+        if(repository.getRemoteReference() == null)
+            throw new RemoteReferenceException("Repository does not have remote reference");
+        RepositoryManager remoteRepositoryManager = new RepositoryManager(Paths.get(repository.getRemoteReference().getLocation()),new BranchManager());
+        Repository remoteRepository = remoteRepositoryManager.getRepository();
+        if(!repository.getBranches().get("HEAD").getIsTracking())
+            throw new RemoteBranchException("Active branch is not tracking any remote branch, cannot push.",repository.getBranches().get("HEAD").getBranchName());
+        if(remoteRepository.headBranchHasUnhandledMerge()){
+            throw new UnhandledMergeException("Cannot push - please solve unhandled merge.");
+        }
+        if(remoteRepository.areThereChanges(remoteRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit())){
+            throw new UncommitedChangesException("Cannot push - there are open changes, at remote repository.");
+        }
+        Branch activeBranchAtLocalRepository = repository.getBranches().get("HEAD");
+        Branch activeBranchsRemoteBranchAtLocalRepository = repository.getBranches().get(activeBranchAtLocalRepository.getTrackingAfter());
+        Branch branchAtRemoteRepository = remoteRepository.getBranches().get(activeBranchAtLocalRepository.getBranchName());
+        if(!activeBranchsRemoteBranchAtLocalRepository.getPointedCommitSha1().toString().equals(branchAtRemoteRepository.getPointedCommitSha1().toString())){
+            throw new PushException("Active branch's remote branch is not synced with Remote repository's matching branch, please pull");
+        }
+        if(activeBranchAtLocalRepository.getPointedCommitSha1().toString().equals(branchAtRemoteRepository.getPointedCommitSha1().toString())){
+            throw new PushException("Remote repository is up-to-date.");
+        }
+        WorkingCopyUtils.updateNewObjectsOfSpecificCommit(repository,remoteRepository, activeBranchAtLocalRepository.getPointedCommitSha1().toString());
+        BranchManager.writeBranch(remoteRepository,branchAtRemoteRepository.getBranchName(),activeBranchAtLocalRepository.getPointedCommitSha1().toString()
+        ,branchAtRemoteRepository.getIsRemote(),branchAtRemoteRepository.getIsTracking(),branchAtRemoteRepository.getTrackingAfter());
+
+        if(activeBranchAtLocalRepository.getBranchName().equals(remoteRepositoryManager.getHeadBranch())){
+            Commit remoteHeadCommit = Commit.createCommitInstanceByPath(remoteRepository.getCommitPath());
+            if(remoteHeadCommit ==null)
+                throw new CommitNotFoundException("Commit not found, repository corrupted.");
+            WorkingCopyUtils.unzipWorkingCopyFromCommit(remoteHeadCommit,remoteRepository.getRepositoryPath().toString(),remoteRepository.getRepositoryPath().toString());
+        }
+        updateRemoteBranch(repository, activeBranchAtLocalRepository);
     }
 
     public boolean isValid(String repositoryLocation) throws IOException {

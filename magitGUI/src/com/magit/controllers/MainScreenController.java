@@ -419,12 +419,31 @@ public class MainScreenController implements Initializable, BasicController {
             popupScreen.createNotificationPopup(null, false, "Oops.. there are open changes", e.getMessage() + ", please commit them before pulling.","Close");
         } catch (RepositoryNotFoundException e) {
             e.printStackTrace();
+        } catch (RemoteBranchException e) {
+            popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
+
         }
     }
 
     @FXML
     void onPush(ActionEvent event) {
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        try {
+            engine.push();
+        } catch (IOException e) {
+            try {
+                popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        } catch (UnhandledMergeException | RemoteReferenceException | PushException | RemoteBranchException | CommitNotFoundException | ParseException | UncommitedChangesException | PreviousCommitsLimitExceededException e) {
+            try {
+                popupScreen.createNotificationPopup(null, false, "Oops.. cannot push", e.getMessage(),"Close");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
 
+        }
     }
 
     @FXML

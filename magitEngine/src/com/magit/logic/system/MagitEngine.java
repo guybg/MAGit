@@ -314,8 +314,12 @@ public class MagitEngine {
         collaborationEngine.fetch(mRepositoryManager.getRepository());
     }
 
-    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException, UncommitedChangesException, RepositoryNotFoundException {
+    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException, UncommitedChangesException, RepositoryNotFoundException, RemoteBranchException {
         collaborationEngine.pull(this);
+    }
+
+    public void push() throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException {
+        collaborationEngine.push(this);
     }
 
     public void createRemoteTrackingBranch(String remoteBranchName) throws BranchNotFoundException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException, RemoteReferenceException, IOException {

@@ -25,6 +25,13 @@ public class RepositoryManager {
     private final String EMPTY = "";
     private Repository mActiveRepository;
 
+    public RepositoryManager() {
+    }
+
+    public RepositoryManager(Path repositoryPath, BranchManager branchManager) throws IOException {
+        initializeActiveRepository(repositoryPath, branchManager);
+    }
+
     public Repository getRepository() {
         return mActiveRepository;
     }
