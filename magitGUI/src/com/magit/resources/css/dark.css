@@ -3,12 +3,20 @@
 }
 
 .menu-bar .menu-button:showing, .menu-bar .menu-button:focused {
-    -fx-background-color: #89b2fe;
+    -fx-background-color: #d3d3d3;
     -fx-focus-color:black;
 }
 
 #MenuBar{
     -fx-background-color: #d3d3d3;
+}
+
+
+#menuButtonsLineFiller{
+    -fx-background-color: #d3d3d3;
+    -fx-border-color: #919191;
+    -fx-border-width: 1 1 1 1;
+
 }
 
 #mainHBox{
@@ -86,6 +94,7 @@
 
 .button-bar-button{
     -fx-background-color: #d3d3d3;
+    -fx-border-color: #919191;
 }
 
 .button-bar-button:hover {
@@ -96,7 +105,9 @@
     -fx-text-fill: black;
     -fx-padding: 0 0 0 0;
 }
-
+#button-bar-buttons-bottom-liner{
+    -fx-background-color: #919191;
+}
 #menu-button-title-label {
     -fx-text-fill: black;
     -fx-font-size: 11px;
