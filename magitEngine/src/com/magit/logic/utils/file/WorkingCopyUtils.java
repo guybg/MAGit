@@ -2,25 +2,32 @@ package com.magit.logic.utils.file;
 
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.enums.FileType;
+import com.magit.logic.exceptions.CommitNotFoundException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.system.interfaces.WalkAction;
-import com.magit.logic.system.objects.Blob;
-import com.magit.logic.system.objects.Commit;
-import com.magit.logic.system.objects.FileItem;
-import com.magit.logic.system.objects.Tree;
+import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
+import sun.plugin.javascript.navig.Array;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class WorkingCopyUtils {
     private static final Predicate<FileItem> treePredicate = fileItem -> fileItem.getFileType() == FileType.FOLDER;
@@ -104,6 +111,80 @@ public class WorkingCopyUtils {
         fileItemWalk(wc, destinationPath, walkAction);
     }
 
+    public static void updateNewObjects(Repository source, Repository destination) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        if(Files.notExists(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS"))) FileHandler.writeNewFile(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(),"");
+        for(String sha1OfCommit : source.getAllCommitsOfRepository()){
+            importObjectOfSelectedCommit(source, destination, sha1OfCommit);
+        }
+    }
+
+    public static void updateNewObjectsOfSpecificCommit(Repository source, Repository destination, String sha1OfCommit) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        if(Files.notExists(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS"))) FileHandler.writeNewFile(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(),"");
+        Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
+        if(commit == null)
+            throw new CommitNotFoundException("commit not found at remote repository.");
+        ArrayList<String> allPrevSha1s = new ArrayList<>();
+        allPrevSha1s.add(commit.getSha1Code().toString());
+        getAllPreviousCommitSha1sThatNotExistsAtDestination(source,destination,commit,allPrevSha1s);
+        for(String sha1 : allPrevSha1s){
+            importObjectOfSelectedCommit(source, destination, sha1);
+        }
+    }
+    /*
+    *
+    * old version
+    * 
+    private static void getAllPreviousCommitSha1s(Repository repository, Commit commit, ArrayList<String> allSha1s) throws ParseException, PreviousCommitsLimitExceededException, IOException, CommitNotFoundException {
+        if(commit.getSha1().isEmpty()) return;
+        for(Sha1 sha1OfParent : commit.getLastCommitsSha1Codes()){
+            if(sha1OfParent.toString().isEmpty()) return;
+            allSha1s.add(sha1OfParent.toString());
+            Commit prevCommit = Commit.createCommitInstanceByPath(Paths.get(repository.getObjectsFolderPath().toString(),sha1OfParent.toString()));
+            if(commit == null)
+                throw new CommitNotFoundException("commit not found, repository corrupted");
+            getAllPreviousCommitSha1s(repository,prevCommit,allSha1s);
+        }
+    } */
+
+    private static void getAllPreviousCommitSha1sThatNotExistsAtDestination(Repository source, Repository destination,Commit commit, ArrayList<String> allSha1s) throws ParseException, PreviousCommitsLimitExceededException, IOException, CommitNotFoundException {
+        if(commit.getSha1().isEmpty()) return;
+        if(Paths.get(destination.getObjectsFolderPath().toString(),commit.getSha1()).toFile().exists()) return;
+        for(Sha1 sha1OfParent : commit.getLastCommitsSha1Codes()){
+            if(sha1OfParent.toString().isEmpty()) return;
+            allSha1s.add(sha1OfParent.toString());
+            Commit prevCommit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfParent.toString()));
+            if(commit == null)
+                throw new CommitNotFoundException("commit not found, repository corrupted");
+            getAllPreviousCommitSha1sThatNotExistsAtDestination(source,destination,prevCommit,allSha1s);
+        }
+    }
+
+    private static void importObjectOfSelectedCommit(Repository source, Repository destination, String sha1OfCommit) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        if(!Arrays.asList(destination.getAllCommitsOfRepository()).contains(sha1OfCommit)){
+            Commit commit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfCommit));
+            if(commit == null)
+                throw new CommitNotFoundException("commit not found, repository corrupted");
+            FileHandler.appendFileWithContentAndLine(Paths.get(destination.getMagitFolderPath().toString(),"COMMITS").toString(), sha1OfCommit);
+            commit.generateCommitFile(destination.getObjectsFolderPath());
+            Tree wc = getWorkingCopyTreeFromCommit(commit,source.getRepositoryPath().toString());
+            FileItemHandler.zip(wc,destination.getObjectsFolderPath().toString());
+            fileItemWalk(wc, source.getObjectsFolderPath().toString(), new WalkAction() {
+                @Override
+                public void onWalkAction(FileItem file, Object... params) throws IOException {
+                    if(Paths.get(destination.getObjectsFolderPath().toString(),file.getSha1Code().toString()).toFile().exists())
+                        return;
+                    FileItemHandler.zip(file, destination.getObjectsFolderPath().toString());
+                }
+
+                @Override
+                public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) {
+                }
+            });
+        }
+    }
+
+
+
     private static void fileItemWalk(FileItem fileItem, String destinationPath, WalkAction aAction) throws IOException {
         if (fileItem.getFileType() == FileType.FILE || ((Tree) fileItem).getNumberOfFiles() == 0) {
             if (fileItem.getFileType() == FileType.FILE) {
@@ -165,6 +246,30 @@ public class WorkingCopyUtils {
         else
             wc = (Tree) updateWalk(newWc, oldWc, new Tree(FileType.FOLDER, newWc.getLastUpdater(), newWc.getLastModified(), newWc.getName(), new TreeSet<>()));
         return wc;
+    }
+    static ObservableList<FileItemInfo> list;
+    public static ObservableList<FileItemInfo> guiGetWorkingCopyContent(Tree workingCopyFolder, String repositoryDirectoryPath, String userName){
+        ObservableList<FileItemInfo> files = FXCollections.observableArrayList();
+        guiWorkingCopyFilesToArrayList(workingCopyFolder, repositoryDirectoryPath, userName,files);
+        return files;
+    }
+    private static void guiWorkingCopyFilesToArrayList(FileItem item, String repositoryDirectoryPath, String userName, ObservableList<FileItemInfo> files) {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss:SSS");
+        String fileName;
+        String fileContent = "";
+        if(item.getName() == null){
+            fileName = "Root folder";
+        }else{
+            fileName = item.getName();
+        }
+        if(item.getFileType().equals(FileType.FILE)) fileContent = item.getFileContent();
+        FileItemInfo file = new FileItemInfo(fileName, item.getFileType().toString(), item.getSha1Code().toString(), item.getLastUpdater(), dateFormat.format(item.getLastModified()),fileContent,repositoryDirectoryPath);
+        files.add(file);
+        if(item.getFileType().equals(FileType.FOLDER)) {
+            for (FileItem fileToAdd : ((Tree)item).listFiles()) {
+                guiWorkingCopyFilesToArrayList(fileToAdd, Paths.get(repositoryDirectoryPath, fileToAdd.getName()).toString(),userName,files);
+            }
+        }
     }
 
     private static String toPrintFormat(Tree workingCopyFolder, String repositoryDirectoryPath, String userName) {

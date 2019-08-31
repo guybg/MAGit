@@ -23,60 +23,82 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class RepositoryXmlParser {
     private HashMap<String, String> blobSha1AndNameToId;
     private HashMap<String, String> treeSha1AndNameToId;
+    private MagitRepository magitRepository;
 
+    private HashMap<String, Blob> blobMap;
+    private HashMap<String, Tree> treeMap;
+    private Repository repository = null;
+    private ArrayList<Commit> commits;
 
-    public Repository parseXMLToRepository(String xmlPath, BranchManager branchManager, String activeUser, boolean forceCreation)
-            throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
+    public RepositoryXmlParser (String xmlPath) throws JAXBException, IOException,XmlFileException, IllegalPathException{
         checkIfXmlFile(xmlPath);
 
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
 
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         FileInputStream xmlStream = new FileInputStream(new File(xmlPath));
-
         StreamSource streamSource = new StreamSource(xmlStream);
 
-        JAXBElement<MagitRepository> repositoryJAXBElement =
-                unmarshaller.unmarshal(streamSource, MagitRepository.class);
-
-        streamSource.getInputStream().close();
-        Repository repository = createRepositoryFromXML(repositoryJAXBElement, branchManager, activeUser, forceCreation);
-        xmlStream.close();
-        return repository;
+        magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
     }
 
-    private Repository createRepositoryFromXML(JAXBElement<MagitRepository> jaxbElement, BranchManager branchManager, String activeUser, boolean forceCreation)
-            throws ParseException, IOException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
-        MagitRepository magitRepository = jaxbElement.getValue();
+    public int getObjectsCount() {
+        int referenceCount = 1, repositoryCount = 1;
+        return magitRepository.getMagitBlobs().getMagitBlob().size() +
+                magitRepository.getMagitBranches().getMagitSingleBranch().size() +
+                magitRepository.getMagitCommits().getMagitSingleCommit().size() +
+                magitRepository.getMagitFolders().getMagitSingleFolder().size() +
+                referenceCount + repositoryCount;
+    }
 
-        /* check for xml errors */
+    public void checkXmlValidity() throws XmlFileException {
         checkXmlForDuplicateRepositoryItemIdsError(magitRepository);
         checkXmlFoldersForWrongItemIdPointers(magitRepository);
         checkXmlCommitsForWrongFolderIdPointers(magitRepository);
         checkXmlForInvalidPointedCommitsInBranches(magitRepository);
         checkXmlHeadBranchExists(magitRepository);
+        checkXmlRemoteRepositoryLocation(magitRepository);
+        checkXmlBranchesTracking(magitRepository);
+    }
 
+    public void handleExistingRepositories(boolean forceCreation) throws IOException, RepositoryAlreadyExistsException {
         if (!forceCreation)
             checkIfValidRepositoryOrNonRepositoryFileAlreadyExistsAtGivenLocation(magitRepository.getLocation());
         if (Files.exists(Paths.get(magitRepository.getLocation()))) {
             File repositoryDirectory = new File(magitRepository.getLocation());
             FileUtils.deleteDirectory(repositoryDirectory);
         }
-        Repository repository = new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
+    }
 
-        HashMap<String, Blob> blobMap = createBlobMap(magitRepository);
-        HashMap<String, Tree> treeMap = createFolderMap(magitRepository);
-        insertFileItemsToTrees(magitRepository.getMagitFolders(), treeMap, blobMap);
-        ArrayList<Commit> commits = createCommitsInstances(magitRepository, treeMap);
-        createBranches(magitRepository, repository, branchManager, commits);
+    public Integer importBlobs() throws ParseException {
+        blobMap = createBlobMap(magitRepository);
+        return blobMap.size();
+    }
+
+    public Integer importFolders() throws ParseException {
+        treeMap = createFolderMap(magitRepository);
+        return treeMap.size();
+    }
+
+    public Integer createCommits() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        commits =  createCommitsInstances(magitRepository, treeMap);
+        return commits.size();
+    }
+
+   public void initializeRepository(){
+        this.repository =  new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
+    }
+
+    public Integer createBranches(BranchManager branchManager){
+        return createBranches(magitRepository, repository, branchManager, commits);
+    }
+
+    public Repository createRepository() throws IOException, IllegalPathException {
         repository.create();
         zipCommitWorkingCopy(repository, commits, treeMap);
 
@@ -172,6 +194,36 @@ public class RepositoryXmlParser {
         }
     }
 
+    private void checkXmlRemoteRepositoryLocation(MagitRepository magitRepository) throws XmlFileException {
+        MagitRepository.MagitRemoteReference remoteReference = magitRepository.getMagitRemoteReference();
+        if(remoteReference == null || remoteReference.getLocation() == null && remoteReference.getName() == null)
+            return;
+        if(remoteReference.getLocation() == null || remoteReference.getName() == null){
+            if(remoteReference.getLocation() == null)
+                throw new XmlFileException("XML Error : repository has remote reference, but remote repository location not set.");
+            if(remoteReference.getName() == null)
+                throw new XmlFileException("XML Error : repository has remote reference, but remote repository name not set.");
+        }
+        if (Files.notExists(Paths.get(remoteReference.getLocation())))
+            throw new XmlFileException("XML Error : Remote reference location does not exist.");
+    }
+
+    private void checkXmlBranchesTracking(MagitRepository magitRepository) throws XmlFileException {
+        HashMap<String, MagitSingleBranch> singleBranchMap = new HashMap<>();
+        for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
+            singleBranchMap.put(branch.getName(), branch);
+        }
+
+        for (Map.Entry<String, MagitSingleBranch> branchEntry : singleBranchMap.entrySet()) {
+            MagitSingleBranch branch = branchEntry.getValue();
+            String trackingAfter = branch.getTrackingAfter();
+            if (branch.isTracking() &&
+            (!singleBranchMap.containsKey(trackingAfter) || !singleBranchMap.get(trackingAfter).isIsRemote())) {
+                throw new XmlFileException("XML Error : Branch tracking is invalid.");
+            }
+        }
+    }
+
     private HashMap<String, Blob> createBlobMap(MagitRepository magitRepository) throws ParseException {
         HashMap<String, Blob> blobMap = new HashMap<>();
 
@@ -189,6 +241,10 @@ public class RepositoryXmlParser {
             folderMap.put(magitFolder.getId(), treeToAdd);
         }
         return folderMap;
+    }
+
+    public void buildTree() {
+        insertFileItemsToTrees(magitRepository.getMagitFolders(), treeMap, blobMap);
     }
 
     private void insertFileItemsToTrees(MagitFolders magitFolders, HashMap<String, Tree> treeMap, HashMap<String, Blob> blobMap) {
@@ -230,8 +286,9 @@ public class RepositoryXmlParser {
         return new ArrayList<>(commitsOfRepository.values());
     }
 
-    private void createBranches(MagitRepository magitRepository, Repository repository,
+    private Integer createBranches(MagitRepository magitRepository, Repository repository,
                                 BranchManager branchManager, ArrayList<Commit> commits) {
+        Integer branchCount = 0;
         String headBranchName = magitRepository.getMagitBranches().getHead();
         for (MagitSingleBranch branch : magitRepository.getMagitBranches().getMagitSingleBranch()) {
             Sha1 branchContent = new Sha1("", true);
@@ -241,15 +298,19 @@ public class RepositoryXmlParser {
             }
 
             if (branch.getName().equals(headBranchName)) {
-                Branch headBranch = new Branch(branch.getName(), branchContent.toString());
+                Branch headBranch = new Branch(branch.getName(), branchContent.toString(),
+                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
                 branchManager.setActiveBranch(headBranch);
                 repository.addBranch(headBranch.getBranchName(), headBranch);
                 repository.addBranch("HEAD", headBranch);
             } else {
-                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString());
+                Branch branchToAdd = new Branch(branch.getName(), branchContent.toString(),
+                        branch.getTrackingAfter(), branch.isIsRemote(), branch.isTracking());
                 repository.addBranch(branchToAdd.getBranchName(), branchToAdd);
             }
+            branchCount++;
         }
+        return branchCount;
     }
 
     private void zipCommitWorkingCopy(Repository repository, ArrayList<Commit> commits, HashMap<String, Tree> treeMap)
@@ -379,7 +440,7 @@ public class RepositoryXmlParser {
     private void handleFileItem(LinkedList<FileItem> objectsOfTree, StringBuilder sha1OfFiles,
                                 HashMap<String, String> blobSha1AndNameToId, HashMap<String, String> treeSha1AndNameToId,
                                 ArrayList<MagitBlob> magitBlobsList, ArrayList<MagitSingleFolder> magitFoldersList) {
-        Integer idTree = treeSha1AndNameToId.size() + 1;
+        int idTree = treeSha1AndNameToId.size() + 1;
         FileItem item = objectsOfTree.poll();
         String sha1Code = item.getSha1Code().toString();
         if (sha1OfFiles.toString().contains(sha1Code + item.getName()))
@@ -391,7 +452,7 @@ public class RepositoryXmlParser {
             magitBlobsList.add(MagitObjectsFactory.createMagitBlob((Blob) item, Integer.parseInt(id)));
         } else if (item.getFileType().equals(FileType.FOLDER)) {
             if (!treeSha1AndNameToId.containsKey(sha1Code + item.getName())) {
-                treeSha1AndNameToId.put(sha1Code + item.getName(), idTree.toString());
+                treeSha1AndNameToId.put(sha1Code + item.getName(), Integer.toString(idTree));
             }
             String id = treeSha1AndNameToId.get(sha1Code + item.getName());
             MagitSingleFolder magitSingleFolder = MagitObjectsFactory.createMagitSingleFolder((Tree) item, Integer.parseInt(id), item.getName() == null);
@@ -473,7 +534,7 @@ public class RepositoryXmlParser {
                 MagitSingleBranch magitSingleBranch = new MagitSingleBranch();
                 MagitSingleBranch.PointedCommit pointedCommit = new MagitSingleBranch.PointedCommit();
                 magitSingleBranch.setName(child.getName());
-                String key = FileHandler.readFile(child.getAbsolutePath());
+                String key = Repository.readBranchContent(child).get("sha1");
                 if (sha1ToId != null && sha1ToId.containsKey(key))
                     pointedCommit.setId(sha1ToId.get(key));
                 else
@@ -484,5 +545,14 @@ public class RepositoryXmlParser {
             }
         }
         return magitBranches;
+    }
+
+    public void setRemoteReference() {
+        MagitRepository.MagitRemoteReference reference = magitRepository.getMagitRemoteReference();
+        if (null == reference)
+            return;
+
+        RemoteReference remoteReference = new RemoteReference(reference.getName(), reference.getLocation());
+        repository.setRemoteReference(remoteReference);
     }
 }

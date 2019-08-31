@@ -2,7 +2,9 @@ package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.IllegalPathException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryAlreadyExistsException;
+import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
@@ -15,11 +17,13 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
+import java.util.stream.Collectors;
 
-public class Repository {
+public class Repository implements Cloneable{
 
     private final String BRANCHES = "branches";
     private String mRepositoryName;
@@ -28,6 +32,8 @@ public class Repository {
     private Path pathToRepository;
     private Path pathToMagit;
     private Path pathToHead;
+    private RemoteReference remoteReference;
+
 
     public Repository(String mRepositoryLocation, String mRepositoryName) {
         this.mRepositoryLocation = mRepositoryLocation;
@@ -36,6 +42,40 @@ public class Repository {
         this.pathToMagit = Paths.get(pathToRepository.toString(), ".magit");
         this.pathToHead = Paths.get(pathToMagit.toString(), BRANCHES, "HEAD");
         this.mRepositoryName = mRepositoryName;
+    }
+
+    public void setRemoteReference(RemoteReference remoteReference) {
+        this.remoteReference = remoteReference;
+    }
+
+    public RemoteReference getRemoteReference() {
+        return remoteReference;
+    }
+
+    @Override
+    public Repository clone() {
+        try {
+            Repository clonedRepository = (Repository)super.clone();
+            clonedRepository.mBranches = new HashMap<>();
+            for (Map.Entry<String, Branch> keyValue : mBranches.entrySet()) {
+                if(keyValue.getValue().getIsRemote()) continue;
+                if(keyValue.getKey().equals("HEAD")) {
+                    clonedRepository.mBranches.put(keyValue.getKey(),keyValue.getValue());
+                    continue;
+                }
+                String remoteBranchName = String.format("%s/%s", getRepositoryName(),keyValue.getKey());
+                Branch branch = new Branch(remoteBranchName, keyValue.getValue().getPointedCommitSha1().toString(),null,true,false);
+                branch.setPointedCommitSha1(keyValue.getValue().getPointedCommitSha1());
+                clonedRepository.mBranches.put(remoteBranchName,branch);
+            }
+            remoteReference = new RemoteReference(mRepositoryName,mRepositoryLocation);
+            return clonedRepository;
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+
+
+        return null;
     }
 
     public void addBranch(String key, Branch value) {
@@ -81,22 +121,39 @@ public class Repository {
 
         String branchName = FileHandler.readFile(pathToHead.toString());
         Path pathToBranchFile = getBranchPath(branchName);
+
         String branchFileContent = FileHandler.readFile(pathToBranchFile.toString());
         if (branchFileContent.equals(""))
             return null;
 
         if (Files.notExists(pathToBranchFile))
             return null;
-        String sha1OfCommit = FileHandler.readFile(pathToBranchFile.toString());
+        String sha1OfCommit = readBranchContent(pathToBranchFile.toFile()).get("sha1");
         return Paths.get(pathToMagit.toString(), "objects", sha1OfCommit);
     }
+
+    public static HashMap<String, String> readBranchContent(File branchFile) throws IOException {
+        final String sha1 = "sha1", isRemote = "isRemote", isTracking = "isTracking", trackingAfter = "trackingAfter";
+        String content = FileHandler.readFile(branchFile.getPath());
+        String[] branchContentArray = content.split(System.lineSeparator());
+        HashMap<String,String> branchContent = new HashMap<>();
+        branchContent.put(sha1,branchContentArray[0]);
+        branchContent.put(isRemote, branchContentArray[1]);
+        branchContent.put(isTracking, branchContentArray[2]);
+        if(branchContentArray.length != 4)
+            branchContent.put(trackingAfter,"null");
+        else
+            branchContent.put(trackingAfter, branchContentArray[3]);
+        return branchContent;
+    }
+
 
     public Path getObjectsFolderPath() {
         return Paths.get(pathToMagit.toString(), "objects");
     }
 
     public void create() throws IllegalPathException, IOException {
-        final String REPOSITORY_NAME = "REPOSITORY_NAME";
+        final String REPOSITORY_NAME = "REPOSITORY_NAME",REMOTE_REFERENCE = "REMOTE_REFERENCE";
         boolean validPath;
         String headBranch = "master";
         File repository;
@@ -105,6 +162,10 @@ public class Repository {
             repository = new File(filePath.toString());
             validPath = repository.mkdirs();
             Path repositoryNamePath = Paths.get(mRepositoryLocation, ".magit", REPOSITORY_NAME);
+            if(remoteReference != null){
+                Path remoteReferencePath = Paths.get(mRepositoryLocation, ".magit", REMOTE_REFERENCE);
+                FileHandler.writeNewFile(remoteReferencePath.toString(), String.format("%s%s%s",remoteReference.getRepositoryName(),System.lineSeparator(),remoteReference.getLocation()));
+            }
             FileHandler.writeNewFile(repositoryNamePath.toString(), mRepositoryName);
             if (!mBranches.isEmpty()) {
                 for (Map.Entry<String, Branch> branchEntry : mBranches.entrySet()) {
@@ -156,7 +217,11 @@ public class Repository {
     }
 
     public void changeBranchPointer(Branch branch, Sha1 newCommit) throws IOException {
-        FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newCommit.toString());
+        //HashMap<String,String> branchContent = Repository.readBranchContent(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toFile());
+        //branchContent.replace("sha1", newCommit.toString());
+      //  String newBranchContent = branchContent.values().stream().collect(Collectors.joining(System.lineSeparator()));
+        BranchManager.writeBranch(this,branch.getBranchName(),newCommit.toString(),branch.getIsRemote(),branch.getIsTracking(),branch.getTrackingAfter());
+     //   FileHandler.writeNewFile(Paths.get(mRepositoryLocation, ".magit", "branches", branch.getBranchName()).toString(), newBranchContent);
         branch.setPointedCommitSha1(newCommit);
     }
 
@@ -166,5 +231,17 @@ public class Repository {
         return changes.get(FileStatus.NEW).size() != changesWereMade ||
                 changes.get(FileStatus.EDITED).size() != changesWereMade ||
                 changes.get(FileStatus.REMOVED).size() != changesWereMade;
+    }
+
+    public boolean headBranchHasUnhandledMerge(){
+        return Files.exists(Paths.get(getMagitFolderPath().toString(),".merge",getBranches().get("HEAD").getBranchName()));
+    }
+
+    protected void setRepositoryName(String name){
+        mRepositoryName = name;
+    }
+
+    protected void setBranches(HashMap<String,Branch> branches){
+        mBranches = branches;
     }
 }

@@ -1,6 +1,7 @@
 package com.magit.logic.system.objects;
 
 import com.magit.logic.enums.FileType;
+import com.magit.logic.exceptions.FastForwardException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.WorkingCopyIsEmptyException;
 import com.magit.logic.exceptions.WorkingCopyStatusNotChangedComparedToLastCommitException;
@@ -10,6 +11,7 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Commit extends FileItem {
+public class Commit extends FileItem implements CommitRepresentative {
     private final String EMPTY = "";
     private final String COMMITS_FILE_NAME = "COMMITS";
     private Sha1 mWorkingCopySha1;
@@ -154,6 +156,12 @@ public class Commit extends FileItem {
     }
 
     public void generate(Repository repository, Branch branch) throws IOException, WorkingCopyIsEmptyException, ParseException, WorkingCopyStatusNotChangedComparedToLastCommitException, PreviousCommitsLimitExceededException {
+        if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName(),"fast-forward"))){
+            repository.changeBranchPointer(branch, new Sha1(getTheirsSha1(repository),true));
+            //branch.setPointedCommitSha1(new Sha1(getTheirsSha1(repository),true));
+            return;
+        }
+
         if (branch.getPointedCommitSha1().toString().equals(EMPTY)) {
             generateFirstCommit(getCreator(), repository, branch);
             repository.changeBranchPointer(branch, new Sha1(getFileContent(), false));
@@ -168,8 +176,11 @@ public class Commit extends FileItem {
             WorkingCopyUtils workingCopyUtils = new WorkingCopyUtils(repository.getRepositoryPath().toString(), mLastUpdater, mLastModified);
             Tree fixedWc = WorkingCopyUtils.getWcWithOnlyNewChanges(curWc, oldWcFromCommit);
             mWorkingCopySha1 = fixedWc.getSha1Code();
-            if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code())) {
+            if (!fixedWc.getSha1Code().equals(oldWcFromCommit.getSha1Code()) || Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName()))) {
                 mFirstPreviousCommit = lastCommit.getSha1Code();
+                if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", branch.getBranchName()))){
+                    mSecondPreviousCommit = new Sha1(getTheirsSha1(repository),true);
+                }
                 workingCopyUtils.zipWorkingCopyFromTreeWC(fixedWc);
                 super.mSha1Code = new Sha1(getFileContent(), false);
                 branch.setPointedCommitSha1(super.mSha1Code);
@@ -182,6 +193,20 @@ public class Commit extends FileItem {
         addCommitToCommitsFile(repository);
     }
 
+    public String getTheirsSha1(Repository repository){
+        String mergeInfoPath = Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName(), "merge-info").toString();
+        try {
+            if(Files.exists(Paths.get(repository.getMagitFolderPath().toString(), ".merge", repository.getBranches().get("HEAD").getBranchName(),"fast-forward"))){
+                return FileHandler.readFile(Paths.get(repository.getMagitFolderPath().toString(), ".merge", repository.getBranches().get("HEAD").getBranchName(),"fast-forward").toString());
+            }
+            String fileInfoToString = FileHandler.readFile(mergeInfoPath);
+            String theirsLine = fileInfoToString.split(System.lineSeparator())[1];
+            return theirsLine.split(":")[1];
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     private void addCommitToCommitsFile(Repository repository) throws IOException {
         FileHandler.appendFileWithContentAndLine(Paths.get(repository.getMagitFolderPath().toString(), COMMITS_FILE_NAME).toString(), this.getSha1Code().toString());
     }
@@ -245,5 +270,20 @@ public class Commit extends FileItem {
 
     public Sha1 getWorkingCopySha1() {
         return mWorkingCopySha1;
+    }
+
+    @Override
+    public String getSha1() {
+        return mSha1Code.toString();
+    }
+
+    @Override
+    public String getFirstPrecedingSha1() {
+        return mFirstPreviousCommit.toString();
+    }
+
+    @Override
+    public String getSecondPrecedingSha1() {
+        return mSecondPreviousCommit.toString();
     }
 }

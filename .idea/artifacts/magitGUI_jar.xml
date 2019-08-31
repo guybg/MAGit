@@ -4,13 +4,12 @@
     <root id="archive" name="magitGUI.jar">
       <element id="module-output" name="magitGUI" />
       <element id="module-output" name="magitEngine" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/fxgraph-0.0.3.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/commons-collections4-4.3.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/commons-codec-1.12.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/UndecoratorBis.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/commons-io-2.6.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/commons-lang3-3.9.jar" path-in-jar="/" />
-      <element id="artifact" artifact-name="magitEngine:jar" />
-      <element id="artifact" artifact-name="magitUI:jar" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/commons-codec-1.12.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/AncestorFinder.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/magitEngine/lib/commons-io-2.6.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

@@ -16,6 +16,10 @@ public class Branch {
     private final String mBranchName;
     private Sha1 mPointedCommitSha1;
 
+    private String mTrackingAfter = null;
+    private Boolean mIsRemote = false;
+    private Boolean mTracking = false;
+
     Branch(String mBranchName) {
         this.mBranchName = mBranchName;
         final String EMPTY = "";
@@ -25,6 +29,38 @@ public class Branch {
     public Branch(String branchName, String textToSha1) {
         this.mBranchName = branchName;
         mPointedCommitSha1 = new Sha1(textToSha1, true);
+    }
+
+    public void setIsRemote(boolean mIsRemote) {
+        this.mIsRemote = mIsRemote;
+    }
+
+    public void setTrackingAfter(String mTrackingAfter) {
+        this.mTrackingAfter = mTrackingAfter;
+    }
+
+    public void setIsTracking(Boolean mTracking) {
+        this.mTracking = mTracking;
+    }
+
+    public String getTrackingAfter() {
+        return mTrackingAfter;
+    }
+
+    public Boolean getIsRemote() {
+        return mIsRemote;
+    }
+
+    public Boolean getIsTracking() {
+        return mTracking;
+    }
+
+    public Branch(String branchName, String textToSha1, String trackingAfter, boolean isRemote, boolean tracking) {
+        this.mBranchName = branchName;
+        mPointedCommitSha1 = new Sha1(textToSha1, true);
+        mTrackingAfter = trackingAfter;
+        mIsRemote = isRemote;
+        mTracking = tracking;
     }
 
     public Sha1 getPointedCommitSha1() {
@@ -44,7 +80,10 @@ public class Branch {
                 //System.out.println("file exists"); TODO(REMOVE WHEN SUBMITTING)
                 throw new FileAlreadyExistsException(".magit already exists");
             } else {
-                FileHandler.writeNewFile(filePath.toString(), mPointedCommitSha1.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(), mPointedCommitSha1.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(),mIsRemote.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(),mTracking.toString());
+                FileHandler.appendFileWithContentAndLine(filePath.toString(),mTrackingAfter);
                 //System.out.println("file created"); TODO(REMOVE WHEN SUBMITTING)
             }
 
