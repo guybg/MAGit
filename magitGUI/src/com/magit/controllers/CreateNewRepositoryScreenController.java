@@ -31,6 +31,7 @@ public class CreateNewRepositoryScreenController implements BasicController, Ini
     private Stage stage;
     private MagitEngine engine;
     private StringProperty repositoryNameProperty;
+    private StringProperty repositoryPathProperty;
     @FXML
     private Button closeButton;
 
@@ -64,6 +65,10 @@ public class CreateNewRepositoryScreenController implements BasicController, Ini
         this.repositoryNameProperty = repositoryName;
     }
 
+    public void setRepositoryPathProperty(StringProperty repositoryPathProperty) {
+        this.repositoryPathProperty = repositoryPathProperty;
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -85,6 +90,7 @@ public class CreateNewRepositoryScreenController implements BasicController, Ini
             engine.createNewRepository(Paths.get(browsePathTextField.getText()), newRepositoryNameTextField.getText());
             errorLabel.setText("Repository created successfully!");
             repositoryNameProperty.setValue(engine.getRepositoryName());
+            repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
             Button closeButton = (Button)event.getSource();
             closeButton.setDisable(true);
         } catch (IllegalPathException | InvalidNameException | RepositoryAlreadyExistsException e) {

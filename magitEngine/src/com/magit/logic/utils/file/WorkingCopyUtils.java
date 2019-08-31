@@ -27,6 +27,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class WorkingCopyUtils {
     private static final Predicate<FileItem> treePredicate = fileItem -> fileItem.getFileType() == FileType.FOLDER;
@@ -124,12 +125,15 @@ public class WorkingCopyUtils {
             throw new CommitNotFoundException("commit not found at remote repository.");
         ArrayList<String> allPrevSha1s = new ArrayList<>();
         allPrevSha1s.add(commit.getSha1Code().toString());
-        getAllPreviousCommitSha1s(source,commit,allPrevSha1s);
+        getAllPreviousCommitSha1sThatNotExistsAtDestination(source,destination,commit,allPrevSha1s);
         for(String sha1 : allPrevSha1s){
             importObjectOfSelectedCommit(source, destination, sha1);
         }
     }
-
+    /*
+    *
+    * old version
+    * 
     private static void getAllPreviousCommitSha1s(Repository repository, Commit commit, ArrayList<String> allSha1s) throws ParseException, PreviousCommitsLimitExceededException, IOException, CommitNotFoundException {
         if(commit.getSha1().isEmpty()) return;
         for(Sha1 sha1OfParent : commit.getLastCommitsSha1Codes()){
@@ -139,6 +143,19 @@ public class WorkingCopyUtils {
             if(commit == null)
                 throw new CommitNotFoundException("commit not found, repository corrupted");
             getAllPreviousCommitSha1s(repository,prevCommit,allSha1s);
+        }
+    } */
+
+    private static void getAllPreviousCommitSha1sThatNotExistsAtDestination(Repository source, Repository destination,Commit commit, ArrayList<String> allSha1s) throws ParseException, PreviousCommitsLimitExceededException, IOException, CommitNotFoundException {
+        if(commit.getSha1().isEmpty()) return;
+        if(Paths.get(destination.getObjectsFolderPath().toString(),commit.getSha1()).toFile().exists()) return;
+        for(Sha1 sha1OfParent : commit.getLastCommitsSha1Codes()){
+            if(sha1OfParent.toString().isEmpty()) return;
+            allSha1s.add(sha1OfParent.toString());
+            Commit prevCommit = Commit.createCommitInstanceByPath(Paths.get(source.getObjectsFolderPath().toString(),sha1OfParent.toString()));
+            if(commit == null)
+                throw new CommitNotFoundException("commit not found, repository corrupted");
+            getAllPreviousCommitSha1sThatNotExistsAtDestination(source,destination,prevCommit,allSha1s);
         }
     }
 
@@ -154,16 +171,14 @@ public class WorkingCopyUtils {
             fileItemWalk(wc, source.getObjectsFolderPath().toString(), new WalkAction() {
                 @Override
                 public void onWalkAction(FileItem file, Object... params) throws IOException {
-                    for(File objectsFile : Objects.requireNonNull(destination.getObjectsFolderPath().toFile().listFiles())){
-                        if(objectsFile.getName().equals(file.getSha1Code().toString())) {
-                            return;
-                        }
-                    }
+                    if(Paths.get(destination.getObjectsFolderPath().toString(),file.getSha1Code().toString()).toFile().exists())
+                        return;
                     FileItemHandler.zip(file, destination.getObjectsFolderPath().toString());
                 }
 
                 @Override
-                public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) { }
+                public void onAddAction(SortedSet set, SortedSet dirFiles, FileItem fileItem, String filePath) {
+                }
             });
         }
     }

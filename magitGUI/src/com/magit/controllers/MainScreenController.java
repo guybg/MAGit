@@ -75,57 +75,8 @@ public class MainScreenController implements Initializable, BasicController {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
-        switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
-        branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
-        branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
-        userNameProperty = new SimpleStringProperty();
-        repositoryPathProperty = new SimpleStringProperty();
-        userNameProperty.setValue("Administrator");
-        userNameMenuButton.textProperty().bind(userNameProperty);
-        if(repositoryNameProperty == null) {
-            repositoryNameProperty = new SimpleStringProperty();
-            repositoryNameProperty.setValue("");
-        }
-
-        menuButtonRepositoryNameLabel.textProperty().bind(Bindings
-                .when(repositoryNameProperty.isNotEqualTo(""))
-                .then(repositoryNameProperty)
-                .otherwise("No repository"));
-        branchNameProperty = new SimpleStringProperty();
-        middleAnchorPane.minWidthProperty().bind(middleHSplitPane.widthProperty().divide(2));
-        menuButtonBranchNameLabel.textProperty().bind(Bindings
-                .when(branchNameProperty.isNotEqualTo(""))
-                .then(branchNameProperty)
-                .otherwise("No branch"));
-        commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
-        branchNameProperty.addListener((observable, oldValue, newValue) -> updateDifferences());
-        commitToLeftDownButton.setDisable(true);
-        resetBranchMenuItem.setDisable(true);
-        deleteBranchMenuItem.setDisable(true);
-        newBranchMenuItem.setDisable(true);
-        commitHistoryMenuItem.setDisable(true);
-        branchesMenuItem.setVisible(false);
-        branchesHistoryMenuItem.setDisable(true);
-        mergeMenuItem.setDisable(true);
-        repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
-            commitToLeftDownButton.setDisable(false);
-            loadBranchesToUserInterface();
-            resetBranchMenuItem.setDisable(false);
-            deleteBranchMenuItem.setDisable(false);
-            newBranchMenuItem.setDisable(false);
-            commitHistoryMenuItem.setDisable(false);
-            branchesMenuItem.setVisible(true);
-            repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
-            branchesHistoryMenuItem.setDisable(false);
-            mergeMenuItem.setDisable(false);
-        });
-        repositoryPathProperty.addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                currentRepositoryMenuButton.tooltipProperty().setValue(new Tooltip(repositoryPathProperty.getValue()));
-            }
-        });
+        updateBindings();
+        updateListeners();
         showWelcomeNode();
     }
     @FXML private MenuItem branchesMenuItem;
@@ -249,12 +200,11 @@ public class MainScreenController implements Initializable, BasicController {
 
         ((BranchesHistoryScreenController)fxmlLoader.getController()).setEngine(engine);
         ((BranchesHistoryScreenController)fxmlLoader.getController()).setStage(stage);
-        TreeSet<CommitNode> nodes = null;
-        try {
-            nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
+        //TreeSet<CommitNode> nodes = null;
+        engine.guiBranchesHistory(nodes -> {
             graph.beginUpdate();
-            for(ICell node : nodes) {
-                if(!model.getAllCells().contains(node))
+            for (ICell node : nodes) {
+                if (!model.getAllCells().contains(node))
                     model.addCell(node);
             }
             graph.endUpdate();
@@ -270,16 +220,45 @@ public class MainScreenController implements Initializable, BasicController {
                 graph.getUseViewportGestures().set(false);
                 graph.getUseNodeGestures().set(false);
             });
-        } catch (FileNotFoundException e){
+        }, s -> {
             PopupScreen popupScreen = new PopupScreen(stage,engine);
             try {
-                popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", e.getMessage(), "Close");
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", s, "Close");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (PreviousCommitsLimitExceededException | ParseException | IOException e) {
-            e.printStackTrace();
-        }
+        },model,fxmlLoader.getController());
+
+     //   try {
+     //       nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
+     //       graph.beginUpdate();
+     //       for(ICell node : nodes) {
+     //           if(!model.getAllCells().contains(node))
+     //               model.addCell(node);
+     //       }
+     //       graph.endUpdate();
+     //       graph.layout(new CommitTreeLayout());
+     //       pStage.setMinWidth(936);
+     //       pStage.setMinHeight(534);
+     //       pStage.setScene(scene);
+     //       pStage.show();
+     //       Platform.runLater(() -> {
+     //           ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
+     //           PannableCanvas canvas = graph.getCanvas();
+     //           scrollPane.setContent(canvas);
+     //           graph.getUseViewportGestures().set(false);
+     //           graph.getUseNodeGestures().set(false);
+     //       });
+     //   } catch (FileNotFoundException e){
+     //       PopupScreen popupScreen = new PopupScreen(stage,engine);
+     //       try {
+     //           popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", e.getMessage(), "Close");
+     //       } catch (IOException ex) {
+     //           ex.printStackTrace();
+     //       }
+     //   } catch (PreviousCommitsLimitExceededException | ParseException | IOException e) {
+     //       e.printStackTrace();
+     //   }
     }
 
     @FXML
@@ -567,6 +546,7 @@ public class MainScreenController implements Initializable, BasicController {
         Parent layout = loader.load();
         CreateNewRepositoryScreenController createNewRepositoryScreenController = loader.getController();
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
+        createNewRepositoryScreenController.setRepositoryPathProperty(repositoryPathProperty);
         createNewRepositoryScreenController.bindings();
         PopupScreen popupScreen = new PopupScreen(stage,engine);
         popupScreen.createPopup(layout, createNewRepositoryScreenController);
@@ -575,7 +555,7 @@ public class MainScreenController implements Initializable, BasicController {
 
     void showWelcomeNode(){
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/welcomenode.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/welcomeNode.fxml"));
         Node welcomeNode = null;
         try {
             welcomeNode = loader.load();
@@ -676,6 +656,7 @@ public class MainScreenController implements Initializable, BasicController {
         try {
             engine.switchRepository(selectedDirectory.getAbsolutePath());
             repositoryNameProperty.setValue(engine.getRepositoryName());
+            repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
             //events on properties handles branches load, diff loads //loadBranchesToUserInterface();
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
             PopupScreen popupScreen = new PopupScreen(stage,engine);
@@ -848,5 +829,94 @@ public class MainScreenController implements Initializable, BasicController {
         return generalController;
     }
 
+    private void updatePushAndPullButtons(){
+        if(engine.activeBranchIsTrackingAfter()){
+            pushMenuItem.setDisable(false);
+            pullMenuItem.setDisable(false);
+        }else{
+            pushMenuItem.setDisable(true);
+            pullMenuItem.setDisable(true);
+        }
+    }
 
+    private void updateFetchButton(){
+        try {
+            if(engine.repositoryHasRemoteReference()){
+                fetchMenuItem.setDisable(false);
+            }else{
+                fetchMenuItem.setDisable(true);
+            }
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateOnRepositoryNameChangedButtons(){
+        commitToLeftDownButton.setDisable(false);
+        resetBranchMenuItem.setDisable(false);
+        deleteBranchMenuItem.setDisable(false);
+        newBranchMenuItem.setDisable(false);
+        commitHistoryMenuItem.setDisable(false);
+        branchesMenuItem.setVisible(true);
+        branchesHistoryMenuItem.setDisable(false);
+        mergeMenuItem.setDisable(false);
+    }
+
+    private void updateOnScreenInitButtons(){
+        commitToLeftDownButton.setDisable(true);
+        resetBranchMenuItem.setDisable(true);
+        deleteBranchMenuItem.setDisable(true);
+        newBranchMenuItem.setDisable(true);
+        commitHistoryMenuItem.setDisable(true);
+        branchesMenuItem.setVisible(false);
+        branchesHistoryMenuItem.setDisable(true);
+        mergeMenuItem.setDisable(true);
+        pushMenuItem.setDisable(true);
+        pullMenuItem.setDisable(true);
+        fetchMenuItem.setDisable(true);
+    }
+
+    private void updateBindings(){
+        menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
+        switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
+        branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
+        branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
+        userNameProperty = new SimpleStringProperty();
+        repositoryPathProperty = new SimpleStringProperty();
+        userNameProperty.setValue("Administrator");
+        userNameMenuButton.textProperty().bind(userNameProperty);
+        if(repositoryNameProperty == null) {
+            repositoryNameProperty = new SimpleStringProperty();
+            repositoryNameProperty.setValue("");
+        }
+
+        menuButtonRepositoryNameLabel.textProperty().bind(Bindings
+                .when(repositoryNameProperty.isNotEqualTo(""))
+                .then(repositoryNameProperty)
+                .otherwise("No repository"));
+        branchNameProperty = new SimpleStringProperty();
+        middleAnchorPane.minWidthProperty().bind(middleHSplitPane.widthProperty().divide(2));
+        menuButtonBranchNameLabel.textProperty().bind(Bindings
+                .when(branchNameProperty.isNotEqualTo(""))
+                .then(branchNameProperty)
+                .otherwise("No branch"));
+        commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
+    }
+
+    private void updateListeners(){
+        branchNameProperty.addListener((observable, oldValue, newValue) -> {
+            updateDifferences();
+            updatePushAndPullButtons();
+        });
+        updateOnScreenInitButtons();
+        repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
+            updateOnRepositoryNameChangedButtons();
+        });
+        repositoryPathProperty.addListener((observable, oldValue, newValue) -> {
+            currentRepositoryMenuButton.tooltipProperty().setValue(new Tooltip(repositoryPathProperty.getValue()));
+            loadBranchesToUserInterface();
+            updateFetchButton();
+            updatePushAndPullButtons();
+        });
+    }
 }

@@ -12,6 +12,7 @@ import com.magit.logic.system.managers.CollaborationEngine;
 import com.magit.logic.system.managers.MergeEngine;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.objects.*;
+import com.magit.logic.system.tasks.BranchesHistoryTask;
 import com.magit.logic.system.tasks.CollectFileItemsInfoTask;
 import com.magit.logic.system.tasks.NewCommitTask;
 import com.magit.logic.utils.compare.Delta;
@@ -162,6 +163,7 @@ public class MagitEngine {
         task.setOnFailed(event -> exceptionDelegate.accept(task.getException().getMessage()));
     }
 
+
     public String getBranchesInfo() throws IOException, RepositoryNotFoundException, ParseException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.getBranchesInfo();
@@ -219,6 +221,12 @@ public class MagitEngine {
 
     public TreeSet<CommitNode> guiBranchesHistory(Model model, BranchesHistoryScreenController branchesHistoryScreenController) throws ParseException, PreviousCommitsLimitExceededException, IOException {
        return mBranchManager.guiPresentBranchesHistory(mRepositoryManager.getRepository(),model, branchesHistoryScreenController);
+    }
+
+    public void guiBranchesHistory(Consumer<TreeSet<CommitNode>> infoReadyDelegate, Consumer<String> exceptionHandleDelegate, Model model, BranchesHistoryScreenController branchesHistoryScreenController){
+        BranchesHistoryTask task = new BranchesHistoryTask(infoReadyDelegate, this, model,branchesHistoryScreenController);
+        new Thread(task).start();
+        task.setOnFailed(event -> exceptionHandleDelegate.accept(task.getException().getMessage()));
     }
 
     public String getWorkingCopyStatus() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
@@ -328,6 +336,15 @@ public class MagitEngine {
             throw new BranchNotFoundException("Remote branch does not exist");
 
         mBranchManager.createRemoteTrackingBranch(mRepositoryManager.getRepository().getBranches().get(remoteBranchName), mRepositoryManager.getRepository());
+    }
+
+    public boolean repositoryHasRemoteReference() throws RepositoryNotFoundException {
+        repositoryNotFoundCheck();
+        return mRepositoryManager.hasRemoteReference();
+    }
+
+    public boolean activeBranchIsTrackingAfter(){
+        return mBranchManager.activeBranchIsTrackingAfter();
     }
 }
 

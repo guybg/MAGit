@@ -283,5 +283,10 @@ public class RepositoryManager {
         return info;
     }
 
-
+    public boolean hasRemoteReference(){
+        if(mActiveRepository.getRemoteReference() == null){
+            return false;
+        }
+        return true;
+    }
 }

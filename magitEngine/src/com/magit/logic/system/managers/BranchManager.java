@@ -271,4 +271,8 @@ public class BranchManager {
 
         repository.changeBranchPointer(mActiveBranch, commitSha1);
     }
+
+    public boolean activeBranchIsTrackingAfter(){
+        return mActiveBranch.getIsTracking();
+    }
 }

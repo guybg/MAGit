@@ -62,5 +62,6 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="AncestorFinder" level="project" />
   </component>
 </module>
