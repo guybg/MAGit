@@ -69,10 +69,16 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     @FXML
     private Hyperlink lastCommit2HyperLink;
 
+    private StringProperty clickedOnActiveBranches = new SimpleStringProperty();
     private CommitNode lastCommit1Node;
     private CommitNode lastCommit2Node;
     @FXML
     private ComboBox<String> switchDiffComboBox;
+
+
+    public StringProperty getClickedOnActiveBranchesProperty() {
+        return clickedOnActiveBranches;
+    }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -207,7 +213,7 @@ public class BranchesHistoryScreenController implements BasicController, Initial
 
     public void setAllBranchesLabel(String allBranches, int numberOfBranches) {
         this.allBranchesLabel.setText(allBranches);
-        this.allBranchesTitleLabel.setText("in " + numberOfBranches + " branches:");
+        this.allBranchesTitleLabel.setText("In " + numberOfBranches + " branches:");
         setCommitLabelToolTip(allBranchesLabel);
     }
 

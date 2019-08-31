@@ -1,33 +1,35 @@
-
-
 .menu-bar .menu-button:hover{
-     -fx-background-color:#33393F;
+    -fx-background-color: #a9e4fe;
 }
+
 .menu-bar .menu-button:showing, .menu-bar .menu-button:focused {
-    -fx-background-color:#FFFFFF;
-    -fx-focus-color:white;
+    -fx-background-color: #d3d3d3;
+    -fx-focus-color:black;
 }
+
+#MenuBar{
+    -fx-background-color: #d3d3d3;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
+}
+
 
 #menuButtonsLineFiller{
-    -fx-background-color: #292D32;
-    -fx-border-color: black;
+    -fx-background-color: #d3d3d3;
+    -fx-border-color: #919191;
     -fx-border-width: 1 1 1 1;
 
 }
 
-#MenuBar{
-    -fx-background-color: #292D32;
-}
-
 #mainHBox{
-    -fx-background-color: #292D32;
+    -fx-background-color: #d3d3d3;
 }
 
 .menu .menu-button .label {
-    -fx-text-fill: #FFFFFF;
-    -fx-font: 11px Arial;
+    -fx-text-fill: black;
     -fx-font-weight: bold;
-    
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
 }
 
 .menu .menu-button:showing .label,.menu .menu-button:focused .label  {
@@ -42,20 +44,19 @@
 }
 
 .menu-bar {
-  -fx-padding: 0 0 0 0;
-  -fx-spacing: 2;
+    -fx-padding: 0 0 0 0;
+    -fx-spacing: 2;
 }
 
 .context-menu {
-    -fx-background-color:white;
-    -fx-focus-color:white;
+    -fx-background-color: white;
+    -fx-focus-color: white;
 }
 
 .context-menu:focused {
-    -fx-background-color:white;
-    -fx-focus-color:white;
+    -fx-background-color: white;
+    -fx-focus-color: white;
 }
-
 
 .menu-item .label{
     -fx-text-fill: #292D32;
@@ -71,103 +72,101 @@
 }
 
 .window-minimize-button{
-    -fx-text-fill:#ffffff;
-    -fx-background-color: #292D32;
+    -fx-text-fill: black;
+    -fx-background-color: #d3d3d3;
     -fx-background-radius: 0;
 }
 .window-close-button{
-    -fx-text-fill:#ffffff;
-    -fx-background-color: #292D32;
+    -fx-text-fill: black;
+    -fx-background-color: #d3d3d3;
     -fx-background-radius: 0;
 }
 
 .window-minimize-button:hover {
-    -fx-text-fill:black;
+    -fx-text-fill:white;
     -fx-background-color: #878787;
 }
 .window-close-button:hover {
-    -fx-text-fill:black;
+    -fx-text-fill:white;
     -fx-background-color: #E71828;
 }
 
 .button-bar{
-    -fx-background-color: #292D32;
-    -fx-border-color:black;
-    -fx-border-width: 1 1 1 1;
+    -fx-background-color: #d3d3d3;
 }
 
 .button-bar-button{
-    -fx-background-color: #292D32;
-    -fx-border-color:black;
-    -fx-border-width: 1 1 1 1;
+    -fx-background-color: #d3d3d3;
+    -fx-border-color: #919191;
 }
 
 .button-bar-button:hover {
-    -fx-background-color: #33393F;
+    -fx-background-color: #a9e4fe;
 }
+
 .button-bar-button .menu-item .label{
-    -fx-text-fill: #292D32;
+    -fx-text-fill: black;
     -fx-padding: 0 0 0 0;
 }
 #button-bar-buttons-bottom-liner{
-    -fx-background-color: black;
+    -fx-background-color: #919191;
 }
 #menu-button-title-label {
-    -fx-text-fill: #D0D4D9;
+    -fx-text-fill: black;
     -fx-font-size: 11px;
     -fx-font-weight: normal;
 }
 .button-bar-button .label{
-    -fx-text-fill: #ffffff;
+    -fx-text-fill: black;
     -fx-font-size: 11px;
     -fx-font-weight: bold;
 }
 
 .pane{
-    -fx-border-color: #292D32;
+    -fx-border-color: white;
 }
 
 .iconMenuButton {
-   
-    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
 }
 
 #iconBranch{
-     -fx-image: url("../images/branchIcon.png");
+    -fx-image: url("../images/branchIcon.png");
 }
 
 #iconRepository{
-     -fx-image: url("../images/repositoryIcon.png");
+    -fx-image: url("../images/repositoryIcon.png");
 }
 
 #iconUser{
-     -fx-image: url("../images/userIcon.png");
+    -fx-image: url("../images/userIcon.png");
 }
 
 #iconRepository .label{
-    -fx-color: #fff;
-    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+    -fx-color: black;
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
 }
 
 .side-pane{
-    -fx-background-color: #F6F8FA;
-    -fx-border-color: #E0E3E7;
+    -fx-background-color: #5c666c;
+    -fx-border-color: #5c666c;
 }
 
 .side-pane .button, #side-pane .button .label  {
-    -fx-background-color: #68A0E4;
+    -fx-background-color: #292D32;
     -fx-text-fill: white;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
 }
 
 #refresh-button {
     -fx-background-image: url('../images/refresh.png');
-    -fx-background-color: #E0E3E7;
+    -fx-background-color: #c7cbc5;
     -fx-background-size: 18px;
     -fx-pref-height: 20px;
     -fx-pref-width: 20px;
     -fx-background-repeat: no-repeat;
     -fx-background-position: 90%;
-
 }
 
 .accept-button{
@@ -182,6 +181,7 @@
     -fx-background-color: #FAFBFC;
     -fx-border-color: #E0E3E7;
 }
+
 .split-pane *.split-pane-divider {
     -fx-padding: 0 1 0 1;
 }
@@ -190,8 +190,9 @@
     -fx-alignment: center;
     -fx-font-weight: bold;
     -fx-font-size: 18px;
-    -fx-background-color: #292D32;
-    -fx-text-fill : #FAFBFC;
+    -fx-background-color: rgba(0, 0, 0, 0);
+    -fx-text-fill : black;
+    -fx-font-family: Narkisim;
 }
 
 .branchesListView .list-cell .button:hover {
@@ -201,8 +202,9 @@
 
 .branchesListView .list-cell .button {
     -fx-background-color: #FAFFFF;
-    -fx-border-color: #E0E3E7;
+    -fx-border-color: #c4cce7;
 }
+
 #branchesMenuItem:focused{
     -fx-background-color: transparent;
     -fx-background-insets: -1.4, 0, 1, 2;
@@ -214,25 +216,21 @@
 }
 
 .commit-details-label{
-    -fx-font: 14px Arial;
+    -fx-font: 14px Narkisim;
     -fx-text-fill: Gray;
 }
 
-
-
-#bottomGridPartOfBranchesHistoryWindow{
-    -fx-border-color: #E0E3E7;
-    -fx-background-color: #DBDBDB;
+#middleAnchorPane {
+    -fx-background-color: #707a80;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
 }
 
 #accordion {
-    -fx-background-color: white;
+    -fx-background-color: #707a80;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
 }
-
-#middleAnchorPane {
-    -fx-background-color: white;
-}
-
 
 /* merge screen */
 
@@ -294,3 +292,42 @@
     -fx-text-fill : red;
 }
 
+.welcome-node {
+    -fx-text-fill: white;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 30px;
+}
+
+.welcome-node-image {
+    -fx-color: #fff;
+    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+}
+
+.side-pane-text-box {
+    -fx-background-color: #707a80;
+}
+
+.side-pane-text-wrapper {
+    -fx-background-color: black;
+}
+
+.side-pane-text {
+    -fx-text-fill: white;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
+}
+
+#commit-button {
+    -fx-background-color: rgba(109, 112, 146, 0.6);
+}
+
+#commit-text-area {
+    -text-area-background: #707a80;
+    -fx-text-fill: white;
+    -fx-font-family: Narkisim;
+    -fx-font-size: 16px;
+}
+
+#commit-text-area .content {
+    -fx-background-color: #5d6a80;
+}

@@ -136,6 +136,34 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private Label moveScreenLabel;
     @FXML private AnchorPane progressBarPane;
     @FXML private MenuItem branchesHistoryMenuItem;
+    @FXML private Label DarkThemeLabel;
+    @FXML private Label BrightThemeLabel;
+    @FXML private Label PinkThemeLabel;
+    @FXML private MenuItem DarkThemeMenuItem;
+    @FXML private MenuItem BrightThemeMenuItem;
+    @FXML private MenuItem PinkThemeMenuItem;
+
+
+    @FXML
+    void OnBrightThemeClicked(ActionEvent event) {
+        final String brightThemeUrl = this.getClass().getResource("/com/magit/resources/css/home.css").toExternalForm();
+        (stage.getScene()).getStylesheets().clear();
+        (stage.getScene()).getStylesheets().add(brightThemeUrl);
+    }
+
+    @FXML
+    void OnDarkThemeClicked(ActionEvent event) {
+        final String darkThemeUrl = this.getClass().getResource("/com/magit/resources/css/dark.css").toExternalForm();
+        (stage.getScene()).getStylesheets().clear();
+        (stage.getScene()).getStylesheets().add(darkThemeUrl);
+}
+
+    @FXML
+    void OnPinkThemeClicked(ActionEvent event) {
+        final String pinkThemeUrl = this.getClass().getResource("/com/magit/resources/css/pink.css").toExternalForm();
+        (stage.getScene()).getStylesheets().clear();
+        (stage.getScene()).getStylesheets().add(pinkThemeUrl);
+    }
 
     private ObservableList<FileItemInfo> fileItemInfos;
 
@@ -179,7 +207,6 @@ public class MainScreenController implements Initializable, BasicController {
         PopupScreen popupScreen = new PopupScreen(stage,engine);
         popupScreen.createMergeScreen();
     }
-
 
     @FXML
     void onShowBranchesHistory(ActionEvent event) {
@@ -467,7 +494,7 @@ public class MainScreenController implements Initializable, BasicController {
         updateDifferences();
     }
 
-    void onBranchButtonMenuItemClick(String branchName) throws ParseException, RepositoryNotFoundException,
+    private void onBranchButtonMenuItemClick(String branchName) throws ParseException, RepositoryNotFoundException,
             InvalidNameException, BranchNotFoundException{
         String headMessage = "There are unsaved changes";
         String bodyMessage = "are you sure you want to switch branch?";
