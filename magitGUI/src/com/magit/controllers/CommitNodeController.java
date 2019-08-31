@@ -80,11 +80,13 @@ public class CommitNodeController implements Initializable {
     public void setClickedActiveBranches(StringProperty clickedActiveBranches) {
         this.clickedActiveBranches = clickedActiveBranches;
         clickedActiveBranches.addListener((observable, oldValue, newValue) -> {
-            gridPane.getStyleClass().remove("marked-node");
+            //gridPane.getStyleClass().remove("marked-node");
+            gridPane.getStyleClass().clear();
+            gridPane.getStyleClass().add("single-commit-row-container");
             if (null == branches || branches.isEmpty())
                 return;
             for (String branchName : branches) {
-                if (clickedActiveBranches.getValue().contains(branchName))
+                if (Arrays.asList(clickedActiveBranches.getValue().split(",")).contains(branchName))
                     gridPane.getStyleClass().add("marked-node");
             }
         });
@@ -165,7 +167,7 @@ public class CommitNodeController implements Initializable {
         if (null != activeBranches)
             clickedActiveBranches.setValue(String.join(",", activeBranches));
         else
-            clickedActiveBranches.setValue("");
+            clickedActiveBranches.setValue(" ");
     }
 
     @FXML

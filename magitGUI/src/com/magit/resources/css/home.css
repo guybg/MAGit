@@ -169,7 +169,9 @@
     -fx-background-position: 90%;
 
 }
-
+#open-changes-hbox{
+    -fx-background-color: #E0E3E7;
+}
 .accept-button{
     -fx-background-color: #6CA3E6;
 }

@@ -133,7 +133,7 @@ public class WorkingCopyUtils {
     /*
     *
     * old version
-    * 
+    *
     private static void getAllPreviousCommitSha1s(Repository repository, Commit commit, ArrayList<String> allSha1s) throws ParseException, PreviousCommitsLimitExceededException, IOException, CommitNotFoundException {
         if(commit.getSha1().isEmpty()) return;
         for(Sha1 sha1OfParent : commit.getLastCommitsSha1Codes()){

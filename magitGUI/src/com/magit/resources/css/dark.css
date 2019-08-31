@@ -29,12 +29,12 @@
     -fx-text-fill: black;
     -fx-font-weight: bold;
     -fx-font-family: Narkisim;
-    -fx-font-size: 16px;
+    -fx-font-size: 14px;
 }
 
 .menu .menu-button:showing .label,.menu .menu-button:focused .label  {
     -fx-text-fill: #292D32;
-    -fx-font: 11px Arial;
+    -fx-font: 14px Narkisim;
     -fx-font-weight: bold;
 }
 
@@ -46,6 +46,7 @@
 .menu-bar {
     -fx-padding: 0 0 0 0;
     -fx-spacing: 2;
+    -fx-effect: null;
 }
 
 .context-menu {
@@ -161,7 +162,7 @@
 
 #refresh-button {
     -fx-background-image: url('../images/refresh.png');
-    -fx-background-color: #c7cbc5;
+    -fx-background-color: #E0E3E7;
     -fx-background-size: 18px;
     -fx-pref-height: 20px;
     -fx-pref-width: 20px;
@@ -230,6 +231,10 @@
     -fx-background-color: #707a80;
     -fx-font-family: Narkisim;
     -fx-font-size: 16px;
+}
+
+#open-changes-hbox{
+    -fx-background-color: #E0E3E7;
 }
 
 /* merge screen */
