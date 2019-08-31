@@ -13,6 +13,8 @@ import com.magit.logic.visual.node.CommitNode;
 import com.sun.org.apache.xml.internal.security.Init;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -38,6 +40,7 @@ import javafx.stage.Stage;
 
 import java.awt.*;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
@@ -67,10 +70,24 @@ public class CommitNodeController implements Initializable {
     private ArrayList<String> branches;
     private ArrayList<String> activeBranches;
     private BranchesHistoryScreenController branchesHistoryScreenController;
+    private StringProperty clickedActiveBranches;
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+    }
 
+    public void setClickedActiveBranches(StringProperty clickedActiveBranches) {
+        this.clickedActiveBranches = clickedActiveBranches;
+        clickedActiveBranches.addListener((observable, oldValue, newValue) -> {
+            gridPane.getStyleClass().remove("marked-node");
+            if (null == branches || branches.isEmpty())
+                return;
+            for (String branchName : branches) {
+                if (clickedActiveBranches.getValue().contains(branchName))
+                    gridPane.getStyleClass().add("marked-node");
+            }
+        });
     }
 
     public void setCommitTimeStamp(String timeStamp) {
@@ -145,6 +162,10 @@ public class CommitNodeController implements Initializable {
         gridPane.requestFocus();
         branchesHistoryScreenController.focusChanged.setValue(!branchesHistoryScreenController.focusChanged.getValue());
         focused = true;
+        if (null != activeBranches)
+            clickedActiveBranches.setValue(String.join(",", activeBranches));
+        else
+            clickedActiveBranches.setValue("");
     }
 
     @FXML

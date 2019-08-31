@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
-    private Commit commit;
     private Date timestamp;
     private String committer;
     private String message;
@@ -81,7 +80,6 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         this.timestamp = commit.getCreationDate();
         this.committer = commit.getLastUpdater();
         this.message = commit.getCommitMessage();
-        this.commit = commit;
         this.sha1 = commit.getSha1();
         this.parent1Sha1 = commit.getFirstPrecedingSha1();
         this.parent2Sha1 = commit.getSecondPrecedingSha1();
@@ -119,6 +117,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
             commitNodeController.setBranchesHistoryScreenController(branchesHistoryScreenController);
             commitNodeController.setSha1(sha1);
             commitNodeController.setParents(parents);
+            commitNodeController.setClickedActiveBranches(branchesHistoryScreenController.getClickedOnActiveBranchesProperty());
             ArrayList<String> allBranches = branches.stream().map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new));
             if(activeBranches!=null)
                 allBranches.addAll(activeBranches.stream().map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new)));
@@ -161,4 +160,5 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     public void showMe(){
         commitNodeController.onCommitClicked(null);
     }
+
 }

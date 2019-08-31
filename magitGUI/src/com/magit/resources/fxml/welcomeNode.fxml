@@ -17,7 +17,7 @@
          <children>
             <VBox alignment="CENTER" spacing="2.0">
                <children>
-                  <Label text="magitHub" wrapText="true">
+                  <Label styleClass="welcome-node" text="magitHub" wrapText="true">
                      <font>
                         <Font name="Tw Cen MT Condensed Extra Bold" size="48.0" />
                      </font>
@@ -28,7 +28,7 @@
                   <Insets />
                </VBox.margin>
             </VBox>
-            <Label alignment="CENTER" contentDisplay="CENTER" text="Welcome to M.A.GitHub!">
+            <Label styleClass="welcome-node" alignment="CENTER" contentDisplay="CENTER" text="Welcome to M.A.GitHub!">
                <font>
                   <Font name="Narkisim" size="26.0" />
                </font>
@@ -40,12 +40,12 @@
                <children>
                   <HBox alignment="CENTER" onMouseClicked="#onCreateNewRepositoryWelcomeNode" spacing="7.0">
                      <children>
-                        <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView styleClass="welcome-node-image" fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../images/createRep.png" />
                            </image>
                         </ImageView>
-                        <Label alignment="CENTER" text="Create new repository" wrapText="true">
+                        <Label alignment="CENTER" styleClass="welcome-node" text="Create new repository" wrapText="true">
                            <font>
                               <Font size="17.0" />
                            </font>
@@ -55,12 +55,12 @@
                   <Separator />
                   <HBox alignment="CENTER" onMouseClicked="#onLoadRepositoryXmlWelcomeNode" spacing="7.0">
                      <children>
-                        <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView styleClass="welcome-node-image" fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../images/loadRep.png" />
                            </image>
                         </ImageView>
-                        <Label alignment="CENTER" text="Load repository From Xml" wrapText="true">
+                        <Label alignment="CENTER" styleClass="welcome-node" text="Load repository From Xml" wrapText="true">
                            <font>
                               <Font size="17.0" />
                            </font>
@@ -70,12 +70,12 @@
                   <Separator />
                   <HBox alignment="CENTER" onMouseClicked="#onLoadRepositoryWelcomeNode" spacing="7.0">
                      <children>
-                        <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
+                        <ImageView styleClass="welcome-node-image" fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../images/loadRep.png" />
                            </image>
                         </ImageView>
-                        <Label alignment="CENTER" text="Load repository" wrapText="true">
+                        <Label alignment="CENTER" styleClass="welcome-node" text="Load repository" wrapText="true">
                            <font>
                               <Font size="17.0" />
                            </font>

@@ -33,7 +33,7 @@
    <children>
       <HBox id="mainHBox" alignment="CENTER" prefHeight="25.0" prefWidth="1327.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <ImageView fitHeight="17.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
+            <ImageView id="appIcon" fitHeight="17.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="ALWAYS">
                <image>
                   <Image url="@../images/appUpperLeftIcon.png" />
                </image>
@@ -308,11 +308,11 @@
                                                    <children>
                                                       <ScrollPane fitToHeight="true" fitToWidth="true" layoutX="19.6" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <content>
-                                                            <ListView fx:id="editedFilesListView" />
+                                                            <ListView styleClass="side-pane-text-box" fx:id="editedFilesListView" />
                                                          </content>
                                                       </ScrollPane>
                                                    </children>
-                                                </AnchorPane>
+                                            </AnchorPane>
                                           </content>
                                              <graphic>
                                                 <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Edited" />
@@ -324,7 +324,7 @@
                                                    <children>
                                                       <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <content>
-                                                            <ListView fx:id="deletedFilesListView" />
+                                                            <ListView styleClass="side-pane-text-box" fx:id="deletedFilesListView" />
                                                          </content>
                                                       </ScrollPane>
                                                    </children>
@@ -340,7 +340,7 @@
                                                    <children>
                                                       <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="200.0" prefWidth="299.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                                          <content>
-                                                            <ListView fx:id="newFilesListView" />
+                                                            <ListView styleClass="side-pane-text-box" fx:id="newFilesListView" />
                                                          </content>
                                                       </ScrollPane>
                                                    </children>
@@ -358,20 +358,20 @@
                                  <children>
                                     <VBox layoutX="8.0" layoutY="8.0" prefHeight="157.0" prefWidth="285.0" spacing="5.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="7.0">
                                        <children>
-                                          <TextArea fx:id="commitMessageTextArea" onInputMethodTextChanged="#onCommitMessageTextAreaChanged" prefHeight="107.0" prefWidth="198.0" VBox.vgrow="SOMETIMES" />
-                                          <Button fx:id="commitToLeftDownButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" VBox.vgrow="SOMETIMES" />
+                                          <TextArea id="commit-text-area" fx:id="commitMessageTextArea" onInputMethodTextChanged="#onCommitMessageTextAreaChanged" prefHeight="107.0" prefWidth="198.0" VBox.vgrow="SOMETIMES" />
+                                          <Button id="commit-button" fx:id="commitToLeftDownButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" prefHeight="39.0" prefWidth="190.0" text="Commit to BranchName" VBox.vgrow="SOMETIMES" />
                                        </children>
                                     </VBox>
                                     <Separator layoutX="2.0" layoutY="173.0" prefWidth="297.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="1.0" />
                                     <VBox layoutY="187.0" prefHeight="67.0" prefWidth="210.0" spacing="2.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="186.0">
                                        <children>
-                                          <Label prefHeight="17.0" prefWidth="75.0" text="Last commit" textFill="#5e5ac3" wrapText="true">
+                                          <Label styleClass="side-pane-text" prefHeight="17.0" prefWidth="75.0" text="Last commit" textFill="#5e5ac3" wrapText="true">
                                              <effect>
                                                 <InnerShadow />
                                              </effect>
                                           </Label>
-                                          <Label fx:id="commitDateLeftDownLabel" text="date here" textFill="#757575" wrapText="true" />
-                                          <Label fx:id="commitMessageLeftDownLabel" text="message here" wrapText="true" />
+                                          <Label styleClass="side-pane-text" fx:id="commitDateLeftDownLabel" text="date here" textFill="#757575" wrapText="true" />
+                                          <Label styleClass="side-pane-text" fx:id="commitMessageLeftDownLabel" text="message here" wrapText="true" />
                                        </children>
                                     </VBox>
                                  </children>
