@@ -382,7 +382,7 @@ public class MergeEngine {
                 info[updatedBy], info[date], content, path);
     }
 
-    public void saveSolvedConflictItem(String path, String fileName,String fileContent, Repository repository){
+    public void saveSolvedConflictItem(String path, String fileContent, Repository repository, boolean deleted){
         try {String conflictsPath = Paths.get(repository.getMagitFolderPath().toString(),".merge", repository.getBranches().get("HEAD").getBranchName(), "conflicts").toString();
             String conflicts = FileHandler.readFile(conflictsPath);
             StringBuilder updatedConflicts = new StringBuilder();
@@ -392,8 +392,9 @@ public class MergeEngine {
                 }
             }
             FileHandler.writeNewFile(conflictsPath, updatedConflicts.toString());
-            FileHandler.writeNewFile(path, fileContent);
-                if(updatedConflicts.toString().isEmpty()){
+            if(!deleted)
+                FileHandler.writeNewFile(path, fileContent);
+            if(updatedConflicts.toString().isEmpty()){
                 FileUtils.deleteQuietly(new File(conflictsPath));
             }
         } catch (IOException e) {

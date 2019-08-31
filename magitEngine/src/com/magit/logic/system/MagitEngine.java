@@ -283,8 +283,8 @@ public class MagitEngine {
         return null;
     }
 
-    public void updateSolvedConflict(String path, String fileName, String fileContent){
-        mergeEngine.saveSolvedConflictItem(path,fileName,fileContent,mRepositoryManager.getRepository());
+    public void updateSolvedConflict(String path,  String fileContent, boolean deleted){
+        mergeEngine.saveSolvedConflictItem(path,fileContent,mRepositoryManager.getRepository(),deleted);
     }
 
     public String getMergedWithBranchNameFromUnhandledMerge() throws IOException {

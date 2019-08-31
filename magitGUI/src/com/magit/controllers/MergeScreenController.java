@@ -152,6 +152,7 @@ public class MergeScreenController implements BasicController, Initializable {
             updateConflicts();
         mergeButton.setVisible(false);
         branchToMergeWithComboBox.setVisible(false);
+        checkFastForward();
     }
 
     @Override
@@ -192,8 +193,7 @@ public class MergeScreenController implements BasicController, Initializable {
             popupScreen.createNotificationPopup(null,false,"Unhandled merge",exceptionMessage,"Close");
             updateOpenChanges();
             updateConflicts();
-            if(!engine.headBranchHasMergeConflicts() && !engine.headBranchHasMergeOpenChanges())
-                mergeCommitMessageTextArea.setDisable(true);
+            checkFastForward();
             branchToMergeWithComboBox.setPromptText(engine.getMergedWithBranchNameFromUnhandledMerge());
             mergeButton.setDisable(true);
             branchToMergeWithComboBox.setDisable(true);
@@ -202,6 +202,10 @@ public class MergeScreenController implements BasicController, Initializable {
         }
     }
 
+    private void checkFastForward(){
+        if(!engine.headBranchHasMergeConflicts() && !engine.headBranchHasMergeOpenChanges())
+            mergeCommitMessageTextArea.setDisable(true);
+    }
     private void fastForwardExceptionHandler(String exceptionMessage){
         PopupScreen popupScreen = new PopupScreen(stage,engine);
         mergeCommitMessageTextArea.setDisable(true);

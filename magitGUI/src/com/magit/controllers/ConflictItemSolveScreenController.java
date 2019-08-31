@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
 
@@ -34,6 +35,10 @@ public class ConflictItemSolveScreenController implements BasicController {
 
     @FXML
     private TextArea mergeResultTextArea;
+
+
+    @FXML
+    private RadioButton deleteRadioButton;
 
     @FXML
     private Button saveButton;
@@ -61,7 +66,7 @@ public class ConflictItemSolveScreenController implements BasicController {
 
     @FXML
     void onSaveConflictChanges(ActionEvent event) {
-        engine.updateSolvedConflict(conflictItem.getLocation(), conflictItem.getFileName(), mergeResultTextArea.getText().replaceAll("\n", System.getProperty("line.separator")));
+        engine.updateSolvedConflict(conflictItem.getLocation(), mergeResultTextArea.getText().replaceAll("\n", System.getProperty("line.separator")), deleteRadioButton.isSelected());
         booleanProperty.setValue(true);
         ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
     }
@@ -88,15 +93,24 @@ public class ConflictItemSolveScreenController implements BasicController {
             FileItemInfo ours = conflictItem.getOurs();
             if(ours!=null){
                 oursTextArea.setText(ours.getFileContent());
+               // if(ours.getFileContent().isEmpty())
+               //     deleteRadioButton.setVisible(true);
             }
             FileItemInfo theirs = conflictItem.getTheirs();
             if(theirs!=null){
                 theirsTextArea.setText(theirs.getFileContent());
+               // if(theirs.getFileContent().isEmpty())
+               //     deleteRadioButton.setVisible(true);
             }
             FileItemInfo ancestor = conflictItem.getAncestor();
             if(ancestor!=null){
                 ancestorTextArea.setText(ancestor.getFileContent());
+               // if(ancestor.getFileContent().isEmpty())
+               //     deleteRadioButton.setVisible(true);
             }
+            if(ours == null || theirs == null || ancestor == null)
+                deleteRadioButton.setVisible(true);
+            mergeResultTextArea.disableProperty().bind(deleteRadioButton.selectedProperty());
         }
     }
 }

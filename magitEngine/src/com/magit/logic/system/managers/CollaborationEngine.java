@@ -105,6 +105,7 @@ public class CollaborationEngine {
             Commit remoteHeadCommit = Commit.createCommitInstanceByPath(remoteRepository.getCommitPath());
             if(remoteHeadCommit ==null)
                 throw new CommitNotFoundException("Commit not found, repository corrupted.");
+            FileHandler.clearFolder(Paths.get(remoteRepository.getRepositoryPath().toString()));
             WorkingCopyUtils.unzipWorkingCopyFromCommit(remoteHeadCommit,remoteRepository.getRepositoryPath().toString(),remoteRepository.getRepositoryPath().toString());
         }
         updateRemoteBranch(repository, activeBranchAtLocalRepository);

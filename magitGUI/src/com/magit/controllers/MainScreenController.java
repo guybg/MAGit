@@ -398,7 +398,7 @@ public class MainScreenController implements Initializable, BasicController {
             }
         } catch (MergeNotNeededException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", e.getMessage(),"Close");
+                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", "Local repository is up-to-date.","Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -430,6 +430,11 @@ public class MainScreenController implements Initializable, BasicController {
         PopupScreen popupScreen = new PopupScreen(stage,engine);
         try {
             engine.push();
+            try {
+                popupScreen.createNotificationPopup(null, false, "Push notification", "Files pushed successfully!","Close");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } catch (IOException e) {
             try {
                 popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
