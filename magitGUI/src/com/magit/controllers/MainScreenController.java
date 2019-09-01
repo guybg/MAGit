@@ -664,6 +664,7 @@ public class MainScreenController implements Initializable, BasicController {
         controller.setEngine(engine);
         controller.setStage(stage);
         controller.setRepositoryNameProperty(repositoryNameProperty);
+        controller.setRepositoryPathProperty(repositoryPathProperty);
         AnchorPane.setBottomAnchor(table, 0.0);
         AnchorPane.setLeftAnchor(table, 0.0);
         AnchorPane.setRightAnchor(table, 0.0);
