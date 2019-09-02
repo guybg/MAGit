@@ -4,6 +4,7 @@ import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.graph.PannableCanvas;
+import com.magit.animations.MagitPathTransition;
 import com.magit.animations.PulseTransition;
 import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
@@ -11,6 +12,7 @@ import com.magit.logic.system.objects.Branch;
 import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
 import com.sun.org.apache.xml.internal.security.Init;
+import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
@@ -80,14 +82,16 @@ public class CommitNodeController implements Initializable {
     public void setClickedActiveBranches(StringProperty clickedActiveBranches) {
         this.clickedActiveBranches = clickedActiveBranches;
         clickedActiveBranches.addListener((observable, oldValue, newValue) -> {
-            //gridPane.getStyleClass().remove("marked-node");
             gridPane.getStyleClass().clear();
             gridPane.getStyleClass().add("single-commit-row-container");
             if (null == branches || branches.isEmpty())
                 return;
             for (String branchName : branches) {
-                if (Arrays.asList(clickedActiveBranches.getValue().split(",")).contains(branchName))
+                if (Arrays.asList(clickedActiveBranches.getValue().split(",")).contains(branchName)) {
                     gridPane.getStyleClass().add("marked-node");
+                    new PulseTransition(gridPane).play();
+                    new MagitPathTransition(200,200, activeBranchLabel).play();
+                }
             }
         });
     }
@@ -164,8 +168,10 @@ public class CommitNodeController implements Initializable {
         gridPane.requestFocus();
         branchesHistoryScreenController.focusChanged.setValue(!branchesHistoryScreenController.focusChanged.getValue());
         focused = true;
-        if (null != activeBranches)
+        if (null != activeBranches) {
+            clickedActiveBranches.setValue(" ");
             clickedActiveBranches.setValue(String.join(",", activeBranches));
+        }
         else
             clickedActiveBranches.setValue(" ");
     }
