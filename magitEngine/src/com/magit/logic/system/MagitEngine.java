@@ -331,8 +331,8 @@ public class MagitEngine {
         return mergeEngine.headBranchHasMergeOpenChanges(mRepositoryManager.getRepository());
     }
 
-    public void clone(String toClonePath, String clonedPath) throws IOException, IllegalPathException, CloneException {
-        collaborationEngine.cloneRepository(toClonePath,clonedPath,new BranchManager());
+    public void clone(String toClonePath, String clonedPath, String cloneName) throws IOException, IllegalPathException, CloneException, InvalidNameException {
+        collaborationEngine.cloneRepository(toClonePath,clonedPath,cloneName,new BranchManager());
     }
 
     public void fetch() throws PreviousCommitsLimitExceededException, RemoteReferenceException, CommitNotFoundException, ParseException, IOException, IllegalPathException {

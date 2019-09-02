@@ -5,6 +5,7 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,8 +14,8 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 
 public class CollaborationEngine {
-
-    public void cloneRepository(String pathToMagitRepository, String destinationPath, BranchManager branchManager) throws IOException, IllegalPathException, CloneException {
+    private final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
+    public void cloneRepository(String pathToMagitRepository, String destinationPath,String cloneName, BranchManager branchManager) throws IOException, IllegalPathException, CloneException, InvalidNameException {
         if(!isValid(pathToMagitRepository)){
             throw new CloneException("Source repository is invalid");
         }
@@ -22,9 +23,11 @@ public class CollaborationEngine {
             throw new CloneException("There is already a repository at destination location");
         if(pathToMagitRepository.toLowerCase().equals(destinationPath.toLowerCase()))
             throw new CloneException("Destination location is the same as the source repository location, please choose another destination path");
+        if (StringUtils.containsOnly(cloneName, BLANK_SPACE) || cloneName.isEmpty())
+            throw new InvalidNameException("Repository name should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
         Repository repository = RepositoryManager.loadRepository(Paths.get(pathToMagitRepository), branchManager);
 
-        ClonedRepository clonedRepository = ClonedRepository.getClone(repository,repository.getRepositoryName(),destinationPath);
+        ClonedRepository clonedRepository = ClonedRepository.getClone(repository,cloneName,destinationPath);
 
         clonedRepository.create();
 
