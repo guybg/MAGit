@@ -176,8 +176,21 @@ public class CommitNodeController implements Initializable {
             clickedActiveBranches.setValue(" ");
     }
 
+    private void showErrorMessage(String message){
+        try {
+            PopupScreen popupScreen = new PopupScreen((Stage)messageLabel.getScene().getWindow(),branchesHistoryScreenController.getEngine());
+            popupScreen.createNotificationPopup(null,false,"Oops.. something went wrong.", message,"Close");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     @FXML
     void onDeletePointingBranch(ActionEvent event) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        if(activeBranches == null) {
+            showErrorMessage("There are no branches to delete on selected commit");
+            return;
+        }
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/deleteBranchFromCommitTreeScreen.fxml"));
         Parent layout = loader.load();
@@ -188,38 +201,37 @@ public class CommitNodeController implements Initializable {
     }
 
     @FXML
-    void onMergeWithHead(ActionEvent event) throws IOException {
-      //  branchesHistoryScreenController.getEngine().merge();
-      //  PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
-      //  FXMLLoader loader = new FXMLLoader();
-      //  loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
-      //  Parent layout = loader.load();
-      //  popupScreen.createPopup(layout, loader.getController());
+    void onMergeWithHead(ActionEvent event) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeCommitTreeScreen.fxml"));
+            Parent layout = loader.load();
+            MergeCommitTreeScreenController mergeScreenController = loader.getController();
+            mergeScreenController.setEngine(branchesHistoryScreenController.getEngine());
+            mergeScreenController.setStage(((Stage)activeBranchLabel.getScene().getWindow()));
+            mergeScreenController.setBranchesAtCommit(branchesHistoryScreenController.getEngine().getNonRemoteBranchesOfCommit(sha1));
+            PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
+            popupScreen.createPopup(layout, loader.getController());
+            updateGraph();
+        } catch (BranchNotFoundException e) {
+            showErrorMessage(e.getMessage());
+        }
     }
 
     @FXML
-    void onNewBranch(ActionEvent event) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    void onNewBranch(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/createBranchScreen.fxml"));
         Parent layout = loader.load();
-        GeneralScreenEnterStringController changeBranchController =
-                MainScreenController.getGeneralScreen(loader, "New Branch", "Branch name:");
-        changeBranchController.setController(buttonEvent -> {
+        CreateBranchScreenController changeBranchController =
+               loader.getController();
+        changeBranchController.setEngine(branchesHistoryScreenController.getEngine());
+        changeBranchController.setStage(branchesHistoryScreenController.getStage());
+        changeBranchController.setSha1OfCommit(sha1);
+        changeBranchController.setRefreshGraph(() -> {
             try {
-                String branchName = changeBranchController.getTextFieldValue();
-                branchesHistoryScreenController.getEngine().createNewBranch(branchName, sha1);
                 updateGraph();
-                ((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()).close();
-            } catch (InvalidNameException e) {
-                changeBranchController.setError(e.getMessage());
-            } catch (BranchAlreadyExistsException e) {
-                PopupScreen popupScreen = new PopupScreen(((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()),branchesHistoryScreenController.getEngine());
-                try {
-                    popupScreen.createNotificationPopup(null,false,"Oops... could not create new branch", e.getMessage(),"Close");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            } catch (RepositoryNotFoundException | IOException | PreviousCommitsLimitExceededException | ParseException e) {
+            } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
                 e.printStackTrace();
             }
         });

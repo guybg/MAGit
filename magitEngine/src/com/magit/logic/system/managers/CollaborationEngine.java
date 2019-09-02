@@ -1,14 +1,11 @@
 package com.magit.logic.system.managers;
 
-import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
-import com.sun.xml.internal.ws.api.pipe.Engine;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,8 +55,8 @@ public class CollaborationEngine {
         return remoteBranchName;
     }
 
-    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException, UncommitedChangesException, RepositoryNotFoundException, RemoteBranchException {
-        engine.activeBranchHasUnhandeledMerge();
+    public void pull(MagitEngine engine) throws RemoteReferenceException, IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException, UnhandledMergeException, FastForwardException, MergeNotNeededException, UncommitedChangesException, RepositoryNotFoundException, RemoteBranchException, MergeException {
+        engine.activeBranchHasUnhandledMerge();
         engine.workingCopyChangedComparedToCommit();
         Repository repository = engine.getmRepositoryManager().getRepository();
         if(repository.getRemoteReference() == null)
@@ -71,7 +68,7 @@ public class CollaborationEngine {
         String remoteBranchName = updateRemoteBranch(repository, activeBranch);
         WorkingCopyUtils.updateNewObjectsOfSpecificCommit(remoteRepository,repository, activeBranch.getPointedCommitSha1().toString());
 
-        engine.merge(remoteBranchName);
+        engine.merge(remoteBranchName, true);
     }
 
     public void push(MagitEngine engine) throws IOException, RemoteReferenceException, RemoteBranchException, ParseException, PreviousCommitsLimitExceededException, UnhandledMergeException, UncommitedChangesException, PushException, CommitNotFoundException {

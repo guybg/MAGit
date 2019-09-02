@@ -84,7 +84,7 @@ public class MergeScreenController implements BasicController, Initializable {
     @FXML
     void onMerge(MouseEvent event) {
         try {
-            engine.merge(branchToMergeWithComboBox.getValue().getText());
+            engine.merge(branchToMergeWithComboBox.getValue().getText(), false);
             updateOpenChanges();
             updateConflicts();
             mergeButton.setDisable(true);
@@ -95,6 +95,9 @@ public class MergeScreenController implements BasicController, Initializable {
             fastForwardExceptionHandler(e.getMessage());
         } catch (MergeNotNeededException e){
             fastForwardExceptionHandler(e.getMessage());
+            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+        } catch (MergeException e) {
+            mergeException(e.getMessage());
             ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
         }
     }
@@ -211,6 +214,16 @@ public class MergeScreenController implements BasicController, Initializable {
         mergeCommitMessageTextArea.setDisable(true);
         try {
             popupScreen.createNotificationPopup(null,false,"Fast forward notification",exceptionMessage,"Close");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void mergeException(String exceptionMessage){
+        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        mergeCommitMessageTextArea.setDisable(true);
+        try {
+            popupScreen.createNotificationPopup(null,false,"Merge error notification",exceptionMessage,"Close");
         } catch (IOException ex) {
             ex.printStackTrace();
         }

@@ -202,7 +202,7 @@ public class BranchManager {
     }
 
 
-    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedException, BranchNotFoundException {
+    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedException, BranchNotFoundException, RemoteBranchException {
         if (Files.notExists(activeRepository.getHeadPath()))
             throw new FileNotFoundException("Head file not found, repository is invalid.");
 
@@ -213,6 +213,8 @@ public class BranchManager {
         if (!activeRepository.getBranches().containsKey(branchNameToDelete))
             throw new BranchNotFoundException(branchNameToDelete, "Branch '" + branchNameToDelete + "' cannot be deleted, because it does not exist at current repository.");
 
+        if(activeRepository.getBranches().get(branchNameToDelete).getIsRemote())
+            throw new RemoteBranchException("Remote branches cannot be deleted.",branchNameToDelete);
         FileUtils.deleteQuietly(Paths.get(activeRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
         activeRepository.getBranches().remove(branchNameToDelete);
     }

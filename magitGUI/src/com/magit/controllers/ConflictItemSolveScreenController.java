@@ -10,6 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
@@ -38,7 +39,7 @@ public class ConflictItemSolveScreenController implements BasicController {
 
 
     @FXML
-    private RadioButton deleteRadioButton;
+    private CheckBox deleteCheckBox;
 
     @FXML
     private Button saveButton;
@@ -66,7 +67,7 @@ public class ConflictItemSolveScreenController implements BasicController {
 
     @FXML
     void onSaveConflictChanges(ActionEvent event) {
-        engine.updateSolvedConflict(conflictItem.getLocation(), mergeResultTextArea.getText().replaceAll("\n", System.getProperty("line.separator")), deleteRadioButton.isSelected());
+        engine.updateSolvedConflict(conflictItem.getLocation(), mergeResultTextArea.getText().replaceAll("\n", System.getProperty("line.separator")), deleteCheckBox.isSelected());
         booleanProperty.setValue(true);
         ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
     }
@@ -109,8 +110,8 @@ public class ConflictItemSolveScreenController implements BasicController {
                //     deleteRadioButton.setVisible(true);
             }
             if(ours == null || theirs == null || ancestor == null)
-                deleteRadioButton.setVisible(true);
-            mergeResultTextArea.disableProperty().bind(deleteRadioButton.selectedProperty());
+                deleteCheckBox.setVisible(true);
+            mergeResultTextArea.disableProperty().bind(deleteCheckBox.selectedProperty());
         }
     }
 }
