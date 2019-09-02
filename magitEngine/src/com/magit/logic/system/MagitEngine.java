@@ -40,6 +40,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class MagitEngine {
 
@@ -201,7 +202,25 @@ public class MagitEngine {
         mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),sha1OfCommit,false,false,null);
     }
 
-    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException {
+    public void createNewBranch(String branchName, String sha1OfCommit, String trackingAfter) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
+        repositoryNotFoundCheck();
+        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),sha1OfCommit,false,true,trackingAfter);
+    }
+    public ArrayList<String> getRemoteBranchesOfCommit(String sha1) throws BranchNotFoundException {
+        ArrayList<String> remoteBranches = mRepositoryManager.getRepository().getBranches().values().stream().filter(b -> b.getPointedCommitSha1().toString().equals(sha1)).filter(Branch::getIsRemote).map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new));
+        if(remoteBranches.size() == 0)
+            throw new BranchNotFoundException("","There are no remote branches on selected commit");
+        return remoteBranches;
+    }
+
+    public ArrayList<String> getNonRemoteBranchesOfCommit(String sha1) throws BranchNotFoundException {
+        ArrayList<String> remoteBranches = mRepositoryManager.getRepository().getBranches().values().stream().filter(b -> b.getPointedCommitSha1().toString().equals(sha1)).filter(branch -> branch.getIsRemote().equals(false)).map(Branch::getBranchName).collect(Collectors.toCollection(ArrayList::new));
+        if(remoteBranches.size() == 0)
+            throw new BranchNotFoundException("","There are no Non-Remote branches on selected commit");
+        return remoteBranches;
+    }
+
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
@@ -264,11 +283,9 @@ public class MagitEngine {
         return mRepositoryManager.guiGetBranchInfo(branch);
     }
 
-    public void merge(String branchName) throws UnhandledMergeException, MergeNotNeededException, FastForwardException {
+    public void merge(String branchName,boolean pullOperation) throws UnhandledMergeException, MergeNotNeededException, FastForwardException, MergeException {
         try {
-            //if(mRepositoryManager.headBranchHasUnhandledMerge())
-            //    throw new UnhandledMergeException("Unhandled merge already exists, please solve conflicts and commit open changes");
-            mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName));
+            mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName),pullOperation);
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (PreviousCommitsLimitExceededException e) {
@@ -302,7 +319,7 @@ public class MagitEngine {
 
     }
 
-    public void activeBranchHasUnhandeledMerge() throws UnhandledMergeException {
+    public void activeBranchHasUnhandledMerge() throws UnhandledMergeException {
         if(mRepositoryManager.getRepository().headBranchHasUnhandledMerge())
             throw new UnhandledMergeException("");
     }
@@ -322,7 +339,7 @@ public class MagitEngine {
         collaborationEngine.fetch(mRepositoryManager.getRepository());
     }
 
-    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException, UncommitedChangesException, RepositoryNotFoundException, RemoteBranchException {
+    public void pull() throws ParseException, PreviousCommitsLimitExceededException, IOException, MergeNotNeededException, UnhandledMergeException, FastForwardException, RemoteReferenceException, CommitNotFoundException, UncommitedChangesException, RepositoryNotFoundException, RemoteBranchException, MergeException {
         collaborationEngine.pull(this);
     }
 

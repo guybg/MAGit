@@ -1,5 +1,6 @@
 package com.magit.logic.enums;
 
+import com.magit.logic.exceptions.ResolveMergeStatusException;
 import com.magit.logic.system.objects.MergeStateFileItem;
 
 public enum Resolve {
@@ -8,8 +9,8 @@ public enum Resolve {
     public static Resolve resolve(MergeStateFileItem item) throws Exception {
         int status = item.getStatus();
         switch (status) {
-            case 0b001000: // OPCH - Deleted at both sides
-                return BothDeleted;
+           //case 0b001000: // OPCH - Deleted at both sides (@@@@@@ aviad wanted to consider this as conflict
+           //    return BothDeleted;
             case 0b101001: //OPEN CHANGE - OURS ==ANCESTOR, THEIRS DELETED (delete ours)
                 return OursDeleted;
             case 0b011010: // OPEN CHANGE - THEIRS == ANCESTOR, OURS DELETED (delete theirs)
@@ -22,8 +23,9 @@ public enum Resolve {
             case 0b101000: //CONFLICT - OURS EDITED, THEIRS DELETED
             case 0b011000: //CONFLICT - OURS DELETED, THEIRS EDITED
             case 0b110100: //OPCH - NEW BUT EQUAL
-            case 0b111000: //CONFILCT - ALL EDITED
-            case 0b111100: //CONFLICT - BOTH EDITED ??? ***************ask Aviad****************
+            case 0b111000: //CONFLICT - ALL EDITED
+            case 0b111100: //CONFLICT - BOTH EDITED (but ours == theirs)
+            case 0b001000: // CONFLICT - BOTH Deleted
                 return Conflict;
             case 0b111010: // OPEN CHANGE - OURS EDITED
                 return OursEdited;
@@ -32,7 +34,7 @@ public enum Resolve {
             case 0b111111: //OPEN CHANGE - ALL IDENTICAL ???
                 return UnChanged;
             default:
-                throw new Exception();
+                throw new ResolveMergeStatusException("Illegal result == " + status);
         }
     }
 }

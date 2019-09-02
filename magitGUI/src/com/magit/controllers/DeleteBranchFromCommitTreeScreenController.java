@@ -3,6 +3,7 @@ package com.magit.controllers;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.logic.exceptions.ActiveBranchDeletedException;
 import com.magit.logic.exceptions.BranchNotFoundException;
+import com.magit.logic.exceptions.RemoteBranchException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import javafx.event.ActionEvent;
@@ -40,7 +41,7 @@ public class DeleteBranchFromCommitTreeScreenController implements BasicControll
             messageLabel.setText("Branch deleted Successfully");
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (ActiveBranchDeletedException | RepositoryNotFoundException |BranchNotFoundException e) {
+        } catch (ActiveBranchDeletedException | RepositoryNotFoundException |BranchNotFoundException | RemoteBranchException e) {
             messageLabel.setText(e.getMessage());
         }
     }

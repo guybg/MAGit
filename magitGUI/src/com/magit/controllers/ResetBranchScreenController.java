@@ -5,14 +5,9 @@ import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -63,7 +58,7 @@ public class ResetBranchScreenController implements BasicController , Initializa
     @FXML
     void onAcceptClicked(ActionEvent event) {
         try {
-            engine.activeBranchHasUnhandeledMerge();
+            engine.activeBranchHasUnhandledMerge();
             engine.workingCopyChangedComparedToCommit();
             engine.changeBranchPointedCommit(comboBox.getValue());
             errorLabel.setText("Head branch pointed commit changed successfully.");

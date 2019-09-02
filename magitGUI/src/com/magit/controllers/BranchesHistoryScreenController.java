@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
+import java.util.function.Consumer;
 
 public class BranchesHistoryScreenController implements BasicController, Initializable {
     private Stage stage;
@@ -74,7 +75,6 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     private CommitNode lastCommit2Node;
     @FXML
     private ComboBox<String> switchDiffComboBox;
-
 
     public StringProperty getClickedOnActiveBranchesProperty() {
         return clickedOnActiveBranches;

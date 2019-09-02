@@ -28,10 +28,12 @@ public class MergeEngine {
     private String theirCommitSha1;
     private String ancestorCommitSha1;
     private String theirsBranchName;
-    public void merge(Repository repository, Branch branchToBeMergedWith) throws ParseException, PreviousCommitsLimitExceededException, IOException, UnhandledMergeException, MergeNotNeededException, FastForwardException {
+    public void merge(Repository repository, Branch branchToBeMergedWith, boolean pullOperation) throws ParseException, PreviousCommitsLimitExceededException, IOException, UnhandledMergeException, MergeNotNeededException, FastForwardException, MergeException {
         if(headBranchHasUnhandledMerge(repository)){
             throw new UnhandledMergeException("there is already unsolved merge at this branch, information loaded.");
         }
+        if(branchToBeMergedWith.getIsRemote() && !pullOperation)
+            throw new MergeException("Cannot merge branch with remote branch.");
         theirsBranchName = branchToBeMergedWith.getBranchName();
         this.repository = repository;
 

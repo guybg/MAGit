@@ -41,6 +41,7 @@ import javafx.scene.layout.*;
 import javafx.scene.control.CheckBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.*;
 
 import java.io.File;
@@ -143,6 +144,9 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML private MenuItem BrightThemeMenuItem;
     @FXML private MenuItem PinkThemeMenuItem;
 
+
+    @FXML
+    private GridPane bodyGrid;
 
     @FXML
     void OnBrightThemeClicked(ActionEvent event) {
@@ -339,8 +343,10 @@ public class MainScreenController implements Initializable, BasicController {
             if(branch.getIsRemote()) {
                 branchHbox.setId("remote-branch-cell");
             }
-            HBox.setHgrow(labelOfBranch, Priority.ALWAYS);
-            HBox.setHgrow(deleteBranchButton, Priority.NEVER);
+            HBox.setHgrow(labelOfBranch, Priority.SOMETIMES);
+            HBox.setHgrow(deleteBranchButton, Priority.SOMETIMES);
+            deleteBranchButton.setWrapText(true);
+            deleteBranchButton.setMinWidth(70);
             labelOfBranch.setMaxWidth(Double.MAX_VALUE);
             branchHbox.prefWidthProperty().bind(branchesListView.widthProperty().subtract(20));
             labelOfBranch.setAlignment(Pos.BASELINE_LEFT);
@@ -356,6 +362,7 @@ public class MainScreenController implements Initializable, BasicController {
             } catch (ParseException | PreviousCommitsLimitExceededException | IOException ignored) {}
             labelOfBranch.setTooltip(branchInfo);
             branchesListView.getItems().add(branchHbox);
+            if(branch.getIsRemote()) deleteBranchButton.setVisible(false);
         }
         branchesListView.setOnMouseClicked(event -> {
             try {
@@ -376,9 +383,9 @@ public class MainScreenController implements Initializable, BasicController {
                     engine.deleteBranch(branchName);
                 } catch (IOException | RepositoryNotFoundException | BranchNotFoundException e) {
                     e.printStackTrace();
-                } catch (ActiveBranchDeletedException e) {
+                } catch (ActiveBranchDeletedException | RemoteBranchException e) {
                     try {
-                        popupScreen.createNotificationPopup(event1 -> ((Stage) ((Button) event1.getSource()).getScene().getWindow()).close(), false, "Oops.. something went wrong", "Can't delete active branch", "Close");
+                        popupScreen.createNotificationPopup(event1 -> ((Stage) ((Button) event1.getSource()).getScene().getWindow()).close(), false, "Oops.. something went wrong", e.getMessage(), "Close");
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -425,9 +432,9 @@ public class MainScreenController implements Initializable, BasicController {
             popupScreen.createNotificationPopup(null, false, "Oops.. there are open changes", e.getMessage() + ", please commit them before pulling.","Close");
         } catch (RepositoryNotFoundException e) {
             e.printStackTrace();
-        } catch (RemoteBranchException e) {
+        } catch (RemoteBranchException | MergeException e) {
             popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
-
+            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
         }
     }
 
@@ -783,6 +790,8 @@ public class MainScreenController implements Initializable, BasicController {
                     ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
                 } catch (IOException e) {
                     deleteBranchCotnroller.setError("Please enter valid name.");
+                } catch (RemoteBranchException e) {
+                    deleteBranchCotnroller.setError(e.getMessage());
                 }
             }
              catch (ActiveBranchDeletedException ex){
@@ -909,6 +918,7 @@ public class MainScreenController implements Initializable, BasicController {
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
         branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
         branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
+
         userNameProperty = new SimpleStringProperty();
         repositoryPathProperty = new SimpleStringProperty();
         userNameProperty.setValue("Administrator");

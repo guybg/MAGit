@@ -2,8 +2,8 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -70,7 +70,7 @@
       </VBox>
       <ButtonBar styleClass="conflict-solve-screen" GridPane.columnIndex="1" GridPane.rowIndex="4">
         <buttons>
-            <RadioButton fx:id="deleteRadioButton" mnemonicParsing="false" text="Delete file" textFill="WHITE" visible="false" />
+            <CheckBox fx:id="deleteCheckBox" mnemonicParsing="false" style="-fx-text-fill: white;" text="Delete file" visible="false" />
           <Button fx:id="saveButton" mnemonicParsing="false" onAction="#onSaveConflictChanges" styleClass="conflict-solve-screen-button" text="Save" />
         </buttons>
       </ButtonBar>

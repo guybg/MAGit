@@ -549,7 +549,7 @@ public class RepositoryXmlParser {
 
     public void setRemoteReference() {
         MagitRepository.MagitRemoteReference reference = magitRepository.getMagitRemoteReference();
-        if (null == reference)
+        if (null == reference || null == reference.getName() || null == reference.getLocation())
             return;
 
         RemoteReference remoteReference = new RemoteReference(reference.getName(), reference.getLocation());
