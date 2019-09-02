@@ -174,6 +174,8 @@ public class MagitEngine {
         return mRepositoryManager.getBranches();
     }
 
+
+
     public String getHeadBranchName() {
         return mRepositoryManager.getHeadBranch();
     }
@@ -219,7 +221,9 @@ public class MagitEngine {
             throw new BranchNotFoundException("","There are no Non-Remote branches on selected commit");
         return remoteBranches;
     }
-
+    public ArrayList<Branch> getNonRemoteBranches(){
+        return getBranches().stream().filter(b->b.getIsRemote().equals(false)).collect(Collectors.toCollection(ArrayList::new));
+    }
     public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
