@@ -209,7 +209,14 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     void onMerge(ActionEvent event) {
         PopupScreen popupScreen = new PopupScreen(stage,engine);
-        popupScreen.createMergeScreen();
+        try {
+            engine.activeBranchHasUnhandledMerge();
+            popupScreen.createMergeScreen();
+        } catch (UnhandledMergeException e) {
+            popupScreen.showErrorMessage(e.getMessage());
+            popupScreen.createMergeScreenWithPreChosenBranch();
+        }
+
     }
 
     @FXML
