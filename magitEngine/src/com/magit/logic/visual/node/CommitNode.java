@@ -161,4 +161,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         commitNodeController.onCommitClicked(null);
     }
 
+    public String getSha1() {
+        return sha1;
+    }
 }

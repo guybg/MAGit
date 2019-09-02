@@ -192,7 +192,7 @@ public class CommitNodeController implements Initializable {
         ((DeleteBranchFromCommitTreeScreenController)loader.getController()).setBranches(activeBranches);
         PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
         popupScreen.createPopup(layout,loader.getController());
-        updateGraph();
+        updateGraph(false);
     }
 
     @FXML
@@ -207,7 +207,7 @@ public class CommitNodeController implements Initializable {
             mergeScreenController.setBranchesAtCommit(branchesHistoryScreenController.getEngine().getNonRemoteBranchesOfCommit(sha1));
             PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
             popupScreen.createPopup(layout, loader.getController());
-            updateGraph();
+            updateGraph(false);
         } catch (BranchNotFoundException e) {
             showErrorMessage(e.getMessage());
         }
@@ -225,7 +225,7 @@ public class CommitNodeController implements Initializable {
         changeBranchController.setSha1OfCommit(sha1);
         changeBranchController.setRefreshGraph(() -> {
             try {
-                updateGraph();
+                updateGraph(false);
             } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
                 e.printStackTrace();
             }
@@ -238,14 +238,13 @@ public class CommitNodeController implements Initializable {
     void onResetHead(ActionEvent event) {
         try {
             branchesHistoryScreenController.getEngine().changeBranchPointedCommit(sha1);
-            new MagitPathTransition(200,200, activeBranchLabel).play();
-            updateGraph();
+            updateGraph(true);
         } catch (IOException | PreviousCommitsLimitExceededException | RepositoryNotFoundException | ParseException | CommitNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private void updateGraph() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    private void updateGraph(boolean isReset) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         Graph graph = new Graph();
         Model model = graph.getModel();
 
@@ -257,6 +256,9 @@ public class CommitNodeController implements Initializable {
         }
         graph.endUpdate();
         graph.layout(new CommitTreeLayout());
+        if (isReset) {
+            new MagitPathTransition(300 ,300, activeBranchLabel).play();
+        }
         branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
         Platform.runLater(() -> {
             graph.getUseViewportGestures().set(false);

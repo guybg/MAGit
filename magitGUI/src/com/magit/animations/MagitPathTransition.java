@@ -14,12 +14,12 @@ public class MagitPathTransition  {
 
     PathTransition pathTransition;
 
-    public MagitPathTransition(int posX, int posY, final Node node) {
-        this.posX = posX;
-        this.posY = posY;
+    public MagitPathTransition(int destinationX, int destinationY, final Node node) {
+        this.posX = destinationX;
+        this.posY = destinationY;
         Path path = new Path();
-        path.getElements().add(new MoveTo(posX, posY));
-        path.getElements().add(new CubicCurveTo (50, 50, 50, 50, posX, posY));
+        path.getElements().add(new MoveTo(destinationX, destinationY));
+        path.getElements().add(new CubicCurveTo (50, 50, 50, 50, destinationX, destinationY));
 
         pathTransition = new PathTransition();
         pathTransition.setDuration(Duration.seconds(3));
