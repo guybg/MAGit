@@ -90,7 +90,6 @@ public class CommitNodeController implements Initializable {
                 if (Arrays.asList(clickedActiveBranches.getValue().split(",")).contains(branchName)) {
                     gridPane.getStyleClass().add("marked-node");
                     new PulseTransition(gridPane).play();
-                    new MagitPathTransition(200,200, activeBranchLabel).play();
                 }
             }
         });
@@ -243,6 +242,7 @@ public class CommitNodeController implements Initializable {
     void onResetHead(ActionEvent event) {
         try {
             branchesHistoryScreenController.getEngine().changeBranchPointedCommit(sha1);
+            new MagitPathTransition(200,200, activeBranchLabel).play();
             updateGraph();
         } catch (IOException | PreviousCommitsLimitExceededException | RepositoryNotFoundException | ParseException | CommitNotFoundException e) {
             e.printStackTrace();

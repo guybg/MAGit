@@ -2,6 +2,7 @@ package com.magit.animations;
 
 import javafx.animation.PathTransition;
 import javafx.scene.Node;
+import javafx.scene.shape.CubicCurveTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
@@ -18,9 +19,10 @@ public class MagitPathTransition  {
         this.posY = posY;
         Path path = new Path();
         path.getElements().add(new MoveTo(posX, posY));
+        path.getElements().add(new CubicCurveTo (50, 50, 50, 50, posX, posY));
 
         pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.seconds(1.7));
+        pathTransition.setDuration(Duration.seconds(3));
         pathTransition.setPath(path);
         pathTransition.setCycleCount(PathTransition.INDEFINITE);
         pathTransition.setNode(node);
