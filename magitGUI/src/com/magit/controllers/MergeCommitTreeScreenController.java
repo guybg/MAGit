@@ -36,23 +36,22 @@ public class MergeCommitTreeScreenController implements BasicController {
     private ArrayList<String> branchesAtCommit;
 
     @FXML
-    void onAccept(ActionEvent event) {
+    void onAccept(ActionEvent event) throws IOException {
         try {
             engine.merge(comboBox.getSelectionModel().getSelectedItem(),false);
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
-            Parent layout = loader.load();
-            MergeScreenController mergeScreenController = loader.getController();
-            mergeScreenController.setEngine(engine);
-            mergeScreenController.setStage(((Stage)acceptButton.getScene().getWindow()));
-            mergeScreenController.preReadyMerge();
-            PopupScreen popupScreen = new PopupScreen(((Stage)acceptButton.getScene().getWindow()),engine);
-            popupScreen.createPopup(layout, loader.getController());
+            showMerge();
             ((Stage)acceptButton.getScene().getWindow()).close();
-        } catch (UnhandledMergeException | MergeNotNeededException | FastForwardException | MergeException e) {
+        } catch (MergeNotNeededException | MergeException e) {
             showErrorMessage(e.getMessage());
+            ((Stage)acceptButton.getScene().getWindow()).close();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (FastForwardException e) {
+            showErrorMessage(e.getMessage());
+            showMerge();
+        } catch (UnhandledMergeException e) {
+            showErrorMessage("Please solve unhandled merge before this operation.");
+            ((Stage)acceptButton.getScene().getWindow()).close();
         }
     }
 
@@ -78,15 +77,16 @@ public class MergeCommitTreeScreenController implements BasicController {
         this.engine = engine;
     }
     private void showErrorMessage(String message){
-        try {
-            PopupScreen popupScreen = new PopupScreen((Stage)messageLabel.getScene().getWindow(),engine);
-            popupScreen.createNotificationPopup(null,false,"Oops.. something went wrong.", message,"Close");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        PopupScreen popupScreen = new PopupScreen((Stage)messageLabel.getScene().getWindow(),engine);
+        popupScreen.showErrorMessage(message);
     }
 
     public void setBranchesAtCommit(ArrayList<String> branchesAtCommit) {
         this.branchesAtCommit = branchesAtCommit;
+    }
+
+    private void showMerge() throws IOException {
+        PopupScreen popupScreen = new PopupScreen(((Stage)acceptButton.getScene().getWindow()),engine);
+        popupScreen.createMergeScreenWithPreChosenBranch();
     }
 }

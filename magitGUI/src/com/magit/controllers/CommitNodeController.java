@@ -171,12 +171,8 @@ public class CommitNodeController implements Initializable {
     }
 
     private void showErrorMessage(String message){
-        try {
-            PopupScreen popupScreen = new PopupScreen((Stage)messageLabel.getScene().getWindow(),branchesHistoryScreenController.getEngine());
-            popupScreen.createNotificationPopup(null,false,"Oops.. something went wrong.", message,"Close");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        PopupScreen popupScreen = new PopupScreen((Stage)messageLabel.getScene().getWindow(),branchesHistoryScreenController.getEngine());
+        popupScreen.showErrorMessage(message);
     }
 
     @FXML

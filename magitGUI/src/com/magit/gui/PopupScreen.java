@@ -97,4 +97,12 @@ public class PopupScreen {
             e.printStackTrace();
         }
     }
+
+    public void showErrorMessage(String message){
+        try {
+            createNotificationPopup(null,false,"Oops.. something went wrong.", message,"Close");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 }

@@ -321,7 +321,7 @@ public class MagitEngine {
 
     public void activeBranchHasUnhandledMerge() throws UnhandledMergeException {
         if(mRepositoryManager.getRepository().headBranchHasUnhandledMerge())
-            throw new UnhandledMergeException("");
+            throw new UnhandledMergeException("Unhandled merge, loading information.");
     }
 
     public boolean headBranchHasMergeConflicts(){
