@@ -29,7 +29,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     private String parent2Sha1;
     private HashMap<String, CommitNode> parents;
     private BranchesHistoryScreenController branchesHistoryScreenController;
-
+    private Integer actualPosX;
     private Integer posX;
     private Integer posY;
 
@@ -84,6 +84,14 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         this.parent1Sha1 = commit.getFirstPrecedingSha1();
         this.parent2Sha1 = commit.getSecondPrecedingSha1();
         this.branchesHistoryScreenController = branchesHistoryScreenController;
+    }
+
+    public Integer getActualPosX() {
+        return actualPosX;
+    }
+
+    public void setActualPosX(Integer actualPosX) {
+        this.actualPosX = actualPosX;
     }
 
     public Integer getPos() {

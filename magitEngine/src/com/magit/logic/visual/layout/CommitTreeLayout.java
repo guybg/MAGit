@@ -22,6 +22,7 @@ public class CommitTreeLayout implements Layout {
             CommitNode commitNode = (CommitNode) cell;
             if (commitNode.getCellParents().size() == 0) commitNode.setPos(0);
             graph.getGraphic(commitNode).relocate(0, startY);
+            commitNode.setActualPosX(0);
             commitNode.setPosY(startY);
             startY += 50;
         }
@@ -51,6 +52,7 @@ public class CommitTreeLayout implements Layout {
                     graph.getGraphic(curNode).relocate(posX * startX, curNode.getPosY());
                     fixParentsXPosition(commitNode,graph,startX);
                     graph.getGraphic(commitNode).relocate(posX * startX, commitNode.getPosY());
+                    commitNode.setActualPosX(posX * (int)startX);
                     curNode.setPos(posX);
                     curPosX = posX + 1;
                 }
@@ -59,6 +61,7 @@ public class CommitTreeLayout implements Layout {
                 CommitNode curNode = (CommitNode) node;
                 if (!curNode.isAlreadySet()) {
                     graph.getGraphic(curNode).relocate(curPosX * startX, curNode.getPosY());
+                    commitNode.setActualPosX(curPosX * (int)startX);
                     curNode.setPos(curPosX);
                 }
                 curPosX++;
