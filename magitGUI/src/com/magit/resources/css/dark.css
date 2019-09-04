@@ -144,6 +144,18 @@
     -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
 
 }
+#window-minimize-image{
+    -fx-image: url("../images/minimize.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
+}
+
+#window-close-image{
+    -fx-image: url("../images/close.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
+}
+
 .iconMenuButton {
     -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
 }

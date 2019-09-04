@@ -117,10 +117,6 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     private MenuItem exitMenuItem;
     @FXML
-    private Menu viewMenu;
-    @FXML
-    private MenuItem workingCopyStatusMenuItem;
-    @FXML
     private Menu commitMenu;
     @FXML
     private MenuItem newCommitMenuItem;
@@ -320,12 +316,6 @@ public class MainScreenController implements Initializable, BasicController {
         sizeImageView.setId("window-maximize-image");
     }
 
-
-    @FXML
-    void onClick(ActionEvent event) {
-
-    }
-
     @FXML
     void OnMouseDragged(MouseEvent event) {
         if (stage.isMaximized()) {
@@ -406,37 +396,6 @@ public class MainScreenController implements Initializable, BasicController {
                 e.printStackTrace();
             }
         }, model, fxmlLoader.getController());
-
-        //   try {
-        //       nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
-        //       graph.beginUpdate();
-        //       for(ICell node : nodes) {
-        //           if(!model.getAllCells().contains(node))
-        //               model.addCell(node);
-        //       }
-        //       graph.endUpdate();
-        //       graph.layout(new CommitTreeLayout());
-        //       pStage.setMinWidth(936);
-        //       pStage.setMinHeight(534);
-        //       pStage.setScene(scene);
-        //       pStage.show();
-        //       Platform.runLater(() -> {
-        //           ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
-        //           PannableCanvas canvas = graph.getCanvas();
-        //           scrollPane.setContent(canvas);
-        //           graph.getUseViewportGestures().set(false);
-        //           graph.getUseNodeGestures().set(false);
-        //       });
-        //   } catch (FileNotFoundException e){
-        //       PopupScreen popupScreen = new PopupScreen(stage,engine);
-        //       try {
-        //           popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", e.getMessage(), "Close");
-        //       } catch (IOException ex) {
-        //           ex.printStackTrace();
-        //       }
-        //   } catch (PreviousCommitsLimitExceededException | ParseException | IOException e) {
-        //       e.printStackTrace();
-        //   }
     }
 
     @FXML

@@ -151,6 +151,18 @@
 
 }
 
+#window-minimize-image{
+    -fx-image: url("../images/minimize.png");
+    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+
+}
+
+#window-close-image{
+    -fx-image: url("../images/close.png");
+    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+
+}
+
 #iconBranch{
      -fx-image: url("../images/branchIcon.png");
 }
