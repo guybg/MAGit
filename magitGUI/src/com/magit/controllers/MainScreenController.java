@@ -21,20 +21,31 @@ import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.InputMethodEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
@@ -44,6 +55,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.*;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -80,73 +92,140 @@ public class MainScreenController implements Initializable, BasicController {
         updateListeners();
         showWelcomeNode();
     }
-    @FXML private MenuItem branchesMenuItem;
-    @FXML private ListView<HBox> branchesListView;
-    @FXML private Label menuButtonBranchNameLabel;
-    @FXML private Label menuButtonRepositoryNameLabel;
-    @FXML private AnchorPane anchorPane;
-    @FXML private MenuBar menuBar;
-    @FXML private Menu fileMenu;
-    @FXML private MenuItem newRepositoryMenuItem;
-    @FXML private Menu openRepositoryMenu;
-    @FXML private MenuItem browseMenuItem;
-    @FXML private MenuItem browseXMLFileMenuItem;
-    @FXML private MenuItem exitMenuItem;
-    @FXML private Menu viewMenu;
-    @FXML private MenuItem workingCopyStatusMenuItem;
-    @FXML private Menu commitMenu;
-    @FXML private MenuItem newCommitMenuItem;
-    @FXML private MenuItem commitHistoryMenuItem;
-    @FXML private Menu repositoryMenu;
-    @FXML private MenuItem pushMenuItem;
-    @FXML private MenuItem pullMenuItem;
-    @FXML private MenuItem fetchMenuItem;
-    @FXML private MenuItem cloneMenuItem;
-    @FXML private Menu branchMenu;
-    @FXML private MenuItem newBranchMenuItem;
-    @FXML private MenuItem deleteBranchMenuItem;
-    @FXML private MenuItem resetBranchMenuItem;
-    @FXML private MenuItem mergeMenuItem;
-    @FXML private Menu helpMenu;
-    @FXML private MenuItem aboutMenuItem;
-    @FXML private HBox windowCloseAndMinimizeHbox;
-    @FXML private Button minimizeButton;
-    @FXML private Button closeButton;
-    @FXML private RowConstraints buttonbarGridLine;
-    @FXML private MenuButton currentRepositoryMenuButton;
-    @FXML private MenuItem menuItem1;
-    @FXML private Label menuItem1Label;
-    @FXML private MenuButton currentBranchMenuButton;
-    @FXML private MenuButton userNameMenuButton;
-    @FXML private MenuItem SwitchUserMenuItem1;
-    @FXML private Label switchUserLabel;
-    @FXML private TextArea commitMessageTextArea;
-    @FXML private Button commitToLeftDownButton;
-    @FXML private Label commitDateLeftDownLabel;
-    @FXML private Label commitMessageLeftDownLabel;
-    @FXML private TitledPane editedTitlePane;
-    @FXML private ListView<Label> editedFilesListView;
-    @FXML private TitledPane deletedTitlePane;
-    @FXML private ListView<Label> deletedFilesListView;
-    @FXML private TitledPane newFilesTitlePane;
-    @FXML private ListView<Label> newFilesListView;
-    @FXML private Button openChangesRefreshButton;
-    @FXML private CheckBox checkBox;
-    @FXML private AnchorPane middleAnchorPane;
-    @FXML private SplitPane middleHSplitPane;
-    @FXML private Label moveScreenLabel;
-    @FXML private AnchorPane progressBarPane;
-    @FXML private MenuItem branchesHistoryMenuItem;
-    @FXML private Label DarkThemeLabel;
-    @FXML private Label BrightThemeLabel;
-    @FXML private Label PinkThemeLabel;
-    @FXML private MenuItem DarkThemeMenuItem;
-    @FXML private MenuItem BrightThemeMenuItem;
-    @FXML private MenuItem PinkThemeMenuItem;
-
 
     @FXML
+    private MenuItem branchesMenuItem;
+    @FXML
+    private ListView<HBox> branchesListView;
+    @FXML
+    private Label menuButtonBranchNameLabel;
+    @FXML
+    private Label menuButtonRepositoryNameLabel;
+    //@FXML private AnchorPane anchorPane;
+    @FXML
+    private MenuBar menuBar;
+    @FXML
+    private Menu fileMenu;
+    @FXML
+    private MenuItem newRepositoryMenuItem;
+    @FXML
+    private Menu openRepositoryMenu;
+    @FXML
+    private MenuItem browseMenuItem;
+    @FXML
+    private MenuItem browseXMLFileMenuItem;
+    @FXML
+    private MenuItem exitMenuItem;
+    @FXML
+    private Menu viewMenu;
+    @FXML
+    private MenuItem workingCopyStatusMenuItem;
+    @FXML
+    private Menu commitMenu;
+    @FXML
+    private MenuItem newCommitMenuItem;
+    @FXML
+    private MenuItem commitHistoryMenuItem;
+    @FXML
+    private Menu repositoryMenu;
+    @FXML
+    private MenuItem pushMenuItem;
+    @FXML
+    private MenuItem pullMenuItem;
+    @FXML
+    private MenuItem fetchMenuItem;
+    @FXML
+    private MenuItem cloneMenuItem;
+    @FXML
+    private Menu branchMenu;
+    @FXML
+    private MenuItem newBranchMenuItem;
+    @FXML
+    private MenuItem deleteBranchMenuItem;
+    @FXML
+    private MenuItem resetBranchMenuItem;
+    @FXML
+    private MenuItem mergeMenuItem;
+    @FXML
+    private Menu helpMenu;
+    @FXML
+    private MenuItem aboutMenuItem;
+    @FXML
+    private HBox windowCloseAndMinimizeHbox;
+    @FXML
+    private Button minimizeButton;
+    @FXML
+    private Button closeButton;
+    @FXML
+    private RowConstraints buttonbarGridLine;
+    @FXML
+    private MenuButton currentRepositoryMenuButton;
+    @FXML
+    private MenuItem menuItem1;
+    @FXML
+    private Label menuItem1Label;
+    @FXML
+    private MenuButton currentBranchMenuButton;
+    @FXML
+    private MenuButton userNameMenuButton;
+    @FXML
+    private MenuItem SwitchUserMenuItem1;
+    @FXML
+    private Label switchUserLabel;
+    @FXML
+    private TextArea commitMessageTextArea;
+    @FXML
+    private Button commitToLeftDownButton;
+    @FXML
+    private Label commitDateLeftDownLabel;
+    @FXML
+    private Label commitMessageLeftDownLabel;
+    @FXML
+    private TitledPane editedTitlePane;
+    @FXML
+    private ListView<Label> editedFilesListView;
+    @FXML
+    private TitledPane deletedTitlePane;
+    @FXML
+    private ListView<Label> deletedFilesListView;
+    @FXML
+    private TitledPane newFilesTitlePane;
+    @FXML
+    private ListView<Label> newFilesListView;
+    @FXML
+    private Button openChangesRefreshButton;
+    @FXML
+    private CheckBox checkBox;
+    @FXML
+    private AnchorPane middleAnchorPane;
+    @FXML
+    private SplitPane middleHSplitPane;
+    @FXML
+    private Label moveScreenLabel;
+    @FXML
+    private AnchorPane progressBarPane;
+    @FXML
+    private MenuItem branchesHistoryMenuItem;
+    @FXML
+    private Label DarkThemeLabel;
+    @FXML
+    private Label BrightThemeLabel;
+    @FXML
+    private Label PinkThemeLabel;
+    @FXML
+    private MenuItem DarkThemeMenuItem;
+    @FXML
+    private MenuItem BrightThemeMenuItem;
+    @FXML
+    private MenuItem PinkThemeMenuItem;
+    @FXML
+    private Button windowSizeButton;
+    @FXML
+    private ImageView sizeImageView;
+    @FXML
     private GridPane bodyGrid;
+    @FXML
+    private AnchorPane pane;
 
     @FXML
     void OnBrightThemeClicked(ActionEvent event) {
@@ -160,7 +239,7 @@ public class MainScreenController implements Initializable, BasicController {
         final String darkThemeUrl = this.getClass().getResource("/com/magit/resources/css/dark.css").toExternalForm();
         (stage.getScene()).getStylesheets().clear();
         (stage.getScene()).getStylesheets().add(darkThemeUrl);
-}
+    }
 
     @FXML
     void OnPinkThemeClicked(ActionEvent event) {
@@ -171,23 +250,76 @@ public class MainScreenController implements Initializable, BasicController {
 
     private ObservableList<FileItemInfo> fileItemInfos;
 
-    @FXML void onExitApplication(ActionEvent event) {
+    @FXML
+    void onExitApplication(ActionEvent event) {
         stage.close();
     }
 
+
     @FXML
     void OnCloseButtonAction(ActionEvent event) {
-        Button closeButton = (Button)event.getSource();
+        Button closeButton = (Button) event.getSource();
         Stage stage = (Stage) closeButton.getScene().getWindow();
+
         stage.close();
     }
 
     @FXML
     void OnMinimizeButtonAction(ActionEvent event) {
-        Button minimizeButton = (Button)event.getSource();
+        Button minimizeButton = (Button) event.getSource();
         Stage stage = (Stage) minimizeButton.getScene().getWindow();
         stage.setIconified(true);
     }
+
+    @FXML
+    void OnChangeWindowSizeButtonAction(ActionEvent event) {
+        Button sizeButton = (Button) event.getSource();
+        Stage stage = (Stage) minimizeButton.getScene().getWindow();
+        if (stage.isMaximized()) {
+            restoreWindow();
+        } else {
+            maximize();
+        }
+    }
+
+    private double StageWidthBeforeMaximize;
+
+    private void maximize() {
+        StageWidthBeforeMaximize = stage.getWidth();
+        stage.setMaximized(true);
+        setStageToMaximizedAccordingToCurrentScreen();
+        stage.iconifiedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && stage.isMaximized()) {
+                setStageToMaximizedAccordingToCurrentScreen();
+            }
+        });
+        sizeImageView.setId("window-restore-image");
+    }
+
+    void setStageToMaximizedAccordingToCurrentScreen() {
+        // Get current screen of the stage
+        ObservableList<Screen> screens = Screen.getScreensForRectangle(new Rectangle2D(stage.getX(), stage.getY(), stage.getWidth(), stage.getHeight()));
+
+        // Change stage properties
+        Rectangle2D bounds = screens.get(0).getVisualBounds();
+        stage.setX(bounds.getMinX() - 4);
+        stage.setY(bounds.getMinY() - 4);
+        stage.setWidth(bounds.getWidth() + 8);
+        stage.setHeight(bounds.getHeight() + 8);
+    }
+
+
+    private void restoreWindow() {
+        Screen screen = Screen.getPrimary();
+        Rectangle2D bounds = screen.getVisualBounds();
+        stage.setMaximized(false);
+        if (stage.getScene().getWindow().getY() < 0) {
+            stage.getScene().getWindow().setY(0);
+        }
+        //stage.centerOnScreen();
+        sizeImageView.setId("window-maximize-image");
+    }
+
 
     @FXML
     void onClick(ActionEvent event) {
@@ -196,19 +328,27 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void OnMouseDragged(MouseEvent event) {
-        stage.setX(event.getScreenX() - xOffset);
-        stage.setY(event.getScreenY() - yOffset);
+        if (stage.isMaximized()) {
+            restoreWindow();
+        } else {
+            stage.setX(event.getScreenX() - xOffset);
+            stage.setY(event.getScreenY() - yOffset);
+        }
     }
 
     @FXML
     void OnMousePressed(MouseEvent event) {
-        xOffset = event.getSceneX();
-        yOffset = event.getSceneY();
+        if (!stage.isMaximized()) {
+            xOffset = event.getSceneX();
+            yOffset = event.getSceneY();
+        } else {
+            xOffset = event.getSceneX() / (stage.getWidth() / StageWidthBeforeMaximize);
+        }
     }
 
     @FXML
     void onMerge(ActionEvent event) {
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         try {
             engine.activeBranchHasUnhandledMerge();
             popupScreen.createMergeScreen();
@@ -236,8 +376,8 @@ public class MainScreenController implements Initializable, BasicController {
         Model model = graph.getModel();
         final Scene scene = new Scene(root, 700, 400);
 
-        ((BranchesHistoryScreenController)fxmlLoader.getController()).setEngine(engine);
-        ((BranchesHistoryScreenController)fxmlLoader.getController()).setStage(stage);
+        ((BranchesHistoryScreenController) fxmlLoader.getController()).setEngine(engine);
+        ((BranchesHistoryScreenController) fxmlLoader.getController()).setStage(stage);
         //TreeSet<CommitNode> nodes = null;
         engine.guiBranchesHistory(nodes -> {
             graph.beginUpdate();
@@ -259,44 +399,44 @@ public class MainScreenController implements Initializable, BasicController {
                 graph.getUseNodeGestures().set(false);
             });
         }, s -> {
-            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
                 popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", s, "Close");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        },model,fxmlLoader.getController());
+        }, model, fxmlLoader.getController());
 
-     //   try {
-     //       nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
-     //       graph.beginUpdate();
-     //       for(ICell node : nodes) {
-     //           if(!model.getAllCells().contains(node))
-     //               model.addCell(node);
-     //       }
-     //       graph.endUpdate();
-     //       graph.layout(new CommitTreeLayout());
-     //       pStage.setMinWidth(936);
-     //       pStage.setMinHeight(534);
-     //       pStage.setScene(scene);
-     //       pStage.show();
-     //       Platform.runLater(() -> {
-     //           ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
-     //           PannableCanvas canvas = graph.getCanvas();
-     //           scrollPane.setContent(canvas);
-     //           graph.getUseViewportGestures().set(false);
-     //           graph.getUseNodeGestures().set(false);
-     //       });
-     //   } catch (FileNotFoundException e){
-     //       PopupScreen popupScreen = new PopupScreen(stage,engine);
-     //       try {
-     //           popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", e.getMessage(), "Close");
-     //       } catch (IOException ex) {
-     //           ex.printStackTrace();
-     //       }
-     //   } catch (PreviousCommitsLimitExceededException | ParseException | IOException e) {
-     //       e.printStackTrace();
-     //   }
+        //   try {
+        //       nodes = engine.guiBranchesHistory(model, fxmlLoader.getController());
+        //       graph.beginUpdate();
+        //       for(ICell node : nodes) {
+        //           if(!model.getAllCells().contains(node))
+        //               model.addCell(node);
+        //       }
+        //       graph.endUpdate();
+        //       graph.layout(new CommitTreeLayout());
+        //       pStage.setMinWidth(936);
+        //       pStage.setMinHeight(534);
+        //       pStage.setScene(scene);
+        //       pStage.show();
+        //       Platform.runLater(() -> {
+        //           ScrollPane scrollPane = (ScrollPane) scene.lookup("#scrollpaneContainer");
+        //           PannableCanvas canvas = graph.getCanvas();
+        //           scrollPane.setContent(canvas);
+        //           graph.getUseViewportGestures().set(false);
+        //           graph.getUseNodeGestures().set(false);
+        //       });
+        //   } catch (FileNotFoundException e){
+        //       PopupScreen popupScreen = new PopupScreen(stage,engine);
+        //       try {
+        //           popupScreen.createNotificationPopup(null, false, "Oops, cannot show history", e.getMessage(), "Close");
+        //       } catch (IOException ex) {
+        //           ex.printStackTrace();
+        //       }
+        //   } catch (PreviousCommitsLimitExceededException | ParseException | IOException e) {
+        //       e.printStackTrace();
+        //   }
     }
 
     @FXML
@@ -315,10 +455,10 @@ public class MainScreenController implements Initializable, BasicController {
                 popupScreen.createNotificationPopup(event12 -> {
                 }, false, "Commit creation notification", "Files commited successfully", "Close");
                 updateDifferences();
-            }catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-        },commitMessageTextArea.getText());
+        }, commitMessageTextArea.getText());
     }
 
     @FXML
@@ -332,12 +472,12 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     void loadBranchesToUserInterface() {
-        if(repositoryNameProperty.getValue().equals("")) return;
+        if (repositoryNameProperty.getValue().equals("")) return;
         branchesListView.getItems().clear();
         branchNameProperty.setValue(engine.getHeadBranchName());
-        branchesListView.setFocusTraversable( false );
+        branchesListView.setFocusTraversable(false);
         Collection<Branch> branches = engine.getBranches();
-        for (Branch branch: branches) {
+        for (Branch branch : branches) {
             HBox branchHbox = new HBox();
             Label labelOfBranch = new Label(branch.getBranchName());
             Button deleteBranchButton = new Button();
@@ -347,7 +487,7 @@ public class MainScreenController implements Initializable, BasicController {
             branchHbox.getChildren().add(labelOfBranch);
             branchHbox.getChildren().add(deleteBranchButton);
             branchHbox.setSpacing(5);
-            if(branch.getIsRemote()) {
+            if (branch.getIsRemote()) {
                 branchHbox.setId("remote-branch-cell");
             }
             HBox.setHgrow(labelOfBranch, Priority.SOMETIMES);
@@ -366,24 +506,25 @@ public class MainScreenController implements Initializable, BasicController {
                 branchInfo.setHeight(20);
                 branchInfo.setWidth(branchesListView.getWidth());
                 branchInfo.setFont(new Font(20));
-            } catch (ParseException | PreviousCommitsLimitExceededException | IOException ignored) {}
+            } catch (ParseException | PreviousCommitsLimitExceededException | IOException ignored) {
+            }
             labelOfBranch.setTooltip(branchInfo);
             branchesListView.getItems().add(branchHbox);
-            if(branch.getIsRemote()) deleteBranchButton.setVisible(false);
+            if (branch.getIsRemote()) deleteBranchButton.setVisible(false);
         }
         branchesListView.setOnMouseClicked(event -> {
             try {
-                if(branchesListView.getSelectionModel().getSelectedItem() == null)
+                if (branchesListView.getSelectionModel().getSelectedItem() == null)
                     return;
-                onBranchButtonMenuItemClick(((Label)branchesListView.getSelectionModel().getSelectedItem().getChildren().get(0)).getText());
+                onBranchButtonMenuItemClick(((Label) branchesListView.getSelectionModel().getSelectedItem().getChildren().get(0)).getText());
             } catch (ParseException | BranchNotFoundException | InvalidNameException | RepositoryNotFoundException e) {
                 e.printStackTrace();
             }
         });
     }
 
-    void deleteBranch(String branchName){
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+    void deleteBranch(String branchName) {
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         try {
             popupScreen.createNotificationPopup(event -> {
                 try {
@@ -398,7 +539,7 @@ public class MainScreenController implements Initializable, BasicController {
                     }
                 }
                 ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
-            },true,"Are you sure?","Deleting branch cannot be reverted","Cancel");
+            }, true, "Are you sure?", "Deleting branch cannot be reverted", "Cancel");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -406,64 +547,64 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onPull(ActionEvent event) throws IOException {
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         try {
             engine.pull();
             popupScreen.createMergeScreenWithPreChosenBranch();
         } catch (ParseException | CommitNotFoundException | RemoteReferenceException | PreviousCommitsLimitExceededException | IOException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
+                popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(), "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (MergeNotNeededException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", "Local repository is up-to-date.","Close");
+                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", "Local repository is up-to-date.", "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (UnhandledMergeException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Unhandled merge notification", "Please solve existing unhandled merge by clicking on Branch->merge and try this operation again.","Close");
+                popupScreen.createNotificationPopup(null, false, "Unhandled merge notification", "Please solve existing unhandled merge by clicking on Branch->merge and try this operation again.", "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (FastForwardException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", e.getMessage(),"Close");
+                popupScreen.createNotificationPopup(null, false, "Fast forward merge notification", e.getMessage(), "Close");
                 popupScreen.createMergeScreenWithPreChosenBranch();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (UncommitedChangesException e) {
-            popupScreen.createNotificationPopup(null, false, "Oops.. there are open changes", e.getMessage() + ", please commit them before pulling.","Close");
+            popupScreen.createNotificationPopup(null, false, "Oops.. there are open changes", e.getMessage() + ", please commit them before pulling.", "Close");
         } catch (RepositoryNotFoundException e) {
             e.printStackTrace();
         } catch (RemoteBranchException | MergeException e) {
-            popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
-            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+            popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(), "Close");
+            ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
         }
     }
 
     @FXML
     void onPush(ActionEvent event) {
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         try {
             engine.push();
             try {
-                popupScreen.createNotificationPopup(null, false, "Push notification", "Files pushed successfully!","Close");
+                popupScreen.createNotificationPopup(null, false, "Push notification", "Files pushed successfully!", "Close");
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } catch (IOException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(),"Close");
+                popupScreen.createNotificationPopup(null, false, "Oops.. something went wrong", e.getMessage(), "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (UnhandledMergeException | RemoteReferenceException | PushException | RemoteBranchException | CommitNotFoundException | ParseException | UncommitedChangesException | PreviousCommitsLimitExceededException e) {
             try {
-                popupScreen.createNotificationPopup(null, false, "Oops.. cannot push", e.getMessage(),"Close");
+                popupScreen.createNotificationPopup(null, false, "Oops.. cannot push", e.getMessage(), "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -477,17 +618,18 @@ public class MainScreenController implements Initializable, BasicController {
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/cloneScreen.fxml"));
         Parent layout = loader.load();
         CloneScreenController createNewRepositoryScreenController = loader.getController();
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         popupScreen.createPopup(layout, createNewRepositoryScreenController);
     }
+
     @FXML
     void onFetch(ActionEvent event) {
         try {
             engine.fetch();
         } catch (PreviousCommitsLimitExceededException | CommitNotFoundException | ParseException | IOException | RemoteReferenceException e) {
-            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
-                popupScreen.createNotificationPopup(null,false,"Oops could not fetch", e.getMessage(),"Close");
+                popupScreen.createNotificationPopup(null, false, "Oops could not fetch", e.getMessage(), "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -503,13 +645,13 @@ public class MainScreenController implements Initializable, BasicController {
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/resetBranchScreen.fxml"));
         Parent layout = loader.load();
         ResetBranchScreenController resetBranchScreenController = loader.getController();
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         popupScreen.createPopup(layout, resetBranchScreenController);
         updateDifferences();
     }
 
     private void onBranchButtonMenuItemClick(String branchName) throws ParseException, RepositoryNotFoundException,
-            InvalidNameException, BranchNotFoundException{
+            InvalidNameException, BranchNotFoundException {
         String headMessage = "There are unsaved changes";
         String bodyMessage = "are you sure you want to switch branch?";
         try {
@@ -532,22 +674,22 @@ public class MainScreenController implements Initializable, BasicController {
                 popupScreen.createNotificationPopup(controller, true, headMessage, e.getMessage(), "Cancel");
             } catch (IOException ignored) {
             }
-        } catch (RemoteBranchException e){
+        } catch (RemoteBranchException e) {
             PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
                 popupScreen.createNotificationPopup(event -> {
-                    PopupScreen popupScreen1 = new PopupScreen(((Stage)((Button)event.getSource()).getScene().getWindow()), engine);
+                    PopupScreen popupScreen1 = new PopupScreen(((Stage) ((Button) event.getSource()).getScene().getWindow()), engine);
                     try {
                         engine.createRemoteTrackingBranch(e.getBranchName());
                         popupScreen1.createNotificationPopup(null, false, "Remote tracking branch creation notification", "Remote tracking branch created successfully!", "Cancel");
-                        ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                        ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
                     } catch (BranchNotFoundException | RepositoryNotFoundException | InvalidNameException | RemoteReferenceException | IOException | BranchAlreadyExistsException ex) {
                         try {
                             popupScreen1.createNotificationPopup(null, false, "Oops.. cannot create remote tracking branch", ex.getMessage(), "Cancel");
                         } catch (IOException exc) {
                             exc.printStackTrace();
                         } finally {
-                            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                            ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
                         }
                     }
                 }, true, "Oops, cannot switch to chosen branch", e.getMessage(), "Cancel");
@@ -571,13 +713,13 @@ public class MainScreenController implements Initializable, BasicController {
                 String fieldValue = userNameController.getTextFieldValue();
                 engine.updateUserName(fieldValue);
                 userNameProperty.setValue(fieldValue);
-                ((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()).close();
+                ((Stage) ((Button) buttonEvent.getSource()).getScene().getWindow()).close();
             } catch (InvalidNameException e) {
                 userNameController.setError(e.getMessage());
             }
         });
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
-        popupScreen.createPopup(layout,userNameController);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
+        popupScreen.createPopup(layout, userNameController);
     }
 
     @FXML
@@ -589,12 +731,12 @@ public class MainScreenController implements Initializable, BasicController {
         createNewRepositoryScreenController.setRepositoryNameProperty(repositoryNameProperty);
         createNewRepositoryScreenController.setRepositoryPathProperty(repositoryPathProperty);
         createNewRepositoryScreenController.bindings();
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         popupScreen.createPopup(layout, createNewRepositoryScreenController);
         //events on properties handles branches load, diff loads
     }
 
-    void showWelcomeNode(){
+    void showWelcomeNode() {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/welcomeNode.fxml"));
         Node welcomeNode = null;
@@ -625,11 +767,12 @@ public class MainScreenController implements Initializable, BasicController {
                 e.printStackTrace();
             }
         });
-        AnchorPane.setBottomAnchor(welcomeNode, 0.0);
-        AnchorPane.setLeftAnchor(welcomeNode, 0.0);
-        AnchorPane.setRightAnchor(welcomeNode, 0.0);
-        AnchorPane.setTopAnchor(welcomeNode, 0.0);
+
         middleAnchorPane.getChildren().add(welcomeNode);
+        AnchorPane.setBottomAnchor(welcomeNode, 1.0);
+        AnchorPane.setLeftAnchor(welcomeNode, 1.0);
+        AnchorPane.setRightAnchor(welcomeNode, 1.0);
+        AnchorPane.setTopAnchor(welcomeNode, 1.0);
     }
 
     @FXML
@@ -693,7 +836,7 @@ public class MainScreenController implements Initializable, BasicController {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         File selectedDirectory =
                 directoryChooser.showDialog(stage);
-        if(selectedDirectory == null)
+        if (selectedDirectory == null)
             return;
         try {
             engine.switchRepository(selectedDirectory.getAbsolutePath());
@@ -701,8 +844,8 @@ public class MainScreenController implements Initializable, BasicController {
             repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
             //events on properties handles branches load, diff loads //loadBranchesToUserInterface();
         } catch (IOException | ParseException | RepositoryNotFoundException e) {
-            PopupScreen popupScreen = new PopupScreen(stage,engine);
-            popupScreen.createNotificationPopup(null,false,"Repository creation notification",e.getMessage(),"Close");
+            PopupScreen popupScreen = new PopupScreen(stage, engine);
+            popupScreen.createNotificationPopup(null, false, "Repository creation notification", e.getMessage(), "Close");
         }
     }
 
@@ -711,16 +854,16 @@ public class MainScreenController implements Initializable, BasicController {
         updateDifferences();
     }
 
-    void updateDifferences(){
+    void updateDifferences() {
         Integer editedCount = 0, deletedCount = 0, newCount = 0;
         editedFilesListView.getItems().clear();
         deletedFilesListView.getItems().clear();
         newFilesListView.getItems().clear();
         try {
-            Map<FileStatus, SortedSet<Delta.DeltaFileItem>> openChanges =  engine.getWorkingCopyStatusMap();
-            for(Map.Entry<FileStatus, SortedSet<Delta.DeltaFileItem>> entry : openChanges.entrySet()){
-                for(Delta.DeltaFileItem item : entry.getValue()) {
-                    switch (entry.getKey()){
+            Map<FileStatus, SortedSet<Delta.DeltaFileItem>> openChanges = engine.getWorkingCopyStatusMap();
+            for (Map.Entry<FileStatus, SortedSet<Delta.DeltaFileItem>> entry : openChanges.entrySet()) {
+                for (Delta.DeltaFileItem item : entry.getValue()) {
+                    switch (entry.getKey()) {
                         case EDITED:
                             createDiffLabels(item, editedFilesListView);
                             editedCount++;
@@ -744,10 +887,11 @@ public class MainScreenController implements Initializable, BasicController {
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (RepositoryNotFoundException e) {
-            BasicPopupScreenController controller = event1 -> {};
+            BasicPopupScreenController controller = event1 -> {
+            };
             try {
-                PopupScreen popupScreen = new PopupScreen(stage,engine);
-                popupScreen.createNotificationPopup(controller,false,"Refresh notification",e.getMessage(),"Close");
+                PopupScreen popupScreen = new PopupScreen(stage, engine);
+                popupScreen.createNotificationPopup(controller, false, "Refresh notification", e.getMessage(), "Close");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -757,16 +901,15 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
 
-
     private void createDiffLabels(Delta.DeltaFileItem item, ListView<Label> editedFilesListView) {
         Label itemLocation = new Label(item.getFullPath());
         String lastModifier = item.getLastUpdater();
         String commitDate = item.getLastModified();
-        if(item.getLastUpdater().equals("")) {
+        if (item.getLastUpdater().equals("")) {
             lastModifier = userNameProperty.getValue();
             commitDate = "not committed";
         }
-        itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s",item.getFullPath(),System.lineSeparator(),item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(),commitDate)));
+        itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s", item.getFullPath(), System.lineSeparator(), item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(), commitDate)));
         editedFilesListView.getItems().add(itemLocation);
     }
 
@@ -774,16 +917,16 @@ public class MainScreenController implements Initializable, BasicController {
         Label itemLocation = new Label(item.getFileLocation());
         String lastModifier = item.getFileLastUpdater();
         String commitDate = item.getFileLastModified();
-        if(item.getFileLastUpdater().equals("")) {
+        if (item.getFileLastUpdater().equals("")) {
             lastModifier = userNameProperty.getValue();
             commitDate = "not committed";
         }
-        itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s",item.getFileLocation(),System.lineSeparator(),item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(),commitDate)));
+        itemLocation.setTooltip(new Tooltip(String.format("Location: %s%sFile name: %s%sLast modifier: %s%sCommit date: %s", item.getFileLocation(), System.lineSeparator(), item.getFileName(), System.lineSeparator(), lastModifier, System.lineSeparator(), commitDate)));
         editedFilesListView.getItems().add(itemLocation);
     }
 
     @FXML
-    private void onDeleteBranchClick() throws IOException  {
+    private void onDeleteBranchClick() throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
         Parent layout = loader.load();
@@ -794,23 +937,21 @@ public class MainScreenController implements Initializable, BasicController {
             try {
                 try {
                     engine.deleteBranch(branchName);
-                    ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                    ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
                 } catch (IOException e) {
                     deleteBranchCotnroller.setError("Please enter valid name.");
                 } catch (RemoteBranchException e) {
                     deleteBranchCotnroller.setError(e.getMessage());
                 }
-            }
-             catch (ActiveBranchDeletedException ex){
-                 deleteBranchCotnroller.setError("Can't delete active branch");
-             } catch (BranchNotFoundException ex) {
+            } catch (ActiveBranchDeletedException ex) {
+                deleteBranchCotnroller.setError("Can't delete active branch");
+            } catch (BranchNotFoundException ex) {
                 deleteBranchCotnroller.setError("Branch doesn't exist, or branch name is written wrong.");
-            }
-            catch (RepositoryNotFoundException ex) {
+            } catch (RepositoryNotFoundException ex) {
                 deleteBranchCotnroller.setError("No repository loaded.");
             }
         });
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         popupScreen.createPopup(layout, deleteBranchCotnroller);
     }
 
@@ -822,7 +963,7 @@ public class MainScreenController implements Initializable, BasicController {
         GeneralScreenEnterStringController newBranchController =
                 getGeneralScreen(loader, "Create new branch", "Branch name:");
         newBranchController.setCheckBoxVisible();
-        PopupScreen popupScreen = new PopupScreen(stage,engine);
+        PopupScreen popupScreen = new PopupScreen(stage, engine);
         newBranchController.setController(event -> {
             String branchName = newBranchController.getTextFieldValue();
             try {
@@ -839,13 +980,13 @@ public class MainScreenController implements Initializable, BasicController {
                         popupScreen.createNotificationPopup(cEvent -> {
                             forceChangeBranch(branchName);
                             branchNameProperty.setValue(branchName);
-                            ((Stage)((Button)cEvent.getSource()).getScene().getWindow()).close();
-                            },true, "Are you sure?","There are unsaved changes, switching branch may cause lose of data.", "Cancel");
+                            ((Stage) ((Button) cEvent.getSource()).getScene().getWindow()).close();
+                        }, true, "Are you sure?", "There are unsaved changes, switching branch may cause lose of data.", "Cancel");
                     } catch (RemoteBranchException e) {
                         //needed ?? todo
                     }
                 }
-            } catch (IOException | InvalidNameException | RepositoryNotFoundException | BranchAlreadyExistsException e ) {
+            } catch (IOException | InvalidNameException | RepositoryNotFoundException | BranchAlreadyExistsException e) {
                 newBranchController.setError(e.getMessage());
             }
         });
@@ -864,7 +1005,7 @@ public class MainScreenController implements Initializable, BasicController {
         }
     }
 
-    public static GeneralScreenEnterStringController getGeneralScreen(FXMLLoader loader ,String headLabelValue, String keyLabelValue)
+    public static GeneralScreenEnterStringController getGeneralScreen(FXMLLoader loader, String headLabelValue, String keyLabelValue)
             throws IOException {
         GeneralScreenEnterStringController generalController = loader.getController();
         generalController.setHeadLabel(headLabelValue);
@@ -873,21 +1014,37 @@ public class MainScreenController implements Initializable, BasicController {
         return generalController;
     }
 
-    private void updatePushAndPullButtons(){
-        if(engine.activeBranchIsTrackingAfter()){
+    private void setLastCommitLabels() {
+        try {
+            ArrayList<String> commitInfo = engine.getLastCommitDateAndMessage();
+            if (commitInfo != null) {
+                commitDateLeftDownLabel.setText(commitInfo.get(0));
+                commitMessageLeftDownLabel.setText(commitInfo.get(1));
+            } else {
+                commitDateLeftDownLabel.setText("");
+                commitMessageLeftDownLabel.setText("");
+            }
+        } catch (IOException | PreviousCommitsLimitExceededException | ParseException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void updatePushAndPullButtons() {
+        if (engine.activeBranchIsTrackingAfter()) {
             pushMenuItem.setDisable(false);
             pullMenuItem.setDisable(false);
-        }else{
+        } else {
             pushMenuItem.setDisable(true);
             pullMenuItem.setDisable(true);
         }
     }
 
-    private void updateFetchButton(){
+    private void updateFetchButton() {
         try {
-            if(engine.repositoryHasRemoteReference()){
+            if (engine.repositoryHasRemoteReference()) {
                 fetchMenuItem.setDisable(false);
-            }else{
+            } else {
                 fetchMenuItem.setDisable(true);
             }
         } catch (RepositoryNotFoundException e) {
@@ -895,7 +1052,7 @@ public class MainScreenController implements Initializable, BasicController {
         }
     }
 
-    private void updateOnRepositoryNameChangedButtons(){
+    private void updateOnRepositoryNameChangedButtons() {
         commitToLeftDownButton.setDisable(false);
         resetBranchMenuItem.setDisable(false);
         deleteBranchMenuItem.setDisable(false);
@@ -906,7 +1063,7 @@ public class MainScreenController implements Initializable, BasicController {
         mergeMenuItem.setDisable(false);
     }
 
-    private void updateOnScreenInitButtons(){
+    private void updateOnScreenInitButtons() {
         commitToLeftDownButton.setDisable(true);
         resetBranchMenuItem.setDisable(true);
         deleteBranchMenuItem.setDisable(true);
@@ -920,7 +1077,7 @@ public class MainScreenController implements Initializable, BasicController {
         fetchMenuItem.setDisable(true);
     }
 
-    private void updateBindings(){
+    private void updateBindings() {
         menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
         branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
@@ -930,7 +1087,7 @@ public class MainScreenController implements Initializable, BasicController {
         repositoryPathProperty = new SimpleStringProperty();
         userNameProperty.setValue("Administrator");
         userNameMenuButton.textProperty().bind(userNameProperty);
-        if(repositoryNameProperty == null) {
+        if (repositoryNameProperty == null) {
             repositoryNameProperty = new SimpleStringProperty();
             repositoryNameProperty.setValue("");
         }
@@ -940,7 +1097,6 @@ public class MainScreenController implements Initializable, BasicController {
                 .then(repositoryNameProperty)
                 .otherwise("No repository"));
         branchNameProperty = new SimpleStringProperty();
-        middleAnchorPane.minWidthProperty().bind(middleHSplitPane.widthProperty().divide(2));
         menuButtonBranchNameLabel.textProperty().bind(Bindings
                 .when(branchNameProperty.isNotEqualTo(""))
                 .then(branchNameProperty)
@@ -948,10 +1104,15 @@ public class MainScreenController implements Initializable, BasicController {
         commitToLeftDownButton.textProperty().bind(Bindings.format("%s %s", "Commit to", branchNameProperty));
     }
 
-    private void updateListeners(){
+    private void updateListeners() {
+        pane.setPickOnBounds(true);
+        pane.setMouseTransparent(false);
+
+
         branchNameProperty.addListener((observable, oldValue, newValue) -> {
             updateDifferences();
             updatePushAndPullButtons();
+            setLastCommitLabels();
         });
         updateOnScreenInitButtons();
         repositoryNameProperty.addListener((observable, oldValue, newValue) -> {
@@ -962,6 +1123,12 @@ public class MainScreenController implements Initializable, BasicController {
             loadBranchesToUserInterface();
             updateFetchButton();
             updatePushAndPullButtons();
+        });
+        moveScreenLabel.setOnMouseClicked(click -> {
+            if (click.getClickCount() == 2) {
+                if (stage.isMaximized()) restoreWindow();
+                else maximize();
+            }
         });
     }
 }

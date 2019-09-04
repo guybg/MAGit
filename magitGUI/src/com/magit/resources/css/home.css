@@ -75,6 +75,11 @@
     -fx-background-color: #292D32;
     -fx-background-radius: 0;
 }
+.window-size-button{
+    -fx-text-fill:#ffffff;
+    -fx-background-color: #292D32;
+    -fx-background-radius: 0;
+}
 .window-close-button{
     -fx-text-fill:#ffffff;
     -fx-background-color: #292D32;
@@ -82,6 +87,10 @@
 }
 
 .window-minimize-button:hover {
+    -fx-text-fill:black;
+    -fx-background-color: #878787;
+}
+.window-size-button:hover {
     -fx-text-fill:black;
     -fx-background-color: #878787;
 }
@@ -124,12 +133,22 @@
 }
 
 .pane{
-    -fx-border-color: #292D32;
+    -fx-background-color:  rgba(0, 0, 0,0.01);
 }
 
 .iconMenuButton {
-   
     -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+}
+
+#window-maximize-image{
+    -fx-image: url("../images/maximize.png");
+    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+}
+
+#window-restore-image{
+    -fx-image: url("../images/restore-window.png");
+    -fx-effect: innershadow( gaussian , white , 7 , 1 , 1 , 1 );
+
 }
 
 #iconBranch{

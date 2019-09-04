@@ -1,5 +1,7 @@
 package com.magit.gui;
 
+import com.magit.controllers.MainScreenController;
+import com.magit.logic.system.MagitEngine;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
@@ -9,6 +11,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+
+import javax.swing.event.ChangeListener;
 
 /**
  * Util class to handle window resizing when a stage style set to StageStyle.UNDECORATED.
@@ -66,6 +70,8 @@ public class ResizeHelper {
 
         @Override
         public void handle(MouseEvent mouseEvent) {
+            if(stage.isMaximized() )
+                return;
             EventType<? extends MouseEvent> mouseEventType = mouseEvent.getEventType();
             Scene scene = stage.getScene();
 

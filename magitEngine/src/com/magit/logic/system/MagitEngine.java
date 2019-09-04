@@ -229,6 +229,15 @@ public class MagitEngine {
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
 
+    public ArrayList<String> getLastCommitDateAndMessage() throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        Commit commit = Commit.createCommitInstanceByPath(mRepositoryManager.getRepository().getCommitPath());
+        if(commit == null) return null;
+        ArrayList<String> commitInfo = new ArrayList<>();
+        commitInfo.add(commit.getCreationDate().toString());
+        commitInfo.add(commit.getCommitMessage());
+        return commitInfo;
+    }
+
     public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, InvalidNameException, RemoteBranchException {
         repositoryNotFoundCheck();
         if ((StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) && !mRepositoryManager.getRepository().getBranches().get(branchName).getIsRemote())

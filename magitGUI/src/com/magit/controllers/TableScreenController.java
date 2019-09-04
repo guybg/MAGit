@@ -1,6 +1,6 @@
 package com.magit.controllers;
 
-import com.magit.gui.DragResizer;
+
 import com.magit.gui.ResizeHelper;
 import com.magit.logic.enums.FileType;
 import com.magit.logic.system.objects.FileItem;
