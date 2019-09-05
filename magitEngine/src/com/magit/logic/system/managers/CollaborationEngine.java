@@ -5,6 +5,7 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.*;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,8 +14,8 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 
 public class CollaborationEngine {
-
-    public void cloneRepository(String pathToMagitRepository, String destinationPath, BranchManager branchManager) throws IOException, IllegalPathException, CloneException {
+    private final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
+    public void cloneRepository(String pathToMagitRepository, String destinationPath,String cloneName, BranchManager branchManager) throws IOException, IllegalPathException, CloneException, InvalidNameException {
         if(!isValid(pathToMagitRepository)){
             throw new CloneException("Source repository is invalid");
         }
@@ -22,9 +23,11 @@ public class CollaborationEngine {
             throw new CloneException("There is already a repository at destination location");
         if(pathToMagitRepository.toLowerCase().equals(destinationPath.toLowerCase()))
             throw new CloneException("Destination location is the same as the source repository location, please choose another destination path");
+        if (StringUtils.containsOnly(cloneName, BLANK_SPACE) || cloneName.isEmpty())
+            throw new InvalidNameException("Repository name should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
         Repository repository = RepositoryManager.loadRepository(Paths.get(pathToMagitRepository), branchManager);
 
-        ClonedRepository clonedRepository = ClonedRepository.getClone(repository,repository.getRepositoryName(),destinationPath);
+        ClonedRepository clonedRepository = ClonedRepository.getClone(repository,cloneName,destinationPath);
 
         clonedRepository.create();
 
@@ -77,8 +80,8 @@ public class CollaborationEngine {
             throw new RemoteReferenceException("Repository does not have remote reference");
         RepositoryManager remoteRepositoryManager = new RepositoryManager(Paths.get(repository.getRemoteReference().getLocation()),new BranchManager());
         Repository remoteRepository = remoteRepositoryManager.getRepository();
-        if(!repository.getBranches().get("HEAD").getIsTracking())
-            throw new RemoteBranchException("Active branch is not tracking any remote branch, cannot push.",repository.getBranches().get("HEAD").getBranchName());
+        //if(!repository.getBranches().get("HEAD").getIsTracking())
+        //    throw new RemoteBranchException("Active branch is not tracking any remote branch, cannot push.",repository.getBranches().get("HEAD").getBranchName());
         if(remoteRepository.headBranchHasUnhandledMerge()){
             throw new UnhandledMergeException("Cannot push - please solve unhandled merge.");
         }
@@ -86,7 +89,20 @@ public class CollaborationEngine {
             throw new UncommitedChangesException("Cannot push - there are open changes, at remote repository.");
         }
         Branch activeBranchAtLocalRepository = repository.getBranches().get("HEAD");
+
+        if(!activeBranchAtLocalRepository.getIsTracking()){
+            Branch remoteRepositoryBranch = new Branch(activeBranchAtLocalRepository.getBranchName(),"",null,false,false);
+            remoteRepository.getBranches().put(activeBranchAtLocalRepository.getBranchName(),remoteRepositoryBranch);
+            BranchManager.writeBranch(remoteRepository,remoteRepositoryBranch.getBranchName(),"",false,false,null);
+            String remoteBranchName = updateRemoteBranch(repository,remoteRepositoryBranch);
+            activeBranchAtLocalRepository.setIsTracking(true);
+            activeBranchAtLocalRepository.setTrackingAfter(remoteBranchName);
+            BranchManager.writeBranch(repository,activeBranchAtLocalRepository.getBranchName(),activeBranchAtLocalRepository.getPointedCommitSha1().toString()
+                    ,false,true,remoteBranchName);
+        }
+
         Branch activeBranchsRemoteBranchAtLocalRepository = repository.getBranches().get(activeBranchAtLocalRepository.getTrackingAfter());
+
         Branch branchAtRemoteRepository = remoteRepository.getBranches().get(activeBranchAtLocalRepository.getBranchName());
         if(!activeBranchsRemoteBranchAtLocalRepository.getPointedCommitSha1().toString().equals(branchAtRemoteRepository.getPointedCommitSha1().toString())){
             throw new PushException("Active branch's remote branch is not synced with Remote repository's matching branch, please pull");
@@ -94,6 +110,7 @@ public class CollaborationEngine {
         if(activeBranchAtLocalRepository.getPointedCommitSha1().toString().equals(branchAtRemoteRepository.getPointedCommitSha1().toString())){
             throw new PushException("Remote repository is up-to-date.");
         }
+
         WorkingCopyUtils.updateNewObjectsOfSpecificCommit(repository,remoteRepository, activeBranchAtLocalRepository.getPointedCommitSha1().toString());
         BranchManager.writeBranch(remoteRepository,branchAtRemoteRepository.getBranchName(),activeBranchAtLocalRepository.getPointedCommitSha1().toString()
         ,branchAtRemoteRepository.getIsRemote(),branchAtRemoteRepository.getIsTracking(),branchAtRemoteRepository.getTrackingAfter());

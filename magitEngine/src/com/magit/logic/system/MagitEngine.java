@@ -174,6 +174,8 @@ public class MagitEngine {
         return mRepositoryManager.getBranches();
     }
 
+
+
     public String getHeadBranchName() {
         return mRepositoryManager.getHeadBranch();
     }
@@ -219,10 +221,21 @@ public class MagitEngine {
             throw new BranchNotFoundException("","There are no Non-Remote branches on selected commit");
         return remoteBranches;
     }
-
+    public ArrayList<Branch> getNonRemoteBranches(){
+        return getBranches().stream().filter(b->b.getIsRemote().equals(false)).collect(Collectors.toCollection(ArrayList::new));
+    }
     public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
+    }
+
+    public ArrayList<String> getLastCommitDateAndMessage() throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        Commit commit = Commit.createCommitInstanceByPath(mRepositoryManager.getRepository().getCommitPath());
+        if(commit == null) return null;
+        ArrayList<String> commitInfo = new ArrayList<>();
+        commitInfo.add(commit.getCreationDate().toString());
+        commitInfo.add(commit.getCommitMessage());
+        return commitInfo;
     }
 
     public String pickHeadBranch(String branchName) throws IOException, ParseException, RepositoryNotFoundException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, InvalidNameException, RemoteBranchException {
@@ -331,8 +344,8 @@ public class MagitEngine {
         return mergeEngine.headBranchHasMergeOpenChanges(mRepositoryManager.getRepository());
     }
 
-    public void clone(String toClonePath, String clonedPath) throws IOException, IllegalPathException, CloneException {
-        collaborationEngine.cloneRepository(toClonePath,clonedPath,new BranchManager());
+    public void clone(String toClonePath, String clonedPath, String cloneName) throws IOException, IllegalPathException, CloneException, InvalidNameException {
+        collaborationEngine.cloneRepository(toClonePath,clonedPath,cloneName,new BranchManager());
     }
 
     public void fetch() throws PreviousCommitsLimitExceededException, RemoteReferenceException, CommitNotFoundException, ParseException, IOException, IllegalPathException {

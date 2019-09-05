@@ -82,7 +82,15 @@
     -fx-background-color: #d3d3d3;
     -fx-background-radius: 0;
 }
-
+.window-size-button{
+    -fx-text-fill:black;
+    -fx-background-color: #d3d3d3;
+    -fx-background-radius: 0;
+}
+.window-size-button:hover {
+    -fx-text-fill:black;
+    -fx-background-color: #878787;
+}
 .window-minimize-button:hover {
     -fx-text-fill:white;
     -fx-background-color: #878787;
@@ -124,7 +132,28 @@
 }
 
 .pane{
-    -fx-border-color: white;
+    -fx-background-color:  rgba(0, 0, 0,0.01);
+}
+#window-maximize-image{
+    -fx-image: url("../images/maximize.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+}
+
+#window-restore-image{
+    -fx-image: url("../images/restore-window.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
+}
+#window-minimize-image{
+    -fx-image: url("../images/minimize.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
+}
+
+#window-close-image{
+    -fx-image: url("../images/close.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
 }
 
 .iconMenuButton {

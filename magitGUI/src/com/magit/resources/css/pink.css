@@ -81,7 +81,15 @@
     -fx-background-color: #ffc4f6;
     -fx-background-radius: 0;
 }
-
+.window-size-button{
+    -fx-text-fill:#292D32;
+    -fx-background-color: #ffc4f6;
+    -fx-background-radius: 0;
+}
+.window-size-button:hover {
+    -fx-text-fill:#292D32;
+    -fx-background-color: #e89aff;
+}
 .window-minimize-button:hover {
     -fx-text-fill:#292D32;
     -fx-background-color: #e89aff;
@@ -123,7 +131,28 @@
 }
 
 .pane{
-    -fx-border-color: #292D32;
+    -fx-background-color:  rgba(0, 0, 0,0.01);
+}
+#window-maximize-image{
+    -fx-image: url("../images/maximize.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+}
+
+#window-restore-image{
+    -fx-image: url("../images/restore-window.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
+}
+#window-minimize-image{
+    -fx-image: url("../images/minimize.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
+}
+
+#window-close-image{
+    -fx-image: url("../images/close.png");
+    -fx-effect: innershadow( gaussian , black , 7 , 1 , 1 , 1 );
+
 }
 
 .iconMenuButton {
@@ -312,7 +341,7 @@
 .side-pane-text {
     -fx-text-fill: #292D32;
     -fx-font-family: David;
-    -fx-font-size: 20px;
+    -fx-font-size: 15px;
 }
 
 #commit-button {

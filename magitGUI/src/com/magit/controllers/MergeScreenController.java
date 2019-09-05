@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class MergeScreenController implements BasicController, Initializable {
     private Stage stage;
@@ -38,7 +39,14 @@ public class MergeScreenController implements BasicController, Initializable {
     private boolean preReadyMerge = false;
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        mergeButton.setDisable(true);
+        branchToMergeWithComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue == null){
+                mergeButton.setDisable(true);
+            }else{
+                mergeButton.setDisable(false);
+            }
+        });
     }
 
     @FXML
@@ -54,7 +62,7 @@ public class MergeScreenController implements BasicController, Initializable {
     private Button commitButton;
 
     @FXML
-    private ComboBox<Label> branchToMergeWithComboBox;
+    private ComboBox<String> branchToMergeWithComboBox;
 
     @FXML
     private Button mergeButton;
@@ -84,7 +92,7 @@ public class MergeScreenController implements BasicController, Initializable {
     @FXML
     void onMerge(MouseEvent event) {
         try {
-            engine.merge(branchToMergeWithComboBox.getValue().getText(), false);
+            engine.merge(branchToMergeWithComboBox.getValue(), false);
             updateOpenChanges();
             updateConflicts();
             mergeButton.setDisable(true);
@@ -140,10 +148,10 @@ public class MergeScreenController implements BasicController, Initializable {
     @FXML
     void onShowBranches(MouseEvent event) {
         branchToMergeWithComboBox.getItems().clear();
-        Collection<Branch> branches = engine.getBranches();
+        Collection<Branch> branches = engine.getNonRemoteBranches();
         for(Branch branch: branches){
-            Label branchLabel = new Label(branch.getBranchName());
-            branchToMergeWithComboBox.getItems().add(branchLabel);
+            String branchName = branch.getBranchName();
+            branchToMergeWithComboBox.getItems().add(branchName);
         }
 
     }

@@ -4,17 +4,29 @@ package com.magit.controllers;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.logic.system.MagitEngine;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-public class WelcomeNodeController implements BasicController {
+public class WelcomeNodeController implements BasicController, Initializable {
     Runnable onCreate;
     Runnable onLoad;
     Runnable onLoadXml;
+
+    @FXML
+    private HBox creatNewRepo;
     private Stage stage;
     private MagitEngine engine;
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+    }
 
     @FXML
     void onCreateNewRepositoryWelcomeNode(MouseEvent event) {

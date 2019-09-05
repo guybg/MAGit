@@ -3,6 +3,8 @@ package com.magit.gui;
 import com.magit.controllers.MainScreenController;
 import com.magit.logic.system.MagitEngine;
 import javafx.application.Application;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,12 +18,11 @@ import java.net.URL;
 
 public class MagitGui extends Application {
     private MagitEngine engine;
-
     @Override
     public void start(Stage primaryStage) throws Exception {
         engine = new MagitEngine();
         primaryStage.setTitle("Magit Desktop");
-        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
         primaryStage.getIcons().add(new Image("/com/magit/resources/images/appIcon.png"));
         FXMLLoader fxmlLoader = new FXMLLoader();
         URL url = getClass().getResource("/com/magit/resources/fxml/homeScreen.fxml");
@@ -31,8 +32,8 @@ public class MagitGui extends Application {
         MainScreenController controller = fxmlLoader.getController();
         controller.setEngine(engine);
         controller.setStage(primaryStage);
-
         Scene scene = new Scene(root);
+        scene.setFill(null);
         primaryStage.setMinWidth(970);
         primaryStage.setMinHeight(680);
 
