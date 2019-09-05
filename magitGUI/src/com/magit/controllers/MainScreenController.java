@@ -787,7 +787,8 @@ public class MainScreenController implements Initializable, BasicController {
         AnchorPane.setTopAnchor(table, 0.0);
         progressBarPane.getChildren().add(table);
         progressBarPane.toFront();
-        controller.start(false);
+        controller.start(false, () -> progressBarPane.toBack());
+
     }
 
     @FXML

@@ -280,6 +280,8 @@ public class UserInterface {
             System.out.println("Branch Deleted.");
         } catch (RepositoryNotFoundException | ActiveBranchDeletedException | BranchNotFoundException | IOException e) {
             System.out.println(e.getMessage());
+        } catch (RemoteBranchException e) {
+            e.printStackTrace();
         }
     }
 

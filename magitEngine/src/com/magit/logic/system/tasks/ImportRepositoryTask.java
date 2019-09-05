@@ -32,8 +32,8 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private StringProperty repositoryNameProperty;
     private StringProperty repositoryPathProperty;
     private Runnable forceCreationRunnable;
-
-    public ImportRepositoryTask(String filePath, MagitEngine engine, AnchorPane pane, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable, boolean forceCreation) {
+    private Runnable doAfter;
+    public ImportRepositoryTask(String filePath, MagitEngine engine, AnchorPane pane, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable,Runnable doAfter, boolean forceCreation) {
         this.filePath = filePath;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
@@ -43,6 +43,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         this.repositoryNameProperty = repositoryNameProperty;
         this.repositoryPathProperty = repositoryPathProperty;
         this.forceCreationRunnable = forceCreationRunnable;
+        this.doAfter = doAfter;
     }
 
     private boolean importRepositoryXML() throws RepositoryAlreadyExistsException {
@@ -88,6 +89,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
             repositoryNameProperty.setValue("");
             repositoryNameProperty.setValue(engine.getRepositoryName());
             repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
+            doAfter.run();
         });
         return true;
     }
@@ -97,6 +99,8 @@ public class ImportRepositoryTask extends Task<Boolean> {
         boolean success = false;
         try {
             success = importRepositoryXML();
+            if(!success) doAfter.run();
+
         } catch (RepositoryAlreadyExistsException e) {
             Platform.runLater(() -> {
                 forceCreationRunnable.run();
