@@ -37,7 +37,7 @@
             </Label>
             <VBox alignment="CENTER" spacing="5.0">
                <children>
-                  <HBox alignment="CENTER" onMouseClicked="#onCreateNewRepositoryWelcomeNode" spacing="7.0">
+                  <HBox fx:id="creatNewRepo" alignment="CENTER" onMouseClicked="#onCreateNewRepositoryWelcomeNode" spacing="7.0">
                      <children>
                         <ImageView fitHeight="23.0" fitWidth="22.0" pickOnBounds="true" preserveRatio="true" styleClass="welcome-node-image">
                            <image>

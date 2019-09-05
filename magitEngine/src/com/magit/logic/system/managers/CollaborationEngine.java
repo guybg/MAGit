@@ -80,8 +80,8 @@ public class CollaborationEngine {
             throw new RemoteReferenceException("Repository does not have remote reference");
         RepositoryManager remoteRepositoryManager = new RepositoryManager(Paths.get(repository.getRemoteReference().getLocation()),new BranchManager());
         Repository remoteRepository = remoteRepositoryManager.getRepository();
-        if(!repository.getBranches().get("HEAD").getIsTracking())
-            throw new RemoteBranchException("Active branch is not tracking any remote branch, cannot push.",repository.getBranches().get("HEAD").getBranchName());
+        //if(!repository.getBranches().get("HEAD").getIsTracking())
+        //    throw new RemoteBranchException("Active branch is not tracking any remote branch, cannot push.",repository.getBranches().get("HEAD").getBranchName());
         if(remoteRepository.headBranchHasUnhandledMerge()){
             throw new UnhandledMergeException("Cannot push - please solve unhandled merge.");
         }
@@ -89,7 +89,20 @@ public class CollaborationEngine {
             throw new UncommitedChangesException("Cannot push - there are open changes, at remote repository.");
         }
         Branch activeBranchAtLocalRepository = repository.getBranches().get("HEAD");
+
+        if(!activeBranchAtLocalRepository.getIsTracking()){
+            Branch remoteRepositoryBranch = new Branch(activeBranchAtLocalRepository.getBranchName(),"",null,false,false);
+            remoteRepository.getBranches().put(activeBranchAtLocalRepository.getBranchName(),remoteRepositoryBranch);
+            BranchManager.writeBranch(remoteRepository,remoteRepositoryBranch.getBranchName(),"",false,false,null);
+            String remoteBranchName = updateRemoteBranch(repository,remoteRepositoryBranch);
+            activeBranchAtLocalRepository.setIsTracking(true);
+            activeBranchAtLocalRepository.setTrackingAfter(remoteBranchName);
+            BranchManager.writeBranch(repository,activeBranchAtLocalRepository.getBranchName(),activeBranchAtLocalRepository.getPointedCommitSha1().toString()
+                    ,false,true,remoteBranchName);
+        }
+
         Branch activeBranchsRemoteBranchAtLocalRepository = repository.getBranches().get(activeBranchAtLocalRepository.getTrackingAfter());
+
         Branch branchAtRemoteRepository = remoteRepository.getBranches().get(activeBranchAtLocalRepository.getBranchName());
         if(!activeBranchsRemoteBranchAtLocalRepository.getPointedCommitSha1().toString().equals(branchAtRemoteRepository.getPointedCommitSha1().toString())){
             throw new PushException("Active branch's remote branch is not synced with Remote repository's matching branch, please pull");
@@ -97,6 +110,7 @@ public class CollaborationEngine {
         if(activeBranchAtLocalRepository.getPointedCommitSha1().toString().equals(branchAtRemoteRepository.getPointedCommitSha1().toString())){
             throw new PushException("Remote repository is up-to-date.");
         }
+
         WorkingCopyUtils.updateNewObjectsOfSpecificCommit(repository,remoteRepository, activeBranchAtLocalRepository.getPointedCommitSha1().toString());
         BranchManager.writeBranch(remoteRepository,branchAtRemoteRepository.getBranchName(),activeBranchAtLocalRepository.getPointedCommitSha1().toString()
         ,branchAtRemoteRepository.getIsRemote(),branchAtRemoteRepository.getIsTracking(),branchAtRemoteRepository.getTrackingAfter());

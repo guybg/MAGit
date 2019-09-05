@@ -990,12 +990,18 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     private void updatePushAndPullButtons() {
-        if (engine.activeBranchIsTrackingAfter()) {
-            pushMenuItem.setDisable(false);
-            pullMenuItem.setDisable(false);
-        } else {
-            pushMenuItem.setDisable(true);
-            pullMenuItem.setDisable(true);
+        try {
+            if(engine.repositoryHasRemoteReference()){
+                pushMenuItem.setDisable(false);
+            }
+            if (engine.activeBranchIsTrackingAfter()) {
+                pullMenuItem.setDisable(false);
+            } else {
+                //pushMenuItem.setDisable(true);
+                pullMenuItem.setDisable(true);
+            }
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -1064,10 +1070,6 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     private void updateListeners() {
-        pane.setPickOnBounds(true);
-        pane.setMouseTransparent(false);
-
-
         branchNameProperty.addListener((observable, oldValue, newValue) -> {
             updateDifferences();
             updatePushAndPullButtons();
