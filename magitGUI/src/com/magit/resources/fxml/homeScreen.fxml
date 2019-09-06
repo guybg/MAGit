@@ -93,6 +93,11 @@
                               <MenuItem fx:id="branchesHistoryMenuItem" mnemonicParsing="false" onAction="#onShowBranchesHistory" text="History" />
                            </items>
                         </Menu>
+                        <Menu mnemonicParsing="false" text="View">
+                          <items>
+                            <MenuItem fx:id="animationsMenuItem" mnemonicParsing="false" onAction="#onToggleAnimationsStatus" text="animations on/off" />
+                          </items>
+                        </Menu>
                         <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
                            <items>
                               <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About" />

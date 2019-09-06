@@ -35,6 +35,8 @@ import java.util.function.Consumer;
 public class BranchesHistoryScreenController implements BasicController, Initializable {
     private Stage stage;
     private MagitEngine engine;
+    private boolean animationToggle = false;
+
     BooleanProperty focusChanged = new SimpleBooleanProperty();
     @FXML
     public ScrollPane scrollPaneContainer;
@@ -102,6 +104,14 @@ public class BranchesHistoryScreenController implements BasicController, Initial
             if(newValue != null)
                 showDifferencesBetweenCommitAndChosenParent(newValue);
         });
+    }
+
+    public boolean isAnimationToggle() {
+        return animationToggle;
+    }
+
+    public void setAnimationToggle(boolean animationToggle) {
+        this.animationToggle = animationToggle;
     }
 
     public void setCurCommitSha1Label(String curCommitSha1) {

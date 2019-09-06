@@ -95,7 +95,8 @@ public class CommitNodeController implements Initializable {
             for (String branchName : branches) {
                 if (Arrays.asList(clickedActiveBranches.getValue().split(",")).contains(branchName)) {
                     gridPane.getStyleClass().add("marked-node");
-                    new PulseTransition(gridPane).play();
+                    if (branchesHistoryScreenController.isAnimationToggle())
+                        new PulseTransition(gridPane).play();
                 }
             }
         });
@@ -168,8 +169,10 @@ public class CommitNodeController implements Initializable {
         branchesHistoryScreenController.setLastCommit1Node(parents.get(parent1Sha1));
         branchesHistoryScreenController.setLastCommit2Node(parents.get(parent2Sha1));
         branchesHistoryScreenController.setAllBranchesLabel(String.join(", ", branches), branches.size());
-        PulseTransition pulseTransition= new PulseTransition(gridPane);
-        pulseTransition.play();
+        if (branchesHistoryScreenController.isAnimationToggle()) {
+            PulseTransition pulseTransition= new PulseTransition(gridPane);
+            pulseTransition.play();
+        }
         gridPane.requestFocus();
         branchesHistoryScreenController.focusChanged.setValue(!branchesHistoryScreenController.focusChanged.getValue());
         focused = true;
@@ -264,7 +267,9 @@ public class CommitNodeController implements Initializable {
                 transitTo =((CommitNode)node);
         }
 
-        if (isReset)
+        graph.endUpdate();
+        graph.layout(new CommitTreeLayout());
+        if (branchesHistoryScreenController.isAnimationToggle() && isReset)
             prepareAnimationParameters(graph, transitTo, nodes);
         else
             branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
@@ -284,8 +289,6 @@ public class CommitNodeController implements Initializable {
             }
         }
         branchesHistoryScreenController.setNodes(nodes);
-        graph.endUpdate();
-        graph.layout(new CommitTreeLayout());
         if (null != transitTo) {
             MagitPathTransition magitPathTransition = new MagitPathTransition(transitTo, labelToMove);
             magitPathTransition.pathTransition.setOnFinished(

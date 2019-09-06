@@ -74,6 +74,7 @@ public class MainScreenController implements Initializable, BasicController {
     private StringProperty repositoryNameProperty;
     private StringProperty branchNameProperty;
     private StringProperty repositoryPathProperty;
+    private boolean animationToggle = false;
 
     private double xOffset = 0;
     private double yOffset = 0;
@@ -225,6 +226,9 @@ public class MainScreenController implements Initializable, BasicController {
     private AnchorPane pane;
 
     @FXML
+    private MenuItem animationsMenuItem;
+
+    @FXML
     void OnBrightThemeClicked(ActionEvent event) {
         final String brightThemeUrl = this.getClass().getResource("/com/magit/resources/css/home.css").toExternalForm();
         (stage.getScene()).getStylesheets().clear();
@@ -368,7 +372,7 @@ public class MainScreenController implements Initializable, BasicController {
         final Scene scene = new Scene(root, 700, 400);
         ((BranchesHistoryScreenController) fxmlLoader.getController()).setEngine(engine);
         ((BranchesHistoryScreenController) fxmlLoader.getController()).setStage(stage);
-        //TreeSet<CommitNode> nodes = null;
+        ((BranchesHistoryScreenController) fxmlLoader.getController()).setAnimationToggle(animationToggle);
         engine.guiBranchesHistory(nodes -> {
             ((BranchesHistoryScreenController) fxmlLoader.getController()).setNodes(nodes);
             graph.beginUpdate();
@@ -431,6 +435,11 @@ public class MainScreenController implements Initializable, BasicController {
         loadBranchesToUserInterface();
     }
 
+    @FXML
+    void onToggleAnimationsStatus(ActionEvent event) {
+        animationToggle = !animationToggle;
+    }
+    
     void loadBranchesToUserInterface() {
         if (repositoryNameProperty.getValue().equals("")) return;
         branchesListView.getItems().clear();
