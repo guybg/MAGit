@@ -439,7 +439,7 @@ public class MainScreenController implements Initializable, BasicController {
     void onToggleAnimationsStatus(ActionEvent event) {
         animationToggle = !animationToggle;
     }
-    
+
     void loadBranchesToUserInterface() {
         if (repositoryNameProperty.getValue().equals("")) return;
         branchesListView.getItems().clear();
