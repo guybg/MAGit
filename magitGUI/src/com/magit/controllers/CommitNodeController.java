@@ -251,6 +251,7 @@ public class CommitNodeController implements Initializable {
         }
         graph.endUpdate();
         graph.layout(new CommitTreeLayout());
+
         branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
         Platform.runLater(() -> {
             graph.getUseViewportGestures().set(false);

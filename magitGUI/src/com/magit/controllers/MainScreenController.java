@@ -224,6 +224,9 @@ public class MainScreenController implements Initializable, BasicController {
     private AnchorPane pane;
 
     @FXML
+    private MenuItem animationsMenuItem;
+
+    @FXML
     void OnBrightThemeClicked(ActionEvent event) {
         final String brightThemeUrl = this.getClass().getResource("/com/magit/resources/css/home.css").toExternalForm();
         (stage.getScene()).getStylesheets().clear();
@@ -430,6 +433,11 @@ public class MainScreenController implements Initializable, BasicController {
         loadBranchesToUserInterface();
     }
 
+    @FXML
+    void onToggleAnimationsStatus(ActionEvent event) {
+
+    }
+    
     void loadBranchesToUserInterface() {
         if (repositoryNameProperty.getValue().equals("")) return;
         branchesListView.getItems().clear();
