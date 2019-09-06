@@ -437,7 +437,7 @@ public class MainScreenController implements Initializable, BasicController {
     void onToggleAnimationsStatus(ActionEvent event) {
 
     }
-    
+
     void loadBranchesToUserInterface() {
         if (repositoryNameProperty.getValue().equals("")) return;
         branchesListView.getItems().clear();
