@@ -12,6 +12,7 @@ import com.magit.logic.system.objects.Branch;
 import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
 import com.sun.org.apache.xml.internal.security.Init;
+import javafx.animation.Animation;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -46,6 +47,7 @@ import java.lang.reflect.Array;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -77,6 +79,10 @@ public class CommitNodeController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+    }
+
+    public Label getActiveBranchesLabel() {
+        return activeBranchLabel;
     }
 
     public void setClickedActiveBranches(StringProperty clickedActiveBranches) {
@@ -250,19 +256,41 @@ public class CommitNodeController implements Initializable {
 
         TreeSet<CommitNode> nodes = branchesHistoryScreenController.getEngine().guiBranchesHistory(model,branchesHistoryScreenController);
         graph.beginUpdate();
+        CommitNode transitTo = null;
         for(ICell node : nodes) {
             if(!model.getAllCells().contains(node))
                 model.addCell(node);
+            if (((CommitNode)node).getSha1().equals(sha1))
+                transitTo =((CommitNode)node);
         }
-        graph.endUpdate();
-        graph.layout(new CommitTreeLayout());
-        if (isReset) {
-            new MagitPathTransition(300 ,300, activeBranchLabel).play();
-        }
-        branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
+
+        if (isReset)
+            prepareAnimationParameters(graph, transitTo, nodes);
+        else
+            branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
+
         Platform.runLater(() -> {
             graph.getUseViewportGestures().set(false);
             graph.getUseNodeGestures().set(false);
         });
+    }
+
+    private void prepareAnimationParameters(Graph graph, CommitNode transitTo, TreeSet<CommitNode> nodes) {
+        Label labelToMove = null;
+        String activeBranchName = branchesHistoryScreenController.getEngine().getHeadBranchName();
+        for (CommitNode node : branchesHistoryScreenController.getNodes()) {
+            if (node.getActiveBranches().stream().map(Branch::getBranchName).anyMatch(i -> i.equals(activeBranchName))) {
+                labelToMove = node.getActiveBranchLabel();
+            }
+        }
+        branchesHistoryScreenController.setNodes(nodes);
+        graph.endUpdate();
+        graph.layout(new CommitTreeLayout());
+        if (null != transitTo) {
+            MagitPathTransition magitPathTransition = new MagitPathTransition(transitTo, labelToMove);
+            magitPathTransition.pathTransition.setOnFinished(
+                    event -> branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas()));
+            magitPathTransition.play();
+        }
     }
 }

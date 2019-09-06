@@ -1,5 +1,6 @@
 package com.magit.controllers;
 
+import com.magit.animations.MagitPathTransition;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
@@ -8,6 +9,7 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.visual.node.CommitNode;
 import com.sun.javafx.beans.IDProperty;
+import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -16,24 +18,24 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Path;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.SortedSet;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class BranchesHistoryScreenController implements BasicController, Initializable {
     private Stage stage;
     private MagitEngine engine;
-    public BooleanProperty focusChanged = new SimpleBooleanProperty();
+    BooleanProperty focusChanged = new SimpleBooleanProperty();
     @FXML
     public ScrollPane scrollPaneContainer;
 
@@ -75,6 +77,16 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     private CommitNode lastCommit2Node;
     @FXML
     private ComboBox<String> switchDiffComboBox;
+
+    private TreeSet<CommitNode> nodes;
+
+    void setNodes(TreeSet<CommitNode> nodes) {
+        this.nodes = nodes;
+    }
+
+    TreeSet<CommitNode> getNodes() {
+        return nodes;
+    }
 
     public StringProperty getClickedOnActiveBranchesProperty() {
         return clickedOnActiveBranches;

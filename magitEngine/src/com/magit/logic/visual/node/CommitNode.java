@@ -43,6 +43,10 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
         return alreadySet;
     }
 
+    public Label getActiveBranchLabel() {
+        return commitNodeController.getActiveBranchesLabel();
+    }
+
     public void setAlreadySet(boolean alreadySet) {
         this.alreadySet = alreadySet;
     }

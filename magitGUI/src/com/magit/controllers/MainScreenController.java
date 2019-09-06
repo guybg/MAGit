@@ -5,6 +5,7 @@ import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
 import com.fxgraph.graph.PannableCanvas;
+import com.magit.animations.MagitPathTransition;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.gui.PopupScreen;
@@ -365,11 +366,11 @@ public class MainScreenController implements Initializable, BasicController {
         Graph graph = new Graph();
         Model model = graph.getModel();
         final Scene scene = new Scene(root, 700, 400);
-
         ((BranchesHistoryScreenController) fxmlLoader.getController()).setEngine(engine);
         ((BranchesHistoryScreenController) fxmlLoader.getController()).setStage(stage);
         //TreeSet<CommitNode> nodes = null;
         engine.guiBranchesHistory(nodes -> {
+            ((BranchesHistoryScreenController) fxmlLoader.getController()).setNodes(nodes);
             graph.beginUpdate();
             for (ICell node : nodes) {
                 if (!model.getAllCells().contains(node))
