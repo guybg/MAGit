@@ -52,6 +52,10 @@ public class MergeCommitTreeScreenController implements BasicController {
         } catch (UnhandledMergeException e) {
             showErrorMessage("Please solve unhandled merge before this operation.");
             ((Stage)acceptButton.getScene().getWindow()).close();
+        } catch (UncommitedChangesException e) {
+            showErrorMessage(e.getMessage());
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

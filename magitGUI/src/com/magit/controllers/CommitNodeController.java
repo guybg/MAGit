@@ -293,6 +293,7 @@ public class CommitNodeController implements Initializable {
             MagitPathTransition magitPathTransition = new MagitPathTransition(transitTo, labelToMove);
             magitPathTransition.pathTransition.setOnFinished(
                     event -> branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas()));
+            labelToMove.setText(activeBranchName);
             magitPathTransition.play();
         }
     }

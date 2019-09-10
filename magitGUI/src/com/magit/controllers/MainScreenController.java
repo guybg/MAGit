@@ -351,7 +351,6 @@ public class MainScreenController implements Initializable, BasicController {
             popupScreen.showErrorMessage(e.getMessage());
             popupScreen.createMergeScreenWithPreChosenBranch();
         }
-
     }
 
     @FXML

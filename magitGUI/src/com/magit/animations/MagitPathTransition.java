@@ -44,7 +44,7 @@ public class MagitPathTransition  {
         PathTransition transition = new PathTransition();
         transition.setPath(path);
         transition.setNode(block);
-        transition.setDuration(Duration.seconds(1));
+        transition.setDuration(Duration.seconds(0.5));
 
         return transition;
     }

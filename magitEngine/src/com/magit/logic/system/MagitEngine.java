@@ -296,8 +296,9 @@ public class MagitEngine {
         return mRepositoryManager.guiGetBranchInfo(branch);
     }
 
-    public void merge(String branchName,boolean pullOperation) throws UnhandledMergeException, MergeNotNeededException, FastForwardException, MergeException {
+    public void merge(String branchName,boolean pullOperation) throws UnhandledMergeException, MergeNotNeededException, FastForwardException, MergeException, UncommitedChangesException, RepositoryNotFoundException {
         try {
+            workingCopyChangedComparedToCommit();
             mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName),pullOperation);
         } catch (ParseException e) {
             e.printStackTrace();

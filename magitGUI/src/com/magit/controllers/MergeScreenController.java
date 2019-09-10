@@ -107,6 +107,12 @@ public class MergeScreenController implements BasicController, Initializable {
         } catch (MergeException e) {
             mergeException(e.getMessage());
             ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+        } catch (UncommitedChangesException e) {
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            popupScreen.showErrorMessage(e.getMessage());
+            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+        } catch (RepositoryNotFoundException e) {
+            e.printStackTrace();
         }
     }
 

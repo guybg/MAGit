@@ -89,7 +89,6 @@ public class ImportRepositoryTask extends Task<Boolean> {
             repositoryNameProperty.setValue("");
             repositoryNameProperty.setValue(engine.getRepositoryName());
             repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
-            doAfter.run();
         });
         return true;
     }
@@ -99,23 +98,27 @@ public class ImportRepositoryTask extends Task<Boolean> {
         boolean success = false;
         try {
             success = importRepositoryXML();
-            if(!success) doAfter.run();
 
         } catch (RepositoryAlreadyExistsException e) {
             Platform.runLater(() -> {
                 forceCreationRunnable.run();
             });
         }
-        Platform.runLater(() -> {
-            KeyFrame keyFrame = new KeyFrame(Duration.seconds(10), event -> pane.setVisible(false));
-            Timeline timer = new Timeline(keyFrame);
-            timer.playFromStart();
-        });
+        deleteProgressBar();
 
        return success;
     }
 
-
+    private void deleteProgressBar(){
+        Platform.runLater(() -> {
+            KeyFrame keyFrame = new KeyFrame(Duration.seconds(5), event -> {
+                pane.setVisible(false);
+                doAfter.run();
+            });
+            Timeline timer = new Timeline(keyFrame);
+            timer.playFromStart();
+        });
+    }
     private boolean initializeXmlParser(){
         updateMessage("Fetching file...");
         updateProgress(0, 1);
