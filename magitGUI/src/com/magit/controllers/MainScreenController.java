@@ -311,8 +311,6 @@ public class MainScreenController implements Initializable, BasicController {
 
 
     private void restoreWindow() {
-        Screen screen = Screen.getPrimary();
-        Rectangle2D bounds = screen.getVisualBounds();
         stage.setMaximized(false);
         middleAnchorPane.minWidthProperty().bind(pane.widthProperty().divide(2));
         if (stage.getScene().getWindow().getY() < 0) {
