@@ -314,6 +314,7 @@ public class MainScreenController implements Initializable, BasicController {
         Screen screen = Screen.getPrimary();
         Rectangle2D bounds = screen.getVisualBounds();
         stage.setMaximized(false);
+        middleAnchorPane.minWidthProperty().bind(pane.widthProperty().divide(2));
         if (stage.getScene().getWindow().getY() < 0) {
             stage.getScene().getWindow().setY(0);
         }
@@ -1057,7 +1058,7 @@ public class MainScreenController implements Initializable, BasicController {
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
         branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
         branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
-
+        middleAnchorPane.minWidthProperty().bind(pane.widthProperty().divide(2));
         userNameProperty = new SimpleStringProperty();
         repositoryPathProperty = new SimpleStringProperty();
         userNameProperty.setValue("Administrator");
