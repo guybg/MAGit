@@ -40,7 +40,7 @@ public class BranchManager {
             throw new RemoteReferenceException("Current repository is not tracking after other repository.");
         if(!branch.getIsRemote())
             throw new BranchNotFoundException("Given Branch is not remote branch at current repository.", branch.getBranchName());
-        createNewBranch(branch.getBranchName().split("/")[1],
+        createNewBranch(branch.getBranchName().split("\\\\")[1],
                 repository, branch.getPointedCommitSha1().toString(),false, true, branch.getBranchName());
     }
     public void createNewBranch(String branchName, Repository repository,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException, InvalidNameException, BranchAlreadyExistsException {

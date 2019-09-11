@@ -45,7 +45,7 @@ public class CollaborationEngine {
     }
 
     private String updateRemoteBranch(Repository repository, Branch branch) throws IOException {
-        String remoteBranchName = String.join("/",repository.getRemoteReference().getRepositoryName(),branch.getBranchName());
+        String remoteBranchName = String.join("\\",repository.getRemoteReference().getRepositoryName(),branch.getBranchName());
         if(!repository.getBranches().containsKey(remoteBranchName)){
             Branch remoteBranch = new Branch(
                     remoteBranchName,branch.getPointedCommitSha1().toString(),null, true,false);
