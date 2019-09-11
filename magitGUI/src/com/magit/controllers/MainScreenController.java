@@ -558,6 +558,7 @@ public class MainScreenController implements Initializable, BasicController {
         PopupScreen popupScreen = new PopupScreen(stage, engine);
         try {
             engine.push();
+            updatePushAndPullButtons();
             try {
                 popupScreen.createNotificationPopup(null, false, "Push notification", "Files pushed successfully!", "Close");
             } catch (IOException e) {
@@ -1002,11 +1003,12 @@ public class MainScreenController implements Initializable, BasicController {
         try {
             if(engine.repositoryHasRemoteReference()){
                 pushMenuItem.setDisable(false);
+            }else{
+                pushMenuItem.setDisable(true);
             }
             if (engine.activeBranchIsTrackingAfter()) {
                 pullMenuItem.setDisable(false);
             } else {
-                //pushMenuItem.setDisable(true);
                 pullMenuItem.setDisable(true);
             }
         } catch (RepositoryNotFoundException e) {
