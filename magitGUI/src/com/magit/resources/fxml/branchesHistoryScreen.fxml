@@ -25,13 +25,12 @@
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="NEVER" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
-                  <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="NEVER" />
+                  <RowConstraints />
                   <RowConstraints vgrow="NEVER" />
                   <RowConstraints vgrow="ALWAYS" />
                </rowConstraints>
                <children>
-                  <VBox GridPane.rowIndex="1" GridPane.rowSpan="4">
+                  <VBox GridPane.rowIndex="1" GridPane.rowSpan="3">
                      <children>
                         <Label text="Commit information:" underline="true" />
                         <HBox spacing="5.0">
@@ -79,7 +78,7 @@
                         </HBox>
                      </children>
                   </VBox>
-                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="3">
                     <items>
                       <AnchorPane>
                            <children>
@@ -113,7 +112,7 @@
                         </AnchorPane>
                     </items>
                   </SplitPane>
-                  <ComboBox id="branches-history-combo" fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" />
+                  <ComboBox id="branches-history-combo" fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
                   <Label text="Compare with:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
