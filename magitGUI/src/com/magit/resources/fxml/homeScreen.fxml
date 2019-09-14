@@ -383,7 +383,7 @@
                                           </Accordion>
                                        </children>
                                     </AnchorPane>
-                                    <GridPane GridPane.rowIndex="4">
+                                    <GridPane id="commit-pane" styleClass="side-pane" GridPane.rowIndex="4">
                                        <columnConstraints>
                                           <ColumnConstraints />
                                        </columnConstraints>
@@ -399,7 +399,11 @@
                                                 <Button id="commit-button" fx:id="commitToLeftDownButton" maxWidth="1.7976931348623157E308" minHeight="30.0" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" text="Commit to BranchName" VBox.vgrow="SOMETIMES" />
                                              </children>
                                           </VBox>
-                                          <Separator prefWidth="297.0" GridPane.rowIndex="1" />
+                                          <Separator prefWidth="297.0" GridPane.rowIndex="1">
+                                             <padding>
+                                                <Insets bottom="10.0" top="10.0" />
+                                             </padding>
+                                          </Separator>
                                           <VBox GridPane.rowIndex="2">
                                              <children>
                                                 <Label prefHeight="17.0" styleClass="side-pane-text" text="Last commit" textFill="#5e5ac3" wrapText="true">
