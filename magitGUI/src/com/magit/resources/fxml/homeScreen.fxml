@@ -189,7 +189,7 @@
                   <RowConstraints maxHeight="257.0" minHeight="257.0" prefHeight="257.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Button fx:id="currentRepositoryMenuButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" wrapText="true" GridPane.hgrow="NEVER">
+                  <Button fx:id="currentRepositoryButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" wrapText="true" GridPane.hgrow="NEVER">
                      <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>

@@ -157,7 +157,7 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     private RowConstraints buttonbarGridLine;
     @FXML
-    private Button currentRepositoryMenuButton;
+    private Button currentRepositoryButton;
     @FXML
     private MenuItem menuItem1;
     //@FXML
@@ -1054,7 +1054,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     private void updateBindings() {
-        //menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
+        //menuItem1Label.prefWidthProperty().bind(currentRepositoryButton.widthProperty().subtract(15));
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
         branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
         branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
@@ -1091,7 +1091,7 @@ public class MainScreenController implements Initializable, BasicController {
             updateOnRepositoryNameChangedButtons();
         });
         repositoryPathProperty.addListener((observable, oldValue, newValue) -> {
-            currentRepositoryMenuButton.tooltipProperty().setValue(new Tooltip(repositoryPathProperty.getValue()));
+            currentRepositoryButton.tooltipProperty().setValue(new Tooltip(repositoryPathProperty.getValue()));
             loadBranchesToUserInterface();
             updateFetchButton();
             updatePushAndPullButtons();
