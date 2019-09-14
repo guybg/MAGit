@@ -30,7 +30,6 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-
 <AnchorPane fx:id="pane" styleClass="pane" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.MainScreenController">
    <children>
       <GridPane alignment="CENTER" layoutX="7.0" layoutY="4.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -384,16 +383,24 @@
                                           </Accordion>
                                        </children>
                                     </AnchorPane>
-                                    <AnchorPane id="commit-pane" styleClass="side-pane" GridPane.rowIndex="4">
+                                    <GridPane GridPane.rowIndex="4">
+                                       <columnConstraints>
+                                          <ColumnConstraints />
+                                       </columnConstraints>
+                                       <rowConstraints>
+                                          <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="3.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                                       </rowConstraints>
                                        <children>
-                                          <VBox spacing="5.0" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="6.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="7.0">
+                                          <VBox spacing="5.0">
                                              <children>
                                                 <TextArea id="commit-text-area" fx:id="commitMessageTextArea" onInputMethodTextChanged="#onCommitMessageTextAreaChanged" prefHeight="107.0" VBox.vgrow="SOMETIMES" />
                                                 <Button id="commit-button" fx:id="commitToLeftDownButton" maxWidth="1.7976931348623157E308" minHeight="30.0" mnemonicParsing="false" onMouseClicked="#onClickCommitButton" text="Commit to BranchName" VBox.vgrow="SOMETIMES" />
                                              </children>
                                           </VBox>
-                                          <Separator layoutY="173.0" prefWidth="297.0" AnchorPane.leftAnchor="2.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="130.0" />
-                                          <VBox layoutY="187.0" AnchorPane.bottomAnchor="2.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="134.0">
+                                          <Separator prefWidth="297.0" GridPane.rowIndex="1" />
+                                          <VBox GridPane.rowIndex="2">
                                              <children>
                                                 <Label prefHeight="17.0" styleClass="side-pane-text" text="Last commit" textFill="#5e5ac3" wrapText="true">
                                                    <effect>
@@ -408,10 +415,7 @@
                                              </padding>
                                           </VBox>
                                        </children>
-                                       <GridPane.margin>
-                                          <Insets />
-                                       </GridPane.margin>
-                                    </AnchorPane>
+                                    </GridPane>
                                  </children>
                               </GridPane>
                            </children>
