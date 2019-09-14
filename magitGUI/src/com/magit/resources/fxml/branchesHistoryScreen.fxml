@@ -112,7 +112,7 @@
                         </AnchorPane>
                     </items>
                   </SplitPane>
-                  <ComboBox id="branches-history-combo" fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
+                  <ComboBox id="branches-history-combo" fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                   <Label text="Compare with:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
