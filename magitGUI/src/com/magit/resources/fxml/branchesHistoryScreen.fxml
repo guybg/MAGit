@@ -24,15 +24,15 @@
                   <ColumnConstraints maxWidth="500.0" />
                </columnConstraints>
                <rowConstraints>
-                  <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" />
+                  <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
                   <RowConstraints />
                   <RowConstraints />
                   <RowConstraints />
                </rowConstraints>
                <children>
-                  <VBox GridPane.rowIndex="1" GridPane.rowSpan="3">
+                  <VBox GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.rowSpan="3" GridPane.vgrow="SOMETIMES">
                      <children>
-                        <Label text="Commit information:" underline="true" />
+                        <Label text="Commit information:" underline="true" VBox.vgrow="SOMETIMES" />
                         <HBox spacing="5.0">
                            <children>
                               <Label styleClass="commit-details-label" text="Sha1 code:" wrapText="true" HBox.hgrow="ALWAYS" />
@@ -78,7 +78,7 @@
                         </HBox>
                      </children>
                   </VBox>
-                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.vgrow="SOMETIMES">
                     <items>
                       <AnchorPane>
                            <children>
