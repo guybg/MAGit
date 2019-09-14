@@ -24,10 +24,10 @@
                   <ColumnConstraints maxWidth="500.0" />
                </columnConstraints>
                <rowConstraints>
-                  <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="NEVER" />
+                  <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" />
                   <RowConstraints />
-                  <RowConstraints vgrow="NEVER" />
-                  <RowConstraints vgrow="ALWAYS" />
+                  <RowConstraints />
+                  <RowConstraints />
                </rowConstraints>
                <children>
                   <VBox GridPane.rowIndex="1" GridPane.rowSpan="3">
