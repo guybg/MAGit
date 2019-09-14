@@ -157,11 +157,11 @@ public class MainScreenController implements Initializable, BasicController {
     @FXML
     private RowConstraints buttonbarGridLine;
     @FXML
-    private MenuButton currentRepositoryMenuButton;
+    private Button currentRepositoryMenuButton;
     @FXML
     private MenuItem menuItem1;
-    @FXML
-    private Label menuItem1Label;
+    //@FXML
+    //private Label menuItem1Label;
     @FXML
     private MenuButton currentBranchMenuButton;
     @FXML
@@ -1054,7 +1054,7 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     private void updateBindings() {
-        menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
+        //menuItem1Label.prefWidthProperty().bind(currentRepositoryMenuButton.widthProperty().subtract(15));
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
         branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
         branchesListView.setMaxWidth(Control.USE_PREF_SIZE);

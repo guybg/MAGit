@@ -189,15 +189,7 @@
                   <RowConstraints maxHeight="257.0" minHeight="257.0" prefHeight="257.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <MenuButton fx:id="currentRepositoryMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" wrapText="true" GridPane.hgrow="NEVER">
-                     <items>
-                        <MenuItem fx:id="menuItem1" mnemonicParsing="false">
-                           <graphic>
-                              <Label fx:id="menuItem1Label" />
-                           </graphic>
-                        </MenuItem>
-                        <MenuItem mnemonicParsing="false" />
-                     </items>
+                  <Button fx:id="currentRepositoryMenuButton" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" styleClass="button-bar-button" wrapText="true" GridPane.hgrow="NEVER">
                      <graphic>
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
@@ -222,7 +214,7 @@
                      <padding>
                         <Insets bottom="3.0" left="10.0" right="10.0" top="3.0" />
                      </padding>
-                  </MenuButton>
+                  </Button>
                   <MenuButton fx:id="currentBranchMenuButton" alignment="BASELINE_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="176.0" mnemonicParsing="false" onMouseClicked="#onCurrentBranchMenuButtonClicked" styleClass="button-bar-button" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="NEVER">
                      <padding>
                         <Insets bottom="3.0" left="10.0" right="10.0" top="3.0" />
