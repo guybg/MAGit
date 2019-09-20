@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -24,13 +25,14 @@
                   <ColumnConstraints maxWidth="500.0" />
                </columnConstraints>
                <rowConstraints>
+                  <RowConstraints />
                   <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
                   <RowConstraints />
                   <RowConstraints />
                   <RowConstraints />
                </rowConstraints>
                <children>
-                  <VBox GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" GridPane.rowSpan="3" GridPane.vgrow="SOMETIMES">
+                  <VBox GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" GridPane.rowSpan="3" GridPane.vgrow="SOMETIMES">
                      <children>
                         <Label text="Commit information:" underline="true" VBox.vgrow="SOMETIMES" />
                         <HBox spacing="5.0">
@@ -78,7 +80,7 @@
                         </HBox>
                      </children>
                   </VBox>
-                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="3" GridPane.vgrow="SOMETIMES">
+                  <SplitPane dividerPositions="0.29797979797979796, 0.6565656565656566" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.vgrow="SOMETIMES">
                     <items>
                       <AnchorPane>
                            <children>
@@ -112,8 +114,9 @@
                         </AnchorPane>
                     </items>
                   </SplitPane>
-                  <ComboBox id="branches-history-combo" fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label text="Compare with:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <ComboBox id="branches-history-combo" fx:id="switchDiffComboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label text="Compare with:" underline="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <ToggleButton fx:id="allCommitsToggleButton" mnemonicParsing="false" onAction="#onAllCommitsClicked" text="All commits : OFF" />
                </children>
             </GridPane>
          </children>

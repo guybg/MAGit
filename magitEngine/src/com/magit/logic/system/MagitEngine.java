@@ -251,8 +251,8 @@ public class MagitEngine {
         return mBranchManager.presentCurrentBranch(mRepositoryManager.getRepository());
     }
 
-    public TreeSet<CommitNode> guiBranchesHistory(Model model, BranchesHistoryScreenController branchesHistoryScreenController) throws ParseException, PreviousCommitsLimitExceededException, IOException {
-       return mBranchManager.guiPresentBranchesHistory(mRepositoryManager.getRepository(),model, branchesHistoryScreenController);
+    public TreeSet<CommitNode> guiBranchesHistory(Model model, BranchesHistoryScreenController branchesHistoryScreenController, boolean allCommits) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+       return mBranchManager.guiPresentBranchesHistory(mRepositoryManager.getRepository(),model, branchesHistoryScreenController,allCommits);
     }
 
     public void guiBranchesHistory(Consumer<TreeSet<CommitNode>> infoReadyDelegate, Consumer<String> exceptionHandleDelegate, Model model, BranchesHistoryScreenController branchesHistoryScreenController){

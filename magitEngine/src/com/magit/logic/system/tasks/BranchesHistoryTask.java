@@ -30,7 +30,7 @@ public class BranchesHistoryTask extends Task<TreeSet<CommitNode>> {
 
     @Override
     protected TreeSet<CommitNode> call() throws  ParseException, PreviousCommitsLimitExceededException, IOException {
-        TreeSet<CommitNode> nodes = engine.guiBranchesHistory(model,branchesHistoryScreenController);
+        TreeSet<CommitNode> nodes = engine.guiBranchesHistory(model,branchesHistoryScreenController,branchesHistoryScreenController.getToggleStatus());
         Platform.runLater(() -> infoReadyDelegate.accept(nodes));
         return nodes;
     }

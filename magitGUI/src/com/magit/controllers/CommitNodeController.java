@@ -257,7 +257,7 @@ public class CommitNodeController implements Initializable {
         Graph graph = new Graph();
         Model model = graph.getModel();
 
-        TreeSet<CommitNode> nodes = branchesHistoryScreenController.getEngine().guiBranchesHistory(model,branchesHistoryScreenController);
+        TreeSet<CommitNode> nodes = branchesHistoryScreenController.getEngine().guiBranchesHistory(model,branchesHistoryScreenController, branchesHistoryScreenController.getToggleStatus());
         graph.beginUpdate();
         CommitNode transitTo = null;
         for(ICell node : nodes) {

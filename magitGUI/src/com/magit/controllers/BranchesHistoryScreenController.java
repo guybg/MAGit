@@ -1,5 +1,8 @@
 package com.magit.controllers;
 
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.ICell;
+import com.fxgraph.graph.Model;
 import com.magit.animations.MagitPathTransition;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.logic.enums.FileStatus;
@@ -7,14 +10,17 @@ import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.utils.compare.Delta;
+import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
 import com.sun.javafx.beans.IDProperty;
+import com.sun.scenario.effect.Offset;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -79,9 +85,18 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     private CommitNode lastCommit2Node;
     @FXML
     private ComboBox<String> switchDiffComboBox;
+    @FXML
+    private ToggleButton allCommitsToggleButton;
 
     private TreeSet<CommitNode> nodes;
 
+    enum ToggleStatus{
+        ON, OFF;
+        public static ToggleStatus getStatus(boolean status){
+            if(status) return ON;
+            else return OFF;
+        }
+    }
     void setNodes(TreeSet<CommitNode> nodes) {
         this.nodes = nodes;
     }
@@ -93,7 +108,9 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     public StringProperty getClickedOnActiveBranchesProperty() {
         return clickedOnActiveBranches;
     }
-
+    public boolean getToggleStatus(){
+        return allCommitsToggleButton.isSelected();
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         switchDiffComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -104,6 +121,7 @@ public class BranchesHistoryScreenController implements BasicController, Initial
             if(newValue != null)
                 showDifferencesBetweenCommitAndChosenParent(newValue);
         });
+        allCommitsToggleButton.toFront();
     }
 
     public boolean isAnimationToggle() {
@@ -148,6 +166,42 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     @FXML
     private void onComboBoxClicked(MouseEvent event) {
     }
+
+    @FXML
+    void onAllCommitsClicked(ActionEvent event) {
+        try {
+            allCommitsToggleButton.setText(String.format("All commits : %s", ToggleStatus.getStatus(allCommitsToggleButton.isSelected())));
+            updateGraph();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateGraph() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        Graph graph = new Graph();
+        Model model = graph.getModel();
+
+        TreeSet<CommitNode> nodes = engine.guiBranchesHistory(model,this, allCommitsToggleButton.isSelected());
+        graph.beginUpdate();
+        for(ICell node : nodes) {
+            if(!model.getAllCells().contains(node))
+                model.addCell(node);
+        }
+
+        graph.endUpdate();
+        graph.layout(new CommitTreeLayout());
+        scrollPaneContainer.setContent(graph.getCanvas());
+
+        Platform.runLater(() -> {
+            graph.getUseViewportGestures().set(false);
+            graph.getUseNodeGestures().set(false);
+        });
+    }
+
 
     public void setCreationDateLabel(String creationDate) {
         this.creationDateLabel.setText(creationDate);
