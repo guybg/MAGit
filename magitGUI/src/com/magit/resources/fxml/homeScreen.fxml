@@ -97,7 +97,7 @@
                             <MenuItem fx:id="animationsMenuItem" mnemonicParsing="false" onAction="#onToggleAnimationsStatus" text="animations on/off" />
                           </items>
                         </Menu>
-                        <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
+                        <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help" visible="false">
                            <items>
                               <MenuItem fx:id="aboutMenuItem" mnemonicParsing="false" text="About" />
                            </items>
