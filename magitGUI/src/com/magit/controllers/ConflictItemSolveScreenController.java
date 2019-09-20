@@ -91,7 +91,7 @@ public class ConflictItemSolveScreenController implements BasicController {
         oursTextArea.setDisable(true);
         theirsTextArea.setDisable(true);
         ancestorTextArea.setDisable(true);
-        
+
         if(conflictItem != null){
             FileItemInfo ours = conflictItem.getOurs();
             if(ours!=null){
