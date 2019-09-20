@@ -425,7 +425,7 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void onCommitMessageTextAreaChanged(InputMethodEvent event) {
-        System.out.println();
+        //System.out.println();
     }
 
     @FXML

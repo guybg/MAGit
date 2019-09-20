@@ -150,7 +150,7 @@ public class CommitNode extends AbstractCell implements Comparable<CommitNode>{
     @Override
     public DoubleBinding getXAnchor(Graph graph, IEdge edge) {
         Region graphic = graph.getGraphic(this);
-        System.out.println("added" + edge.getSource() + " -> " + edge.getTarget());
+        //System.out.println("added" + edge.getSource() + " -> " + edge.getTarget());
         return graphic.layoutXProperty().add(commitNodeController.getCircleRadius());
     }
 
