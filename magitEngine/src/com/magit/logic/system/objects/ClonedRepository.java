@@ -73,7 +73,7 @@ public class ClonedRepository extends Repository {
     private void createRemoteTrackingBranchForHead(){
         Branch branch = repository.getBranches().get("HEAD");
         branch.setIsTracking(true);
-        branch.setTrackingAfter(String.join("/", repository.getRepositoryName(), branch.getBranchName()));
+        branch.setTrackingAfter(String.join("\\", repository.getRepositoryName(), branch.getBranchName()));
         getBranches().put(branch.getBranchName(),branch);
     }
 }

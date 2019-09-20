@@ -1,18 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ButtonBar?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.RowConstraints?>
-
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="542.0" prefWidth="884.0" styleClass="merge-screen-main-grid" stylesheets="@../css/home.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.magit.controllers.MergeScreenController">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="542.0" prefWidth="884.0" styleClass="merge-screen-main-grid" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.MergeScreenController">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="631.0" />
@@ -22,6 +12,8 @@
   </columnConstraints>
   <rowConstraints>
     <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
+      <RowConstraints />
+      <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="NEVER" />
     <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
       <RowConstraints />
       <RowConstraints maxHeight="20.0" minHeight="20.0" prefHeight="20.0" vgrow="SOMETIMES" />
@@ -29,8 +21,8 @@
       <RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="SOMETIMES" />
   </rowConstraints>
    <children>
-      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Open Changes" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="3">
+      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Open Changes" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="3">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
@@ -67,15 +59,15 @@
             </AnchorPane>
         </items>
       </SplitPane>
-      <ListView fx:id="conflictsListView" prefHeight="200.0" prefWidth="200.0" styleClass="info-and-text" GridPane.columnIndex="3" GridPane.rowIndex="4" />
-      <ButtonBar id="merge-screen-button-bars" GridPane.columnIndex="3" GridPane.rowIndex="5">
+      <ListView fx:id="conflictsListView" prefHeight="200.0" prefWidth="200.0" styleClass="info-and-text" GridPane.columnIndex="3" GridPane.rowIndex="6" />
+      <ButtonBar id="merge-screen-button-bars" GridPane.columnIndex="3" GridPane.rowIndex="7">
         <buttons>
           <Button fx:id="commitButton" mnemonicParsing="false" onMouseClicked="#onCommit" text="Commit" />
         </buttons>
       </ButtonBar>
-      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Conflicts" GridPane.columnIndex="3" GridPane.rowIndex="3" />
-      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Merge" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-      <GridPane GridPane.columnIndex="3" GridPane.rowIndex="2">
+      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Conflicts" GridPane.columnIndex="3" GridPane.rowIndex="5" />
+      <Label maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Merge" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <GridPane GridPane.columnIndex="3" GridPane.rowIndex="4">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" />
         </columnConstraints>

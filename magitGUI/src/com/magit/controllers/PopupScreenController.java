@@ -2,6 +2,7 @@ package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.controllers.interfaces.BasicPopupScreenControllerExpanded;
 import com.magit.logic.system.MagitEngine;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -14,7 +15,6 @@ public class PopupScreenController implements BasicController {
     private MagitEngine engine;
     private Stage stage;
     private BasicPopupScreenController controller;
-
     @FXML
     private Label popupHeadMessageLable;
 
@@ -49,11 +49,13 @@ public class PopupScreenController implements BasicController {
 
     @FXML
     void onAccept(ActionEvent event) {
-        controller.onAccept(event);
+            controller.onAccept(event);
     }
 
     @FXML
     void onCancel(ActionEvent event) {
+        if(controller instanceof BasicPopupScreenControllerExpanded)
+            ((BasicPopupScreenControllerExpanded) controller).onPreClose(event);
         Button chosen = (Button)event.getSource();
         Stage curStage = (Stage) chosen.getScene().getWindow();
         curStage.close();

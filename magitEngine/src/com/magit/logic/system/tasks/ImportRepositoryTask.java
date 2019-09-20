@@ -30,9 +30,10 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private MagitEngine engine;
     private AnchorPane pane;
     private StringProperty repositoryNameProperty;
+    private StringProperty repositoryPathProperty;
     private Runnable forceCreationRunnable;
-
-    public ImportRepositoryTask(String filePath, MagitEngine engine, AnchorPane pane, StringProperty repositoryNameProperty,Runnable forceCreationRunnable, boolean forceCreation) {
+    private Runnable doAfter;
+    public ImportRepositoryTask(String filePath, MagitEngine engine, AnchorPane pane, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable,Runnable doAfter, boolean forceCreation) {
         this.filePath = filePath;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
@@ -40,7 +41,9 @@ public class ImportRepositoryTask extends Task<Boolean> {
         this.engine = engine;
         this.pane = pane;
         this.repositoryNameProperty = repositoryNameProperty;
+        this.repositoryPathProperty = repositoryPathProperty;
         this.forceCreationRunnable = forceCreationRunnable;
+        this.doAfter = doAfter;
     }
 
     private boolean importRepositoryXML() throws RepositoryAlreadyExistsException {
@@ -85,6 +88,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         Platform.runLater(() -> {
             repositoryNameProperty.setValue("");
             repositoryNameProperty.setValue(engine.getRepositoryName());
+            repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
         });
         return true;
     }
@@ -94,21 +98,27 @@ public class ImportRepositoryTask extends Task<Boolean> {
         boolean success = false;
         try {
             success = importRepositoryXML();
+
         } catch (RepositoryAlreadyExistsException e) {
             Platform.runLater(() -> {
                 forceCreationRunnable.run();
             });
         }
-        Platform.runLater(() -> {
-            KeyFrame keyFrame = new KeyFrame(Duration.seconds(10), event -> pane.setVisible(false));
-            Timeline timer = new Timeline(keyFrame);
-            timer.playFromStart();
-        });
+        deleteProgressBar();
 
        return success;
     }
 
-
+    private void deleteProgressBar(){
+        Platform.runLater(() -> {
+            KeyFrame keyFrame = new KeyFrame(Duration.seconds(5), event -> {
+                pane.setVisible(false);
+                doAfter.run();
+            });
+            Timeline timer = new Timeline(keyFrame);
+            timer.playFromStart();
+        });
+    }
     private boolean initializeXmlParser(){
         updateMessage("Fetching file...");
         updateProgress(0, 1);

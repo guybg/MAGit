@@ -1,2 +1,6 @@
 Manifest-Version: 1.0
+Class-Path: external-Libs\AncestorFinder.jar external-Libs\commons-cod
+ ec-1.12.jar external-Libs\commons-collections4-4.3.jar external-Libs\
+ commons-io-2.6.jar external-Libs\commons-lang3-3.9.jar external-Libs\
+ fxgraph-0.0.3.jar
 

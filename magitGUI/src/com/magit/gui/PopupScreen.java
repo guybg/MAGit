@@ -4,6 +4,7 @@ import com.magit.controllers.MergeScreenController;
 import com.magit.controllers.PopupScreenController;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.controllers.interfaces.BasicPopupScreenControllerExpanded;
 import com.magit.logic.system.MagitEngine;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -18,7 +19,7 @@ import java.io.IOException;
 public class PopupScreen {
     private Stage stage;
     private MagitEngine engine;
-
+    private boolean load = true;
     public PopupScreen(Stage stage, MagitEngine engine) {
         this.stage = stage;
         this.engine = engine;
@@ -95,6 +96,14 @@ public class PopupScreen {
             createPopup(layout, loader.getController());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public void showErrorMessage(String message){
+        try {
+            createNotificationPopup(null,false,"Oops.. something went wrong.", message,"Close");
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 }

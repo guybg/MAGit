@@ -40,7 +40,7 @@ public class BranchManager {
             throw new RemoteReferenceException("Current repository is not tracking after other repository.");
         if(!branch.getIsRemote())
             throw new BranchNotFoundException("Given Branch is not remote branch at current repository.", branch.getBranchName());
-        createNewBranch(branch.getBranchName().split("/")[1],
+        createNewBranch(branch.getBranchName().split("\\\\")[1],
                 repository, branch.getPointedCommitSha1().toString(),false, true, branch.getBranchName());
     }
     public void createNewBranch(String branchName, Repository repository,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException, InvalidNameException, BranchAlreadyExistsException {
@@ -77,9 +77,10 @@ public class BranchManager {
     }
 
 
-    public TreeSet<CommitNode> guiPresentBranchesHistory(Repository activeRepository, Model model, BranchesHistoryScreenController branchesHistoryScreenController) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    public TreeSet<CommitNode> guiPresentBranchesHistory(Repository activeRepository, Model model, BranchesHistoryScreenController branchesHistoryScreenController, boolean allCommits) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         TreeSet<CommitNode> nodes = new TreeSet<>();
         ArrayList<Edge> edges = new ArrayList<>();
+        ArrayList<String> commits = new ArrayList<>();
         for(Map.Entry<String,Branch> branchEntry :  activeRepository.getBranches().entrySet()){
             if(branchEntry.getKey().equals("HEAD")) continue;
             Path pathToBranchFile = Paths.get(activeRepository.getBranchDirectoryPath().toString(),
@@ -88,6 +89,7 @@ public class BranchManager {
                 throw new FileNotFoundException("No Branch file, repository is invalid...");
 
             String sha1OfCommit = Repository.readBranchContent(pathToBranchFile.toFile()).get("sha1");
+            commits.add(sha1OfCommit);
             Path pathToCommit = Paths.get(activeRepository.getObjectsFolderPath().toString(), sha1OfCommit);
             if (Files.notExists(pathToCommit))
                 throw new FileNotFoundException("No commit file, there is no history to show...");
@@ -95,6 +97,19 @@ public class BranchManager {
             Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
             if(mostRecentCommit == null) continue;
             guiBranchesHistory(mostRecentCommit, activeRepository,nodes, edges, model, branchEntry.getValue(), branchesHistoryScreenController);
+        }
+
+        if(allCommits){
+            for(String sha1 : activeRepository.getAllCommitsOfRepository()){
+                if(!commits.contains(sha1)){
+                    Path pathToCommit = Paths.get(activeRepository.getObjectsFolderPath().toString(), sha1);
+                    if (Files.notExists(pathToCommit))
+                        throw new FileNotFoundException("No commit file, there is no history to show...");
+                    Commit mostRecentCommit = Commit.createCommitInstanceByPath(pathToCommit);
+                    if(mostRecentCommit == null) continue;
+                    guiBranchesHistory(mostRecentCommit, activeRepository,nodes, edges, model, null, branchesHistoryScreenController);
+                }
+            }
         }
         return nodes;
     }
@@ -140,14 +155,16 @@ public class BranchManager {
 
     public TreeSet<CommitNode> guiBranchesHistory(Commit mostRecentCommit, Repository activeRepository,TreeSet<CommitNode> nodes, ArrayList<Edge> edges, Model model, Branch branch, BranchesHistoryScreenController branchesHistoryScreenController) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         CommitNode child = new CommitNode(mostRecentCommit, branchesHistoryScreenController);
-        child.addActiveBranch(branch);
+        if(branch != null)
+            child.addActiveBranch(branch);
         if(!nodes.contains(child))
             nodes.add(child);
         else{
             for(CommitNode node : nodes){
                 if(child.equals(node)){
                     child = node;
-                    child.addActiveBranch(branch);
+                    if(branch != null)
+                        child.addActiveBranch(branch);
                 }
             }
         }
@@ -170,7 +187,8 @@ public class BranchManager {
             commits.add(parent);
             if(!commits.contains(parent)) {
                 guiEdgeExists(currentCommitNode, edges, model, parent);
-                parent.addBranch(branch);
+                if(branch != null)
+                    parent.addBranch(branch);
                 currentCommitNode.addParent(parent);
             }else{
                 for(CommitNode commitNode: commits){
@@ -181,7 +199,8 @@ public class BranchManager {
                     }
                 }
             }
-            parent.addBranch(branch);
+            if(branch != null)
+                parent.addBranch(branch);
             guiGetAllPreviousCommitsHistoryString(currentCommitInHistory, activeRepository, parent, commits,edges,model, branch,branchesHistoryScreenController);
         }
     }
@@ -202,7 +221,7 @@ public class BranchManager {
     }
 
 
-    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedException, BranchNotFoundException {
+    public void deleteBranch(String branchNameToDelete, Repository activeRepository) throws IOException, ActiveBranchDeletedException, BranchNotFoundException, RemoteBranchException {
         if (Files.notExists(activeRepository.getHeadPath()))
             throw new FileNotFoundException("Head file not found, repository is invalid.");
 
@@ -213,6 +232,8 @@ public class BranchManager {
         if (!activeRepository.getBranches().containsKey(branchNameToDelete))
             throw new BranchNotFoundException(branchNameToDelete, "Branch '" + branchNameToDelete + "' cannot be deleted, because it does not exist at current repository.");
 
+        if(activeRepository.getBranches().get(branchNameToDelete).getIsRemote())
+            throw new RemoteBranchException("Remote branches cannot be deleted.",branchNameToDelete);
         FileUtils.deleteQuietly(Paths.get(activeRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
         activeRepository.getBranches().remove(branchNameToDelete);
     }

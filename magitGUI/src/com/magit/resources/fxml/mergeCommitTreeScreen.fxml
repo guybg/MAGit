@@ -2,7 +2,7 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="233.0" prefWidth="315.0" style="-fx-border-color: black;" stylesheets="@../css/home.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.171" fx:controller="com.magit.controllers.DeleteBranchFromCommitTreeScreenController">
+<GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="233.0" prefWidth="315.0" style="-fx-border-color: black;" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.magit.controllers.MergeCommitTreeScreenController">
   <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" maxWidth="10.0" minWidth="10.0" prefWidth="10.0" />
     <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -22,8 +22,8 @@
   </rowConstraints>
    <children>
       <ComboBox fx:id="comboBox" maxWidth="1.7976931348623157E308" onMouseClicked="#onComboBoxClicked" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-      <Label style="-fx-font-weight: bold;" text="Delete branch" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <Label text="Choose branch:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <Label style="-fx-font-weight: bold;" text="Merge" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <Label text="Merge with:" GridPane.columnIndex="1" GridPane.rowIndex="3" />
       <ButtonBar style="-fx-background-color: transparent; -fx-border-color: transparent;" GridPane.columnIndex="1" GridPane.rowIndex="7">
         <buttons>
           <Button fx:id="acceptButton" mnemonicParsing="false" onAction="#onAccept" styleClass="accept-button" text="Accept" />

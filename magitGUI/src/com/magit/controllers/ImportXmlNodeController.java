@@ -1,7 +1,7 @@
 package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
-import com.magit.controllers.interfaces.BasicPopupScreenController;
+import com.magit.controllers.interfaces.BasicPopupScreenControllerExpanded;
 import com.magit.gui.PopupScreen;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
@@ -14,6 +14,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -25,7 +26,8 @@ public class ImportXmlNodeController implements BasicController {
     private ImportRepositoryTask task;
     private File file;
     private StringProperty repositoryNameProperty;
-
+    private StringProperty repositoryPathProperty;
+    private Runnable doAfter;
     @FXML
     private Label currentStatus;
 
@@ -42,31 +44,40 @@ public class ImportXmlNodeController implements BasicController {
         currentStatus.textProperty().bind(task.messageProperty());
     }
 
-    public void start(boolean forceCreation){
+    public void start(boolean forceCreation, Runnable doAfter){
+        this.doAfter = doAfter;
         pane.setVisible(false);
         browseXml();
-        if(file == null) return;
+        if(file == null) {
+            this.doAfter.run();
+            return;
+        }
         pane.setVisible(true);
         importXml(forceCreation);
     }
 
     void importXml(boolean forceCreation) {
-        task = new ImportRepositoryTask(file.getAbsolutePath(), engine, pane, repositoryNameProperty, new Runnable() {
-            @Override
-            public void run() {
-                PopupScreen popupScreen = new PopupScreen(stage,engine);
-                try {
-                    popupScreen.createNotificationPopup(event -> {
-                        task = new ImportRepositoryTask(file.getAbsolutePath(), engine, pane, repositoryNameProperty, null,true);
-                        bindTaskToUi(task);
-                        new Thread(task).start();
-                        ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
-                    }, true,"Repository already exists notification","Would you like to replace current repository with XML repository?","Cancel");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        task = new ImportRepositoryTask(file.getAbsolutePath(), engine, pane, repositoryNameProperty,repositoryPathProperty, () -> {
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            try {
+                popupScreen.createNotificationPopup(new BasicPopupScreenControllerExpanded() {
+                                                        @Override
+                                                        public void onPreClose(ActionEvent event) {
+                                                            doAfter.run();
+                                                        }
+
+                                                        @Override
+                                                        public void onAccept(ActionEvent event) {
+                                                            task = new ImportRepositoryTask(file.getAbsolutePath(), engine, pane, repositoryNameProperty, repositoryPathProperty, null, doAfter, true);
+                                                            bindTaskToUi(task);
+                                                            new Thread(task).start();
+                                                            ((Stage)((Button)event.getSource()).getScene().getWindow()).close();
+                                                        }
+                }, true,"Repository already exists notification","Would you like to replace current repository with XML repository?","Cancel");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        }, forceCreation);
+        },doAfter, forceCreation);
         bindTaskToUi(task);
 
         new Thread(task).start();
@@ -91,5 +102,8 @@ public class ImportXmlNodeController implements BasicController {
 
     public void setRepositoryNameProperty(StringProperty repositoryNameProperty) {
         this.repositoryNameProperty = repositoryNameProperty;
+    }
+    public void setRepositoryPathProperty(StringProperty repositoryPathProperty) {
+        this.repositoryPathProperty = repositoryPathProperty;
     }
 }

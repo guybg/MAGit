@@ -104,7 +104,7 @@ public class RepositoryManager {
         }
         String branchName = branchFile.getName();
         if(isBranchInDirectory){
-            branchName = String.join("/",branchFile.getParentFile().getName(),branchName);
+            branchName = String.join("\\",branchFile.getParentFile().getName(),branchName);
         }
         repository.addBranch(branchName
                 , new Branch(branchName, branchContent.get(sha1),trackingAfterValue, Boolean.valueOf(branchContent.get(isRemote)), Boolean.valueOf(branchContent.get(isTracking))));

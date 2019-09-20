@@ -3,40 +3,35 @@ package com.magit.controllers;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.Model;
-import com.fxgraph.graph.PannableCanvas;
+import com.magit.animations.MagitPathTransition;
 import com.magit.animations.PulseTransition;
 import com.magit.gui.PopupScreen;
-import com.magit.logic.exceptions.*;
+import com.magit.logic.exceptions.BranchNotFoundException;
+import com.magit.logic.exceptions.CommitNotFoundException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
+import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
-import com.sun.org.apache.xml.internal.security.Init;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.canvas.Canvas;
-import javafx.scene.control.*;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
@@ -67,10 +62,45 @@ public class CommitNodeController implements Initializable {
     private ArrayList<String> branches;
     private ArrayList<String> activeBranches;
     private BranchesHistoryScreenController branchesHistoryScreenController;
+    private StringProperty clickedActiveBranches;
+    private BooleanProperty hasBranches;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        hasBranches = new SimpleBooleanProperty(false);
+        CommitCircle.setFill(Color.RED);
 
+        hasBranches.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                if (activeBranches == null || activeBranches.isEmpty())
+                    CommitCircle.setFill(Color.BLUE);
+                else
+                    CommitCircle.setFill(Color.YELLOW);
+            } else{
+                CommitCircle.setFill(Color.RED);
+            }
+        });
+    }
+
+    public Label getActiveBranchesLabel() {
+        return activeBranchLabel;
+    }
+
+    public void setClickedActiveBranches(StringProperty clickedActiveBranches) {
+        this.clickedActiveBranches = clickedActiveBranches;
+        clickedActiveBranches.addListener((observable, oldValue, newValue) -> {
+            gridPane.getStyleClass().clear();
+            gridPane.getStyleClass().add("single-commit-row-container");
+            if (null == branches || branches.isEmpty())
+                return;
+            for (String branchName : branches) {
+                if (Arrays.asList(clickedActiveBranches.getValue().split(",")).contains(branchName)) {
+                    gridPane.getStyleClass().add("marked-node");
+                    if (branchesHistoryScreenController.isAnimationToggle())
+                        new PulseTransition(gridPane).play();
+                }
+            }
+        });
     }
 
     public void setCommitTimeStamp(String timeStamp) {
@@ -90,6 +120,10 @@ public class CommitNodeController implements Initializable {
     }
 
     public void setBranches(ArrayList<String> branches) {
+        if(!branches.isEmpty())
+            hasBranches.setValue(true);
+        else
+            hasBranches.setValue(false);
         this.branches = branches;
     }
 
@@ -140,57 +174,73 @@ public class CommitNodeController implements Initializable {
         branchesHistoryScreenController.setLastCommit1Node(parents.get(parent1Sha1));
         branchesHistoryScreenController.setLastCommit2Node(parents.get(parent2Sha1));
         branchesHistoryScreenController.setAllBranchesLabel(String.join(", ", branches), branches.size());
-        PulseTransition pulseTransition= new PulseTransition(gridPane);
-        pulseTransition.play();
+        if (branchesHistoryScreenController.isAnimationToggle()) {
+            PulseTransition pulseTransition= new PulseTransition(gridPane);
+            pulseTransition.play();
+        }
         gridPane.requestFocus();
         branchesHistoryScreenController.focusChanged.setValue(!branchesHistoryScreenController.focusChanged.getValue());
         focused = true;
+        if (null != activeBranches) {
+            clickedActiveBranches.setValue(" ");
+            clickedActiveBranches.setValue(String.join(",", activeBranches));
+        }
+        else
+            clickedActiveBranches.setValue(" ");
+    }
+
+    private void showErrorMessage(String message){
+        PopupScreen popupScreen = new PopupScreen((Stage)messageLabel.getScene().getWindow(),branchesHistoryScreenController.getEngine());
+        popupScreen.showErrorMessage(message);
     }
 
     @FXML
     void onDeletePointingBranch(ActionEvent event) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        if(activeBranches == null) {
+            showErrorMessage("There are no branches to delete on selected commit");
+            return;
+        }
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("/com/magit/resources/fxml/deleteBranchFromCommitTreeScreen.fxml"));
         Parent layout = loader.load();
         ((DeleteBranchFromCommitTreeScreenController)loader.getController()).setBranches(activeBranches);
         PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
         popupScreen.createPopup(layout,loader.getController());
-        updateGraph();
+        updateGraph(false);
     }
 
     @FXML
-    void onMergeWithHead(ActionEvent event) throws IOException {
-      //  branchesHistoryScreenController.getEngine().merge();
-      //  PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
-      //  FXMLLoader loader = new FXMLLoader();
-      //  loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeScreen.fxml"));
-      //  Parent layout = loader.load();
-      //  popupScreen.createPopup(layout, loader.getController());
+    void onMergeWithHead(ActionEvent event) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(getClass().getResource("/com/magit/resources/fxml/mergeCommitTreeScreen.fxml"));
+            Parent layout = loader.load();
+            MergeCommitTreeScreenController mergeScreenController = loader.getController();
+            mergeScreenController.setEngine(branchesHistoryScreenController.getEngine());
+            mergeScreenController.setStage(((Stage)activeBranchLabel.getScene().getWindow()));
+            mergeScreenController.setBranchesAtCommit(branchesHistoryScreenController.getEngine().getNonRemoteBranchesOfCommit(sha1));
+            PopupScreen popupScreen = new PopupScreen(((Stage)activeBranchLabel.getScene().getWindow()),branchesHistoryScreenController.getEngine());
+            popupScreen.createPopup(layout, loader.getController());
+            updateGraph(false);
+        } catch (BranchNotFoundException e) {
+            showErrorMessage(e.getMessage());
+        }
     }
 
     @FXML
-    void onNewBranch(ActionEvent event) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    void onNewBranch(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/generalScreenEnterString.fxml"));
+        loader.setLocation(getClass().getResource("/com/magit/resources/fxml/createBranchScreen.fxml"));
         Parent layout = loader.load();
-        GeneralScreenEnterStringController changeBranchController =
-                MainScreenController.getGeneralScreen(loader, "New Branch", "Branch name:");
-        changeBranchController.setController(buttonEvent -> {
+        CreateBranchScreenController changeBranchController =
+               loader.getController();
+        changeBranchController.setEngine(branchesHistoryScreenController.getEngine());
+        changeBranchController.setStage(branchesHistoryScreenController.getStage());
+        changeBranchController.setSha1OfCommit(sha1);
+        changeBranchController.setRefreshGraph(() -> {
             try {
-                String branchName = changeBranchController.getTextFieldValue();
-                branchesHistoryScreenController.getEngine().createNewBranch(branchName, sha1);
-                updateGraph();
-                ((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()).close();
-            } catch (InvalidNameException e) {
-                changeBranchController.setError(e.getMessage());
-            } catch (BranchAlreadyExistsException e) {
-                PopupScreen popupScreen = new PopupScreen(((Stage)((Button)buttonEvent.getSource()).getScene().getWindow()),branchesHistoryScreenController.getEngine());
-                try {
-                    popupScreen.createNotificationPopup(null,false,"Oops... could not create new branch", e.getMessage(),"Close");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            } catch (RepositoryNotFoundException | IOException | PreviousCommitsLimitExceededException | ParseException e) {
+                updateGraph(false);
+            } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
                 e.printStackTrace();
             }
         });
@@ -202,28 +252,54 @@ public class CommitNodeController implements Initializable {
     void onResetHead(ActionEvent event) {
         try {
             branchesHistoryScreenController.getEngine().changeBranchPointedCommit(sha1);
-            updateGraph();
+            updateGraph(true);
         } catch (IOException | PreviousCommitsLimitExceededException | RepositoryNotFoundException | ParseException | CommitNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private void updateGraph() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    private void updateGraph(boolean isReset) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         Graph graph = new Graph();
         Model model = graph.getModel();
 
-        TreeSet<CommitNode> nodes = branchesHistoryScreenController.getEngine().guiBranchesHistory(model,branchesHistoryScreenController);
+        TreeSet<CommitNode> nodes = branchesHistoryScreenController.getEngine().guiBranchesHistory(model,branchesHistoryScreenController, branchesHistoryScreenController.getToggleStatus());
         graph.beginUpdate();
+        CommitNode transitTo = null;
         for(ICell node : nodes) {
             if(!model.getAllCells().contains(node))
                 model.addCell(node);
+            if (((CommitNode)node).getSha1().equals(sha1))
+                transitTo =((CommitNode)node);
         }
+
         graph.endUpdate();
         graph.layout(new CommitTreeLayout());
-        branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
+        if (branchesHistoryScreenController.isAnimationToggle() && isReset)
+            prepareAnimationParameters(graph, transitTo, nodes);
+        else
+            branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas());
+
         Platform.runLater(() -> {
             graph.getUseViewportGestures().set(false);
             graph.getUseNodeGestures().set(false);
         });
+    }
+
+    private void prepareAnimationParameters(Graph graph, CommitNode transitTo, TreeSet<CommitNode> nodes) {
+        Label labelToMove = null;
+        String activeBranchName = branchesHistoryScreenController.getEngine().getHeadBranchName();
+        for (CommitNode node : branchesHistoryScreenController.getNodes()) {
+            if (node.getActiveBranches().stream().map(Branch::getBranchName).anyMatch(i -> i.equals(activeBranchName))) {
+                labelToMove = node.getActiveBranchLabel();
+            }
+        }
+        branchesHistoryScreenController.setNodes(nodes);
+        if (null != transitTo) {
+            MagitPathTransition magitPathTransition = new MagitPathTransition(transitTo, labelToMove);
+            magitPathTransition.pathTransition.setOnFinished(
+                    event -> branchesHistoryScreenController.scrollPaneContainer.setContent(graph.getCanvas()));
+            labelToMove.setText(activeBranchName);
+            magitPathTransition.play();
+        }
     }
 }

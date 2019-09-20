@@ -5,7 +5,7 @@
 }
 
 .message-label {
-    -fx-text-fill: deeppink;
+    -fx-text-fill: darkblue;
     -fx-font-size: 18px;
 }
 
@@ -50,4 +50,12 @@
 #activeBranchLabel{
     -fx-font-weight: bold;
     -fx-text-fill: #112059;
+}
+
+.marked-node {
+    -fx-border-color: black;
+    -fx-background-color: #eeec2a;
+    -fx-opacity: 0.8;
+    -fx-background-radius: 15px;
+    -fx-border-radius: 15px;
 }

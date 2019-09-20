@@ -3,7 +3,6 @@ package com.magit.animations;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.animation.TimelineBuilder;
 import javafx.scene.Node;
 import javafx.util.Duration;
 

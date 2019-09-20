@@ -1,29 +1,15 @@
 package com.magit.controllers;
 
-import com.magit.gui.DragResizer;
-import com.magit.gui.ResizeHelper;
-import com.magit.logic.enums.FileType;
-import com.magit.logic.system.objects.FileItem;
+
 import com.magit.logic.system.objects.FileItemInfo;
-import com.magit.logic.system.objects.Tree;
-import com.magit.logic.utils.digest.Sha1;
-import com.sun.rowset.internal.Row;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.RowConstraints;
-import javafx.stage.Stage;
-
-import java.util.*;
 
 public class TableScreenController {
     private ObservableList<FileItemInfo> itemsInfo;

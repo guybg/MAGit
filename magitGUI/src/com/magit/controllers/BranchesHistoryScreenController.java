@@ -1,38 +1,42 @@
 package com.magit.controllers;
 
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.ICell;
+import com.fxgraph.graph.Model;
 import com.magit.controllers.interfaces.BasicController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.utils.compare.Delta;
+import com.magit.logic.visual.layout.CommitTreeLayout;
 import com.magit.logic.visual.node.CommitNode;
-import com.sun.javafx.beans.IDProperty;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class BranchesHistoryScreenController implements BasicController, Initializable {
     private Stage stage;
     private MagitEngine engine;
-    public BooleanProperty focusChanged = new SimpleBooleanProperty();
+    private boolean animationToggle = false;
+
+    BooleanProperty focusChanged = new SimpleBooleanProperty();
     @FXML
     public ScrollPane scrollPaneContainer;
 
@@ -69,11 +73,37 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     @FXML
     private Hyperlink lastCommit2HyperLink;
 
+    private StringProperty clickedOnActiveBranches = new SimpleStringProperty();
     private CommitNode lastCommit1Node;
     private CommitNode lastCommit2Node;
     @FXML
     private ComboBox<String> switchDiffComboBox;
+    @FXML
+    private ToggleButton allCommitsToggleButton;
 
+    private TreeSet<CommitNode> nodes;
+
+    enum ToggleStatus{
+        ON, OFF;
+        public static ToggleStatus getStatus(boolean status){
+            if(status) return ON;
+            else return OFF;
+        }
+    }
+    void setNodes(TreeSet<CommitNode> nodes) {
+        this.nodes = nodes;
+    }
+
+    TreeSet<CommitNode> getNodes() {
+        return nodes;
+    }
+
+    public StringProperty getClickedOnActiveBranchesProperty() {
+        return clickedOnActiveBranches;
+    }
+    public boolean getToggleStatus(){
+        return allCommitsToggleButton.isSelected();
+    }
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         switchDiffComboBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -84,6 +114,15 @@ public class BranchesHistoryScreenController implements BasicController, Initial
             if(newValue != null)
                 showDifferencesBetweenCommitAndChosenParent(newValue);
         });
+        allCommitsToggleButton.toFront();
+    }
+
+    public boolean isAnimationToggle() {
+        return animationToggle;
+    }
+
+    public void setAnimationToggle(boolean animationToggle) {
+        this.animationToggle = animationToggle;
     }
 
     public void setCurCommitSha1Label(String curCommitSha1) {
@@ -120,6 +159,42 @@ public class BranchesHistoryScreenController implements BasicController, Initial
     @FXML
     private void onComboBoxClicked(MouseEvent event) {
     }
+
+    @FXML
+    void onAllCommitsClicked(ActionEvent event) {
+        try {
+            allCommitsToggleButton.setText(String.format("All commits : %s", ToggleStatus.getStatus(allCommitsToggleButton.isSelected())));
+            updateGraph();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateGraph() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        Graph graph = new Graph();
+        Model model = graph.getModel();
+
+        TreeSet<CommitNode> nodes = engine.guiBranchesHistory(model,this, allCommitsToggleButton.isSelected());
+        graph.beginUpdate();
+        for(ICell node : nodes) {
+            if(!model.getAllCells().contains(node))
+                model.addCell(node);
+        }
+
+        graph.endUpdate();
+        graph.layout(new CommitTreeLayout());
+        scrollPaneContainer.setContent(graph.getCanvas());
+
+        Platform.runLater(() -> {
+            graph.getUseViewportGestures().set(false);
+            graph.getUseNodeGestures().set(false);
+        });
+    }
+
 
     public void setCreationDateLabel(String creationDate) {
         this.creationDateLabel.setText(creationDate);
@@ -207,7 +282,7 @@ public class BranchesHistoryScreenController implements BasicController, Initial
 
     public void setAllBranchesLabel(String allBranches, int numberOfBranches) {
         this.allBranchesLabel.setText(allBranches);
-        this.allBranchesTitleLabel.setText("in " + numberOfBranches + " branches:");
+        this.allBranchesTitleLabel.setText("In " + numberOfBranches + " branches:");
         setCommitLabelToolTip(allBranchesLabel);
     }
 
