@@ -599,6 +599,8 @@ public class MainScreenController implements Initializable, BasicController {
     void onFetch(ActionEvent event) {
         try {
             engine.fetch();
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            popupScreen.showErrorMessage("Fetch complete!");
         } catch (PreviousCommitsLimitExceededException | CommitNotFoundException | ParseException | IOException | RemoteReferenceException e) {
             PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
