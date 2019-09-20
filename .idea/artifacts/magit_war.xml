@@ -2,12 +2,12 @@
   <artifact type="exploded-war" name="magit:war">
     <output-path>$PROJECT_DIR$/out/artifacts/magit_war</output-path>
     <root id="root">
-      <element id="javaee-facet-resources" facet="MagitWebBackend/web/Web" />
       <element id="directory" name="WEB-INF">
         <element id="directory" name="classes">
           <element id="module-output" name="MagitWebBackend" />
         </element>
       </element>
+      <element id="javaee-facet-resources" facet="MagitWebBackend/web/Web" />
     </root>
   </artifact>
 </component>
