@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/MagitWebBackend/MagitWebBackend.iml" filepath="$PROJECT_DIR$/MagitWebBackend/MagitWebBackend.iml" />
       <module fileurl="file://$PROJECT_DIR$/magitEngine/magitEngine.iml" filepath="$PROJECT_DIR$/magitEngine/magitEngine.iml" />
       <module fileurl="file://$PROJECT_DIR$/magitGUI/magitGUI.iml" filepath="$PROJECT_DIR$/magitGUI/magitGUI.iml" />
       <module fileurl="file://$PROJECT_DIR$/magitUI/magitUI.iml" filepath="$PROJECT_DIR$/magitUI/magitUI.iml" />
