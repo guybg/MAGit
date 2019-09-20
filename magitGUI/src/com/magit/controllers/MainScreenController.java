@@ -417,6 +417,12 @@ public class MainScreenController implements Initializable, BasicController {
                 popupScreen.createNotificationPopup(event12 -> {
                 }, false, "Commit creation notification", "Files commited successfully", "Close");
                 updateDifferences();
+                try {
+                    commitDateLeftDownLabel.setText(engine.getLastCommitDateAndMessage().get(0));
+                    commitMessageLeftDownLabel.setText(engine.getLastCommitDateAndMessage().get(1));
+                } catch (IOException | PreviousCommitsLimitExceededException | ParseException e) {
+                    e.printStackTrace();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
