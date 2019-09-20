@@ -1054,7 +1054,6 @@ public class MainScreenController implements Initializable, BasicController {
     }
 
     private void updateBindings() {
-        //menuItem1Label.prefWidthProperty().bind(currentRepositoryButton.widthProperty().subtract(15));
         switchUserLabel.prefWidthProperty().bind(userNameMenuButton.widthProperty().subtract(15));
         branchesListView.prefWidthProperty().bind(currentBranchMenuButton.widthProperty().subtract(15));
         branchesListView.setMaxWidth(Control.USE_PREF_SIZE);
@@ -1073,6 +1072,7 @@ public class MainScreenController implements Initializable, BasicController {
                 .then(repositoryNameProperty)
                 .otherwise("No repository"));
         branchNameProperty = new SimpleStringProperty();
+        branchNameProperty.setValue("");
         menuButtonBranchNameLabel.textProperty().bind(Bindings
                 .when(branchNameProperty.isNotEqualTo(""))
                 .then(branchNameProperty)
