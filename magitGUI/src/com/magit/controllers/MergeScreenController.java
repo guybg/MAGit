@@ -8,13 +8,8 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.ConflictItem;
 import com.magit.logic.system.objects.FileItemInfo;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -31,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 public class MergeScreenController implements BasicController, Initializable {
     private Stage stage;

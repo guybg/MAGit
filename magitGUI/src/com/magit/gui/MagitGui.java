@@ -3,8 +3,6 @@ package com.magit.gui;
 import com.magit.controllers.MainScreenController;
 import com.magit.logic.system.MagitEngine;
 import javafx.application.Application;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

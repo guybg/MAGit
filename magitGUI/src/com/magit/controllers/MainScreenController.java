@@ -274,7 +274,6 @@ public class MainScreenController implements Initializable, BasicController {
 
     @FXML
     void OnChangeWindowSizeButtonAction(ActionEvent event) {
-        Button sizeButton = (Button) event.getSource();
         Stage stage = (Stage) minimizeButton.getScene().getWindow();
         if (stage.isMaximized()) {
             restoreWindow();

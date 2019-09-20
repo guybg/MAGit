@@ -1,7 +1,6 @@
 package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
-import com.magit.gui.PopupScreen;
 import com.magit.logic.exceptions.BranchAlreadyExistsException;
 import com.magit.logic.exceptions.BranchNotFoundException;
 import com.magit.logic.exceptions.InvalidNameException;
@@ -10,11 +9,7 @@ import com.magit.logic.system.MagitEngine;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 

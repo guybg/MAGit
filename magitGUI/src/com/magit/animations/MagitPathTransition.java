@@ -2,8 +2,6 @@ package com.magit.animations;
 
 import com.magit.logic.visual.node.CommitNode;
 import javafx.animation.PathTransition;
-import javafx.animation.RotateTransition;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;

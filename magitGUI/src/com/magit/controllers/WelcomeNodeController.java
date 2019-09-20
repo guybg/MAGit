@@ -11,7 +11,6 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class WelcomeNodeController implements BasicController, Initializable {
     Runnable onCreate;

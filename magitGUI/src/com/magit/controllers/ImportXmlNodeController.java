@@ -1,7 +1,6 @@
 package com.magit.controllers;
 
 import com.magit.controllers.interfaces.BasicController;
-import com.magit.controllers.interfaces.BasicPopupScreenController;
 import com.magit.controllers.interfaces.BasicPopupScreenControllerExpanded;
 import com.magit.gui.PopupScreen;
 import com.magit.logic.system.MagitEngine;
@@ -15,6 +14,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 
