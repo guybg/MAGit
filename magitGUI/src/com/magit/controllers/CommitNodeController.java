@@ -16,6 +16,8 @@ import javafx.animation.Animation;
 import javafx.animation.PathTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -75,10 +77,23 @@ public class CommitNodeController implements Initializable {
     private ArrayList<String> activeBranches;
     private BranchesHistoryScreenController branchesHistoryScreenController;
     private StringProperty clickedActiveBranches;
-
+    private BooleanProperty hasBranches;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        hasBranches = new SimpleBooleanProperty(false);
+        CommitCircle.setFill(Color.RED);
+
+        hasBranches.addListener((observable, oldValue, newValue) -> {
+            if(newValue) {
+                if (activeBranches == null || activeBranches.isEmpty())
+                    CommitCircle.setFill(Color.BLUE);
+                else
+                    CommitCircle.setFill(Color.YELLOW);
+            } else{
+                CommitCircle.setFill(Color.RED);
+            }
+        });
     }
 
     public Label getActiveBranchesLabel() {
@@ -119,6 +134,10 @@ public class CommitNodeController implements Initializable {
     }
 
     public void setBranches(ArrayList<String> branches) {
+        if(!branches.isEmpty())
+            hasBranches.setValue(true);
+        else
+            hasBranches.setValue(false);
         this.branches = branches;
     }
 
