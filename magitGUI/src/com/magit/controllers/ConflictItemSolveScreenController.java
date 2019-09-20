@@ -8,10 +8,14 @@ import com.magit.logic.system.objects.FileItemInfo;
 import javafx.beans.property.BooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextArea;
 import javafx.stage.Stage;
+
+import java.net.URL;
+import java.util.ResourceBundle;
 
 public class ConflictItemSolveScreenController implements BasicController {
     Stage stage;
@@ -44,7 +48,6 @@ public class ConflictItemSolveScreenController implements BasicController {
 
     @FXML
     private Button closeButton;
-
 
     @FXML
     void onClose(ActionEvent event) {
@@ -85,24 +88,25 @@ public class ConflictItemSolveScreenController implements BasicController {
     }
 
     public void init(){
+        oursTextArea.setDisable(true);
+        theirsTextArea.setDisable(true);
+        ancestorTextArea.setDisable(true);
+        
         if(conflictItem != null){
             FileItemInfo ours = conflictItem.getOurs();
             if(ours!=null){
+                oursTextArea.setDisable(false);
                 oursTextArea.setText(ours.getFileContent());
-               // if(ours.getFileContent().isEmpty())
-               //     deleteRadioButton.setVisible(true);
             }
             FileItemInfo theirs = conflictItem.getTheirs();
             if(theirs!=null){
+                theirsTextArea.setDisable(false);
                 theirsTextArea.setText(theirs.getFileContent());
-               // if(theirs.getFileContent().isEmpty())
-               //     deleteRadioButton.setVisible(true);
             }
             FileItemInfo ancestor = conflictItem.getAncestor();
             if(ancestor!=null){
+                ancestorTextArea.setDisable(false);
                 ancestorTextArea.setText(ancestor.getFileContent());
-               // if(ancestor.getFileContent().isEmpty())
-               //     deleteRadioButton.setVisible(true);
             }
             if(ours == null || theirs == null || ancestor == null)
                 deleteCheckBox.setVisible(true);
