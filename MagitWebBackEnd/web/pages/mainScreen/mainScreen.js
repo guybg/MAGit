@@ -1,4 +1,3 @@
 function getUserName() {
-    var http = new XMLHttpRequest();
-    var j = http.response;
+    var h = document.cookie;
 }
