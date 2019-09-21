@@ -1,24 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html dir="ltr">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Online Chat</title>
-
-        <!-- Link the Bootstrap (from twitter) CSS framework in order to use its classes-->
+        <title>Magit Hub Sign up</title>
         <link rel="stylesheet" href="../../common/bootstrap.min.css">
-
-        <!-- Link jQuery JavaScript library in order to use the $ (jQuery) method-->
-        <!-- <script src="common/jquery-2.0.3.min.js"></script>-->
-        <!-- and\or any other scripts you might need to operate the JSP file behind the scene once it arrives to the client-->
+        <link rel="stylesheet" href="signup.css">
+        <script src="../../common/jquery-2.0.3.min.js"></script>
+        <script src="signup.js"></script>
     </head>
     <body>
-        <div class="container">
-            <h1>Welcome to the Online Chat</h1>
-            <br/>
-            <h2>Please enter a unique user name:</h2>
-            <form method="GET" action="login">
-                <input type="text" name="username" class=""/>
-                <input type="submit" value="Login"/>
+        <div class="container-fluid">
+            <h1 class="row main-title">Sign up</h1>
+            <form method="post">
+                <div class="row form-group">
+                    <div class="input-divider col-lg-3 col-md-5 col-sm-8 col-xs-12">
+                    <label for="userNameInput">Username:</label>
+                    <input type="text" class="form-control" id="userNameInput" placeholder="Username" required>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="input-divider col-lg-3 col-md-5 col-sm-8 col-xs-12">
+                    <label for="passwordInput">Password:</label>
+                    <input type="text" class="form-control" id="passwordInput" placeholder="password" required>
+                    </div>
+                </div>
+                <div class="row button-wrapper">
+                    <input type="button" class="btn btn-primary" value="Login / Sign up" onclick="acceptSignUpForm()">
+                </div>
             </form>
         </div>
     </body>

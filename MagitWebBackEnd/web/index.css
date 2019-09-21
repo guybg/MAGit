@@ -1,0 +1,17 @@
+@font-face {
+    font-family: PlaylistFont;
+    src: url(assets/PlaylistScript.otf) format("opentype");
+}
+
+.home-screen {
+    padding:120px;
+}
+
+.main-title {
+    font-family :PlaylistFont;
+    font-size:150px;
+    color:black;
+    text-shadow: 2px 2px 3px black;
+    position :absolute;
+
+}

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import static constants.Constants.USERNAME;
 
-public class LoginServlet extends HttpServlet {
+public class loginServlet extends HttpServlet {
 
     // urls that starts with forward slash '/' are considered absolute
     // urls that doesn't start with forward slash '/' are considered relative to the place where this servlet request comes from

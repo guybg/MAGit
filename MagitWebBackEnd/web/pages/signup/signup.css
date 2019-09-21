@@ -1,0 +1,21 @@
+.container-fluid {
+    padding-top: 100px;
+    padding-left:125px;
+}
+@font-face {
+    font-family: PlaylistFont;
+    src: url(../../assets/PlaylistScript.otf) format("opentype");
+}
+
+.main-title {
+    font-family :PlaylistFont;
+    font-size:85px;
+    color:black;
+    text-shadow: 2px 2px 3px black;
+    padding-bottom: 45px;
+}
+
+.button-wrapper {
+    padding-top: 15px;
+    padding-left: 15px;
+}
