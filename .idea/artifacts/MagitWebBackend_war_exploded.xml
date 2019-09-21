@@ -1,0 +1,25 @@
+<component name="ArtifactManager">
+  <artifact type="exploded-war" name="MagitWebBackend:war exploded">
+    <output-path>$PROJECT_DIR$/out/artifacts/MagitWebBackend_war_exploded</output-path>
+    <root id="root">
+      <element id="directory" name="WEB-INF">
+        <element id="directory" name="classes">
+          <element id="module-output" name="MagitWebBackend" />
+          <element id="module-output" name="magitEngine" />
+          <element id="module-output" name="magitGUI" />
+        </element>
+        <element id="directory" name="lib">
+          <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/commons-codec-1.12.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/commons-io-2.6.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/commons-lang3-3.9.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/commons-collections4-4.3.jar" />
+          <element id="library" level="project" name="fxgraph-0.0.3" />
+          <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/fxgraph-0.0.3.jar" />
+          <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/AncestorFinder.jar" />
+          <element id="library" level="project" name="AncestorFinder" />
+        </element>
+      </element>
+      <element id="javaee-facet-resources" facet="MagitWebBackend/web/Web" />
+    </root>
+  </artifact>
+</component>

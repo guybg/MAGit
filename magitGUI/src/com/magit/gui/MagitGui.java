@@ -2,6 +2,7 @@ package com.magit.gui;
 
 import com.magit.controllers.MainScreenController;
 import com.magit.logic.system.MagitEngine;
+import com.magit.webLogic.users.UserManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
