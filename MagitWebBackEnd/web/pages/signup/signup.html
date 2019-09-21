@@ -2,28 +2,33 @@
 <html dir="ltr">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-    <link rel="stylesheet" href="signup.css">
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- Custom styles for this template-->
+    <link rel="stylesheet" href="../css/sb-admin.css">
+    <!-- Custom fonts for this template-->
+    <!--<link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css"> -->
     <script src="../../common/jquery-2.0.3.min.js"></script>
     <script src="signup.js"></script>
+    <
 </head>
-<body>
-<div class="wrapper fadeInDown">
-    <div id="formContent">
-        <!-- Tabs Titles -->
 
-        <!-- Icon -->
-        <div class="fadeIn first">
-            <img src="http://danielzawadzki.com/codepen/01/icon.svg" id="icon" alt="User Icon" />
+<body class="bg-dark">
+<div class="container">
+    <div class="card card-login mx-auto mt-5">
+        <div class="card-header">Login</div>
+        <div id="bodydiv" class="card-body">
+            <form id="loginform" method="GET" action="login">
+                <div class="form-group">
+                    <div class="form-label-group">
+                        <input type="text" id="login" class="form-control" placeholder="login" name="username" autofocus="autofocus">
+                        <label for="login">User name</label>
+                    </div>
+                </div>
+                <input type="submit" class="btn btn-primary btn-block"value="login">
+            </form>
+            <br>
+            <div id="errorMessage" class="alert alert-danger"></div>
         </div>
-
-        <!-- Login Form -->
-        <form method="GET" action="login">
-            <input type="text" id="login" class="fadeIn second" name="username" placeholder="login">
-            <input type="submit" class="fadeIn fourth" value="login">
-        </form>
     </div>
 </div>
 </body>

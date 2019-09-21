@@ -1,11 +1,14 @@
 package servlets;
 
+
+import com.google.gson.Gson;
 import com.magit.webLogic.users.UserManager;
 import constants.Constants;
 import utils.SessionUtils;
 import utils.ServletUtils;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +47,17 @@ public class loginServlet extends HttpServlet {
                 //no username in session and no username in parameter -
                 //redirect back to the index page
                 //this return an HTTP code back to the browser telling it to load
-                response.sendRedirect(SIGN_UP_URL);
+                String errorMessage = "Please enter User name";
+                //if (isAjax(request)) {
+                //    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                //    response.setHeader("Location", response.encodeRedirectURL(SIGN_UP_URL));
+                //    response.flushBuffer();
+                //}
+                try (PrintWriter out = response.getWriter()) {
+                    out.print(errorMessage);
+                    out.flush();
+                }
+                //response.sendRedirect(SIGN_UP_URL);
             } else {
                 //normalize the username value
                 usernameFromParameter = usernameFromParameter.trim();
@@ -71,7 +84,14 @@ public class loginServlet extends HttpServlet {
                            // see this link for more details:
                            // http://timjansen.github.io/jarfiller/guide/servlet25/requestdispatcher.xhtml
                            request.setAttribute(Constants.USER_NAME_ERROR, errorMessage);
-                           getServletContext().getRequestDispatcher(LOGIN_ERROR_URL).forward(request, response);
+
+                           try (PrintWriter out = response.getWriter()) {
+                               out.print(errorMessage);
+                               out.flush();
+                           }
+
+                           //getServletContext().getRequestDispatcher(LOGIN_ERROR_URL).forward(request, response);
+
                        } else {
                            //add the new user to the users list
                            userManager.addUser(usernameFromParameter);
@@ -82,16 +102,28 @@ public class loginServlet extends HttpServlet {
 
                            //redirect the request to the chat room - in order to actually change the URL
                            System.out.println("On login, request URI is: " + request.getRequestURI());
-                           response.sendRedirect(CHAT_ROOM_URL);
+                           if (isAjax(request)) {
+                               response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                               response.setHeader("Location", response.encodeRedirectURL(CHAT_ROOM_URL));
+                               response.flushBuffer();
+                           }
+                         //  response.sendRedirect(CHAT_ROOM_URL);
                        }
                    }
             }
         } else {
             //user is already logged in
-            response.sendRedirect(CHAT_ROOM_URL);
+            if (isAjax(request)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setHeader("Location", response.encodeRedirectURL(CHAT_ROOM_URL));
+                response.flushBuffer();
+            }
+            //response.sendRedirect(CHAT_ROOM_URL);
         }
     }
-
+    private boolean isAjax(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+    }
 // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
