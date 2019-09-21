@@ -35,6 +35,14 @@ public class loginServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
+
+    private void prepareRedirectAjaxResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (isAjax(request)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setHeader("Location", response.encodeRedirectURL(CHAT_ROOM_URL));
+            response.flushBuffer();
+        }
+    }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -102,22 +110,14 @@ public class loginServlet extends HttpServlet {
 
                            //redirect the request to the chat room - in order to actually change the URL
                            System.out.println("On login, request URI is: " + request.getRequestURI());
-                           if (isAjax(request)) {
-                               response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                               response.setHeader("Location", response.encodeRedirectURL(CHAT_ROOM_URL));
-                               response.flushBuffer();
-                           }
+                           prepareRedirectAjaxResponse(request,response);
                          //  response.sendRedirect(CHAT_ROOM_URL);
                        }
                    }
             }
         } else {
             //user is already logged in
-            if (isAjax(request)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setHeader("Location", response.encodeRedirectURL(CHAT_ROOM_URL));
-                response.flushBuffer();
-            }
+            prepareRedirectAjaxResponse(request,response);
             //response.sendRedirect(CHAT_ROOM_URL);
         }
     }
@@ -163,3 +163,5 @@ public class loginServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 }
+
+
