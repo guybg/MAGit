@@ -1,31 +1,29 @@
 package com.magit.webLogic.users;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class UserManager {
 
-    private final Set<String> usersSet;
+    private final HashMap<String, UserAccount> usersMap;
 
     public UserManager() {
-        usersSet = new HashSet<>();
+        usersMap = new HashMap<>();
     }
 
-    public synchronized void addUser(String username) {
-        usersSet.add(username);
+    public synchronized void addUser(String username, UserAccount account) {
+        usersMap.put(username, account);
     }
 
     public synchronized void removeUser(String username) {
-        usersSet.remove(username);
+        usersMap.remove(username);
     }
 
-    public synchronized Set<String> getUsers() {
-        return Collections.unmodifiableSet(usersSet);
+    public synchronized Map<String, UserAccount> getUsers() {
+        return Collections.unmodifiableMap(usersMap);
     }
 
     public boolean isUserExists(String username) {
-        return usersSet.contains(username);
+        return usersMap.containsKey(username);
     }
 
 }

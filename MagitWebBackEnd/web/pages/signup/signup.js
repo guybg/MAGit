@@ -1,12 +1,25 @@
 var refreshRate = 2000;
+var LOGIN_URL = buildUrlWithContextPath("pages/signup/login");
 
-function appendMessage(msg){
-   // $('<span class=\\"bg-danger\\"><%=' + msg + "></span>").appendTo($("#bodydiv"));
-    //$("#bodydiv").append("<span class=\"bg-danger\"><%=").append(msg).append(msg).append("></span>");
+function alreadyAUser(msg){
+    $.ajax({
+        type: "GET",
+        data: $(this).serialize(),
+        url: LOGIN_URL,
+        timeout: 2000,
+        error: function (a) {
+            console.error("Failed to submit");
+            window.location.href = a.getResponseHeader("Location");
+        },
+        success: function (output, status, xhr) {
+            console.log("im at success" + output);
+        }
+    });
 }
 
 $(function() {
     $("#errorMessage").hide();
+    alreadyAUser();
     $("#loginform").submit(function () {
         $.ajax({
             type: "GET",

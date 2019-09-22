@@ -1,5 +1,6 @@
 package servlets;
 
+import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import constants.Constants;
 import utils.SessionUtils;
@@ -100,7 +101,9 @@ public class loginServlet extends HttpServlet {
 
                        } else {
                            //add the new user to the users list
-                           userManager.addUser(usernameFromParameter);
+                           UserAccount account = new UserAccount(usernameFromParameter);
+
+                           userManager.addUser(usernameFromParameter, account);
                            //set the username in a session so it will be available on each request
                            //the true parameter means that if a session object does not exists yet
                            //create a new one

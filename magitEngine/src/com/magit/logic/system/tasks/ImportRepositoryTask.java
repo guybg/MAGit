@@ -46,6 +46,18 @@ public class ImportRepositoryTask extends Task<Boolean> {
         this.doAfter = doAfter;
     }
 
+    public ImportRepositoryTask(String filePath, MagitEngine engine, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable,Runnable doAfter, boolean forceCreation) {
+        this.filePath = filePath;
+        this.branchManager = engine.getmBranchManager();
+        this.forceCreation = forceCreation;
+        this.repositoryManager = engine.getmRepositoryManager();
+        this.engine = engine;
+        this.repositoryNameProperty = repositoryNameProperty;
+        this.repositoryPathProperty = repositoryPathProperty;
+        this.forceCreationRunnable = forceCreationRunnable;
+        this.doAfter = doAfter;
+    }
+
     private boolean importRepositoryXML() throws RepositoryAlreadyExistsException {
         if (!initializeXmlParser())
             return false;
@@ -112,7 +124,8 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private void deleteProgressBar(){
         Platform.runLater(() -> {
             KeyFrame keyFrame = new KeyFrame(Duration.seconds(5), event -> {
-                pane.setVisible(false);
+                if(pane !=null)
+                    pane.setVisible(false);
                 doAfter.run();
             });
             Timeline timer = new Timeline(keyFrame);

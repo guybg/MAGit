@@ -3,6 +3,7 @@ package utils;
 //import engine.chat.ChatManager;
 //import engine.users.UserManager;
 
+import com.magit.logic.system.MagitEngine;
 import com.magit.webLogic.users.UserManager;
 
 import javax.servlet.ServletContext;
@@ -13,6 +14,7 @@ import static constants.Constants.INT_PARAMETER_ERROR;
 public class ServletUtils {
 
     private static final String USER_MANAGER_ATTRIBUTE_NAME = "userManager";
+    private static final String ENGINE_ATTRIBUTE_NAME = "engine";
     private static final String CHAT_MANAGER_ATTRIBUTE_NAME = "chatManager";
 
     /*
@@ -20,6 +22,7 @@ public class ServletUtils {
     the actual fetch of them is remained un-synchronized for performance POV
      */
     private static final Object userManagerLock = new Object();
+    private static final Object engineLock = new Object();
     private static final Object chatManagerLock = new Object();
 
     public static UserManager getUserManager(ServletContext servletContext) {
@@ -30,6 +33,7 @@ public class ServletUtils {
         }
         return (UserManager) servletContext.getAttribute(USER_MANAGER_ATTRIBUTE_NAME);
     }
+
   // public static ChatManager getChatManager(ServletContext servletContext) {
   //     synchronized (chatManagerLock) {
   //         if (servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME) == null) {
