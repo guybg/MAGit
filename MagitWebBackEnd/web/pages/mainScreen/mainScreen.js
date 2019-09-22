@@ -74,8 +74,8 @@ function bs_input_file() {
 }
 $(function () {
     $("#repositoriesbutton").click(showRepositories);
+    $("#logout").click(logout);
     bs_input_file();
-
 })
 
 $(function() { // onload...do
@@ -149,14 +149,20 @@ function showRepositories() {
             $.each(repositories || [], createRepository);
         }
     });
-
-
-
-
 }
 
 
-
+function logout() {
+    var LOUGOUT_URL = buildUrlWithContextPath("/pages/signup/logout");
+    $.ajax( {
+        url:LOUGOUT_URL,
+        timeout:2000,
+        error: function (a) {
+            window.location.href = a.getResponseHeader("Location");
+        },
+        success: function () {}
+    });
+}
 
 
 
