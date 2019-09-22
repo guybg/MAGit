@@ -4,6 +4,7 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -26,7 +27,7 @@ public class UserAccount {
     }
 
     static final String usersPath = "c:/magit-ex3";
-    public void addRepository(String xmlPath, String repositoryName){
+    public void addRepository(InputStream xml, String repositoryName){
         final String userPath = Paths.get(usersPath, userName).toString(), repositoryPath = Paths.get(userPath,repositoryName).toString();
         MagitEngine engine = new MagitEngine();
         //String filePath, MagitEngine engine,
@@ -34,7 +35,7 @@ public class UserAccount {
         // StringProperty repositoryPathProperty,
         // Runnable forceCreationRunnable,Runnable doAfter,
         // boolean forceCreation
-        ImportRepositoryTask task = new ImportRepositoryTask(xmlPath, engine, new SimpleStringProperty(), new SimpleStringProperty(), null, new Runnable() {
+        ImportRepositoryTask task = new ImportRepositoryTask(xml, engine, new SimpleStringProperty(), new SimpleStringProperty(), null, new Runnable() {
             @Override
             public void run() {
                 //success

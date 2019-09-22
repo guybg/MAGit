@@ -94,10 +94,7 @@ public class MagitEngine {
 
     }
 
-    public void loadHeadBranchCommitFiles(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
-        //RepositoryXmlParser parser = new RepositoryXmlParser();
-        //Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
-        //mRepositoryManager.setActiveRepository(repository);
+    public void loadHeadBranchCommitFiles() throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 

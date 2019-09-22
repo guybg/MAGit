@@ -14,10 +14,7 @@ import org.apache.commons.io.FileUtils;
 
 import javax.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -42,6 +39,17 @@ public class RepositoryXmlParser {
 
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         FileInputStream xmlStream = new FileInputStream(new File(xmlPath));
+        StreamSource streamSource = new StreamSource(xmlStream);
+
+        magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
+    }
+
+    public RepositoryXmlParser (InputStream xmlStream) throws JAXBException, IOException,XmlFileException, IllegalPathException{
+        //checkIfXmlFile(xmlStream);
+
+        JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
+
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
         StreamSource streamSource = new StreamSource(xmlStream);
 
         magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
