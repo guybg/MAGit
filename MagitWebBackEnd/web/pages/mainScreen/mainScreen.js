@@ -2,7 +2,7 @@ var USER_DETAILS_URL = buildUrlWithContextPath("details");
 var h = document.cookie;
 var accountDetails;
 // dataJson = {color: "" ; height: ""}
-function createRepository(location, name){
+function createRepository(location, name) {
     var repository = $("<div class=\"col-xl-3 col-sm-6 mb-3\">" +
         "<div class=\"card text-white bg-primary o-hidden h-100\">" +
         "<div class=\"card-body\">" +
@@ -25,10 +25,11 @@ function createRepository(location, name){
         .attr('name', name)
         .addClass("square")
         .text(name.height);
-
     $('#repository-container').append(repository);
+    $(".float-left").click(function () {
+        window.location.href = ("../repositoryDetails/repositoryDetails.html")
+    });
 }
-
 $(function () {
     $.ajax({
         data: $(this).serialize(),
@@ -65,9 +66,8 @@ function showRepositories() {
         }
     });
 }
-
 function logout() {
-    var LOUGOUT_URL = buildUrlWithContextPath("pages/signup/logout");
+    var LOUGOUT_URL = buildUrlWithContextPath("/pages/signup/logout");
     $.ajax( {
         url:LOUGOUT_URL,
         timeout:2000,
