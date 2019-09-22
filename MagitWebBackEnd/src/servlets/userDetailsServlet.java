@@ -9,6 +9,7 @@ import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +51,7 @@ public class UserDetailsServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String usernameFromSession = SessionUtils.getUsername(request);
         UserAccount account;
+
         synchronized (this) {
             account = userManager.getUsers().get(usernameFromSession);
         }
@@ -106,4 +108,6 @@ public class UserDetailsServlet extends HttpServlet {
     public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
+
+
 }

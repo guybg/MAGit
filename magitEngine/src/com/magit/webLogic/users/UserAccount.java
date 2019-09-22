@@ -13,9 +13,16 @@ public class UserAccount {
     String userName;
     HashMap<String, String> repositories;
 
+
+
     public UserAccount(String userName) {
         this.userName = userName;
         this.repositories = new HashMap<>();
+        repositories.put("c:/banana", "banana");
+        repositories.put("c:/banana1", "banana1");
+        repositories.put("c:/banana2", "banana2");
+        repositories.put("c:/banana3", "banana3");
+        repositories.put("c:/banana4", "banana4");
     }
 
     static final String usersPath = "c:/magit-ex3";
