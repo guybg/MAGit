@@ -44,7 +44,7 @@ public class RepositoryXmlParser {
         magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
     }
 
-    public RepositoryXmlParser (InputStream xmlStream,String usernamePath) throws JAXBException{
+    public RepositoryXmlParser (InputStream xmlStream,String usernamePath, String serialNumber) throws JAXBException{
         //checkIfXmlFile(xmlStream);
 
         JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
@@ -53,7 +53,7 @@ public class RepositoryXmlParser {
         StreamSource streamSource = new StreamSource(xmlStream);
 
         magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
-        magitRepository.setLocation(Paths.get(usernamePath, magitRepository.getName()).toString());
+        magitRepository.setLocation(Paths.get(usernamePath, serialNumber).toString());
     }
 
     public int getObjectsCount() {

@@ -37,7 +37,8 @@ public class ImportRepositoryRunnable implements Runnable{
     private Runnable forceCreationRunnable;
     private Consumer<HashMap<String,String>> doAfter;
     private String userNamePath;
-    public ImportRepositoryRunnable(InputStream xml, MagitEngine engine, String userNamePath, Runnable forceCreationRunnable, Consumer<HashMap<String,String>> doAfter, boolean forceCreation) {
+    private String serialNumber;
+    public ImportRepositoryRunnable(InputStream xml, MagitEngine engine, String userNamePath,String serialNumber, Runnable forceCreationRunnable, Consumer<HashMap<String,String>> doAfter, boolean forceCreation) {
         this.xml = xml;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
@@ -46,6 +47,7 @@ public class ImportRepositoryRunnable implements Runnable{
         this.forceCreationRunnable = forceCreationRunnable;
         this.doAfter = doAfter;
         this.userNamePath = userNamePath;
+        this.serialNumber = serialNumber;
     }
 
     private boolean importRepositoryXML() throws RepositoryAlreadyExistsException, ParseException, PreviousCommitsLimitExceededException, IOException {
@@ -122,7 +124,7 @@ public class ImportRepositoryRunnable implements Runnable{
     private boolean initializeXmlParser(){
 
         try {
-            xmlParser = new RepositoryXmlParser(xml, userNamePath);
+            xmlParser = new RepositoryXmlParser(xml, userNamePath,serialNumber);
         } catch (Exception ex) {
 
             return false;

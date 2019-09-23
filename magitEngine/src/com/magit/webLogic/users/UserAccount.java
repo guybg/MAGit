@@ -1,5 +1,6 @@
 package com.magit.webLogic.users;
 
+import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
@@ -35,10 +36,10 @@ public class UserAccount {
 
     public void addRepository(InputStream xml){
         MagitEngine engine = new MagitEngine();
-        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, null, new Consumer<HashMap<String,String>>() {
+        Integer serialNumber = repositories.size();
+        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath,serialNumber.toString(), null, new Consumer<HashMap<String,String>>() {
             @Override
             public void accept(HashMap<String,String> repositoryDetails) {
-                Integer serialNumber = repositories.size();
                 repositories.put(serialNumber.toString(), repositoryDetails);
             }
         }, false);
@@ -46,8 +47,9 @@ public class UserAccount {
         new Thread(runnable).start();
     }
 
-    public void loadRepository(String id) throws ParseException, RepositoryNotFoundException, IOException {
+    public void loadRepository(String id) throws ParseException, RepositoryNotFoundException, IOException, InvalidNameException {
         engine = new MagitEngine();
+        engine.updateUserName(userName);
         engine.switchRepository(Paths.get(userPath, id).toString());
     }
 
