@@ -29,7 +29,10 @@ function createRepository(repoId, details){
         "</div>" +
         "</div>" +
         "<a class=\"card-footer text-white clearfix small z-1\" href=\"#\">" +
-        "<span class=\"float-left rep-details\">View Details</span>" +
+        "<span" +
+        " id=" +
+        repoId +
+        ' class=\"float-left rep-details\">View Details</span>' +
         "<span class=\"float-right\">" +
         "<i class=\"fas fa-angle-right rep-details\"></i>" +
         "</span>" +
@@ -40,8 +43,9 @@ function createRepository(repoId, details){
         .text(repoId.height);
 
     $('#repository-container').append(repository);
+
+    //$(".rep-details").attr('id', repoId);
     $(".rep-details").click(toRepositoryDetailsPage);
-    $(".rep-details").attr('id', repoId);
 }
 
 $(function () {
@@ -297,7 +301,7 @@ function toRepositoryDetailsPage() {
         timeout: 2000,
         error : function (a) {},
         success: function () {}
-    })
+    });
 }
 
 

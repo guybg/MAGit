@@ -1,6 +1,7 @@
 package servlets;
 
 
+import com.google.gson.GsonBuilder;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import com.google.gson.Gson;
@@ -56,7 +57,9 @@ public class UserDetailsServlet extends HttpServlet {
         if (account == null) {
             prepareRedirectAjaxResponse(request, response, SIGN_UP_URL);
         } else {
-            Gson gson = new Gson();
+            Gson gson = new GsonBuilder()
+                    .excludeFieldsWithoutExposeAnnotation()
+                    .create();
             String accountDetails = gson.toJson(account);
             response.setContentType("application/json");
             try (PrintWriter out = response.getWriter()) {
