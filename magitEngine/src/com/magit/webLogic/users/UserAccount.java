@@ -1,5 +1,6 @@
 package com.magit.webLogic.users;
 
+import com.google.gson.annotations.Expose;
 import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
@@ -18,11 +19,11 @@ import java.util.HashSet;
 import java.util.function.Consumer;
 
 public class UserAccount {
-    private String userName;
-    private HashMap<String, HashMap<String,String>> repositories;
-    private MagitEngine engine;
-    private String userPath;
-    static final String usersPath = "c:/magit-ex3";
+    @Expose(serialize = true)private String userName;
+    @Expose(serialize = true)private HashMap<String, HashMap<String,String>> repositories;
+    @Expose(serialize = false) private MagitEngine engine;
+    @Expose(serialize = true)private String userPath;
+    @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
 
     public UserAccount(String userName) {
         this.userName = userName;
@@ -47,8 +48,10 @@ public class UserAccount {
         new Thread(runnable).start();
     }
 
-    public void loadRepository(String id) throws ParseException, RepositoryNotFoundException, IOException, InvalidNameException {
-        engine = new MagitEngine();
+    public void loadRepository(String id) throws InvalidNameException, ParseException, RepositoryNotFoundException, IOException {
+        if(engine == null) {
+            engine = new MagitEngine();
+        }
         engine.updateUserName(userName);
         engine.switchRepository(Paths.get(userPath, id).toString());
     }
