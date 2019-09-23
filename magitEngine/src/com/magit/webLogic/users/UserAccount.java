@@ -27,27 +27,10 @@ public class UserAccount {
         this.userName = userName;
         this.repositories = new HashMap<>();
         userPath = Paths.get(usersPath, userName).toString();
-        HashMap<String,String> banana = new HashMap();
-        banana.put("name","repo name");
-        banana.put("activeBranch","branch");
-        banana.put("branchesNum", "5");
-        banana.put("commitDate", "5/5/15");
-        banana.put("commitMessage","commit msg");
-
-        repositories.put("banana", banana);
-        repositories.put("banana1", banana);
-        repositories.put("banana2", banana);
-        repositories.put("banana3", banana);
-        repositories.put("banana4", banana);
     }
 
     public void addRepository(InputStream xml){
         MagitEngine engine = new MagitEngine();
-        //String filePath, MagitEngine engine,
-        // StringProperty repositoryNameProperty,
-        // StringProperty repositoryPathProperty,
-        // Runnable forceCreationRunnable,Runnable doAfter,
-        // boolean forceCreation
         ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, null, new Consumer<HashMap<String,String>>() {
             @Override
             public void accept(HashMap<String,String> repositoryDetails) {

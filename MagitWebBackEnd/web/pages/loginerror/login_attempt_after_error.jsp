@@ -16,7 +16,7 @@
     <!-- Custom styles for this template-->
     <link rel="stylesheet" href="../css/sb-admin.css">
     <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
 
     <script src="signup.js"></script>
 </head>

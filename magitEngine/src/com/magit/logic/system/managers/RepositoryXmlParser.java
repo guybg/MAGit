@@ -105,11 +105,6 @@ public class RepositoryXmlParser {
         return magitRepository.getName();
     }
 
-   // public String initializeRepositoryWeb(){
-   //     this.repository =  new Repository(Paths.get(usernamePath,magitRepository.getName()).toString(), magitRepository.getName());
-   //     return magitRepository.getName();
-   // }
-
     public Integer createBranches(BranchManager branchManager){
         return createBranches(magitRepository, repository, branchManager, commits);
     }
