@@ -1,4 +1,6 @@
-package com.magit.logic.system.tasks;
+package com.magit.logic.system.Runnable;
+
+
 
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
@@ -17,9 +19,10 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class ImportRepositoryTask extends Task<Boolean> {
+public class ImportRepositoryRunnable implements Runnable{
 
     private int objectsCount = 0;
     private int currentObjectCount = 0;
@@ -30,37 +33,22 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private boolean forceCreation = false;
     private RepositoryXmlParser xmlParser;
     private MagitEngine engine;
-    private AnchorPane pane;
-    private StringProperty repositoryNameProperty;
-    private StringProperty repositoryPathProperty;
     private Runnable forceCreationRunnable;
-    private Runnable doAfter;
-    public ImportRepositoryTask(String filePath, MagitEngine engine, AnchorPane pane, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable,Runnable doAfter, boolean forceCreation) {
-        this.filePath = filePath;
-        this.branchManager = engine.getmBranchManager();
-        this.forceCreation = forceCreation;
-        this.repositoryManager = engine.getmRepositoryManager();
-        this.engine = engine;
-        this.pane = pane;
-        this.repositoryNameProperty = repositoryNameProperty;
-        this.repositoryPathProperty = repositoryPathProperty;
-        this.forceCreationRunnable = forceCreationRunnable;
-        this.doAfter = doAfter;
-    }
-
-    public ImportRepositoryTask(InputStream xml, MagitEngine engine, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable,Runnable doAfter, boolean forceCreation) {
+    private Consumer<String> doAfter;
+    private String userNamePath;
+    public ImportRepositoryRunnable(InputStream xml, MagitEngine engine, String userNamePath, Runnable forceCreationRunnable, Consumer<String> doAfter, boolean forceCreation) {
         this.xml = xml;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
         this.repositoryManager = engine.getmRepositoryManager();
         this.engine = engine;
-        this.repositoryNameProperty = repositoryNameProperty;
-        this.repositoryPathProperty = repositoryPathProperty;
         this.forceCreationRunnable = forceCreationRunnable;
         this.doAfter = doAfter;
+        this.userNamePath = userNamePath;
     }
 
     private boolean importRepositoryXML() throws RepositoryAlreadyExistsException {
+        String repositoryName;
         if (!initializeXmlParser())
             return false;
 
@@ -70,108 +58,73 @@ public class ImportRepositoryTask extends Task<Boolean> {
         if (!handleFoldersChecks())
             return false;
 
-        if (importObject("Importing blobs...", this::importBlobs))
+        if (importObject(this::importBlobs))
             return false;
 
-        if (importObject("Importing folders...", this::importFolders))
+        if (importObject(this::importFolders))
             return false;
 
         xmlParser.buildTree();
-        if (importObject("Importing commits...", this::importCommits))
+        if (importObject(this::importCommits))
             return false;
         try {
-            updateMessage("Initializing repository...");
-            xmlParser.initializeRepository();
+            repositoryName = xmlParser.initializeRepository();
             xmlParser.setRemoteReference();
-            importObject("Importing branches...", this::importBranches);
-            updateMessage("Creating repository...");
+            importObject(this::importBranches);
             repositoryManager.setActiveRepository(xmlParser.createRepository());
         } catch(IOException | IllegalPathException ex) {
-            updateMessage(ex.getMessage());
             return false;
         }
         try {
-            updateMessage("Unzipping files...");
             engine.loadHeadBranchCommitFiles();
-            updateProgress(currentObjectCount + 2, objectsCount);
         } catch (JAXBException | RepositoryAlreadyExistsException | IllegalPathException | XmlFileException | PreviousCommitsLimitExceededException | ParseException | IOException e) {
             e.printStackTrace();
         }
-        updateMessage("Repository created successfully!");
-
-        Platform.runLater(() -> {
-            repositoryNameProperty.setValue("");
-            repositoryNameProperty.setValue(engine.getRepositoryName());
-            repositoryPathProperty.setValue(engine.guiGetRepositoryPath());
-        });
+        doAfter.accept(repositoryName);
         return true;
     }
 
     @Override
-    protected Boolean call() {
+    public void run() {
         boolean success = false;
         try {
             success = importRepositoryXML();
 
+
         } catch (RepositoryAlreadyExistsException e) {
-            Platform.runLater(() -> {
-                forceCreationRunnable.run();
-            });
+            forceCreationRunnable.run();
         }
-        deleteProgressBar();
-
-       return success;
     }
 
-    private void deleteProgressBar(){
-        Platform.runLater(() -> {
-            KeyFrame keyFrame = new KeyFrame(Duration.seconds(5), event -> {
-                if(pane !=null)
-                    pane.setVisible(false);
-                doAfter.run();
-            });
-            Timeline timer = new Timeline(keyFrame);
-            timer.playFromStart();
-        });
-    }
+
     private boolean initializeXmlParser(){
-        updateMessage("Fetching file...");
-        updateProgress(0, 1);
 
         try {
-            xmlParser = new RepositoryXmlParser(filePath);
+            xmlParser = new RepositoryXmlParser(xml, userNamePath);
         } catch (Exception ex) {
-            updateMessage(ex.getMessage());
+
             return false;
         }
-        updateProgress(1, 1);
         return true;
     }
 
     private boolean commenceXmlValidityChecks() {
-        updateMessage("Commencing validity checks...");
-        int validityCheckCount = 7;
-        updateProgress(0, validityCheckCount);
         try {
             xmlParser.checkXmlValidity();
         } catch (XmlFileException ex) {
-            updateMessage(ex.getMessage());
+
             return false;
         }
-        updateProgress(validityCheckCount, validityCheckCount);
         return true;
     }
 
     private boolean handleFoldersChecks() throws RepositoryAlreadyExistsException {
-        updateMessage("Checking folder validity...");
-        updateProgress(0, 1);
+
         try {
             xmlParser.handleExistingRepositories(forceCreation);
         } catch (IOException ex) {
-            updateMessage(ex.getMessage());
             return false;
         }
-        updateProgress(1, 1);
         objectsCount = xmlParser.getObjectsCount();
         return true;
     }
@@ -180,7 +133,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         try {
             currentObjectCount += xmlParser.importBlobs();
         } catch (ParseException e) {
-            updateMessage(e.getMessage());
+
             return false;
         }
         return true;
@@ -190,7 +143,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         try {
             currentObjectCount += xmlParser.importFolders();
         } catch (ParseException e) {
-            updateMessage(e.getMessage());
+
             return false;
         }
         return true;
@@ -200,7 +153,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         try {
             currentObjectCount += xmlParser.createCommits();
         } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
-            updateMessage(e.getMessage());
+
             return false;
         }
         return true;
@@ -211,10 +164,10 @@ public class ImportRepositoryTask extends Task<Boolean> {
         return true;
     }
 
-    private boolean importObject(String message, Supplier<Boolean> xmlFunc) {
-        updateMessage(message);
+    private boolean importObject(Supplier<Boolean> xmlFunc) {
+
         boolean output = xmlFunc.get();
-        updateProgress(currentObjectCount, objectsCount);
+
         return !output;
     }
 }

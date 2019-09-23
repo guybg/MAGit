@@ -51,7 +51,7 @@ public class FileUploadServlet extends HttpServlet {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount account = userManager.getUsers().get(usernameFromSession);
-        account.addRepository(inputStream,"test");
+        account.addRepository(inputStream);
         out.println(fileContent.toString());
     }
 

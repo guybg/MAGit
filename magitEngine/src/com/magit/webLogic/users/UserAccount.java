@@ -1,6 +1,7 @@
 package com.magit.webLogic.users;
 
 import com.magit.logic.system.MagitEngine;
+import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -9,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.function.Consumer;
 
 public class UserAccount {
     String userName;
@@ -27,23 +29,22 @@ public class UserAccount {
     }
 
     static final String usersPath = "c:/magit-ex3";
-    public void addRepository(InputStream xml, String repositoryName){
-        final String userPath = Paths.get(usersPath, userName).toString(), repositoryPath = Paths.get(userPath,repositoryName).toString();
+    public void addRepository(InputStream xml){
+        final String userPath = Paths.get(usersPath, userName).toString();
         MagitEngine engine = new MagitEngine();
         //String filePath, MagitEngine engine,
         // StringProperty repositoryNameProperty,
         // StringProperty repositoryPathProperty,
         // Runnable forceCreationRunnable,Runnable doAfter,
         // boolean forceCreation
-        ImportRepositoryTask task = new ImportRepositoryTask(xml, engine, new SimpleStringProperty(), new SimpleStringProperty(), null, new Runnable() {
+        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, null, new Consumer<String>() {
             @Override
-            public void run() {
-                //success
-                repositories.put(repositoryPath, repositoryName);
+            public void accept(String repositoryName) {
+                repositories.put(Paths.get(userPath,repositoryName).toString(), repositoryName);
             }
         }, false);
 
-        new Thread(task).start();
+        new Thread(runnable).start();
     }
 
     public HashMap<String, String> getRepositories() {
