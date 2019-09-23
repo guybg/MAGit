@@ -1,53 +1,69 @@
 package com.magit.webLogic.users;
 
+import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.function.Consumer;
 
 public class UserAccount {
-    String userName;
-    HashMap<String, String> repositories;
-
-
+    private String userName;
+    private HashMap<String, HashMap<String,String>> repositories;
+    private MagitEngine engine;
+    private String userPath;
+    static final String usersPath = "c:/magit-ex3";
 
     public UserAccount(String userName) {
         this.userName = userName;
         this.repositories = new HashMap<>();
-        repositories.put("c:/banana", "banana");
-        repositories.put("c:/banana1", "banana1");
-        repositories.put("c:/banana2", "banana2");
-        repositories.put("c:/banana3", "banana3");
-        repositories.put("c:/banana4", "banana4");
+        userPath = Paths.get(usersPath, userName).toString();
+        HashMap<String,String> banana = new HashMap();
+        banana.put("name","repo name");
+        banana.put("activeBranch","branch");
+        banana.put("branchesNum", "5");
+        banana.put("commitDate", "5/5/15");
+        banana.put("commitMessage","commit msg");
+
+        repositories.put("banana", banana);
+        repositories.put("banana1", banana);
+        repositories.put("banana2", banana);
+        repositories.put("banana3", banana);
+        repositories.put("banana4", banana);
     }
 
-    static final String usersPath = "c:/magit-ex3";
     public void addRepository(InputStream xml){
-        final String userPath = Paths.get(usersPath, userName).toString();
         MagitEngine engine = new MagitEngine();
         //String filePath, MagitEngine engine,
         // StringProperty repositoryNameProperty,
         // StringProperty repositoryPathProperty,
         // Runnable forceCreationRunnable,Runnable doAfter,
         // boolean forceCreation
-        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, null, new Consumer<String>() {
+        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, null, new Consumer<HashMap<String,String>>() {
             @Override
-            public void accept(String repositoryName) {
-                repositories.put(Paths.get(userPath,repositoryName).toString(), repositoryName);
+            public void accept(HashMap<String,String> repositoryDetails) {
+                repositories.put(repositoryDetails.get("name"), repositoryDetails);
             }
         }, false);
 
         new Thread(runnable).start();
     }
 
-    public HashMap<String, String> getRepositories() {
+    public void loadRepository(String repositoryName) throws ParseException, RepositoryNotFoundException, IOException {
+        engine = new MagitEngine();
+        engine.switchRepository(Paths.get(userPath,repositoryName).toString());
+    }
+
+    public HashMap<String, HashMap<String,String>> getRepositories() {
         return repositories;
     }
 

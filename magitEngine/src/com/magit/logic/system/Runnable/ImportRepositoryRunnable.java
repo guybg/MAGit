@@ -19,6 +19,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -34,9 +35,9 @@ public class ImportRepositoryRunnable implements Runnable{
     private RepositoryXmlParser xmlParser;
     private MagitEngine engine;
     private Runnable forceCreationRunnable;
-    private Consumer<String> doAfter;
+    private Consumer<HashMap<String,String>> doAfter;
     private String userNamePath;
-    public ImportRepositoryRunnable(InputStream xml, MagitEngine engine, String userNamePath, Runnable forceCreationRunnable, Consumer<String> doAfter, boolean forceCreation) {
+    public ImportRepositoryRunnable(InputStream xml, MagitEngine engine, String userNamePath, Runnable forceCreationRunnable, Consumer<HashMap<String,String>> doAfter, boolean forceCreation) {
         this.xml = xml;
         this.branchManager = engine.getmBranchManager();
         this.forceCreation = forceCreation;
@@ -47,7 +48,7 @@ public class ImportRepositoryRunnable implements Runnable{
         this.userNamePath = userNamePath;
     }
 
-    private boolean importRepositoryXML() throws RepositoryAlreadyExistsException {
+    private boolean importRepositoryXML() throws RepositoryAlreadyExistsException, ParseException, PreviousCommitsLimitExceededException, IOException {
         String repositoryName;
         if (!initializeXmlParser())
             return false;
@@ -80,7 +81,16 @@ public class ImportRepositoryRunnable implements Runnable{
         } catch (JAXBException | RepositoryAlreadyExistsException | IllegalPathException | XmlFileException | PreviousCommitsLimitExceededException | ParseException | IOException e) {
             e.printStackTrace();
         }
-        doAfter.accept(repositoryName);
+        HashMap<String,String> repositoryDetails = new HashMap<>();
+        String numberOfBranches = Integer.toString(engine.getmRepositoryManager().getBranches().size());
+        repositoryDetails.put("name",repositoryName);
+        repositoryDetails.put("activeBranch",engine.getmRepositoryManager().getHeadBranch());
+        repositoryDetails.put("branchesNum", numberOfBranches);
+        repositoryDetails.put("commitDate", engine.getLastCommitDateAndMessage().get(0));
+        repositoryDetails.put("commitMessage", engine.getLastCommitDateAndMessage().get(1));
+
+
+        doAfter.accept(repositoryDetails);
         return true;
     }
 
@@ -93,6 +103,12 @@ public class ImportRepositoryRunnable implements Runnable{
 
         } catch (RepositoryAlreadyExistsException e) {
             forceCreationRunnable.run();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        } catch (PreviousCommitsLimitExceededException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
