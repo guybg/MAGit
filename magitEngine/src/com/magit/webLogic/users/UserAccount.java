@@ -29,21 +29,26 @@ public class UserAccount {
         userPath = Paths.get(usersPath, userName).toString();
     }
 
+    public HashMap<String,String> getRepositoryInfo(String id) {
+        return repositories.get(id);
+    }
+
     public void addRepository(InputStream xml){
         MagitEngine engine = new MagitEngine();
         ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, null, new Consumer<HashMap<String,String>>() {
             @Override
             public void accept(HashMap<String,String> repositoryDetails) {
-                repositories.put(repositoryDetails.get("name"), repositoryDetails);
+                Integer serialNumber = repositories.size();
+                repositories.put(serialNumber.toString(), repositoryDetails);
             }
         }, false);
 
         new Thread(runnable).start();
     }
 
-    public void loadRepository(String repositoryName) throws ParseException, RepositoryNotFoundException, IOException {
+    public void loadRepository(String id) throws ParseException, RepositoryNotFoundException, IOException {
         engine = new MagitEngine();
-        engine.switchRepository(Paths.get(userPath,repositoryName).toString());
+        engine.switchRepository(Paths.get(userPath, id).toString());
     }
 
     public HashMap<String, HashMap<String,String>> getRepositories() {
