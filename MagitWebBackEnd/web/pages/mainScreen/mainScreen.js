@@ -6,10 +6,10 @@ var accountDetails;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
     function createRepository(name, details){
     var repository = $("<div class=\"col-xl-3 col-sm-6 mb-3\">" +
-        "<div class=\"card text-white bg-primary o-hidden h-100\">" +
+        "<div class=\"card text-white bg-dark mb-3 o-hidden h-100\">" +
         "<div class=\"card-body\">" +
         "<div class=\"card-body-icon\">" +
-        "<i class=\"fas fa-fw fa-comments\"></i>" +
+        "<i class=\"fas fa-fw fa-tv\"></i>" +
         "</div>" +
         "<div class=\"mr-5\">" +
         "Repository: "  + details.name +

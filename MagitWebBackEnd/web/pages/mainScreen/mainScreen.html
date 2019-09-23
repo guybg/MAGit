@@ -7,9 +7,10 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <title>Magit Main</title>
-  <link href="all.min.css" rel="stylesheet" type="text/css">
+
   <link href="sb-admin.min.css" rel="stylesheet">
   <link href="mainScreen.css" rel="stylesheet">
+  <link href="../../common/fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
   <script src="../../common/jquery-2.0.3.min.js"></script>
   <script src="../../common/context-path-helper.js"></script>
   <script src="mainScreen.js"></script>
@@ -44,28 +45,7 @@
           </li>
           <li class="breadcrumb-item active">Overview</li>
         </ol>
-        <div class="row" id="repository-upload">
-          <div class="col-xl-3 col-sm-6 mb-3">
-          <form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">
-            <!-- COMPONENT START -->
-            <div class="form-group">
-              <div class="input-group input-file" name="Fichier1">
-                <input type="text" class="form-control" placeholder='Choose a file...' />
-                <span class="input-group-btn">
-        		<button class="btn btn-secondary btn-choose" type="button">Choose</button>
-    		</span>
-
-
-              </div>
-            </div>
-            <!-- COMPONENT END -->
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary pull-right">Submit</button>
-              <button type="reset" class="btn btn-danger">Reset</button>
-            </div>
-          </form>
-          </div>
-        </div>
+        <div class="row" id="repository-upload"></div>
 
         <div class="row" id="repository-container">
           <div class="col-xl-3 col-sm-6 mb-3">
