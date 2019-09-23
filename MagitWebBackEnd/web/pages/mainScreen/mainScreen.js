@@ -87,6 +87,9 @@ function bs_input_file() {
     );
 }
 $(function () {
+    if(localStorage["pageState"] === ""){
+        saveState("#username")
+    }
     $("#username").click(userNameClicked);
     $("#repositoriesbutton").click(showRepositoriesPage);
     $("#logout").click(logout);
@@ -123,9 +126,72 @@ function uploadAjaxSubmit() {
 
 function userNameClicked() {
     saveState("#username");
-    if(window.location.pathname.split("/").pop() !== "mainScreen.html"){
-        window.location.href = "mainScreen.html";
-    }
+    emptyContainers();
+    $("#main-container").append(
+        "      <div class=\"my-3 p-3 bg-light rounded box-shadow\">\n" +
+        "        <h6 class=\"border-bottom border-gray pb-2 mb-0\">Recent updates</h6>\n" +
+        "        <div class=\"media text-muted pt-3\">\n" +
+        "          <img data-src=\"holder.js/32x32?theme=thumb&bg=007bff&fg=007bff&size=1\" alt=\"\" class=\"mr-2 rounded\">\n" +
+        "          <p class=\"media-body pb-3 mb-0 small lh-125 border-bottom border-gray\">\n" +
+        "            <strong class=\"d-block text-gray-dark\">@username</strong>\n" +
+        "            Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.\n" +
+        "          </p>\n" +
+        "        </div>\n" +
+        "        <div class=\"media text-muted pt-3\">\n" +
+        "          <img data-src=\"holder.js/32x32?theme=thumb&bg=e83e8c&fg=e83e8c&size=1\" alt=\"\" class=\"mr-2 rounded\">\n" +
+        "          <p class=\"media-body pb-3 mb-0 small lh-125 border-bottom border-gray\">\n" +
+        "            <strong class=\"d-block text-gray-dark\">@username</strong>\n" +
+        "            Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.\n" +
+        "          </p>\n" +
+        "        </div>\n" +
+        "        <div class=\"media text-muted pt-3\">\n" +
+        "          <img data-src=\"holder.js/32x32?theme=thumb&bg=6f42c1&fg=6f42c1&size=1\" alt=\"\" class=\"mr-2 rounded\">\n" +
+        "          <p class=\"media-body pb-3 mb-0 small lh-125 border-bottom border-gray\">\n" +
+        "            <strong class=\"d-block text-gray-dark\">@username</strong>\n" +
+        "            Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.\n" +
+        "          </p>\n" +
+        "        </div>\n" +
+        "        <small class=\"d-block text-right mt-3\">\n" +
+        "          <a href=\"#\">All updates</a>\n" +
+        "        </small>\n" +
+        "      </div>\n" +
+        "\n" +
+        "      <div class=\"my-3 p-3 bg-light rounded box-shadow\">\n" +
+        "        <h6 class=\"border-bottom border-gray pb-2 mb-0\">Chat</h6>\n" +
+        "        <div class=\"media text-muted pt-3\">\n" +
+        "          <img data-src=\"holder.js/32x32?theme=thumb&bg=007bff&fg=007bff&size=1\" alt=\"\" class=\"mr-2 rounded\">\n" +
+        "          <div class=\"media-body pb-3 mb-0 small lh-125 border-bottom border-gray\">\n" +
+        "            <div class=\"d-flex justify-content-between align-items-center w-100\">\n" +
+        "              <strong class=\"text-gray-dark\">Full Name</strong>\n" +
+        "              <a href=\"#\">Follow</a>\n" +
+        "            </div>\n" +
+        "            <span class=\"d-block\">@username</span>\n" +
+        "          </div>\n" +
+        "        </div>\n" +
+        "        <div class=\"media text-muted pt-3\">\n" +
+        "          <img data-src=\"holder.js/32x32?theme=thumb&bg=007bff&fg=007bff&size=1\" alt=\"\" class=\"mr-2 rounded\">\n" +
+        "          <div class=\"media-body pb-3 mb-0 small lh-125 border-bottom border-gray\">\n" +
+        "            <div class=\"d-flex justify-content-between align-items-center w-100\">\n" +
+        "              <strong class=\"text-gray-dark\">Full Name</strong>\n" +
+        "              <a href=\"#\">Follow</a>\n" +
+        "            </div>\n" +
+        "            <span class=\"d-block\">@username</span>\n" +
+        "          </div>\n" +
+        "        </div>\n" +
+        "        <div class=\"media text-muted pt-3\">\n" +
+        "          <img data-src=\"holder.js/32x32?theme=thumb&bg=007bff&fg=007bff&size=1\" alt=\"\" class=\"mr-2 rounded\">\n" +
+        "          <div class=\"media-body pb-3 mb-0 small lh-125 border-bottom border-gray\">\n" +
+        "            <div class=\"d-flex justify-content-between align-items-center w-100\">\n" +
+        "              <strong class=\"text-gray-dark\">Full Name</strong>\n" +
+        "              <a href=\"#\">Follow</a>\n" +
+        "            </div>\n" +
+        "            <span class=\"d-block\">@username</span>\n" +
+        "          </div>\n" +
+        "        </div>\n" +
+        "        <small class=\"d-block text-right mt-3\">\n" +
+        "          <a href=\"#\">All suggestions</a>\n" +
+        "        </small>\n" +
+        "      </div>\n");
 }
 function updateInputLabel() {
     //get the file name
@@ -160,8 +226,9 @@ function bindNavClick(){
     });
 };
 function showRepositoriesPage() {
+    emptyContainers();
     showRepositories();
-    $("#repository-upload").empty();
+
     $("#repository-upload").append(
         '<div class="col-xl-3 col-sm-6 mb-3">'+
         '<form id="uploadForm" method="POST" action="/upload" enctype="multipart/form-data">'+
@@ -196,7 +263,11 @@ function saveState(func) {
     if (!supportsLocalStorage()) { return false; }
     localStorage["pageState"] = func;
 }
-
+function emptyContainers(){
+    $("#repository-container").empty();
+    $("#repository-upload").empty();
+    $("#main-container").empty();
+}
 function resumeState() {
     if (!supportsLocalStorage()) { return false; }
     var resumeId = localStorage["pageState"];
