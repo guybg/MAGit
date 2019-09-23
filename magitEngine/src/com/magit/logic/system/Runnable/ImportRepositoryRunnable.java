@@ -50,6 +50,8 @@ public class ImportRepositoryRunnable implements Runnable{
 
     private boolean importRepositoryXML() throws RepositoryAlreadyExistsException, ParseException, PreviousCommitsLimitExceededException, IOException {
         String repositoryName;
+        String commitDate = "No commit";
+        String commitMessage = "No commit";
         if (!initializeXmlParser())
             return false;
 
@@ -86,8 +88,12 @@ public class ImportRepositoryRunnable implements Runnable{
         repositoryDetails.put("name",repositoryName);
         repositoryDetails.put("activeBranch",engine.getmRepositoryManager().getHeadBranch());
         repositoryDetails.put("branchesNum", numberOfBranches);
-        repositoryDetails.put("commitDate", engine.getLastCommitDateAndMessage().get(0));
-        repositoryDetails.put("commitMessage", engine.getLastCommitDateAndMessage().get(1));
+        if(engine.getLastCommitDateAndMessage() != null){
+            commitDate = engine.getLastCommitDateAndMessage().get(0);
+            commitMessage = engine.getLastCommitDateAndMessage().get(1);
+        }
+        repositoryDetails.put("commitDate", commitDate);
+        repositoryDetails.put("commitMessage", commitMessage);
 
 
         doAfter.accept(repositoryDetails);
