@@ -4,7 +4,7 @@ var refreshRate = 2000;
 var h = document.cookie;
 var accountDetails;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
-    function createRepository(name, details){
+function createRepository(repoId, details){
     var repository = $("<div class=\"col-xl-3 col-sm-6 mb-3\">" +
         "<div class=\"card text-white bg-dark mb-3 o-hidden h-100\">" +
         "<div class=\"card-body\">" +
@@ -28,19 +28,19 @@ var accountDetails;
         "</div>" +
         "</div>" +
         "<a class=\"card-footer text-white clearfix small z-1\" href=\"#\">" +
-        "<span class=\"float-left\">View Details</span>" +
+        "<span class=\"float-left rep-details\">View Details</span>" +
         "<span class=\"float-right\">" +
-        "<i class=\"fas fa-angle-right\"></i>" +
+        "<i class=\"fas fa-angle-right rep-details\"></i>" +
         "</span>" +
         "</a>" +
         "</div>" +
         "</div>")
-        .attr('id', location)
-        .attr('name', name)
         .addClass("square")
-        .text(name.height);
+        .text(repoId.height);
 
     $('#repository-container').append(repository);
+    $(".rep-details").click(toRepositoryDetailsPage);
+    $(".rep-details").attr('id', repoId);
 }
 
 $(function () {
@@ -132,30 +132,7 @@ function showRepositories() {
 
         },
         success: function(msg) {
-            //{"userName":"Guy","repositories":{}}
             $("#repository-container").empty();
-
-                //'<div class="col-xl-6 col-sm-8 mb-3">' +
-                //    '<form class="md-form" id="uploadForm" action="/upload" enctype="multipart/form-data" method="POST">'+
-                //        '<div class="input-group">' +
-                //            '<div class="input-group-prepend">' +
-                //                '<span class="input-group-text" id="inputGroupFileAddon01">Upload repository</span>' +
-                //            '</div>' +
-                //            '<div class="custom-file">' +
-                //                '<input type="file" class="custom-file-input" id="inputGroupFile01"' +
-                //                'aria-describedby="inputGroupFileAddon01">' +
-                //            '<form>' +
-                //                '<label class="custom-file-label" for="inputGroupFile01">Choose file</label>' +
-                //            '</form>' +
-                //            '</div>' +
-                //            '</div>' +
-                //            '<div class="file-path-wrapper">' +
-                //            '<input type="Submit" value="Upload File" class="btn btn-primary">' +
-                //'</div>' +
-//
-                //'   </form>' +
-                //'</div>');
-
             var repositories = msg.repositories;
             $.each(repositories || [], createRepository);
         }
@@ -201,6 +178,21 @@ function logout() {
         },
         success: function () {}
     });
+}
+
+function toRepositoryDetailsPage() {
+    var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
+    $.ajax( {
+        type: 'GET',
+        data: {
+            "username": accountDetails["userName"],
+            "id" : $(this).attr('id')
+        },
+        url: REPO_DETAILS_URL,
+        timeout: 2000,
+        error : function (a) {},
+        success: function () {}
+    })
 }
 
 

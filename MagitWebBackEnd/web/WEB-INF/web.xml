@@ -24,4 +24,12 @@
         <servlet-name>LogoutServlet</servlet-name>
         <url-pattern>/pages/signup/logout</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>RepositoryDetailsServlet</servlet-name>
+        <servlet-class>servlets.RepositoryDetailsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RepositoryDetailsServlet</servlet-name>
+        <url-pattern>/repodetails</url-pattern>
+    </servlet-mapping>
 </web-app>
