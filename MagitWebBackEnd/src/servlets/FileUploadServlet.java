@@ -3,6 +3,7 @@ import static constants.Constants.USER_UPLOADED_XML;
 //taken from: http://www.servletworld.com/servlet-tutorials/servlet3/multipartconfig-file-upload-example.html
 // and http://docs.oracle.com/javaee/6/tutorial/doc/glraq.html
 
+import com.google.gson.Gson;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import utils.ServletUtils;
@@ -22,6 +23,7 @@ import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 @WebServlet("/upload")
 @MultipartConfig(fileSizeThreshold = 1024 * 1024, maxFileSize = 1024 * 1024 * 5, maxRequestSize = 1024 * 1024 * 5 * 5)
@@ -35,11 +37,10 @@ public class FileUploadServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("text/html");
-        PrintWriter out = response.getWriter();
+        //PrintWriter out = response.getWriter();
 
         Collection<Part> parts = request.getParts();
 
-        out.println("Total parts : " + parts.size() + " ");
 
         StringBuilder fileContent = new StringBuilder();
 
@@ -48,11 +49,23 @@ public class FileUploadServlet extends HttpServlet {
             fileContent.append(readFromInputStream(part.getInputStream()));
         }
         InputStream inputStream = new ByteArrayInputStream(fileContent.toString().getBytes(Charset.forName("UTF-8")));
+       // out.close();
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount account = userManager.getUsers().get(usernameFromSession);
-        account.addRepository(inputStream);
-        out.println(fileContent.toString());
+        account.addRepository(inputStream, new Consumer<String>() {
+            @Override
+            public void accept(String s) {
+                String exceptionMessage = s;
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(exceptionMessage);
+                    out.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        //out.println(fileContent.toString());
     }
 
     private String readFromInputStream(InputStream inputStream) {

@@ -6,6 +6,7 @@ import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
+import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
 import com.magit.webLogic.utils.RepositoryUtils;
 import javafx.beans.property.SimpleStringProperty;
@@ -38,17 +39,22 @@ public class UserAccount {
         return repositories.get(id);
     }
 
-    public void addRepository(InputStream xml){
+    public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
         MagitEngine engine = new MagitEngine();
         Integer serialNumber = repositories.size();
-        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath,serialNumber.toString(), null, new Consumer<HashMap<String,String>>() {
+        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, serialNumber.toString(), null, new Consumer<String>() {
             @Override
-            public void accept(HashMap<String,String> repositoryDetails) {
+            public void accept(String s) {
+                exceptionDelegate.accept(s);
+            }
+        }, new Consumer<HashMap<String, String>>() {
+            @Override
+            public void accept(HashMap<String, String> repositoryDetails) {
                 repositories.put(serialNumber.toString(), repositoryDetails);
             }
         }, false);
-
-        new Thread(runnable).start();
+        runnable.run();
+        //new Thread(runnable).start();
     }
 
     public void loadRepository(String id) throws InvalidNameException, ParseException, RepositoryNotFoundException, IOException {

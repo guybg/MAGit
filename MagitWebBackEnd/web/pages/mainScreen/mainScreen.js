@@ -23,10 +23,10 @@ function createRepository(repoId, details){
         "<div class=\"mr-5\">" +
         "Branches: " + details.branchesNum +
         "</div>" +
-        "<div class=\"mr-5\">" +
+        "<div class=\"mr-5 commit-details\">" +
         "Commit date: " + details.commitDate +
         "</div>" +
-        "<div class=\"mr-5\">" +
+        "<div class=\"mr-5 commit-details\">" +
         "Commit message: " + details.commitMessage +
         "</div>" +
         "</div>" +
@@ -43,6 +43,10 @@ function createRepository(repoId, details){
         "</div>")
         .addClass("square")
         .text(repoId.height);
+
+    if(details.commitDate === "No commit"){
+        $(".commit-details",repository).hide();
+    }
 
     $('#repository-container').append(repository);
 
@@ -123,6 +127,10 @@ function uploadAjaxSubmit() {
                // $("#result").text("Failed to get result from server " + e);
             },
             success: function (r) {
+                if(r === "")
+                    $("#uploadMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository uploaded successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                else
+                    $("#uploadMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + r + "</h6>").fadeIn(500).delay(5000).fadeOut();
               //  $("#result").text(r);
             }
         });
@@ -253,10 +261,12 @@ function showRepositoriesPage() {
         '&nbsp;&nbsp;&nbsp;' +
         '<button type="reset" class="btn btn-danger">Reset</button>'+
         '</div>'+
+        '<div id="uploadMessage" class="alert alert-danger"></div>' +
         '</form>'+
         '</div>');
     bs_input_file();
     uploadAjaxSubmit();
+    $("#uploadMessage").hide();
     $("#inputGroupFile01").change(updateInputLabel);
     repoDetailsInterval = setInterval(showRepositories, refreshRate);
     saveState("#repositoriesbutton");

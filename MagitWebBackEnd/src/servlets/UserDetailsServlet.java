@@ -2,6 +2,8 @@ package servlets;
 
 
 import com.google.gson.GsonBuilder;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
+import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import com.google.gson.Gson;
@@ -10,6 +12,7 @@ import utils.SessionUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -57,6 +60,15 @@ public class UserDetailsServlet extends HttpServlet {
         if (account == null) {
             prepareRedirectAjaxResponse(request, response, SIGN_UP_URL);
         } else {
+            try {
+                account.updateRepositories();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (RepositoryNotFoundException e) {
+                e.printStackTrace();
+            } catch (PreviousCommitsLimitExceededException e) {
+                e.printStackTrace();
+            }
             Gson gson = new GsonBuilder()
                     .excludeFieldsWithoutExposeAnnotation()
                     .create();
@@ -64,7 +76,7 @@ public class UserDetailsServlet extends HttpServlet {
             response.setContentType("application/json");
             try (PrintWriter out = response.getWriter()) {
                 out.println(accountDetails);
-                out.flush();
+                response.flushBuffer();
             }
         }
     }
