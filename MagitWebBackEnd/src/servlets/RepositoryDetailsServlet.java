@@ -1,6 +1,7 @@
 package servlets;
 
 
+import com.google.gson.Gson;
 import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.webLogic.users.UserAccount;
@@ -13,9 +14,25 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 
 public class RepositoryDetailsServlet extends HttpServlet {
+
+    private void prepareRedirectAjaxResponse(HttpServletRequest request, HttpServletResponse response, String repoDetails) throws IOException {
+        if (isAjax(request)) {
+            response.setContentType("application/json");
+            try (PrintWriter out = response.getWriter()) {
+                out.print(repoDetails);
+                out.flush();
+            }
+            response.flushBuffer();
+        }
+    }
+
+    private boolean isAjax(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -37,13 +54,9 @@ public class RepositoryDetailsServlet extends HttpServlet {
             account = userManager.getUsers().get(usernameFromSession);
             try {
                 account.loadRepository(id);
-            } catch (InvalidNameException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            } catch (RepositoryNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+                Gson gson = new Gson();
+                prepareRedirectAjaxResponse(request,response, gson.toJson(account.getRepositories().get(id)));
+            } catch (InvalidNameException | ParseException | RepositoryNotFoundException | IOException e) {
                 e.printStackTrace();
             }
         }

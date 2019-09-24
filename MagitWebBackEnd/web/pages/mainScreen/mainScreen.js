@@ -304,8 +304,11 @@ function toRepositoryDetailsPage() {
         },
         url: REPO_DETAILS_URL,
         timeout: 2000,
-        error : function (a) {},
-        success: function () {}
+        error : function () {},
+        success: function (a) {
+            window.location.href = "../repositoryDetails/repositoryDetails.html";
+            getRepositoryDetails(a);
+        }
     });
 }
 
