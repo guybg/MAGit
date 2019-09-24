@@ -7,6 +7,7 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.RepositoryManager;
 import com.magit.logic.system.managers.RepositoryXmlParser;
+import com.magit.webLogic.utils.RepositoryUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -85,22 +86,15 @@ public class ImportRepositoryRunnable implements Runnable{
         } catch (JAXBException | RepositoryAlreadyExistsException | IllegalPathException | XmlFileException | PreviousCommitsLimitExceededException | ParseException | IOException e) {
             e.printStackTrace();
         }
-        HashMap<String,String> repositoryDetails = new HashMap<>();
-        String numberOfBranches = Integer.toString(engine.getmRepositoryManager().getBranches().size());
-        repositoryDetails.put("name",repositoryName);
-        repositoryDetails.put("activeBranch",engine.getmRepositoryManager().getHeadBranch());
-        repositoryDetails.put("branchesNum", numberOfBranches);
-        if(engine.getLastCommitDateAndMessage() != null){
-            commitDate = engine.getLastCommitDateAndMessage().get(0);
-            commitMessage = engine.getLastCommitDateAndMessage().get(1);
-        }
-        repositoryDetails.put("commitDate", commitDate);
-        repositoryDetails.put("commitMessage", commitMessage);
+
+        HashMap<String, String> repositoryDetails = RepositoryUtils.setRepositoryDetailsMap(repositoryName, commitDate, commitMessage, engine);
 
 
         doAfter.accept(repositoryDetails);
         return true;
     }
+
+
 
     @Override
     public void run() {

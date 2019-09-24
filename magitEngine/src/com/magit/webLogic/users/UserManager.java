@@ -1,5 +1,10 @@
 package com.magit.webLogic.users;
 
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
+import com.magit.logic.system.MagitEngine;
+
+import java.io.IOException;
+import java.text.ParseException;
 import java.util.*;
 
 public class UserManager {
@@ -25,5 +30,6 @@ public class UserManager {
     public boolean isUserExists(String username) {
         return usersMap.containsKey(username);
     }
+
 
 }

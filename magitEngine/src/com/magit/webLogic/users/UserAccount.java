@@ -2,12 +2,15 @@ package com.magit.webLogic.users;
 
 import com.google.gson.annotations.Expose;
 import com.magit.logic.exceptions.InvalidNameException;
+import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
+import com.magit.webLogic.utils.RepositoryUtils;
 import javafx.beans.property.SimpleStringProperty;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -58,6 +61,22 @@ public class UserAccount {
 
     public HashMap<String, HashMap<String,String>> getRepositories() {
         return repositories;
+    }
+
+    public void updateRepositories() throws ParseException, RepositoryNotFoundException, IOException, PreviousCommitsLimitExceededException {
+        if(!Paths.get(userPath).toFile().exists())
+            return;
+        File[] files = new File(userPath).listFiles();
+        for(File file : files){
+            String id =  file.getName();
+            if(repositories != null && !repositories.containsKey(id)){
+                MagitEngine engine = new MagitEngine();
+                String commitDate="No commit",commitMessage="No commit";
+                engine.switchRepository(Paths.get(userPath, id).toString());
+                HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage, engine);
+                repositories.put(id, details);
+            }
+        }
     }
 
 
