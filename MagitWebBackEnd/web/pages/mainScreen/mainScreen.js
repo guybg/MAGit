@@ -2,7 +2,9 @@ var USER_DETAILS_URL = buildUrlWithContextPath("details");
 var UPLOAD_URL = buildUrlWithContextPath("upload");
 var refreshRate = 2000;
 var h = document.cookie;
+var s;
 var accountDetails;
+var repoDetailsInterval;
 
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
@@ -129,6 +131,7 @@ function uploadAjaxSubmit() {
 };
 
 function userNameClicked() {
+    stopShowingRepositories();
     saveState("#username");
     emptyContainers();
     $("#main-container").append(
@@ -255,7 +258,7 @@ function showRepositoriesPage() {
     bs_input_file();
     uploadAjaxSubmit();
     $("#inputGroupFile01").change(updateInputLabel);
-    setInterval(showRepositories, refreshRate);
+    repoDetailsInterval = setInterval(showRepositories, refreshRate);
     saveState("#repositoriesbutton");
 }
 
@@ -277,6 +280,7 @@ function resumeState() {
     $(resumeId).trigger("click");
 }
 function logout() {
+    stopShowingRepositories();
     var LOUGOUT_URL = buildUrlWithContextPath("/pages/signup/logout");
     $.ajax( {
         url:LOUGOUT_URL,
@@ -290,6 +294,7 @@ function logout() {
 }
 
 function toRepositoryDetailsPage() {
+    stopShowingRepositories();
     var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
     $.ajax( {
         type: 'GET',
@@ -304,6 +309,9 @@ function toRepositoryDetailsPage() {
     });
 }
 
+function stopShowingRepositories() {
+    clearInterval(repoDetailsInterval);
+}
 
 
 
