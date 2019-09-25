@@ -44,8 +44,7 @@ public class RepositoryDetailsServlet extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
-        String id = request.getQueryString();
-        id = id.split("id=")[1];
+        String id = request.getQueryString().split("id=")[1];
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount account;
