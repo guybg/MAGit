@@ -26,7 +26,6 @@ public class RepositoryDetailsServlet extends HttpServlet {
                 out.print(repoDetails);
                 out.flush();
             }
-            response.flushBuffer();
         }
     }
 

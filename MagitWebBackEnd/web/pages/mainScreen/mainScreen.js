@@ -1,5 +1,6 @@
 var USER_DETAILS_URL = buildUrlWithContextPath("details");
 var UPLOAD_URL = buildUrlWithContextPath("upload");
+var All_USERS_URL = buildUrlWithContextPath("allUsersDetails");
 var refreshRate = 2000;
 var h = document.cookie;
 var s;
@@ -54,22 +55,7 @@ function createRepository(repoId, details){
     $(".rep-details").click(toRepositoryDetailsPage);
 }
 
-$(function () {
-    $.ajax({
-        data: $(this).serialize(),
-        url: USER_DETAILS_URL,
-        timeout: 2000,
-        error: function() {
 
-        },
-        success: function(msg) {
-            //{"userName":"Guy","repositories":{}}
-            accountDetails = msg;
-            $("#username").empty().append('Hello, ').append(msg.userName).append(".");
-
-        }
-    });
-});
 function bs_input_file() {
     $(".input-file").before(
         function() {
@@ -96,16 +82,7 @@ function bs_input_file() {
         }
     );
 }
-$(function () {
-    if(localStorage["pageState"] === ""){
-        saveState("#username")
-    }
-    $("#username").click(userNameClicked);
-    $("#repositoriesbutton").click(showRepositoriesPage);
-    $("#logout").click(logout);
-    bindNavClick();
-    resumeState();
-})
+
 
 function uploadAjaxSubmit() {
     $("#uploadForm").submit(function () {
@@ -229,16 +206,79 @@ function showRepositories() {
         }
     });
 }
-function bindNavClick(){
-    $( ".navbar-nav .nav-item" ).bind( "click", function(event) {
-        event.preventDefault();
-        var clickedItem = $( this );
-        $( ".navbar-nav .nav-item" ).each( function() {
-            $( this ).removeClass( "active" );
-        });
-        clickedItem.addClass( "active" );
+function showUsers(users) {
+    $("#users-container").append(users);
+}
+function createUser() {
+    var user = $(
+        "<div class=\"col-xl-3 col-sm-6 mb-3\">" +
+        "<div class=\"accordion\" id=\"accordionExample\">\n" +
+        "  <div class=\"card\">\n" +
+        "    <div class=\"card-header\" id=\"headingOne\">\n" +
+        "      <h2 class=\"mb-0\">\n" +
+        "        <button class=\"btn btn-link\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseOne\" aria-expanded=\"true\" aria-controls=\"collapseOne\">\n" +
+        "          Collapsible Group Item #1\n" +
+        "        </button>\n" +
+        "      </h2>\n" +
+        "    </div>\n" +
+        "\n" +
+        "    <div id=\"username1\" class=\"collapse show\" aria-labelledby=\"headingOne\" data-parent=\"#accordionExample\">\n" +
+        "      <div class=\"card-body\">\n" +
+        "        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  </div>\n" +
+        "  <div class=\"card\">\n" +
+        "    <div class=\"card-header\" id=\"headingTwo\">\n" +
+        "      <h2 class=\"mb-0\">\n" +
+        "        <button class=\"btn btn-link collapsed\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseTwo\" aria-expanded=\"false\" aria-controls=\"collapseTwo\">\n" +
+        "          Collapsible Group Item #2\n" +
+        "        </button>\n" +
+        "      </h2>\n" +
+        "    </div>\n" +
+        "    <div id=\"collapseTwo\" class=\"collapse\" aria-labelledby=\"headingTwo\" data-parent=\"#accordionExample\">\n" +
+        "      <div class=\"card-body\">\n" +
+        "        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  </div>\n" +
+        "  <div class=\"card\">\n" +
+        "    <div class=\"card-header\" id=\"headingThree\">\n" +
+        "      <h2 class=\"mb-0\">\n" +
+        "        <button class=\"btn btn-link collapsed\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseThree\" aria-expanded=\"false\" aria-controls=\"collapseThree\">\n" +
+        "          Collapsible Group Item #3\n" +
+        "        </button>\n" +
+        "      </h2>\n" +
+        "    </div>\n" +
+        "    <div id=\"collapseThree\" class=\"collapse\" aria-labelledby=\"headingThree\" data-parent=\"#accordionExample\">\n" +
+        "      <div class=\"card-body\">\n" +
+        "        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.\n" +
+        "      </div>\n" +
+        "    </div>\n" +
+        "  </div>\n" +
+        "</div>" +
+        "</div>" +
+    "           </div>");
+    $('#users-container').append(user);
+    $('.collapse').collapse("toggle");
+}
+function showUsersPage() {
+    $.ajax({
+        data: $(this).serialize(),
+        url: All_USERS_URL,
+        timeout: 2000,
+        error: function() {
+
+        },
+        success: function(msg) {
+            stopShowingRepositories();
+            emptyContainers();
+            var users = msg;
+            $.each(users || [], createUser);
+        }
     });
-};
+}
+
 function showRepositoriesPage() {
     emptyContainers();
     showRepositories();
@@ -272,38 +312,8 @@ function showRepositoriesPage() {
     saveState("#repositoriesbutton");
 }
 
-function supportsLocalStorage() {
-    return ('localStorage' in window) && window['localStorage'] !== null;
-}
-function saveState(func) {
-    if (!supportsLocalStorage()) { return false; }
-    localStorage["pageState"] = func;
-}
-function emptyContainers(){
-    $("#repository-container").empty();
-    $("#repository-upload").empty();
-    $("#main-container").empty();
-}
-function resumeState() {
-    if (!supportsLocalStorage()) { return false; }
-    var resumeId = localStorage["pageState"];
-    $(resumeId).trigger("click");
-}
-function logout() {
-    stopShowingRepositories();
-    var LOUGOUT_URL = buildUrlWithContextPath("/pages/signup/logout");
-    $.ajax( {
-        url:LOUGOUT_URL,
-        timeout:2000,
-        error: function (a) {
-            window.location.href = a.getResponseHeader("Location");
-            localStorage["pageState"] = "";
-        },
-        success: function () {}
-    });
-}
-
 function toRepositoryDetailsPage() {
+    saveState("empty");
     stopShowingRepositories();
     var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
     $.ajax( {

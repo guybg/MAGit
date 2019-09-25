@@ -20,6 +20,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class UserAccount {
@@ -28,10 +29,12 @@ public class UserAccount {
     @Expose(serialize = false) private MagitEngine engine;
     @Expose(serialize = true)private String userPath;
     @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
+    @Expose(serialize = true) private boolean online;
 
     public UserAccount(String userName) {
         this.userName = userName;
         this.repositories = new HashMap<>();
+        this.online = true;
         userPath = Paths.get(usersPath, userName).toString();
     }
 
@@ -73,7 +76,7 @@ public class UserAccount {
         if(!Paths.get(userPath).toFile().exists())
             return;
         File[] files = new File(userPath).listFiles();
-        for(File file : files){
+        for(File file : Objects.requireNonNull(files)){
             String id =  file.getName();
             if(repositories != null && !repositories.containsKey(id)){
                 MagitEngine engine = new MagitEngine();
@@ -85,5 +88,11 @@ public class UserAccount {
         }
     }
 
+    public void setOnlineStatus(boolean status){
+        online = status;
+    }
 
+    public synchronized boolean isOnline() {
+        return online;
+    }
 }
