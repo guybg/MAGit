@@ -98,6 +98,6 @@ public class UserAccount {
     }
 
     public HashMap<String, Branch> getBranchesHashMap() {
-        return engine.getBranchesHashMap();
+        return null;
     }
 }
