@@ -258,10 +258,6 @@ function createUser(userName, userAccount) {
         "            <!--Table head-->\n" +
         "            <thead>\n" +
         "              <tr>\n" +
-        "                <th>\n" +
-        "                  <input class=\"form-check-input\" type=\"checkbox\" id=\"checkbox\">\n" +
-        "                  <label for=\"checkbox\" class=\"mr-2 label-table\"></label>\n" +
-        "                </th>\n" +
         "                <th class=\"th-lg\"><a>Name <i class=\"ml-1\"></i></a></th>\n" +
         "                <th class=\"th-lg\"><a>Active branch<i class=\"ml-1\"></i></a></th>\n" +
         "                <th class=\"th-lg\"><a>Branches<i class=\"ml-1\"></i></a></th>\n" +
@@ -289,10 +285,6 @@ function createUser(userName, userAccount) {
         "</div>\n");
         $.each(userAccount.repositories || [], function (repositoryId, repository) {
             $("tbody", user).append("             <tr>\n" +
-                "                <th scope=\"row\">\n" +
-                "                  <input class=\"form-check-input\" type=\"checkbox\" id=\"checkbox2\">\n" +
-                "                  <label for=\"checkbox2\" class=\"label-table\"></label>\n" +
-                "                </th>\n" +
                 "                <td>"+ repository.name +"</td>\n" +
                 "                <td>" + repository.activeBranch + "</td>\n" +
                 "                <td>" + repository.branchesNum + "</td>\n" +
