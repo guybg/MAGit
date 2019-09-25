@@ -100,10 +100,16 @@ public class LoginServlet extends HttpServlet {
                            //getServletContext().getRequestDispatcher(LOGIN_ERROR_URL).forward(request, response);
 
                        } else {
-                           //add the new user to the users list
-                           UserAccount account = new UserAccount(usernameFromParameter);
+                           UserAccount account;
+                           if(!userManager.getUsers().containsKey(usernameFromParameter)){
+                               //add the new user to the users list
+                               account = new UserAccount(usernameFromParameter);
 
-                           userManager.addUser(usernameFromParameter, account);
+                               userManager.addUser(usernameFromParameter, account);
+                           }else{
+                               account = userManager.getUsers().get(usernameFromParameter);
+                           }
+                           account.setOnlineStatus(true);
                            //set the username in a session so it will be available on each request
                            //the true parameter means that if a session object does not exists yet
                            //create a new one

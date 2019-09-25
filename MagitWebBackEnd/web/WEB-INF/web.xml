@@ -32,4 +32,12 @@
         <servlet-name>RepositoryDetailsServlet</servlet-name>
         <url-pattern>/repodetails</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>AllUsersDetailsServlet</servlet-name>
+        <servlet-class>servlets.AllUsersDetailsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AllUsersDetailsServlet</servlet-name>
+        <url-pattern>/allUsersDetails</url-pattern>
+    </servlet-mapping>
 </web-app>

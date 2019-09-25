@@ -88,3 +88,25 @@ body {
 .lh-125 { line-height: 1.25; }
 .lh-150 { line-height: 1.5; }
 
+#bot {
+    color: #eeeeee;
+    background: #1fa0e4;
+    background: -webkit-linear-gradient(#1fa0e4, #1992d1);
+    background: -moz-linear-gradient(#1fa0e4, #1992d1);
+    background: -o-linear-gradient(#1fa0e4, #1992d1);
+    background: -ms-linear-gradient(#1fa0e4, #1992d1);
+    background: linear-gradient(#1fa0e4, #1992d1);
+}
+#bot > h4:hover{
+    font-weight: bolder;
+    text-decoration: none;
+}
+
+#bot .panel-heading:hover {
+
+    color: #333333;
+    background: blue ;
+    padding-left: 45px;
+    border-color: #dddddd;
+
+}
