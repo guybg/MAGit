@@ -207,62 +207,113 @@ function showRepositories() {
     });
 }
 function showUsers(users) {
-    $("#users-container").append(users);
+    $("#accordionEx78").append(users);
 }
-function createUser() {
+//{"aaa":{"userName":"aaa","repositories":{"11":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"12":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"13":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"14":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"15":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"16":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"17":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"18":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"19":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"0":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"1":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"2":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"3":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"4":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"5":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"6":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"7":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"8":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"9":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"10":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"}},"userPath":"c:\\magit-ex3\\aaa","online":true},"Guy":{"userName":"Guy","repositories":{"11":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"12":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"13":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"0":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"1":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"2":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"3":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"4":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"5":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"6":{"branchesNum":"3","commitMessage":"small change","activeBranch":"deep","name":"rep 2221","commitDate":"Sun Jun 30 21:35:26 IDT 2019"},"7":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"8":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"9":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"},"10":{"branchesNum":"1","commitMessage":"No commit","activeBranch":"master","name":"empty","commitDate":"No commit"}},"userPath":"c:\\magit-ex3\\Guy","online":false}}
+function createUser(userName, userAccount) {
+    var headingId = 'heading' + userName;
+    var collapseId = 'collapse' + userName;
+    var status = '<span class="badge badge-danger">Offline</span>';
+    if(userAccount.online){
+        status = '<span class="badge badge-success">Online</span>';
+    }
     var user = $(
-        "<div class=\"col-xl-3 col-sm-6 mb-3\">" +
-        "<div class=\"accordion\" id=\"accordionExample\">\n" +
-        "  <div class=\"card\">\n" +
-        "    <div class=\"card-header\" id=\"headingOne\">\n" +
-        "      <h2 class=\"mb-0\">\n" +
-        "        <button class=\"btn btn-link\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseOne\" aria-expanded=\"true\" aria-controls=\"collapseOne\">\n" +
-        "          Collapsible Group Item #1\n" +
-        "        </button>\n" +
-        "      </h2>\n" +
+        "\n" +
+        "  \n" +
+        " <!-- Accordion card -->\n" +
+        "  <div class=\"card border-bottom border-gray pb-2 mb-0\">\n" +
+        "\n" +
+        "    <!-- Card header -->\n" +
+        "    <div class=\"card-header\" role=\"tab\" id=" + headingId +">\n" +
+        "\n" +
+        "      <!--Options-->\n" +
+        "      <div class=\"float-left\">\n" +
+        "        <div class= data-toggle=\"dropdown\"\n" +
+        "          aria-haspopup=\"true\" aria-expanded=\"false\"><i class=\"fas fa-user-circle\" style='vertical-align: bottom;'></i>\n" +
+        "        </div>\n" +
+        "      </div>\n" +
+        "\n" +
+        "      <!-- Heading -->\n" +
+        "      <a data-toggle=\"collapse\" data-parent=\"#accordionEx78\" href="+ "#" +collapseId +" aria-expanded=\"false\"\n" +
+        "        aria-controls=" + collapseId + ">\n" +
+        "        <h5 class=\"mt-1 mb-0\">\n" +
+        "          <span>"+userName + "</span>\n" +
+        "          <i class=\"fas fa-angle-down rotate-icon\"></i>\n" +
+        "        </h5>\n" +
+        "          <span>"+ status + "</span>" +
+        "      </a>\n" +
+        "\n" +
         "    </div>\n" +
         "\n" +
-        "    <div id=\"username1\" class=\"collapse show\" aria-labelledby=\"headingOne\" data-parent=\"#accordionExample\">\n" +
+        "    <!-- Card body -->\n" +
+        "    <div id=" + collapseId + " class=\"collapse\" role=\"tabpanel\" aria-labelledby=" + headingId + "\n" +
+        "      data-parent=\"#accordionEx78\">\n" +
         "      <div class=\"card-body\">\n" +
-        "        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.\n" +
+        "\n" +
+        "        <!-- Table responsive wrapper -->\n" +
+        "        <div class=\"table-responsive mx-3\">\n" +
+        "          <!--Table-->\n" +
+        "          <table class=\"table table-hover mb-0\">\n" +
+        "<p class=\"font-weight-bold\">Repositories</p>" +
+        "            <!--Table head-->\n" +
+        "            <thead>\n" +
+        "              <tr>\n" +
+        "                <th>\n" +
+        "                  <input class=\"form-check-input\" type=\"checkbox\" id=\"checkbox\">\n" +
+        "                  <label for=\"checkbox\" class=\"mr-2 label-table\"></label>\n" +
+        "                </th>\n" +
+        "                <th class=\"th-lg\"><a>Name <i class=\"ml-1\"></i></a></th>\n" +
+        "                <th class=\"th-lg\"><a>Active branch<i class=\"ml-1\"></i></a></th>\n" +
+        "                <th class=\"th-lg\"><a>Branches<i class=\"ml-1\"></i></a></th>\n" +
+        "                <th class=\"th-lg\"><a>Commit date<i class=\"ml-1\"></i></a></th>\n" +
+        "                <th class=\"th-lg\"><a>Commit message<i class=\"ml-1\"></i></a></th>\n" +
+        "                <th></th>\n" +
+        "              </tr>\n" +
+        "            </thead>\n" +
+        "            <!--Table head-->\n" +
+        "\n" +
+        "            <!--Table body-->\n" +
+        "            <tbody>\n" +
+        "            </tbody>\n" +
+        "            <!--Table body-->\n" +
+        "          </table>\n" +
+        "          <!--Table-->\n" +
+        "        </div>\n" +
+        "        <!-- Table responsive wrapper -->\n" +
+        "\n" +
         "      </div>\n" +
         "    </div>\n" +
         "  </div>\n" +
-        "  <div class=\"card\">\n" +
-        "    <div class=\"card-header\" id=\"headingTwo\">\n" +
-        "      <h2 class=\"mb-0\">\n" +
-        "        <button class=\"btn btn-link collapsed\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseTwo\" aria-expanded=\"false\" aria-controls=\"collapseTwo\">\n" +
-        "          Collapsible Group Item #2\n" +
-        "        </button>\n" +
-        "      </h2>\n" +
-        "    </div>\n" +
-        "    <div id=\"collapseTwo\" class=\"collapse\" aria-labelledby=\"headingTwo\" data-parent=\"#accordionExample\">\n" +
-        "      <div class=\"card-body\">\n" +
-        "        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.\n" +
-        "      </div>\n" +
-        "    </div>\n" +
-        "  </div>\n" +
-        "  <div class=\"card\">\n" +
-        "    <div class=\"card-header\" id=\"headingThree\">\n" +
-        "      <h2 class=\"mb-0\">\n" +
-        "        <button class=\"btn btn-link collapsed\" type=\"button\" data-toggle=\"collapse\" data-target=\"#collapseThree\" aria-expanded=\"false\" aria-controls=\"collapseThree\">\n" +
-        "          Collapsible Group Item #3\n" +
-        "        </button>\n" +
-        "      </h2>\n" +
-        "    </div>\n" +
-        "    <div id=\"collapseThree\" class=\"collapse\" aria-labelledby=\"headingThree\" data-parent=\"#accordionExample\">\n" +
-        "      <div class=\"card-body\">\n" +
-        "        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.\n" +
-        "      </div>\n" +
-        "    </div>\n" +
-        "  </div>\n" +
-        "</div>" +
-        "</div>" +
-    "           </div>");
-    $('#users-container').append(user);
+        "  <!-- Accordion card -->\n" +
+        "\n" +
+        "</div>\n");
+        $.each(userAccount.repositories || [], function (repositoryId, repository) {
+            $("tbody", user).append("             <tr>\n" +
+                "                <th scope=\"row\">\n" +
+                "                  <input class=\"form-check-input\" type=\"checkbox\" id=\"checkbox2\">\n" +
+                "                  <label for=\"checkbox2\" class=\"label-table\"></label>\n" +
+                "                </th>\n" +
+                "                <td>"+ repository.name +"</td>\n" +
+                "                <td>" + repository.activeBranch + "</td>\n" +
+                "                <td>" + repository.branchesNum + "</td>\n" +
+                "                <td>" + repository.commitDate + "</td>\n" +
+                "                <td>" + repository.commitMessage + "</td>\n" +
+                "                <td>" +
+                "                  <a><i class=\"fas fa-info mx-1\" data-toggle=\"tooltip\" data-placement=\"top\"\n" +
+                "                      title=\"Tooltip on top\"></i></a>\n" +
+                "                  <a><i class=\"fas fa-pen-square mx-1\"></i></a>\n" +
+                "                  <a><i class=\"fas fa-times mx-1\"></i></a>\n" +
+                "                </td>\n" +
+                "              </tr>\n" +
+                "              <tr>\n");
+        });
+
+
+    $('#accordionEx78').append(user);
     $('.collapse').collapse("toggle");
 }
 function showUsersPage() {
+    stopShowingRepositories();
     $.ajax({
         data: $(this).serialize(),
         url: All_USERS_URL,
@@ -271,9 +322,16 @@ function showUsersPage() {
 
         },
         success: function(msg) {
-            stopShowingRepositories();
             emptyContainers();
             var users = msg;
+            var usersAccor = $("<div class=\"col-xl-12 col-sm-12 mb-12\">" +
+                "<!--Accordion wrapper-->\n" +
+                "<div class=\"accordion md-accordion accordion-blocks\" id=\"accordionEx78\" role=\"tablist\"\n" +
+                "  aria-multiselectable=\"true\">\n" +
+                "<!--/.Accordion wrapper-->" +
+                "</div>" +
+                "</div>");
+            $('#users-container').append(usersAccor);
             $.each(users || [], createUser);
         }
     });
@@ -308,6 +366,7 @@ function showRepositoriesPage() {
     uploadAjaxSubmit();
     $("#uploadMessage").hide();
     $("#inputGroupFile01").change(updateInputLabel);
+    stopShowingRepositories();
     repoDetailsInterval = setInterval(showRepositories, refreshRate);
     saveState("#repositoriesbutton");
 }
@@ -333,6 +392,7 @@ function toRepositoryDetailsPage() {
 }
 
 function stopShowingRepositories() {
+    if(repoDetailsInterval !== undefined)
     clearInterval(repoDetailsInterval);
 }
 
