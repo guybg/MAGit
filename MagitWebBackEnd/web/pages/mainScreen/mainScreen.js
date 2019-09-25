@@ -310,7 +310,6 @@ function createUser(userName, userAccount) {
 
 
     $('#accordionEx78').append(user);
-    $('.collapse').collapse("toggle");
 }
 function showUsersPage() {
     stopShowingRepositories();
