@@ -44,8 +44,7 @@ public class RepositoryDetailsServlet extends HttpServlet {
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
-        String id = request.getQueryString();
-        id = id.split("id=")[1];
+        String id = request.getQueryString().split("id=")[1];
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount account;
@@ -54,7 +53,8 @@ public class RepositoryDetailsServlet extends HttpServlet {
             try {
                 account.loadRepository(id);
                 Gson gson = new Gson();
-                prepareRedirectAjaxResponse(request,response, gson.toJson(account.getRepositories().get(id)));
+                String info = gson.toJson(account.getRepositories().get(id) + gson.toJson(account.getBranchesHashMap()));
+                prepareRedirectAjaxResponse(request,response, info);
             } catch (InvalidNameException | ParseException | RepositoryNotFoundException | IOException e) {
                 e.printStackTrace();
             }

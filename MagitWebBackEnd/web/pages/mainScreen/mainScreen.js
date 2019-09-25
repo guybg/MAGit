@@ -371,25 +371,14 @@ function showRepositoriesPage() {
     saveState("#repositoriesbutton");
 }
 
+var repoId;
+
 function toRepositoryDetailsPage() {
     saveState("empty");
     stopShowingRepositories();
-    var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
-    $.ajax( {
-        type: 'GET',
-        data: {
-            "username": accountDetails["userName"],
-            "id" : $(this).attr('id')
-        },
-        url: REPO_DETAILS_URL,
-        timeout: 2000,
-        error : function () {},
-        success: function (a) {
-            window.location.href = "../repositoryDetails/repositoryDetails.html";
-            getRepositoryDetails(a);
-        }
-    });
+    window.location.href = "../repositoryDetails/repositoryDetails.html?id=" + $(this).attr('id');
 }
+
 
 function stopShowingRepositories() {
     if(repoDetailsInterval !== undefined)

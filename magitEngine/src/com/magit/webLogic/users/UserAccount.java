@@ -7,6 +7,7 @@ import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
+import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.tasks.ImportRepositoryTask;
 import com.magit.webLogic.utils.RepositoryUtils;
 import javafx.beans.property.SimpleStringProperty;
@@ -94,5 +95,9 @@ public class UserAccount {
 
     public synchronized boolean isOnline() {
         return online;
+    }
+
+    public HashMap<String, Branch> getBranchesHashMap() {
+        return null;
     }
 }
