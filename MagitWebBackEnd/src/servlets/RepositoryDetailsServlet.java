@@ -53,7 +53,8 @@ public class RepositoryDetailsServlet extends HttpServlet {
             try {
                 account.loadRepository(id);
                 Gson gson = new Gson();
-                prepareRedirectAjaxResponse(request,response, gson.toJson(account.getRepositories().get(id)));
+                String info = gson.toJson(account.getRepositories().get(id) + gson.toJson(account.getBranchesHashMap()));
+                prepareRedirectAjaxResponse(request,response, info);
             } catch (InvalidNameException | ParseException | RepositoryNotFoundException | IOException e) {
                 e.printStackTrace();
             }

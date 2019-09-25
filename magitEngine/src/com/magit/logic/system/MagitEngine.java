@@ -1,10 +1,7 @@
 package com.magit.logic.system;
 
-import com.fxgraph.edges.Edge;
-import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.Model;
 import com.magit.controllers.BranchesHistoryScreenController;
-import com.magit.controllers.MainScreenController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
@@ -19,27 +16,19 @@ import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.compare.Delta.DeltaFileItem;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
-import com.magit.logic.utils.file.WorkingCopyUtils;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
-import javafx.util.Pair;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import puk.team.course.magit.ancestor.finder.AncestorFinder;
-import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MagitEngine {
@@ -297,11 +286,7 @@ public class MagitEngine {
         try {
             workingCopyChangedComparedToCommit();
             mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName),pullOperation);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (PreviousCommitsLimitExceededException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -373,6 +358,19 @@ public class MagitEngine {
 
     public boolean activeBranchIsTrackingAfter(){
         return mBranchManager.activeBranchIsTrackingAfter();
+    }
+
+    public HashMap<String, HashMap<String, String>> getBranchesHashMap() {
+        HashMap<String, HashMap<String, String>> branchesInfo = new HashMap<>();
+        for (Map.Entry<String, Branch> keyValue : mRepositoryManager.getRepository().getBranches().entrySet()) {
+            String key = keyValue.getKey();
+            branchesInfo.put(key, new HashMap<>());
+            HashMap<String, String> branchMap = new HashMap<>();
+            branchMap.put("name", keyValue.getValue().getBranchName());
+
+        }
+
+        return branchesInfo;
     }
 }
 
