@@ -82,7 +82,7 @@ public class LoginServlet extends HttpServlet {
                 do here other not related actions (such as request dispatcher\redirection etc. this is shown here in that manner just to stress this issue
                  */
                    synchronized (this) {
-                       if (userManager.isUserExists(usernameFromParameter)) {
+                       if (userManager.isUserExists(usernameFromParameter) && userManager.getUsers().get(usernameFromParameter).isOnline()) {
                            String errorMessage = "Username " + usernameFromParameter + " already exists. Please enter a different username.";
                            // username already exists, forward the request back to index.jsp
                            // with a parameter that indicates that an error should be displayed
