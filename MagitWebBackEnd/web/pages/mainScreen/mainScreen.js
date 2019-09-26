@@ -386,6 +386,7 @@ function showUsersPage() {
             $.each(users || [], createUser);
         }
     });
+    saveState("#users");
 }
 
 function showRepositoriesPage() {

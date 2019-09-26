@@ -65,8 +65,8 @@ $(function() {
     $(".nav-link").click(function() {
     });
 
-    $("#repositories-button").click(function() {
-        window.location.href = "../mainScreen/mainScreen.html#repositoriesbutton";
+    $( ".navbar-nav .nav-item" ).click(function() {
+        window.location.href = "../mainScreen/mainScreen.html";
     });
     getRepositoryDetails();
 
