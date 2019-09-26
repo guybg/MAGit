@@ -1,9 +1,7 @@
 package com.magit.webLogic.users;
 
 import com.google.gson.annotations.Expose;
-import com.magit.logic.exceptions.InvalidNameException;
-import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
-import com.magit.logic.exceptions.RepositoryNotFoundException;
+import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.webLogic.utils.RepositoryUtils;
@@ -34,8 +32,8 @@ public class UserAccount {
 
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
         MagitEngine engine = new MagitEngine();
-        Integer serialNumber = repositories.size();
-        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, serialNumber.toString(), null, new Consumer<String>() {
+        String serialNumber = getFreeRepositoryId();
+        ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, serialNumber, null, new Consumer<String>() {
             @Override
             public void accept(String s) {
                 exceptionDelegate.accept(s);
@@ -43,11 +41,16 @@ public class UserAccount {
         }, new Consumer<HashMap<String, String>>() {
             @Override
             public void accept(HashMap<String, String> repositoryDetails) {
-                repositories.put(serialNumber.toString(), repositoryDetails);
+                repositories.put(serialNumber, repositoryDetails);
             }
         }, false);
         runnable.run();
         //new Thread(runnable).start();
+    }
+
+    private synchronized String getFreeRepositoryId(){
+        Integer serialNumber = repositories.size();
+        return serialNumber.toString();
     }
 
     public void loadRepository(String id) throws InvalidNameException, ParseException, RepositoryNotFoundException, IOException {
@@ -76,6 +79,21 @@ public class UserAccount {
                 repositories.put(id, details);
             }
         }
+    }
+
+    public void cloneRepository(UserAccount accountToCloneFrom, String repositoryIdToClone, String cloneName) throws CloneException, InvalidNameException, IllegalPathException, IOException, ParseException, PreviousCommitsLimitExceededException, RepositoryNotFoundException {
+        HashMap<String,String> repositoryToCLoneDetails = accountToCloneFrom.getRepositories().get(repositoryIdToClone);
+        String repositoryToCloneName = repositoryToCLoneDetails.get("name");
+        MagitEngine engine1 = new MagitEngine();
+        String toClonePath = Paths.get("c:/magit-ex3", accountToCloneFrom.userName,repositoryIdToClone).toString();
+        String serialNumber = getFreeRepositoryId();
+        String clonedPath = Paths.get("c:/magit-ex3", userName,serialNumber).toString();
+
+        engine1.clone(toClonePath,clonedPath,cloneName);
+        engine1.switchRepository(clonedPath);
+        repositories.put(serialNumber,RepositoryUtils.setRepositoryDetailsMap(cloneName,
+                repositoryToCLoneDetails.get("commitDate"),
+                repositoryToCLoneDetails.get("commitMessage"),engine1));
     }
 
     public void setOnlineStatus(boolean status){
