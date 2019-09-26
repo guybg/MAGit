@@ -1,6 +1,7 @@
 var USER_DETAILS_URL = buildUrlWithContextPath("details");
 var UPLOAD_URL = buildUrlWithContextPath("upload");
 var All_USERS_URL = buildUrlWithContextPath("allUsersDetails");
+var FORK_URL = buildUrlWithContextPath("fork");
 var refreshRate = 2000;
 var h = document.cookie;
 var s;
@@ -258,6 +259,7 @@ function createUser(userName, userAccount) {
         "            <!--Table head-->\n" +
         "            <thead>\n" +
         "              <tr>\n" +
+        "                <th class=\"th-lg\"><a># <i class=\"ml-1\"></i></a></th>\n" +
         "                <th class=\"th-lg\"><a>Name <i class=\"ml-1\"></i></a></th>\n" +
         "                <th class=\"th-lg\"><a>Active branch<i class=\"ml-1\"></i></a></th>\n" +
         "                <th class=\"th-lg\"><a>Branches<i class=\"ml-1\"></i></a></th>\n" +
@@ -284,24 +286,44 @@ function createUser(userName, userAccount) {
         "\n" +
         "</div>\n");
         $.each(userAccount.repositories || [], function (repositoryId, repository) {
+            var cloneId = 'clone' + userName + repositoryId;
             $("tbody", user).append("             <tr>\n" +
+                "                <td>"+ repositoryId +"</td>\n" +
                 "                <td>"+ repository.name +"</td>\n" +
                 "                <td>" + repository.activeBranch + "</td>\n" +
                 "                <td>" + repository.branchesNum + "</td>\n" +
                 "                <td>" + repository.commitDate + "</td>\n" +
                 "                <td>" + repository.commitMessage + "</td>\n" +
                 "                <td>" +
-                "                  <a><i class=\"fas fa-info mx-1\" data-toggle=\"tooltip\" data-placement=\"top\"\n" +
-                "                      title=\"Tooltip on top\"></i></a>\n" +
-                "                  <a><i class=\"fas fa-pen-square mx-1\"></i></a>\n" +
-                "                  <a><i class=\"fas fa-times mx-1\"></i></a>\n" +
+                "                  <a><i id="+ cloneId + " class=\"fas fa-clone mx-1\" data-toggle=\"modal\" data-target=\"#forkRepoModal\" data-username=" + userName +" data-id=" + repositoryId + " data-reponame=" + "'" + repository.name + "'" + " data-placement=\"top\"\n" +
+                "                      title=\"Clone repository\"></i></a>\n" +
                 "                </td>\n" +
                 "              </tr>\n" +
                 "              <tr>\n");
         });
 
-
     $('#accordionEx78').append(user);
+}
+function forkRepository(event) {
+    var cloneName = $('#forkRepoModal #repository-name').val();
+    $.ajax({
+        data: { userName : event.data.userName, repositoryToFork : event.data.repositoryId,repositoryName : cloneName},
+        url: FORK_URL,
+        timeout: 2000,
+        error: function() {
+
+        },
+        success: function(msg) {
+            if(msg.trim() === "") {
+                $("#forkMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository forked successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                $('#forkRepoModal #forkButton').prop('disabled', true);
+                setTimeout(function(){$("#forkRepoModal").modal('toggle')},2000);
+            }
+            else
+                $("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(5000).fadeOut();
+            //  $("#result").text(r);
+        }
+    });
 }
 function showUsersPage() {
     stopShowingRepositories();
@@ -321,8 +343,46 @@ function showUsersPage() {
                 "  aria-multiselectable=\"true\">\n" +
                 "<!--/.Accordion wrapper-->" +
                 "</div>" +
+                "<div class=\"modal fade\" id=\"forkRepoModal\" tabindex=\"-1\" role=\"dialog\" aria-labelledby=\"exampleModalLabel\" aria-hidden=\"true\">\n" +
+                "  <div class=\"modal-dialog\" role=\"document\">\n" +
+                "    <div class=\"modal-content\">\n" +
+                "      <div class=\"modal-header\">\n" +
+                "        <h5 class=\"modal-title\" id=\"exampleModalLabel\">New message</h5>\n" +
+                "        <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">\n" +
+                "          <span aria-hidden=\"true\">&times;</span>\n" +
+                "        </button>\n" +
+                "      </div>\n" +
+                "      <div class=\"modal-body\">\n" +
+                "        <form>\n" +
+                "          <div class=\"form-group\">\n" +
+                "            <label for=\"recipient-name\" class=\"col-form-label\">Repository name:</label>\n" +
+                "            <input type=\"text\" class=\"form-control\" id=\"repository-name\">\n" +
+                "          </div>\n" +
+                "        </form>\n" +
+                "      <div id='forkMessage' class=\"alert alert-danger\" style=\"display:none\"></div>" +
+                "      </div>\n" +
+                "      <div class=\"modal-footer\">\n" +
+                "        <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">Close</button>\n" +
+                "        <button id=\"forkButton\" type=\"button\" class=\"btn btn-primary\">Fork</button>\n" +
+                "      </div>\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</div>" +
                 "</div>");
+            $('#forkRepoModal',usersAccor).on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget) // Button that triggered the modal
+                var userName = button.data('username'); // Extract info from data-* attributes
+                var id = button.data('id');
+                var repositoryName = button.data('reponame');
+                // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+                // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+                var modal = $(this);
+                $('#forkRepoModal #forkButton').prop('disabled', false);
+                modal.find('.modal-title').text('Forking ' + repositoryName + ' from ' + userName);
+                modal.find('#forkButton').off('click').on('click',{userName: userName, repositoryId: id},forkRepository)
+            });
             $('#users-container').append(usersAccor);
+
             $.each(users || [], createUser);
         }
     });
