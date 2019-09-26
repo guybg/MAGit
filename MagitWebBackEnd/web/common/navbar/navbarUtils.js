@@ -69,3 +69,10 @@ function logout() {
         success: function () {}
     });
 }
+
+$(function() {
+    var str = window.location.href;
+    if (str.includes("#repositoriesbutton")) {
+        showRepositoriesPage();
+    }
+});

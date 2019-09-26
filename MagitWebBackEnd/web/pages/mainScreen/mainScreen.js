@@ -362,8 +362,6 @@ function showRepositoriesPage() {
     saveState("#repositoriesbutton");
 }
 
-var repoId;
-
 function toRepositoryDetailsPage() {
     saveState("empty");
     stopShowingRepositories();
