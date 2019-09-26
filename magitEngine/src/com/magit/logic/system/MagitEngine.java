@@ -360,17 +360,18 @@ public class MagitEngine {
         return mBranchManager.activeBranchIsTrackingAfter();
     }
 
-    public HashMap<String, HashMap<String, String>> getBranchesHashMap() {
-        HashMap<String, HashMap<String, String>> branchesInfo = new HashMap<>();
-        for (Map.Entry<String, Branch> keyValue : mRepositoryManager.getRepository().getBranches().entrySet()) {
-            String key = keyValue.getKey();
-            branchesInfo.put(key, new HashMap<>());
-            HashMap<String, String> branchMap = new HashMap<>();
-            branchMap.put("name", keyValue.getValue().getBranchName());
-
+    public HashMap<String, HashMap<String, String>> getRepositoryInfo(HashMap<String, String> repDetails) {
+        HashMap<String, HashMap<String, String>> repositoryInfo = new HashMap<>();
+        repositoryInfo.put("Repository", repDetails);
+        for (Branch branch : getBranches()) {
+            repositoryInfo.put(branch.getBranchName(), new HashMap<>());
+            HashMap<String, String> branchInfo = repositoryInfo.get(branch.getBranchName());
+            branchInfo.put("Commit", branch.getPointedCommitSha1().toString());
+            branchInfo.put("IsTracking", branch.getIsTracking().toString());
+            branchInfo.put("IsRemote", branch.getIsRemote().toString());
+            branchInfo.put("TrackingAfter", branch.getTrackingAfter() == null ? "None" : branch.getTrackingAfter());
         }
-
-        return branchesInfo;
+        return repositoryInfo;
     }
 }
 

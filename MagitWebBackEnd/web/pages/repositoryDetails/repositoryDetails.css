@@ -1,0 +1,18 @@
+.card-branch {
+    margin-top: 20px;
+}
+
+.row-branches-info {
+    overflow-y: scroll;
+    height: 550px;
+    width: 52rem;
+}
+.buttons-column {
+    position: absolute;
+    left:575px;
+    top: 20px;
+}
+.btn-branch {
+    margin-top: 20px;
+    width:200px;
+}

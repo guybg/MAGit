@@ -23,12 +23,12 @@
     <script src="../../common/utils/datatables/dataTables.bootstrap4.js"></script>
 
     <!-- Custom scripts for all pages-->
-    <script src="../css/sb-admin.min.js"></script>
+    <script src="sb-admin.min.js"></script>
     <link href="../../common/fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
     <script src="../../common/context-path-helper.js"></script>
     <script src="../../common/contentRelated/ContentUtils.js"></script>
     <script src="../../common/navbar/navbarUtils.js"></script>
-
+    <link href="repositoryDetails.css" rel="stylesheet" type="text/css">
     <!-- --------/important---------------->
 
 
@@ -46,12 +46,12 @@
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
         <li class="nav-item active">
-            <a class="nav-link" href="repositoryDetails.html">
+            <a class="nav-link" id="main-screen-btn" href="../mainScreen/mainScreen.html">
                 <span id="username">Hello </span>
             </a>
         </li>
-        <li class="nav-item dropdown">
-            <a id="repositoriesbutton" class="nav-link" href="#">
+        <li class="nav-item">
+            <a id="repositories-button" class="nav-link" href="../mainScreen/mainScreen.html?id=repositoriesbutton">
                 <span>Repositories</span>
             </a>
         </li>
@@ -72,7 +72,6 @@
             <div class="row" id="repository-upload"></div>
             <div class="row" id="repository-container"></div>
             <div class="details-container">
-                <div class="row-title"></div>
             </div>
         </div>
     </div>
