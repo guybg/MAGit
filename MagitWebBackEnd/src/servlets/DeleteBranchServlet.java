@@ -1,6 +1,5 @@
 package servlets;
 
-
 import com.google.gson.Gson;
 import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
@@ -17,7 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
 
-public class RepositoryDetailsServlet extends HttpServlet {
+public class DeleteBranchServlet extends HttpServlet {
 
     private void prepareRedirectAjaxResponse(HttpServletRequest request, HttpServletResponse response, String repoDetails) throws IOException {
         if (isAjax(request)) {
@@ -35,29 +34,16 @@ public class RepositoryDetailsServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processRequest(request,response);
+        processRequest(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        processRequest(request,response);
+        processRequest(request, response);
     }
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
-        String id = request.getQueryString().split("id=")[1];
-        String usernameFromSession = SessionUtils.getUsername(request);
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
-        UserAccount account;
-        synchronized (this) {
-            account = userManager.getUsers().get(usernameFromSession);
-            try {
-                account.loadRepository(id);
-                Gson gson = new Gson();
-                String info = gson.toJson(account.getRepositoryInfo(id));
-                prepareRedirectAjaxResponse(request,response, info);
-            } catch (InvalidNameException | ParseException | RepositoryNotFoundException | IOException e) {
-                e.printStackTrace();
-            }
-        }
+
     }
 }
+

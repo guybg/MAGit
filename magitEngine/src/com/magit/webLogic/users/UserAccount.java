@@ -6,21 +6,14 @@ import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
-import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
-import com.magit.logic.system.objects.Branch;
-import com.magit.logic.system.tasks.ImportRepositoryTask;
 import com.magit.webLogic.utils.RepositoryUtils;
-import javafx.beans.property.SimpleStringProperty;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -37,10 +30,6 @@ public class UserAccount {
         this.repositories = new HashMap<>();
         this.online = true;
         userPath = Paths.get(usersPath, userName).toString();
-    }
-
-    public HashMap<String,String> getRepositoryInfo(String id) {
-        return repositories.get(id);
     }
 
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
@@ -97,7 +86,7 @@ public class UserAccount {
         return online;
     }
 
-    public HashMap<String, Branch> getBranchesHashMap() {
-        return null;
+    public HashMap<String, HashMap<String,String>> getRepositoryInfo(String id) {
+        return engine.getRepositoryInfo(repositories.get(id));
     }
 }
