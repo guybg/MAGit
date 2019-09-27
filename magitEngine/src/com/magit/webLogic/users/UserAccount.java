@@ -5,6 +5,7 @@ import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.webLogic.utils.RepositoryUtils;
+import com.magit.webLogic.utils.notifications.SingleNotification;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -22,7 +24,8 @@ public class UserAccount {
     @Expose(serialize = true)private String userPath;
     @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
     @Expose(serialize = true) private boolean online;
-
+    @Expose(serialize = true) private HashMap<Integer, SingleNotification> notifications;
+    @Expose(serialize = true) private Integer notificationsVersion = 0;
     public UserAccount(String userName) {
         this.userName = userName;
         this.repositories = new HashMap<>();
@@ -52,7 +55,16 @@ public class UserAccount {
         Integer serialNumber = repositories.size();
         return serialNumber.toString();
     }
+    public synchronized List<SingleNotification> getNotifications(Integer fromVersion){
+        if(fromVersion < notificationsVersion){
+            fromVersion = notificationsVersion;
+        }
+        if (fromVersion < 0 || fromVersion > notifications.size()) {
+            fromVersion = 0;
+        }
 
+
+    }
     public void loadRepository(String id) throws InvalidNameException, ParseException, RepositoryNotFoundException, IOException {
         if(engine == null) {
             engine = new MagitEngine();
@@ -98,6 +110,14 @@ public class UserAccount {
 
     public void setOnlineStatus(boolean status){
         online = status;
+    }
+
+    public void setNotificationsVersion(Integer notificationsVersion) {
+        this.notificationsVersion = notificationsVersion;
+    }
+
+    public Integer getNotificationsVersion() {
+        return notificationsVersion;
     }
 
     public synchronized boolean isOnline() {
