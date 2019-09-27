@@ -23,7 +23,6 @@ function getRepositoryDetails() {
             repositoryDetails = a;
             numOfBranches = repositoryDetails.Repository.branchesNum;
             $(".details-container").append(
-                "<div class='row-title'></div>" +
                 "<div class='row-branches-info'></div>"
             );
             $(".row-title").append(
@@ -85,7 +84,6 @@ function deleteBranch() {
 
 function changeHead() {
     var checkoutUrl = buildUrlWithContextPath("checkout");
-    var branch = $(this);
     var branchName = $(this).parent().parent().attr('name');
     $.ajax( {
         data: {

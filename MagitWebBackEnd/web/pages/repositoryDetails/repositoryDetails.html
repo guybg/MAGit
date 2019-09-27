@@ -33,6 +33,7 @@
     <script src="../mainScreen/mainScreen.js"></script>
     <script src="sb-admin.min.js"></script>
     <script src="repositoryDetails.js"></script>
+
 </head>
 <body>
 <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
@@ -73,9 +74,30 @@
             <div class="row" id="repository-upload"></div>
             <div class="row" id="repository-container"></div>
             <div class="details-container">
+                <div class='row-title'>
+                    <div class="button-bar">
+                        <button type="button" class="btn btn-warning">
+                            <i class="fas fa-code-branch fa-3x"></i>
+                            <i>Create Branch</i>
+                        </button>
+                        <button type="button" class="btn btn-success btn-bar">
+                            <i class="fas fa-folder fa-3x"></i>
+                            <i>Update WC & Commit</i>
+                        </button>
+                        <button type="button" class="btn btn-info btn-bar">
+                            <i class="far fa-handshake fa-3x"></i>
+                            <i>Create Pull Request</i>
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-bar">
+                            <i class="fas fa-tasks fa-3x"></i>
+                            <i>Create Pull Request</i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
     <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
