@@ -5,6 +5,7 @@ import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
+import sun.misc.IOUtils;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
@@ -42,8 +43,13 @@ public class DeleteBranchServlet extends HttpServlet {
         processRequest(request, response);
     }
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
-
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String usernameFromSession = SessionUtils.getUsername(request);
+        UserManager userManager = ServletUtils.getUserManager(getServletContext());
+        UserAccount user = userManager.getUsers().get(usernameFromSession);
+        String branchName = request.getParameter("name");
+        user.deleteBranch(branchName);
+        response.setStatus(200);
     }
 }
 

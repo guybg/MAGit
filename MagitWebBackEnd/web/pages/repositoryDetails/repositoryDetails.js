@@ -19,7 +19,7 @@ function getRepositoryDetails() {
                 "<div class='row-branches-info'></div>"
             );
             $(".row-title").append(
-                "<div class='card card-branch' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
+                "<div class='card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
                 "<div class='card-body'>" +
                 "<h4 class='card-title'>" + repositoryDetails.Repository.name + "</h4>" +
                 "<h6 class='card-subtitle mb-2 text-muted'>Number of Branches: " + repositoryDetails.Repository.branchesNum + "</h6>" +
@@ -29,42 +29,52 @@ function getRepositoryDetails() {
                 "</div>" +
                 "</div>");
             delete repositoryDetails.Repository;
-            var i = 0;
             for (var k in repositoryDetails) {
                 $(".row-branches-info").append(
                     "<div class='card card-branch' style='width: 50rem;background: rgba(255,196,157,0.74);'>" +
                     "<div class='card-body'>" +
-                    "<h4 class='card-title'>Branch Name : " + k + "</h4>" +
+                    "<h4 class='card-title'>Branch Name: " + k + "</h4>" +
                     "<h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + repositoryDetails[k].Commit+ "</h6>" +
                     "<h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + repositoryDetails[k].IsTracking + "</h6>" +
                     "<h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + repositoryDetails[k].IsRemote + "</h6>" +
                     "<h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + repositoryDetails[k].TrackingAfter + "</h6>" +
                     "</div>" +
                     "<div class='buttons-column col-lg-4'>" +
-                    "<button type='button' class='btn btn-branch btn-danger'>Delete Branch</button>" +
+                    "<button type='button' class='btn btn-branch delete-btn btn-danger'>Delete Branch</button>" +
                     "<div class='divider'></div>" +
                     "<button type='button' class='btn btn-branch btn-info'>Checkout as Head</button>" +
                     "</div>" +
-                    "</div>").attr('name', k);
-
+                    "</div>");
+                $(".card-branch").last().attr('name', k);
             }
-            $(".btn-danger").click()
+            var i = 0;
+            $(".delete-btn").click(deleteBranch);
         }
     });
+
 }
 
 function deleteBranch() {
+    var deleteBranchUrl = buildUrlWithContextPath("deleteBranch");
+    var branch = $(this);
+    var branchName = $(this).parent().parent().attr('name');
     $.ajax( {
-        data: $(this).attr('name'),
+        data: {
+            'id': id,
+            "name": branchName
+        },
         method: 'POST',
+        url: deleteBranchUrl,
+        error : function () {
 
+        },
+        success: function() {
+            branch.parent().parent().remove();
+        }
     })
 }
 
 $(function() {
-    $(".nav-link").click(function() {
-    });
-
     $( ".navbar-nav .nav-item" ).click(function() {
         window.location.href = "../mainScreen/mainScreen.html";
     });
