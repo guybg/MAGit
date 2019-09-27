@@ -33,7 +33,7 @@ public class NotificationsServlet extends HttpServlet {
         Obviously the UI should be ready for such a case and handle it properly
          */
         int version = ServletUtils.getIntParameter(request, Constants.NOTIFICATIONS_VERSION_PARAMETER);
-        userManager.getUsers().get(username).setNotificationsVersion(version);
+
         if (version == Constants.INT_PARAMETER_ERROR) {
             return;
         }
@@ -42,38 +42,37 @@ public class NotificationsServlet extends HttpServlet {
         Synchronizing as minimum as I can to fetch only the relevant information from the chat manager and then only processing and sending this information onward
         Note that the synchronization here is on the ServletContext, and the one that also synchronized on it is the chat servlet when adding new chat lines.
          */
-        int lastVersion = 0;
+        int serverVersion = 0;
         List<SingleNotification> notificationsEntries;
         synchronized (getServletContext()) {
             UserAccount account = userManager.getUsers().get(username);
-            lastVersion = account.getNotificationsVersion();
+            serverVersion = account.getNotificationsVersion();
             notificationsEntries = account.getNotifications(version);
         }
 
         // log and create the response json string
-        //ChatAndVersion cav = new ChatAndVersion(chatEntries, chatManagerVersion);
+        NotificationsAndVersion nav = new NotificationsAndVersion(notificationsEntries, serverVersion);
         Gson gson = new Gson();
-        String jsonResponse = gson.toJson("");
-        //logServerMessage("Server Chat version: " + chatManagerVersion + ", User '" + username + "' Chat version: " + chatVersion);
+        String jsonResponse = gson.toJson(nav);
+        logServerMessage("Server Chat version: " + serverVersion + ", User '" + username + "' Chat version: " + version + "' savedversion: " + userManager.getUsers().get(username).getLastUpdatedNotificationsVersion());
         logServerMessage(jsonResponse);
 
         try (PrintWriter out = response.getWriter()) {
             out.print(jsonResponse);
             out.flush();
         }
-
     }
 
     private void logServerMessage(String message){
         System.out.println(message);
     }
 
-    private static class ChatAndVersion {
+    private static class NotificationsAndVersion {
 
-        final private List<SingleChatEntry> entries;
+        final private List<SingleNotification> entries;
         final private int version;
 
-        public ChatAndVersion(List<SingleChatEntry> entries, int version) {
+        public NotificationsAndVersion(List<SingleNotification> entries, int version) {
             this.entries = entries;
             this.version = version;
         }

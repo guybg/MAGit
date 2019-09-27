@@ -1,6 +1,7 @@
 package servlets;
 
 
+import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import constants.Constants;
 import utils.ServletUtils;
@@ -29,8 +30,9 @@ public class LogoutServlet extends HttpServlet {
         if (usernameFromSession != null) {
             System.out.println("Clearing session for " + usernameFromSession);
             //userManager.removeUser(usernameFromSession);
+            UserAccount account = userManager.getUsers().get(usernameFromSession);
+            account.setNotificationsVersion(account.getNotificationsVersion());
             userManager.getUsers().get(usernameFromSession).setOnlineStatus(false);
-            userManager.getUsers().get(usernameFromSession).setNotificationsVersion(ServletUtils.getIntParameter(request,Constants.NOTIFICATIONS_VERSION_PARAMETER));
             SessionUtils.clearSession(request);
             prepareRedirectAjaxResponse(request,response);
         }

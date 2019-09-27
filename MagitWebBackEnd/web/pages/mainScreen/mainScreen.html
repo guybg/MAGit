@@ -11,10 +11,11 @@
     <!-- ------------important!!!------------>
     <link href="../css/sb-admin.css" rel="stylesheet">
     <link href="mainScreen.css" rel="stylesheet">
+    <link type="text/css" href="../../common/toast/css/jquery.toastmessage.css" rel="stylesheet">
     <!-- Bootstrap core JavaScript-->
     <script src="../../common/utils/jquery/jquery.min.js"></script>
     <script src="../../common/utils/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../common/mustache.min.js"></script>
+    <script src="../../common/toast/jquery.toastmessage.js"></script>
 
     <!-- Core plugin JavaScript-->
     <script src="../../common/utils/jquery-easing/jquery.easing.min.js"></script>
@@ -37,53 +38,20 @@
     <script src="mainScreen.js"></script>
 </head>
 <body id="page-top">
+<div class="toast-container toast-position-top-right"></div>
 <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
     <a class="navbar-brand mr-1" href="mainScreen.html">Magit Hub</a>
             <div class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0 noti">
                 <ul>
                     <li id="noti_Container">
                         <div id="noti_Counter"></div>   <!--SHOW NOTIFICATIONS COUNT.-->
-
                         <!--A CIRCLE LIKE BUTTON TO DISPLAY NOTIFICATION DROPDOWN.-->
                         <div id="noti_Button"></div>
 
                         <!--THE NOTIFICAIONS DROPDOWN BOX.-->
                         <div id="notifications">
                             <h3>Notifications</h3>
-                            <div class="overflow-auto container-fluid no-padding" style="height:300px;">
-                                <div class="w-100 p-1 toast fade show toast-notification">
-                                    <div class="toast-header">
-                                        <strong class="mr-auto"><i class="fa fa-globe"></i> Hello, world!</strong>
-                                        <small class="text-muted">5 minutes ago</small>
-                                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
-                                    </div>
-                                    <div class="toast-body">This is another toast message.</div>
-                                </div>
-                                <div class="w-100 p-1 toast fade show">
-                                    <div class="toast-header">
-                                        <strong class="mr-auto"><i class="fa fa-globe"></i> Hello, world!</strong>
-                                        <small class="text-muted">5 minutes ago</small>
-                                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
-                                    </div>
-                                    <div class="toast-body">This is another toast message.</div>
-                                </div>
-                                <div class="w-100 p-1 toast fade show">
-                                    <div class="toast-header">
-                                        <strong class="mr-auto"><i class="fa fa-globe"></i> Hello, world!</strong>
-                                        <small class="text-muted">5 minutes ago</small>
-                                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
-                                    </div>
-                                    <div class="toast-body">This is another toast message.</div>
-                                </div>
-                                <div class="w-100 p-1 toast fade show">
-                                    <div class="toast-header">
-                                        <strong class="mr-auto"><i class="fa fa-globe"></i> Hello, world!</strong>
-                                        <small class="text-muted">5 minutes ago</small>
-                                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>
-                                    </div>
-                                    <div class="toast-body">This is another toast message.</div>
-                                </div>
-                            </div>
+                            <div id="notificationsArea" class="overflow-auto container-fluid no-padding" style="height:300px;"></div>
                             <div class="seeAll"><a href="#">See All</a></div>
                         </div>
                     </li>

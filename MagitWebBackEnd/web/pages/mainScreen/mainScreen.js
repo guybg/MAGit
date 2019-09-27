@@ -2,12 +2,14 @@ var USER_DETAILS_URL = buildUrlWithContextPath("details");
 var UPLOAD_URL = buildUrlWithContextPath("upload");
 var All_USERS_URL = buildUrlWithContextPath("allUsersDetails");
 var FORK_URL = buildUrlWithContextPath("fork");
+var NOTIFICATIONS_URL = buildUrlWithContextPath("notifications");
 var refreshRate = 2000;
 var h = document.cookie;
 var s;
 var accountDetails;
 var repoDetailsInterval;
-
+var notificationsversion = 0;
+var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
     var repository = $("<div class=\"col-xl-3 col-sm-6 mb-3\">" +
@@ -54,6 +56,8 @@ function createRepository(repoId, details){
 
     //$(".rep-details").attr('id', repoId);
     $(".rep-details").click(toRepositoryDetailsPage);
+    
+
 }
 
 
@@ -436,12 +440,19 @@ function stopShowingRepositories() {
     if(repoDetailsInterval !== undefined)
     clearInterval(repoDetailsInterval);
 }
-
+$(function (){
+    setInterval(function () {
+        numOfNotifications = $('.toast-notification', '#notificationsArea').length;
+        $('#noti_Counter').text(numOfNotifications);
+    },5000);
+});
 $(document).ready(function () {
+    ajaxNotificationsContent();
     // ANIMATEDLY DISPLAY THE NOTIFICATION COUNTER.
+    $(".toast").toast();
     $('#noti_Counter')
         .css({ opacity: 0 })
-        .text('7')  // ADD DYNAMIC VALUE (YOU CAN EXTRACT DATA FROM DATABASE OR XML).
+        .text(numOfNotifications)  // ADD DYNAMIC VALUE (YOU CAN EXTRACT DATA FROM DATABASE OR XML).
         .css({ top: '-10px' })
         .animate({ top: '-2px', opacity: 1 }, 500);
 
@@ -475,4 +486,75 @@ $(document).ready(function () {
     });
 });
 
+function ajaxNotificationsContent() {
+    $.ajax({
+        url: NOTIFICATIONS_URL,
+        data: "notificationsversion=" + notificationsversion,
+        dataType: 'json',
+        success: function(data) {
+            /*
+             data will arrive in the next form:
+             {
+                "entries": [
+                    {
+                        "chatString":"Hi",
+                        "username":"bbb",
+                        "time":1485548397514
+                    },
+                    {
+                        "chatString":"Hello",
+                        "username":"bbb",
+                        "time":1485548397514
+                    }
+                ],
+                "version":1
+             }
+             */
+            console.log("Server chat version: " + data.version + ", Current chat version: " + notificationsversion);
+            if (data.version !== notificationsversion) {
+                notificationsversion = data.version;
+                appendToNotificationsArea(data.entries);
+            }
+            triggerAjaxNotificationsContent();
+        },
+        error: function(error) {
+            triggerAjaxNotificationsContent();
+        }
+    });
+}
+
+function triggerAjaxNotificationsContent() {
+    setTimeout(ajaxNotificationsContent, refreshRate);
+}
+
+//entries = {"entries":[{"message":"mymsg","username":"myusername","time":1569613672373},{"message":"mymsg1","username":"myusername1","time":1569613672373},{"message":"mymsg2","username":"myusername2","time":1569613672373}],"version":3}
+function appendToNotificationsArea(entries) {
+//    $("#chatarea").children(".success").removeClass("success");
+
+    // add the relevant entries
+    $.each(entries || [], appendNotificationEntry);
+
+
+
+    // handle the scroller to auto scroll to the end of the chat area
+    //var scroller = $("#chatarea");
+    //var height = scroller[0].scrollHeight - $(scroller).height();
+    //$(scroller).stop().animate({ scrollTop: height }, "slow");
+}
+
+function appendNotificationEntry(index, entry){
+    var entryElement = createNotificationEntry(entry);
+    $("#notificationsArea").append(entryElement);
+}
+
+function createNotificationEntry (entry){
+   // entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
+    return $("<div class=\"w-100 p-1 toast fade show toast-notification\">\n" +
+        "                                    <div class=\"toast-header\">\n" +
+        "                                        <strong class=\"mr-auto\"><i class=\"fa fa-globe\"></i> "+ entry.username+" </strong>\n" +
+        "                                        <small class=\"text-muted\"> "+ new Date(entry.time).toLocaleString()+" </small>\n" +
+        "                                    </div>\n" +
+        "                                    <div class=\"toast-body\"> "+entry.message+" </div>\n" +
+        "                                </div>");
+}
 

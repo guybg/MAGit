@@ -11,7 +11,7 @@ public class SingleNotification {
         this.time = System.currentTimeMillis();
     }
 
-    public String getChatString() {
+    public String getMessage() {
         return message;
     }
 
