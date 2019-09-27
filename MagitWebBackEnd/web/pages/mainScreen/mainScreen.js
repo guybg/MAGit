@@ -444,7 +444,7 @@ $(function (){
     setInterval(function () {
         numOfNotifications = $('.toast-notification', '#notificationsArea').length;
         $('#noti_Counter').text(numOfNotifications);
-    },5000);
+    },1500);
 });
 $(document).ready(function () {
     ajaxNotificationsContent();
