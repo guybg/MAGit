@@ -369,7 +369,7 @@ public class MagitEngine {
             branchInfo.put("Commit", branch.getPointedCommitSha1().toString());
             branchInfo.put("IsTracking", branch.getIsTracking().toString());
             branchInfo.put("IsRemote", branch.getIsRemote().toString());
-            branchInfo.put("TrackingAfter", branch.getTrackingAfter() == null ? "None" : branch.getTrackingAfter());
+            branchInfo.put("TrackingAfter", branch.getTrackingAfter() == null ? "" : branch.getTrackingAfter());
         }
         return repositoryInfo;
     }

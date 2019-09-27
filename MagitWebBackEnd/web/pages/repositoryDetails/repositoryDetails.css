@@ -3,8 +3,9 @@
 }
 
 .row-branches-info {
+    margin-top: 30px;
     overflow-y: scroll;
-    height: 550px;
+    height: 575px;
     width: 52rem;
 }
 .buttons-column {

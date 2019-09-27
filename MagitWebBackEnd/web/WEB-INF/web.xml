@@ -48,4 +48,12 @@
         <servlet-name>ForkRepositoryServlet</servlet-name>
         <url-pattern>/fork</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>DeleteBranchServlet</servlet-name>
+        <servlet-class>servlets.DeleteBranchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DeleteBranchServlet</servlet-name>
+        <url-pattern>/deleteBranch</url-pattern>
+    </servlet-mapping>
 </web-app>

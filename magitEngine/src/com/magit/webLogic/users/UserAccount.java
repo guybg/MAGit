@@ -107,4 +107,12 @@ public class UserAccount {
     public HashMap<String, HashMap<String,String>> getRepositoryInfo(String id) {
         return engine.getRepositoryInfo(repositories.get(id));
     }
+
+    public void deleteBranch(String branchName) {
+        try {
+            engine.deleteBranch(branchName);
+        } catch (IOException | ActiveBranchDeletedException | RepositoryNotFoundException | BranchNotFoundException | RemoteBranchException e) {
+            e.printStackTrace();
+        }
+    }
 }
