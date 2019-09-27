@@ -56,4 +56,12 @@
         <servlet-name>DeleteBranchServlet</servlet-name>
         <url-pattern>/deleteBranch</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CheckoutHeadServlet</servlet-name>
+        <servlet-class>servlets.CheckoutHeadServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CheckoutHeadServlet</servlet-name>
+        <url-pattern>/checkout</url-pattern>
+    </servlet-mapping>
 </web-app>

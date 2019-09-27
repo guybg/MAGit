@@ -108,11 +108,11 @@ public class UserAccount {
         return engine.getRepositoryInfo(repositories.get(id));
     }
 
-    public void deleteBranch(String branchName) {
-        try {
-            engine.deleteBranch(branchName);
-        } catch (IOException | ActiveBranchDeletedException | RepositoryNotFoundException | BranchNotFoundException | RemoteBranchException e) {
-            e.printStackTrace();
-        }
+    public void deleteBranch(String branchName) throws RemoteBranchException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, IOException {
+        engine.deleteBranch(branchName);
+    }
+
+    public void pickHeadBranch(String branchName) throws InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, RemoteBranchException, UncommitedChangesException, BranchNotFoundException {
+        engine.pickHeadBranch(branchName);
     }
 }
