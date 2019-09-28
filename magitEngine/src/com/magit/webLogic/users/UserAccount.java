@@ -5,6 +5,7 @@ import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.webLogic.utils.RepositoryUtils;
+import com.magit.webLogic.utils.notifications.AccountNotificationsManager;
 import com.magit.webLogic.utils.notifications.SingleNotification;
 
 import java.io.File;
@@ -12,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -25,16 +25,14 @@ public class UserAccount {
     @Expose(serialize = true)private String userPath;
     @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
     @Expose(serialize = true) private boolean online;
-    @Expose(serialize = true) private List<SingleNotification> notifications = new ArrayList<>();
-    @Expose(serialize = true) private int lastUpdatedNotificationsVersion = 0;
+    @Expose(serialize = true) private AccountNotificationsManager notificationsManager;
+
     public UserAccount(String userName) {
         this.userName = userName;
         this.repositories = new HashMap<>();
         this.online = true;
         userPath = Paths.get(usersPath, userName).toString();
-        notifications.add(new SingleNotification("mymsg", "myusername"));
-        notifications.add(new SingleNotification("mymsg1", "myusername1"));
-        notifications.add(new SingleNotification("mymsg2", "myusername2"));
+        notificationsManager = new AccountNotificationsManager();
     }
 
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
@@ -59,16 +57,7 @@ public class UserAccount {
         Integer serialNumber = repositories.size();
         return serialNumber.toString();
     }
-    public synchronized List<SingleNotification> getNotifications(Integer fromVersion){
-        if(fromVersion < lastUpdatedNotificationsVersion){
-            fromVersion = lastUpdatedNotificationsVersion;
-        }
-        if (fromVersion < 0 || fromVersion > notifications.size()) {
-            fromVersion = 0;
-        }
 
-        return notifications.subList(fromVersion,notifications.size());
-    }
     public void loadRepository(String id) throws InvalidNameException, ParseException, RepositoryNotFoundException, IOException {
         if(engine == null) {
             engine = new MagitEngine();
@@ -116,17 +105,7 @@ public class UserAccount {
         online = status;
     }
 
-    public void setNotificationsVersion(Integer notificationsVersion) {
-        this.lastUpdatedNotificationsVersion = notificationsVersion;
-    }
 
-    public Integer getLastUpdatedNotificationsVersion() {
-        return lastUpdatedNotificationsVersion;
-    }
-
-    public Integer getNotificationsVersion(){
-        return notifications.size();
-    }
     public synchronized boolean isOnline() {
         return online;
     }
@@ -141,5 +120,33 @@ public class UserAccount {
 
     public void pickHeadBranch(String branchName) throws InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, RemoteBranchException, UncommitedChangesException, BranchNotFoundException {
         engine.pickHeadBranch(branchName);
+    }
+
+    public void setLastUpdatedNotificationsVersion(Integer notificationsVersion){
+        notificationsManager.setLastUpdatedNotificationsVersion(notificationsVersion);
+    }
+
+    public Integer getLastUpdatedNotificationsVersion(){
+        return notificationsManager.getLastUpdatedNotificationsVersion();
+    }
+
+    public Integer getNotificationsVersion(){
+        return notificationsManager.getNotificationsVersion();
+    }
+
+    public List<SingleNotification> getNotifications(Integer fromVersion){
+        return notificationsManager.getNotifications(fromVersion);
+    }
+
+    public Integer getNumberOfNewNotifications(){
+        return notificationsManager.getUnseenNotificationsAmount();
+    }
+
+    public void onLogout(){
+        notificationsManager.updateLastUpdatedNotificationsVersion();
+    }
+
+    public synchronized void addNotification(String message, String userName){
+        notificationsManager.addNotification(new SingleNotification(message, userName));
     }
 }
