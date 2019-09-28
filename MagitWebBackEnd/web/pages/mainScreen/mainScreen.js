@@ -2,49 +2,45 @@ var USER_DETAILS_URL = buildUrlWithContextPath("details");
 var UPLOAD_URL = buildUrlWithContextPath("upload");
 var All_USERS_URL = buildUrlWithContextPath("allUsersDetails");
 var FORK_URL = buildUrlWithContextPath("fork");
+var NOTIFICATIONS_URL = buildUrlWithContextPath("notifications");
 var refreshRate = 2000;
 var h = document.cookie;
 var s;
 var accountDetails;
 var repoDetailsInterval;
-
+var notificationsversion = 0;
+var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
-    var repository = $("<div class=\"col-xl-3 col-sm-6 mb-3\">" +
-        "<div class=\"card text-white bg-dark mb-3 o-hidden h-100\">" +
-        "<div class=\"card-body\">" +
-        "<div class=\"card-body-icon\">" +
-        "<i class=\"fas fa-fw fa-tv\"></i>" +
-        "</div>" +
-        "<div class=\"mr-5\">" +
-        "Repository: "  + details.name +
-        "</div>" +
-        "<div class=\"mr-5\">" +
-        "Active branch: " + details.activeBranch +
-        "</div>" +
-        "<div class=\"mr-5\">" +
-        "Branches: " + details.branchesNum +
-        "</div>" +
-        "<div class=\"mr-5 commit-details\">" +
-        "Commit date: " + details.commitDate +
-        "</div>" +
-        "<div class=\"mr-5 commit-details\">" +
-        "Commit message: " + details.commitMessage +
-        "</div>" +
-        "</div>" +
-        "<a class=\"card-footer text-white clearfix small z-1\" href=\"#\">" +
-        "<span" +
-        " id=" +
-        repoId +
-        ' class=\"float-left rep-details\">View Details</span>' +
-        "<span class=\"float-right\">" +
-        "<i class=\"fas fa-angle-right rep-details\"></i>" +
-        "</span>" +
-        "</a>" +
-        "</div>" +
-        "</div>")
-        .addClass("square")
-        .text(repoId.height);
+    var repository = $("" +
+        "<div class=\"col-xl-3 col-sm-5 mb-3\">" +
+        "<div class=\"card text-dark bg-light\">\n" +
+        "    <div class=\"card-header bg-dark text-center text-light\"><h4>"+details.name+"</h4></div>\n" +
+        "      <div class=\"card-body \">\n" +
+        "        <h5 class=\"card-title\">Repository details</h5>\n" +
+        "        <!--Starting list group here -->\n" +
+        "            <div class=\"list-group\">\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-primary\">Active branch\n" +
+        "              <span class=\"text-wrap text-break badge badge-primary badge-pill\">" + details.activeBranch + "</span>\n" +
+        "              </div>\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-danger\">Branches\n" +
+        "              <span class=\"text-wrap text-break badge badge-primary badge-pill\">"+details.branchesNum+"</span>\n" +
+        "              </div>\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-success\">\n" +
+        "                Commit date\n" +
+        "                <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitDate+"</span>    \n" +
+        "              </div>\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info\">HTML Tutorials\n" +
+        "              <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitMessage+"</span>\n" +
+        "              </div>\n" +
+        "            </div>\n" +
+        "          <!--Ends here -->  \n" +
+        "      </div>\n" +
+        "      <div class=\"card-footer bg-secondary border-danger text-right\">\n" +
+        "      <a " +"id="+ repoId+ " href=\"#\" class=\"btn btn-info btn-sm rep-details\">Manage</a>\n" +
+        "      </div>\n" +
+        "    </div>" +
+        "</div>").addClass("square").text(repoId.height);
 
     if(details.commitDate === "No commit"){
         $(".commit-details",repository).hide();
@@ -54,6 +50,8 @@ function createRepository(repoId, details){
 
     //$(".rep-details").attr('id', repoId);
     $(".rep-details").click(toRepositoryDetailsPage);
+    
+
 }
 
 
@@ -105,17 +103,46 @@ function uploadAjaxSubmit() {
                // $("#result").text("Failed to get result from server " + e);
             },
             success: function (r) {
-                if(r === "")
-                    $("#uploadMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository uploaded successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                if(r === ""){
+                    successToast("Repository uploaded successfully!",false, 6000);
+                    //$("#uploadMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository uploaded successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                }
                 else
-                    $("#uploadMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + r + "</h6>").fadeIn(500).delay(5000).fadeOut();
-              //  $("#result").text(r);
+                    errorToast(r, false, 6000);
+                    //$("#uploadMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + r + "</h6>").fadeIn(500).delay(5000).fadeOut();
+
+                //  $("#result").text(r);
             }
         });
         return false;
     });
 };
-
+function successToast(message, isSticky, time) {
+    $().toastmessage('showToast', {
+        text     : message,
+        sticky   : isSticky,
+        position : 'top-right',
+        type     : 'success',
+        stayTime : time,
+        closeText: '',
+        close    : function () {
+            console.log("toast is closed ...");
+        }
+    });
+}
+function errorToast(message, isSticky, time) {
+    $().toastmessage('showToast', {
+        text     : message,
+        sticky   : isSticky,
+        position : 'top-right',
+        type     : 'error',
+        stayTime : time,
+        closeText: '',
+        close    : function () {
+            console.log("toast is closed ...");
+        }
+    });
+}
 function userNameClicked() {
     stopShowingRepositories();
     saveState("#username");
@@ -315,12 +342,15 @@ function forkRepository(event) {
         },
         success: function(msg) {
             if(msg.trim() === "") {
-                $("#forkMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository forked successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                $("#forkMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository forked successfully! </h6>").fadeIn(500).delay(2000).fadeOut();
                 $('#forkRepoModal #forkButton').prop('disabled', true);
-                setTimeout(function(){$("#forkRepoModal").modal('toggle')},2000);
+                $("#forkRepoModal").modal('toggle');
+                //setTimeout(function(){$("#forkRepoModal").modal('toggle')},2600);
+                successToast('Repository forked successfully!',false,6000);
             }
             else
-                $("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(5000).fadeOut();
+                //$("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(2000).fadeOut();
+                errorToast(msg,true);
             //  $("#result").text(r);
         }
     });
@@ -423,6 +453,8 @@ function showRepositoriesPage() {
     saveState("#repositoriesbutton");
 }
 
+var repoId;
+
 function toRepositoryDetailsPage() {
     saveState("empty");
     stopShowingRepositories();
@@ -434,7 +466,140 @@ function stopShowingRepositories() {
     if(repoDetailsInterval !== undefined)
     clearInterval(repoDetailsInterval);
 }
+$(function (){
+    setInterval(function () {
+        $.ajax({
+            url: NOTIFICATIONS_URL,
+            data: {notificationsversion : notificationsversion, getCount : true},
+            dataType: 'json',
+            success: function(data) {
+                console.log("new messages: " + data);
+                $('#noti_Counter').text(data);
+                if(data > 0 && $('#noti_Counter').css('display') === 'none'){
+                    $('#noti_Counter')
+                        .css({ opacity: 0, display: 'block'})
+                        .text(data)  // ADD DYNAMIC VALUE (YOU CAN EXTRACT DATA FROM DATABASE OR XML).
+                        .css({ top: '-10px' })
+                        .animate({ top: '-2px', opacity: 1 }, 500);
+                        $('#noti_Button').css('background-color', '#FFF');
+                }else{
+                   // if(!($('#noti_Counter').css('display') === 'none') && $('#notifications').css('display') === 'none'){
+                   //     $('#noti_Counter').hide();
+                   //     $('#noti_Button').css('background-color', '#2E467C');
+                   // }
+                }
+            },
+            error: function(error) {
+            }
+        });
+    },1500);
+});
+
+$(document).ready(function () {
+    // ANIMATEDLY DISPLAY THE NOTIFICATION COUNTER.
+    $(".toast").toast();
+    $('#noti_Counter')
+        .css({ opacity: 0})
+        .text(numOfNotifications)  // ADD DYNAMIC VALUE (YOU CAN EXTRACT DATA FROM DATABASE OR XML).
+        .css({ top: '-10px' })
+        .animate({ top: '-2px', opacity: 1 }, 500);
+    $('#noti_Counter').hide();
+    $('#noti_Button').css('background-color', '#2E467C');
+    $('#noti_Button').click(function () {
+        ajaxNotificationsContent();
+        // TOGGLE (SHOW OR HIDE) NOTIFICATION WINDOW.
+        $('#notifications').fadeToggle('fast', 'linear', function () {
+            if ($('#notifications').is(':hidden')) {
+                $('#noti_Button').css('background-color', '#2E467C');
+            }
+            // CHANGE BACKGROUND COLOR OF THE BUTTON.
+            else $('#noti_Button').css('background-color', '#FFF');
+        });
+
+        $('#noti_Counter').fadeOut('slow');     // HIDE THE COUNTER.
+        return false;
+    });
+
+    // HIDE NOTIFICATIONS WHEN CLICKED ANYWHERE ON THE PAGE.
+    $(document).click(function () {
+        $('#notifications').hide();
+
+        // CHECK IF NOTIFICATION COUNTER IS HIDDEN.
+        if ($('#noti_Counter').is(':hidden')) {
+            // CHANGE BACKGROUND COLOR OF THE BUTTON.
+            $('#noti_Button').css('background-color', '#2E467C');
+        }
+    });
+
+    $('#notifications').click(function () {
+        return false;       // DO NOTHING WHEN CONTAINER IS CLICKED.
+    });
+});
+
+function ajaxNotificationsContent() {
+    $.ajax({
+        url: NOTIFICATIONS_URL,
+        data: {notificationsversion : notificationsversion, getCount : false},
+        dataType: 'json',
+        success: function(data) {
+            /*
+             data will arrive in the next form:
+             {
+                "entries": [
+                    {
+                        "chatString":"Hi",
+                        "username":"bbb",
+                        "time":1485548397514
+                    },
+                    {
+                        "chatString":"Hello",
+                        "username":"bbb",
+                        "time":1485548397514
+                    }
+                ],
+                "version":1
+             }
+             */
+            console.log("Server chat version: " + data.version + ", Current chat version: " + notificationsversion);
+            if (data.version !== notificationsversion) {
+                notificationsversion = data.version;
+                appendToNotificationsArea(data.entries);
+            }
+            //triggerAjaxNotificationsContent();
+        },
+        error: function(error) {
+            //triggerAjaxNotificationsContent();
+        }
+    });
+}
+
+//entries = {"entries":[{"message":"mymsg","username":"myusername","time":1569613672373},{"message":"mymsg1","username":"myusername1","time":1569613672373},{"message":"mymsg2","username":"myusername2","time":1569613672373}],"version":3}
+function appendToNotificationsArea(entries) {
+//    $("#chatarea").children(".success").removeClass("success");
+    // add the relevant entries
+    $.each(entries || [], appendNotificationEntry);
 
 
 
+    // handle the scroller to auto scroll to the end of the chat area
+    //var scroller = $("#chatarea");
+    //var height = scroller[0].scrollHeight - $(scroller).height();
+    //$(scroller).stop().animate({ scrollTop: height }, "slow");
+}
+
+function appendNotificationEntry(index, entry){
+    var entryElement = createNotificationEntry(entry);
+    $("#notificationsArea").prepend(entryElement);
+}
+
+function createNotificationEntry (entry){
+   // entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
+    return $("<div class=\"w-100 p-1 toast fade show toast-notification\">\n" +
+        "                                    <div class=\"toast-header\">\n" +
+        "                                        <strong class=\"mr-auto\"><i class=\"fa fa-globe\"></i> "+entry.message+" </strong>\n" +
+        "                                        <small class=\"text-muted\"> "+ new Date(entry.time).toLocaleString()+" </small>\n" +
+        "                                    </div>\n" +
+        "                                    <div class=\"toast-body\"> "+ entry.username+" </div>\n" +
+        "                                </div>");
+}
 

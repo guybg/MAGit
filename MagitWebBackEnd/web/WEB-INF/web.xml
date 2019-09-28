@@ -65,6 +65,14 @@
         <url-pattern>/checkout</url-pattern>
     </servlet-mapping>
     <servlet>
+        <servlet-name>NotificationsServlet</servlet-name>
+        <servlet-class>servlets.NotificationsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>NotificationsServlet</servlet-name>
+        <url-pattern>/notifications</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>CreateBranchServlet</servlet-name>
         <servlet-class>servlets.CreateBranchServlet</servlet-class>
     </servlet>

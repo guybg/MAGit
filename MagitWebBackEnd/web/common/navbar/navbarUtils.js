@@ -25,6 +25,7 @@ $(function () {
     $("#logout").click(logout);
 
     bindNavClick();
+    //bindNotificationsClick();
     resumeState();
 });
 
@@ -65,6 +66,7 @@ function logout() {
         error: function (a) {
             window.location.href = a.getResponseHeader("Location");
             localStorage["pageState"] = "";
+            localStorage["seenNotifications"] = 0;
         },
         success: function () {}
     });

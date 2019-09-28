@@ -6,6 +6,8 @@ import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.objects.Branch;
 import com.magit.webLogic.utils.RepositoryUtils;
+import com.magit.webLogic.utils.notifications.AccountNotificationsManager;
+import com.magit.webLogic.utils.notifications.SingleNotification;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -23,12 +26,14 @@ public class UserAccount {
     @Expose(serialize = true)private String userPath;
     @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
     @Expose(serialize = true) private boolean online;
+    @Expose(serialize = true) private AccountNotificationsManager notificationsManager;
 
     public UserAccount(String userName) {
         this.userName = userName;
         this.repositories = new HashMap<>();
         this.online = true;
         userPath = Paths.get(usersPath, userName).toString();
+        notificationsManager = new AccountNotificationsManager();
     }
 
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
@@ -115,6 +120,34 @@ public class UserAccount {
 
     public void pickHeadBranch(String branchName) throws InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, RemoteBranchException, UncommitedChangesException, BranchNotFoundException {
         engine.pickHeadBranch(branchName);
+    }
+
+    public void setLastUpdatedNotificationsVersion(Integer notificationsVersion){
+        notificationsManager.setLastUpdatedNotificationsVersion(notificationsVersion);
+    }
+
+    public Integer getLastUpdatedNotificationsVersion(){
+        return notificationsManager.getLastUpdatedNotificationsVersion();
+    }
+
+    public Integer getNotificationsVersion(){
+        return notificationsManager.getNotificationsVersion();
+    }
+
+    public List<SingleNotification> getNotifications(Integer fromVersion){
+        return notificationsManager.getNotifications(fromVersion);
+    }
+
+    public Integer getNumberOfNewNotifications(){
+        return notificationsManager.getUnseenNotificationsAmount();
+    }
+
+    public void onLogout(){
+        notificationsManager.updateLastUpdatedNotificationsVersion();
+    }
+
+    public synchronized void addNotification(String message, String userName){
+        notificationsManager.addNotification(new SingleNotification(message, userName));
     }
 
     public HashMap<String,String> createBranch(String branchName) throws BranchAlreadyExistsException, InvalidNameException, RepositoryNotFoundException, IOException {
