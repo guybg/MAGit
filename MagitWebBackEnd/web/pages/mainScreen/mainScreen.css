@@ -120,14 +120,22 @@ h3 {
     margin-bottom: 0;
     padding-left: 0;
     padding-right: 0;
+    background: white;
 }
 
 #notificationsArea .toast{
     background:#F6F7F8;
-    margin-bottom: 0.08rem;
+    margin-bottom: 0.02rem;
 }
 
 .notifications-center{
     background: gray;
 }
 
+#card-footer-edit{
+    padding: 4px 5px;
+}
+
+#card-header-edit{
+    padding: 0;
+}

@@ -13,30 +13,30 @@ var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
     var repository = $("" +
-        "<div class=\"col-xl-3 col-sm-5 mb-3\">" +
+        "<div class=\"col-xl-12 col-sm-12 mb-12\">" +
         "<div class=\"card text-dark bg-light\">\n" +
-        "    <div class=\"card-header bg-dark text-center text-light\"><h4>"+details.name+"</h4></div>\n" +
+        "    <div id=\"card-header-edit\"  class=\"card-header bg-dark text-center text-light\"><h4>"+details.name+"</h4></div>\n" +
         "      <div class=\"card-body \">\n" +
         "        <h5 class=\"card-title\">Repository details</h5>\n" +
         "        <!--Starting list group here -->\n" +
-        "            <div class=\"list-group\">\n" +
-        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-primary\">Active branch\n" +
+        "            <div class=\"d-flex row\">\n" +
+        "              <div class=\"col-xl-3 col-sm-12 mb-3 list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-primary\">Active branch\n" +
         "              <span class=\"text-wrap text-break badge badge-primary badge-pill\">" + details.activeBranch + "</span>\n" +
         "              </div>\n" +
-        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-danger\">Branches\n" +
+        "              <div class=\"col-xl-3 col-sm-12 mb-3 list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-danger\">Branches\n" +
         "              <span class=\"text-wrap text-break badge badge-primary badge-pill\">"+details.branchesNum+"</span>\n" +
         "              </div>\n" +
-        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-success\">\n" +
+        "              <div class=\"col-xl-3 col-sm-12 mb-3 list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-success\">\n" +
         "                Commit date\n" +
         "                <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitDate+"</span>    \n" +
         "              </div>\n" +
-        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info\">Commit Message\n" +
+        "              <div class=\"col-xl-3 col-sm-12 mb-3 list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info\">Commit Message\n" +
         "              <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitMessage+"</span>\n" +
         "              </div>\n" +
         "            </div>\n" +
         "          <!--Ends here -->  \n" +
         "      </div>\n" +
-        "      <div class=\"card-footer bg-secondary border-danger text-right\">\n" +
+        "      <div id=\"card-footer-edit\" class=\"card-footer bg-secondary border-danger text-right\">\n" +
         "      <a " +"id="+ repoId+ " href=\"#\" class=\"btn btn-info btn-sm rep-details\">Manage</a>\n" +
         "      </div>\n" +
         "    </div>" +
