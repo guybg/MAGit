@@ -602,4 +602,3 @@ function createNotificationEntry (entry){
         "                                    <div class=\"toast-body\"> "+ entry.username+" </div>\n" +
         "                                </div>");
 }
-
