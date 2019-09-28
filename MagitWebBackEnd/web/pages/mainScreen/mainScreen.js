@@ -319,12 +319,12 @@ function forkRepository(event) {
         },
         success: function(msg) {
             if(msg.trim() === "") {
-                $("#forkMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository forked successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                $("#forkMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository forked successfully! </h6>").fadeIn(500).delay(2000).fadeOut();
                 $('#forkRepoModal #forkButton').prop('disabled', true);
-                setTimeout(function(){$("#forkRepoModal").modal('toggle')},2000);
+                setTimeout(function(){$("#forkRepoModal").modal('toggle')},2600);
             }
             else
-                $("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(5000).fadeOut();
+                $("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(2000).fadeOut();
             //  $("#result").text(r);
         }
     });
