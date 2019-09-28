@@ -550,7 +550,6 @@ function ajaxNotificationsContent() {
 //entries = {"entries":[{"message":"mymsg","username":"myusername","time":1569613672373},{"message":"mymsg1","username":"myusername1","time":1569613672373},{"message":"mymsg2","username":"myusername2","time":1569613672373}],"version":3}
 function appendToNotificationsArea(entries) {
 //    $("#chatarea").children(".success").removeClass("success");
-
     // add the relevant entries
     $.each(entries || [], appendNotificationEntry);
 
@@ -564,7 +563,7 @@ function appendToNotificationsArea(entries) {
 
 function appendNotificationEntry(index, entry){
     var entryElement = createNotificationEntry(entry);
-    $("#notificationsArea").append(entryElement);
+    $("#notificationsArea").prepend(entryElement);
 }
 
 function createNotificationEntry (entry){
