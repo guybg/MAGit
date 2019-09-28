@@ -5,10 +5,11 @@ $(function() {
     $("#create-branch-btn").click(createBranch);
     $('#create-branch-form').submit(function (e) {
         e.preventDefault();
+        var id = window.location.href.split('=')[1];
         $.ajax({
             type: $(this).attr('method'),
             url: $(this).attr('action'),
-            data: $(this).serialize(),
+            data: {branchName: $("#branch-name",this).val(), id: id},
             timeout: 2000,
             error: function (a) {
                 $('.modal-body-error').text(a.responseText);
@@ -82,7 +83,7 @@ function getRepositoryDetails() {
 }
 
 function createBranchView(branchDetails) {
-    $(".row-branches-info").append(
+    $(".main-container").append(
         "<div class='card card-branch' style='width: 50rem;background: rgba(255,196,157,0.74);'>" +
         "<div class='card-body'>" +
         "<h4 class='card-title'>Branch Name: " + branchDetails.Name + "</h4>" +
@@ -105,11 +106,13 @@ function createBranchView(branchDetails) {
 
 function deleteBranch() {
     var deleteBranchUrl = buildUrlWithContextPath("deleteBranch");
+    var id = window.location.href.split('=')[1];
     var branch = $(this);
     var branchName = $(this).parent().parent().attr('name');
     $.ajax( {
         data: {
-            "name": branchName
+            name: branchName,
+            id: id
         },
         timeout: 2000,
         method: 'POST',
@@ -126,27 +129,33 @@ function deleteBranch() {
 }
 
 function changeHead() {
+    var id = window.location.href.split('=')[1];
     var checkoutUrl = buildUrlWithContextPath("checkout");
     var branchName = $(this).parent().parent().attr('name');
     $.ajax( {
         data: {
-            "name": branchName
+            name: branchName,
+            id: id
         },
         method: 'POST',
         url: checkoutUrl,
         error : function (a) {
             if (a.responseText.includes("checkout into a remote branch")) {
-                $('.modal-body-error').text("You are trying to checkout into a remote branch, this operation is forbidden." +
-                    " Please checkout by using a remote tracking branch instead.");
+                //$('.modal-body-error').text("You are trying to checkout into a remote branch, this operation is forbidden." +
+                   // " Please checkout by using a remote tracking branch instead.");
+                errorToast("You are trying to checkout into a remote branch, this operation is forbidden." +
+                    " Please checkout by using a remote tracking branch instead.",true);
             }
             else {
-                $('#error-modal').modal('show');
-                $('.modal-body-error').text(a.responseText);
+               // $('#error-modal').modal('show');
+                //$('.modal-body-error').text(a.responseText);
+                errorToast(a.responseText,true)
             }
-            $('#error-modal').modal('show');
+           // $('#error-modal').modal('show');
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
+
         }
     })
 }

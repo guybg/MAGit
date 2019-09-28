@@ -28,15 +28,17 @@ public class CreateBranchServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount user = userManager.getUsers().get(usernameFromSession);
         String branchName = request.getParameter("branchName");
+        String id = request.getParameter("id");
         try {
             Gson gson = new Gson();
-            String branchInfo = gson.toJson(user.createBranch(branchName));
+            String branchInfo = gson.toJson(user.createBranch(branchName,id));
             try (PrintWriter out = response.getWriter()) {
                 out.write(branchInfo);
                 out.flush();
             }
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
         } catch (BranchAlreadyExistsException | InvalidNameException | RepositoryNotFoundException | IOException e) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             try (PrintWriter out = response.getWriter()) {
                 out.write(e.getMessage());
             } catch (IOException ex) {

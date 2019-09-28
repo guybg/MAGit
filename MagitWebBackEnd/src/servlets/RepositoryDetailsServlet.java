@@ -51,11 +51,11 @@ public class RepositoryDetailsServlet extends HttpServlet {
         synchronized (this) {
             account = userManager.getUsers().get(usernameFromSession);
             try {
-                account.loadRepository(id);
+                //account.loadRepository(id);
                 Gson gson = new Gson();
                 String info = gson.toJson(account.getRepositoryInfo(id));
                 prepareRedirectAjaxResponse(request ,response, info);
-            } catch (InvalidNameException | ParseException | RepositoryNotFoundException | IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

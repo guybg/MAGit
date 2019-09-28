@@ -2,6 +2,7 @@ package servlets;
 
 
 import com.google.gson.GsonBuilder;
+import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.webLogic.users.UserAccount;
@@ -67,6 +68,8 @@ public class UserDetailsServlet extends HttpServlet {
             } catch (RepositoryNotFoundException e) {
                 e.printStackTrace();
             } catch (PreviousCommitsLimitExceededException e) {
+                e.printStackTrace();
+            } catch (InvalidNameException e) {
                 e.printStackTrace();
             }
             Gson gson = new GsonBuilder()

@@ -28,9 +28,9 @@ public class DeleteBranchServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount user = userManager.getUsers().get(usernameFromSession);
         String branchName = request.getParameter("name");
-
+        String id = request.getParameter("id");
         try {
-            user.deleteBranch(branchName);
+            user.deleteBranch(branchName,id);
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
         } catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);

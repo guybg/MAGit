@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 public class UserAccount {
     @Expose(serialize = true)private String userName;
     @Expose(serialize = true)private HashMap<String, HashMap<String,String>> repositories;
-    @Expose(serialize = false) private MagitEngine engine;
+    @Expose(serialize = false) private HashMap<String,MagitEngine> engines;
     @Expose(serialize = true)private String userPath;
     @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
     @Expose(serialize = true) private boolean online;
@@ -34,11 +34,13 @@ public class UserAccount {
         this.online = true;
         userPath = Paths.get(usersPath, userName).toString();
         notificationsManager = new AccountNotificationsManager();
+        engines = new HashMap<>();
     }
 
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
         MagitEngine engine = new MagitEngine();
         String serialNumber = getFreeRepositoryId();
+        engines.put(serialNumber,engine);
         ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, serialNumber, null, new Consumer<String>() {
             @Override
             public void accept(String s) {
@@ -60,30 +62,35 @@ public class UserAccount {
     }
 
     public void loadRepository(String id) throws InvalidNameException, ParseException, RepositoryNotFoundException, IOException {
-        if(engine == null) {
-            engine = new MagitEngine();
+        if(engines.get(id) == null) {
+            engines.put(id, new MagitEngine());
+            engines.get(id).updateUserName(userName);
+            engines.get(id).switchRepository(Paths.get(userPath, id).toString());
         }
-        engine.updateUserName(userName);
-        engine.switchRepository(Paths.get(userPath, id).toString());
     }
 
     public HashMap<String, HashMap<String,String>> getRepositories() {
         return repositories;
     }
 
-    public void updateRepositories() throws ParseException, RepositoryNotFoundException, IOException, PreviousCommitsLimitExceededException {
+    public void updateRepositories() throws ParseException, RepositoryNotFoundException, IOException, PreviousCommitsLimitExceededException, InvalidNameException {
         if(!Paths.get(userPath).toFile().exists())
             return;
         File[] files = new File(userPath).listFiles();
         for(File file : Objects.requireNonNull(files)){
             String id =  file.getName();
-            if(repositories != null && !repositories.containsKey(id)){
-                MagitEngine engine = new MagitEngine();
-                String commitDate="No commit",commitMessage="No commit";
-                engine.switchRepository(Paths.get(userPath, id).toString());
-                HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage, engine);
-                repositories.put(id, details);
-            }
+            updateRepository(id);
+        }
+    }
+
+    public void updateRepository(String id) throws IOException, InvalidNameException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
+        if(repositories != null ){ //&& !repositories.containsKey(id)
+            if(engines.get(id) == null)
+                loadRepository(id);
+            MagitEngine engine = engines.get(id);
+            String commitDate="No commit",commitMessage="No commit";
+            HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage, engine);
+            repositories.put(id, details);
         }
     }
 
@@ -111,15 +118,17 @@ public class UserAccount {
     }
 
     public HashMap<String, HashMap<String,String>> getRepositoryInfo(String id) {
-        return engine.getRepositoryInfo(repositories.get(id));
+        return engines.get(id).getRepositoryInfo(repositories.get(id));
     }
 
-    public void deleteBranch(String branchName) throws RemoteBranchException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, IOException {
-        engine.deleteBranch(branchName);
+    public void deleteBranch(String branchName,String id) throws RemoteBranchException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, IOException, ParseException, PreviousCommitsLimitExceededException, InvalidNameException {
+        engines.get(id).deleteBranch(branchName);
+        updateRepository(id);
     }
 
-    public void pickHeadBranch(String branchName) throws InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, RemoteBranchException, UncommitedChangesException, BranchNotFoundException {
-        engine.pickHeadBranch(branchName);
+    public void pickHeadBranch(String branchName,String id) throws InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, RemoteBranchException, UncommitedChangesException, BranchNotFoundException {
+        engines.get(id).pickHeadBranch(branchName);
+        updateRepository(id);
     }
 
     public void setLastUpdatedNotificationsVersion(Integer notificationsVersion){
@@ -150,8 +159,8 @@ public class UserAccount {
         notificationsManager.addNotification(new SingleNotification(message, userName));
     }
 
-    public HashMap<String,String> createBranch(String branchName) throws BranchAlreadyExistsException, InvalidNameException, RepositoryNotFoundException, IOException {
-        Branch newBranch = engine.createNewBranch(branchName);
+    public HashMap<String,String> createBranch(String branchName, String id) throws BranchAlreadyExistsException, InvalidNameException, RepositoryNotFoundException, IOException {
+        Branch newBranch = engines.get(id).createNewBranch(branchName);
         HashMap<String, String> branchInfo = new HashMap<>();
         branchInfo.put("Name",newBranch.getBranchName());
         branchInfo.put("Commit",newBranch.getPointedCommitSha1().toString());
