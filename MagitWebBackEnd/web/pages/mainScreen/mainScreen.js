@@ -12,41 +12,35 @@ var notificationsversion = 0;
 var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
-    var repository = $("<div class=\"col-xl-3 col-sm-6 mb-3\">" +
-        "<div class=\"card text-white bg-dark mb-3 o-hidden h-100\">" +
-        "<div class=\"card-body\">" +
-        "<div class=\"card-body-icon\">" +
-        "<i class=\"fas fa-fw fa-tv\"></i>" +
-        "</div>" +
-        "<div class=\"mr-5\">" +
-        "Repository: "  + details.name +
-        "</div>" +
-        "<div class=\"mr-5\">" +
-        "Active branch: " + details.activeBranch +
-        "</div>" +
-        "<div class=\"mr-5\">" +
-        "Branches: " + details.branchesNum +
-        "</div>" +
-        "<div class=\"mr-5 commit-details\">" +
-        "Commit date: " + details.commitDate +
-        "</div>" +
-        "<div class=\"mr-5 commit-details\">" +
-        "Commit message: " + details.commitMessage +
-        "</div>" +
-        "</div>" +
-        "<a class=\"card-footer text-white clearfix small z-1\" href=\"#\">" +
-        "<span" +
-        " id=" +
-        repoId +
-        ' class=\"float-left rep-details\">View Details</span>' +
-        "<span class=\"float-right\">" +
-        "<i class=\"fas fa-angle-right rep-details\"></i>" +
-        "</span>" +
-        "</a>" +
-        "</div>" +
-        "</div>")
-        .addClass("square")
-        .text(repoId.height);
+    var repository = $("" +
+        "<div class=\"col-xl-3 col-sm-5 mb-3\">" +
+        "<div class=\"card text-dark bg-light\">\n" +
+        "    <div class=\"card-header bg-dark text-center text-light\"><h4>"+details.name+"</h4></div>\n" +
+        "      <div class=\"card-body \">\n" +
+        "        <h5 class=\"card-title\">Repository details</h5>\n" +
+        "        <!--Starting list group here -->\n" +
+        "            <div class=\"list-group\">\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-primary\">Active branch\n" +
+        "              <span class=\"text-wrap text-break badge badge-primary badge-pill\">" + details.activeBranch + "</span>\n" +
+        "              </div>\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-danger\">Branches\n" +
+        "              <span class=\"text-wrap text-break badge badge-primary badge-pill\">"+details.branchesNum+"</span>\n" +
+        "              </div>\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-success\">\n" +
+        "                Commit date\n" +
+        "                <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitDate+"</span>    \n" +
+        "              </div>\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info\">HTML Tutorials\n" +
+        "              <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitMessage+"</span>\n" +
+        "              </div>\n" +
+        "            </div>\n" +
+        "          <!--Ends here -->  \n" +
+        "      </div>\n" +
+        "      <div class=\"card-footer bg-secondary border-danger text-right\">\n" +
+        "      <a " +"id="+ repoId+ " href=\"#\" class=\"btn btn-info btn-sm rep-details\">Manage</a>\n" +
+        "      </div>\n" +
+        "    </div>" +
+        "</div>").addClass("square").text(repoId.height);
 
     if(details.commitDate === "No commit"){
         $(".commit-details",repository).hide();
@@ -109,17 +103,46 @@ function uploadAjaxSubmit() {
                // $("#result").text("Failed to get result from server " + e);
             },
             success: function (r) {
-                if(r === "")
-                    $("#uploadMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository uploaded successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                if(r === ""){
+                    successToast("Repository uploaded successfully!",false, 6000);
+                    //$("#uploadMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository uploaded successfully! </h6>").fadeIn(500).delay(5000).fadeOut();
+                }
                 else
-                    $("#uploadMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + r + "</h6>").fadeIn(500).delay(5000).fadeOut();
-              //  $("#result").text(r);
+                    errorToast(r, false, 6000);
+                    //$("#uploadMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + r + "</h6>").fadeIn(500).delay(5000).fadeOut();
+
+                //  $("#result").text(r);
             }
         });
         return false;
     });
 };
-
+function successToast(message, isSticky, time) {
+    $().toastmessage('showToast', {
+        text     : message,
+        sticky   : isSticky,
+        position : 'top-right',
+        type     : 'success',
+        stayTime : time,
+        closeText: '',
+        close    : function () {
+            console.log("toast is closed ...");
+        }
+    });
+}
+function errorToast(message, isSticky, time) {
+    $().toastmessage('showToast', {
+        text     : message,
+        sticky   : isSticky,
+        position : 'top-right',
+        type     : 'error',
+        stayTime : time,
+        closeText: '',
+        close    : function () {
+            console.log("toast is closed ...");
+        }
+    });
+}
 function userNameClicked() {
     stopShowingRepositories();
     saveState("#username");
@@ -321,10 +344,31 @@ function forkRepository(event) {
             if(msg.trim() === "") {
                 $("#forkMessage").removeClass("alert-danger").addClass("alert-success").empty().append("<h6> Repository forked successfully! </h6>").fadeIn(500).delay(2000).fadeOut();
                 $('#forkRepoModal #forkButton').prop('disabled', true);
-                setTimeout(function(){$("#forkRepoModal").modal('toggle')},2600);
+                $("#forkRepoModal").modal('toggle');
+                //setTimeout(function(){$("#forkRepoModal").modal('toggle')},2600);
+                $().toastmessage('showToast', {
+                    text     : 'Repository forked successfully!',
+                    sticky   : true,
+                    position : 'top-right',
+                    type     : 'success',
+                    closeText: '',
+                    close    : function () {
+                        console.log("toast is closed ...");
+                    }
+                });
             }
             else
-                $("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(2000).fadeOut();
+                //$("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(2000).fadeOut();
+            $().toastmessage('showToast', {
+                text     : msg,
+                sticky   : true,
+                position : 'top-right',
+                type     : 'error',
+                closeText: '',
+                close    : function () {
+                    console.log("toast is closed ...");
+                }
+            });
             //  $("#result").text(r);
         }
     });
