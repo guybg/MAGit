@@ -180,9 +180,9 @@ public class MagitEngine {
         }
     }
 
-    public void createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
+    public Branch createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
         repositoryNotFoundCheck();
-        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),false,false,null);
+        return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),false,false,null);
     }
 
     public void createNewBranch(String branchName, String sha1OfCommit) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {

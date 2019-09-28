@@ -43,7 +43,7 @@ public class BranchManager {
         createNewBranch(branch.getBranchName().split("\\\\")[1],
                 repository, branch.getPointedCommitSha1().toString(),false, true, branch.getBranchName());
     }
-    public void createNewBranch(String branchName, Repository repository,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException, InvalidNameException, BranchAlreadyExistsException {
+    public Branch createNewBranch(String branchName, Repository repository,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException, InvalidNameException, BranchAlreadyExistsException {
         final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
         if (StringUtils.containsAny(branchName, BLANK_SPACE) || branchName.isEmpty()) {
             throw new InvalidNameException("Branch name cannot contain blank spaces, please choose a name without blank space and try again.");
@@ -51,9 +51,11 @@ public class BranchManager {
         if (Files.exists(Paths.get(repository.getBranchDirectoryPath().toString(), branchName)))
             throw new BranchAlreadyExistsException(branchName);
 
-
-        repository.addBranch(branchName, new Branch(branchName, mActiveBranch.getPointedCommitSha1().toString(),trackingAfter,isRemote,isTracking));
+        Branch newBranch = new Branch(branchName, mActiveBranch.getPointedCommitSha1().toString(),trackingAfter,isRemote,isTracking);
+        repository.addBranch(branchName, newBranch);
         writeBranch(repository,branchName,mActiveBranch.getPointedCommitSha1().toString(),isRemote,isTracking,trackingAfter);
+
+        return newBranch;
     }
 
     public static void writeBranch(Repository repository, String branchName,String sha1OfCommit,Boolean isRemote,Boolean isTracking, String trackingAfter ) throws IOException {

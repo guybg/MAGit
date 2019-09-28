@@ -64,4 +64,12 @@
         <servlet-name>CheckoutHeadServlet</servlet-name>
         <url-pattern>/checkout</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CreateBranchServlet</servlet-name>
+        <servlet-class>servlets.CreateBranchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateBranchServlet</servlet-name>
+        <url-pattern>/pages/repositoryDetails/createbranch</url-pattern>
+    </servlet-mapping>
 </web-app>

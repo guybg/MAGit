@@ -1,6 +1,25 @@
 $(function() {
-    $( ".navbar-nav .nav-item" ).click(function() {
+    $( ".navbar-nav .nav-item").click(function() {
         window.location.href = "../mainScreen/mainScreen.html";
+    });
+    $("#create-branch-btn").click(createBranch);
+    $('#create-branch-form').submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            data: $(this).serialize(),
+            timeout: 2000,
+            error: function (a) {
+                $('.modal-body-error').text(a.responseText);
+                $('#error-modal').modal('show');
+            },
+            success: function(a) {
+                createBranchView($.parseJSON(a));
+                $('#create-branch-modal').modal('hide');
+            }
+        })
+
     });
     getRepositoryDetails();
 });
@@ -29,7 +48,7 @@ function getRepositoryDetails() {
                 "<div class='card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
                 "<div class='card-body'>" +
                 "<h4 class='card-title'>" + repositoryDetails.Repository.name + "</h4>" +
-                "<h6 class='card-subtitle mb-2 text-muted branches-count'>Number of Branches: " + repositoryDetails.Repository.branchesNum + "</h6>" +
+                "<h6 class='card-subtitle mb-2 text-muted branches-count'>Number of Branches: " + $(".card-branch").length + "</h6>" +
                 "<h6 class='card-subtitle mb-2 text-muted head-title'>Head Branch: " + repositoryDetails.Repository.activeBranch + "</h6>" +
                 "<h6 class='card-subtitle mb-2 text-muted'>Last Commit Date: " + repositoryDetails.Repository.commitDate + "</h6>" +
                 "<h6 class='card-subtitle mb-2 text-muted'>Last Commit Message: " + repositoryDetails.Repository.commitMessage + "</h6>" +
@@ -53,12 +72,34 @@ function getRepositoryDetails() {
                     "</div>" +
                     "</div>");
                 $(".card-branch").last().attr('name', k);
+                $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
             }
             $(".delete-btn").click(deleteBranch);
             $(".head-btn").click(changeHead);
         }
     });
+}
 
+function createBranchView(branchDetails) {
+    $(".row-branches-info").append(
+        "<div class='card card-branch' style='width: 50rem;background: rgba(255,196,157,0.74);'>" +
+        "<div class='card-body'>" +
+        "<h4 class='card-title'>Branch Name: " + branchDetails.Name + "</h4>" +
+        "<h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + branchDetails.Commit+ "</h6>" +
+        "<h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + branchDetails.IsTracking + "</h6>" +
+        "<h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + branchDetails.IsRemote + "</h6>" +
+        "<h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + branchDetails.TrackingAfter + "</h6>" +
+        "</div>" +
+        "<div class='buttons-column col-lg-4'>" +
+        "<button type='button' class='btn btn-branch delete-btn btn-danger'>Delete Branch</button>" +
+        "<div class='divider'></div>" +
+        "<button type='button' class='btn btn-branch head-btn btn-info'>Checkout as Head</button>" +
+        "</div>" +
+        "</div>");
+    $(".card-branch").last().attr('name', branchDetails.Name);
+    $(".delete-btn").last().click(deleteBranch);
+    $(".head-btn").last().click(changeHead);
+    $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
 }
 
 function deleteBranch() {
@@ -69,15 +110,16 @@ function deleteBranch() {
         data: {
             "name": branchName
         },
+        timeout: 2000,
         method: 'POST',
         url: deleteBranchUrl,
         error : function (a) {
-            $('#modal').modal('show');
-            $('.modal-body').text(a.responseText);
+            $('#error-modal').modal('show');
+            $('.modal-body-error').text(a.responseText);
         },
         success: function() {
             branch.parent().parent().remove();
-            $(".branches-count").text("Number of Branches: " + (--numOfBranches));
+            $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
         }
     })
 }
@@ -92,11 +134,21 @@ function changeHead() {
         method: 'POST',
         url: checkoutUrl,
         error : function (a) {
-            $('#modal').modal('show');
-            $('.modal-body').text(a.responseText);
+            if (a.responseText.includes("checkout into a remote branch")) {
+                $("#rtb-modal").text(a.responseText);
+                $("#rtb-modal").modal('show');
+            }
+            else {
+                $('#error-modal').modal('show');
+                $('.modal-body-error').text();
+            }
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
         }
     })
+}
+
+function createBranch() {
+    $('#create-branch-modal').modal('show');
 }

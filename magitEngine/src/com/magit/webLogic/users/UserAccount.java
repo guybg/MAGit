@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
+import com.magit.logic.system.objects.Branch;
 import com.magit.webLogic.utils.RepositoryUtils;
 
 import java.io.File;
@@ -114,5 +115,16 @@ public class UserAccount {
 
     public void pickHeadBranch(String branchName) throws InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, RemoteBranchException, UncommitedChangesException, BranchNotFoundException {
         engine.pickHeadBranch(branchName);
+    }
+
+    public HashMap<String,String> createBranch(String branchName) throws BranchAlreadyExistsException, InvalidNameException, RepositoryNotFoundException, IOException {
+        Branch newBranch = engine.createNewBranch(branchName);
+        HashMap<String, String> branchInfo = new HashMap<>();
+        branchInfo.put("Name",newBranch.getBranchName());
+        branchInfo.put("Commit",newBranch.getPointedCommitSha1().toString());
+        branchInfo.put("IsRemote",newBranch.getIsRemote().toString());
+        branchInfo.put("IsTracking",newBranch.getIsTracking().toString());
+        branchInfo.put("TrackingAfter",newBranch.getTrackingAfter());
+        return branchInfo;
     }
 }

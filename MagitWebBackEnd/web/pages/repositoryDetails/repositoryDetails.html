@@ -76,7 +76,7 @@
             <div class="details-container">
                 <div class='row-title'>
                     <div class="button-bar">
-                        <button type="button" class="btn btn-warning">
+                        <button type="button" class="btn btn-warning" id="create-branch-btn">
                             <i class="fas fa-code-branch fa-3x"></i>
                             <i>Create Branch</i>
                         </button>
@@ -98,7 +98,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <!--Error Modal-->
+    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -107,7 +108,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body modal-body-error">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
@@ -115,6 +116,53 @@
             </div>
         </div>
     </div>
+
+    <!--Create Branch Modal-->
+    <div class="modal fade" id="create-branch-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Branch Creation</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-branch-form" method="post" action="createbranch">
+                        <div class="form-group">
+                            <label for="branch-name" class="col-form-label">Branch Name:</label>
+                            <input type="text" class="form-control" name="branchName" id="branch-name" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" form="create-branch-form" class="btn btn-primary" value="Ok">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--RTB Modal-->
+    <div class="modal" id="rtb-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modal title</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body rtb-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary">Ok</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer class="sticky-footer">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">
