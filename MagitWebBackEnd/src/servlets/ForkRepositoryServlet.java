@@ -45,7 +45,7 @@ public class ForkRepositoryServlet extends HttpServlet {
             hisAccount = userManager.getUsers().get(fromUserName);
             try {
                 currentAccount.cloneRepository(hisAccount, repositoryIdToFork, cloneName);
-
+                hisAccount.addNotification(usernameFromSession, "I cloned your repository named: " + hisAccount.getRepositories().get(repositoryIdToFork).get("name") + " with id: " + repositoryIdToFork);
             } catch (CloneException | InvalidNameException | IllegalPathException | PreviousCommitsLimitExceededException | RepositoryNotFoundException e) {//handle messages there todo
                 message = e.getMessage();
             } catch (IOException e) {

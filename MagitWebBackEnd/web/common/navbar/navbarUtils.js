@@ -25,7 +25,7 @@ $(function () {
     $("#logout").click(logout);
 
     bindNavClick();
-    bindNotificationsClick();
+    //bindNotificationsClick();
     resumeState();
 });
 
@@ -40,12 +40,6 @@ function bindNavClick(){
     });
 }
 
-function bindNotificationsClick() {
-    $( "#noti_Button" ).bind( "click", function(event) {
-        incrementSeenNotifications();
-    });
-}
-
 function supportsLocalStorage() {
     return ('localStorage' in window) && window['localStorage'] !== null;
 }
@@ -53,10 +47,6 @@ function supportsLocalStorage() {
 function saveState(func) {
     if (!supportsLocalStorage()) { return false; }
     localStorage["pageState"] = func;
-}
-function incrementSeenNotifications() {
-    if (!supportsLocalStorage()) { return false; }
-    localStorage["seenNotifications"] = $('.toast-notification', '#notificationsArea').length;
 }
 function resumeState() {
     if (!supportsLocalStorage()) { return false; }

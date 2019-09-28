@@ -32,6 +32,7 @@ public class NotificationsServlet extends HttpServlet {
         verify chat version given from the user is a valid number. if not it is considered an error and nothing is returned back
         Obviously the UI should be ready for such a case and handle it properly
          */
+        boolean isGetNotifications = ServletUtils.getBooleanParameter(request, Constants.GET_UNREAD_NOTIFICATIONS_COUNT_PARAMETER);
         int version = ServletUtils.getIntParameter(request, Constants.NOTIFICATIONS_VERSION_PARAMETER);
 
         if (version == Constants.INT_PARAMETER_ERROR) {
@@ -42,24 +43,40 @@ public class NotificationsServlet extends HttpServlet {
         Synchronizing as minimum as I can to fetch only the relevant information from the chat manager and then only processing and sending this information onward
         Note that the synchronization here is on the ServletContext, and the one that also synchronized on it is the chat servlet when adding new chat lines.
          */
+
         int serverVersion = 0;
+        int unSeenMessages = 0;
         List<SingleNotification> notificationsEntries;
+        UserAccount account;
         synchronized (getServletContext()) {
-            UserAccount account = userManager.getUsers().get(username);
-            serverVersion = account.getNotificationsVersion();
-            notificationsEntries = account.getNotifications(version);
+            account = userManager.getUsers().get(username);
         }
 
         // log and create the response json string
-        NotificationsAndVersion nav = new NotificationsAndVersion(notificationsEntries, serverVersion);
-        Gson gson = new Gson();
-        String jsonResponse = gson.toJson(nav);
-        logServerMessage("Server Chat version: " + serverVersion + ", User '" + username + "' Chat version: " + version + "' savedversion: " + userManager.getUsers().get(username).getLastUpdatedNotificationsVersion());
-        logServerMessage(jsonResponse);
 
-        try (PrintWriter out = response.getWriter()) {
-            out.print(jsonResponse);
-            out.flush();
+        if(isGetNotifications){
+            synchronized (getServletContext()){
+                unSeenMessages = account.getNumberOfNewNotifications();
+            }
+            try (PrintWriter out = response.getWriter()) {
+                out.print(unSeenMessages);
+                out.flush();
+            }
+        }else {
+            synchronized (getServletContext()) {
+                serverVersion = account.getNotificationsVersion();
+                notificationsEntries = account.getNotifications(version);
+            }
+            Gson gson = new Gson();
+            NotificationsAndVersion nav = new NotificationsAndVersion(notificationsEntries, serverVersion);
+            String jsonResponse = gson.toJson(nav);
+            logServerMessage("Server Chat version: " + serverVersion + ", User '" + username + "' Chat version: " + version + "' savedversion: " + userManager.getUsers().get(username).getLastUpdatedNotificationsVersion());
+            logServerMessage(jsonResponse);
+
+            try (PrintWriter out = response.getWriter()) {
+                out.print(jsonResponse);
+                out.flush();
+            }
         }
     }
 

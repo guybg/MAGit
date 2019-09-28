@@ -9,6 +9,7 @@ import com.magit.webLogic.users.UserManager;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import static constants.Constants.BOOLEAN_PARAMETER_ERROR;
 import static constants.Constants.INT_PARAMETER_ERROR;
 
 public class ServletUtils {
@@ -52,5 +53,16 @@ public class ServletUtils {
             }
         }
         return INT_PARAMETER_ERROR;
+    }
+
+    public static boolean getBooleanParameter(HttpServletRequest request, String name) {
+        String value = request.getParameter(name);
+        if (value != null) {
+            try {
+                return Boolean.parseBoolean(value);
+            } catch (NumberFormatException numberFormatException) {
+            }
+        }
+        return BOOLEAN_PARAMETER_ERROR;
     }
 }

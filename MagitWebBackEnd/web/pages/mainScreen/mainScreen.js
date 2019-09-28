@@ -442,24 +442,45 @@ function stopShowingRepositories() {
 }
 $(function (){
     setInterval(function () {
-        if(localStorage["seenNotifications"] === undefined)
-            localStorage["seenNotifications"] = 0;
-        numOfNotifications = $('.toast-notification', '#notificationsArea').length - localStorage["seenNotifications"];
-        $('#noti_Counter').text(numOfNotifications);
+        $.ajax({
+            url: NOTIFICATIONS_URL,
+            data: {notificationsversion : notificationsversion, getCount : true},
+            dataType: 'json',
+            success: function(data) {
+                console.log("new messages: " + data);
+                $('#noti_Counter').text(data);
+                if(data > 0 && $('#noti_Counter').css('display') === 'none'){
+                    $('#noti_Counter')
+                        .css({ opacity: 0, display: 'block'})
+                        .text(data)  // ADD DYNAMIC VALUE (YOU CAN EXTRACT DATA FROM DATABASE OR XML).
+                        .css({ top: '-10px' })
+                        .animate({ top: '-2px', opacity: 1 }, 500);
+                        $('#noti_Button').css('background-color', '#FFF');
+                }else{
+                   // if(!($('#noti_Counter').css('display') === 'none') && $('#notifications').css('display') === 'none'){
+                   //     $('#noti_Counter').hide();
+                   //     $('#noti_Button').css('background-color', '#2E467C');
+                   // }
+                }
+            },
+            error: function(error) {
+            }
+        });
     },1500);
 });
 
 $(document).ready(function () {
-    ajaxNotificationsContent();
     // ANIMATEDLY DISPLAY THE NOTIFICATION COUNTER.
     $(".toast").toast();
     $('#noti_Counter')
-        .css({ opacity: 0 })
+        .css({ opacity: 0})
         .text(numOfNotifications)  // ADD DYNAMIC VALUE (YOU CAN EXTRACT DATA FROM DATABASE OR XML).
         .css({ top: '-10px' })
         .animate({ top: '-2px', opacity: 1 }, 500);
-
+    $('#noti_Counter').hide();
+    $('#noti_Button').css('background-color', '#2E467C');
     $('#noti_Button').click(function () {
+        ajaxNotificationsContent();
         // TOGGLE (SHOW OR HIDE) NOTIFICATION WINDOW.
         $('#notifications').fadeToggle('fast', 'linear', function () {
             if ($('#notifications').is(':hidden')) {
@@ -492,7 +513,7 @@ $(document).ready(function () {
 function ajaxNotificationsContent() {
     $.ajax({
         url: NOTIFICATIONS_URL,
-        data: "notificationsversion=" + notificationsversion,
+        data: {notificationsversion : notificationsversion, getCount : false},
         dataType: 'json',
         success: function(data) {
             /*
@@ -518,16 +539,12 @@ function ajaxNotificationsContent() {
                 notificationsversion = data.version;
                 appendToNotificationsArea(data.entries);
             }
-            triggerAjaxNotificationsContent();
+            //triggerAjaxNotificationsContent();
         },
         error: function(error) {
-            triggerAjaxNotificationsContent();
+            //triggerAjaxNotificationsContent();
         }
     });
-}
-
-function triggerAjaxNotificationsContent() {
-    setTimeout(ajaxNotificationsContent, refreshRate);
 }
 
 //entries = {"entries":[{"message":"mymsg","username":"myusername","time":1569613672373},{"message":"mymsg1","username":"myusername1","time":1569613672373},{"message":"mymsg2","username":"myusername2","time":1569613672373}],"version":3}
@@ -554,10 +571,10 @@ function createNotificationEntry (entry){
    // entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
     return $("<div class=\"w-100 p-1 toast fade show toast-notification\">\n" +
         "                                    <div class=\"toast-header\">\n" +
-        "                                        <strong class=\"mr-auto\"><i class=\"fa fa-globe\"></i> "+ entry.username+" </strong>\n" +
+        "                                        <strong class=\"mr-auto\"><i class=\"fa fa-globe\"></i> "+entry.message+" </strong>\n" +
         "                                        <small class=\"text-muted\"> "+ new Date(entry.time).toLocaleString()+" </small>\n" +
         "                                    </div>\n" +
-        "                                    <div class=\"toast-body\"> "+entry.message+" </div>\n" +
+        "                                    <div class=\"toast-body\"> "+ entry.username+" </div>\n" +
         "                                </div>");
 }
 
