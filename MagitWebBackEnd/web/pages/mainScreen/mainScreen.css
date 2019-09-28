@@ -63,7 +63,7 @@
     position:absolute;
     top:30px;
     left:-360px;
-    background:#FFF;
+    background:gray;
     border:solid 1px rgba(100, 100, 100, .20);
     -webkit-box-shadow:0 3px 8px rgba(0, 0, 0, .20);
     z-index: 1000;
@@ -76,7 +76,7 @@
     height:0;
     color:transparent;
     border:10px solid #CCC;
-    border-color:transparent transparent #FFF;
+    border-color:transparent transparent gray;
     margin-top:-20px;
     margin-left:370px;
 }
@@ -124,5 +124,10 @@ h3 {
 
 #notificationsArea .toast{
     background:#F6F7F8;
-    margin-bottom: 0;
+    margin-bottom: 0.08rem;
 }
+
+.notifications-center{
+    background: gray;
+}
+
