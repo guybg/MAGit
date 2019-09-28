@@ -30,7 +30,7 @@ function createRepository(repoId, details){
         "                Commit date\n" +
         "                <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitDate+"</span>    \n" +
         "              </div>\n" +
-        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info\">HTML Tutorials\n" +
+        "              <div class=\"list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info\">Commit Message\n" +
         "              <span class=\"text-wrap text-break badge badge-primary badge-pill commit-details\">"+details.commitMessage+"</span>\n" +
         "              </div>\n" +
         "            </div>\n" +
