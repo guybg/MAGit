@@ -18,3 +18,12 @@
     margin-top: 20px;
     width:200px;
 }
+
+.button-bar {
+    position: absolute;
+    left: 1050px;
+}
+
+.btn-bar {
+    width:260px;
+}

@@ -1,5 +1,7 @@
 package servlets;
 
+import com.google.gson.Gson;
+import com.magit.logic.exceptions.*;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import utils.ServletUtils;
@@ -12,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class CheckoutHeadServlet extends HttpServlet {
+public class CreateRemoteBranchServlet extends HttpServlet {
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }
 
@@ -25,16 +27,9 @@ public class CheckoutHeadServlet extends HttpServlet {
         UserAccount user = userManager.getUsers().get(usernameFromSession);
         String branchName = request.getParameter("name");
         try {
-            user.pickHeadBranch(branchName);
-            response.setStatus(HttpServletResponse.SC_ACCEPTED);
-        } catch (Exception ex) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            try (PrintWriter out = response.getWriter()) {
-                out.write(ex.getMessage());
-                out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            user.createRemoteTrackingBranch(branchName);
+        } catch (RepositoryNotFoundException | BranchAlreadyExistsException | BranchNotFoundException | InvalidNameException | RemoteReferenceException | IOException e) {
+            
         }
     }
 }

@@ -1,5 +1,9 @@
 package servlets;
 
+import com.google.gson.Gson;
+import com.magit.logic.exceptions.BranchAlreadyExistsException;
+import com.magit.logic.exceptions.InvalidNameException;
+import com.magit.logic.exceptions.RepositoryNotFoundException;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import utils.ServletUtils;
@@ -12,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-public class CheckoutHeadServlet extends HttpServlet {
+public class CreateBranchServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -23,17 +27,21 @@ public class CheckoutHeadServlet extends HttpServlet {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount user = userManager.getUsers().get(usernameFromSession);
-        String branchName = request.getParameter("name");
+        String branchName = request.getParameter("branchName");
         try {
-            user.pickHeadBranch(branchName);
-            response.setStatus(HttpServletResponse.SC_ACCEPTED);
-        } catch (Exception ex) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            Gson gson = new Gson();
+            String branchInfo = gson.toJson(user.createBranch(branchName));
             try (PrintWriter out = response.getWriter()) {
-                out.write(ex.getMessage());
+                out.write(branchInfo);
                 out.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
+            }
+            response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        } catch (BranchAlreadyExistsException | InvalidNameException | RepositoryNotFoundException | IOException e) {
+            try (PrintWriter out = response.getWriter()) {
+                out.write(e.getMessage());
+            } catch (IOException ex) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                ex.printStackTrace();
             }
         }
     }

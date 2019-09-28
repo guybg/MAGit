@@ -54,7 +54,7 @@ public class RepositoryDetailsServlet extends HttpServlet {
                 account.loadRepository(id);
                 Gson gson = new Gson();
                 String info = gson.toJson(account.getRepositoryInfo(id));
-                prepareRedirectAjaxResponse(request,response, info);
+                prepareRedirectAjaxResponse(request ,response, info);
             } catch (InvalidNameException | ParseException | RepositoryNotFoundException | IOException e) {
                 e.printStackTrace();
             }

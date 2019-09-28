@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
+import com.magit.logic.system.objects.Branch;
 import com.magit.webLogic.utils.RepositoryUtils;
 import com.magit.webLogic.utils.notifications.AccountNotificationsManager;
 import com.magit.webLogic.utils.notifications.SingleNotification;
@@ -105,7 +106,6 @@ public class UserAccount {
         online = status;
     }
 
-
     public synchronized boolean isOnline() {
         return online;
     }
@@ -148,5 +148,20 @@ public class UserAccount {
 
     public synchronized void addNotification(String message, String userName){
         notificationsManager.addNotification(new SingleNotification(message, userName));
+    }
+
+    public HashMap<String,String> createBranch(String branchName) throws BranchAlreadyExistsException, InvalidNameException, RepositoryNotFoundException, IOException {
+        Branch newBranch = engine.createNewBranch(branchName);
+        HashMap<String, String> branchInfo = new HashMap<>();
+        branchInfo.put("Name",newBranch.getBranchName());
+        branchInfo.put("Commit",newBranch.getPointedCommitSha1().toString());
+        branchInfo.put("IsRemote",newBranch.getIsRemote().toString());
+        branchInfo.put("IsTracking",newBranch.getIsTracking().toString());
+        branchInfo.put("TrackingAfter",newBranch.getTrackingAfter());
+        return branchInfo;
+    }
+
+    public void createRemoteTrackingBranch(String branchName) throws RepositoryNotFoundException, BranchAlreadyExistsException, BranchNotFoundException, InvalidNameException, RemoteReferenceException, IOException {
+        engine.createRemoteTrackingBranch(branchName);
     }
 }
