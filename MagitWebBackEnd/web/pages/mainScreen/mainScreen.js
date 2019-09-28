@@ -442,10 +442,13 @@ function stopShowingRepositories() {
 }
 $(function (){
     setInterval(function () {
-        numOfNotifications = $('.toast-notification', '#notificationsArea').length;
+        if(localStorage["seenNotifications"] === undefined)
+            localStorage["seenNotifications"] = 0;
+        numOfNotifications = $('.toast-notification', '#notificationsArea').length - localStorage["seenNotifications"];
         $('#noti_Counter').text(numOfNotifications);
     },1500);
 });
+
 $(document).ready(function () {
     ajaxNotificationsContent();
     // ANIMATEDLY DISPLAY THE NOTIFICATION COUNTER.
