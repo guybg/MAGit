@@ -10,10 +10,13 @@
 
     <!-- ------------important!!!------------>
     <link href="../css/sb-admin.css" rel="stylesheet">
+    <link href="../css/notifications.css" rel="stylesheet">
+    <link type="text/css" href="../../common/toast/css/jquery.toastmessage.css" rel="stylesheet">
     <!-- Bootstrap core JavaScript-->
     <script src="../../common/utils/jquery/jquery.min.js"></script>
     <script src="../../common/utils/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+    <script src="../../common/toast/jquery.toastmessage.js"></script>
+    <script src="../../common/toast/ToastUtils.js"></script>
     <!-- Core plugin JavaScript-->
     <script src="../../common/utils/jquery-easing/jquery.easing.min.js"></script>
 
@@ -38,6 +41,22 @@
 <body>
 <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
     <a class="navbar-brand mr-1" href="repositoryDetails.html">Magit Hub</a>
+    <div class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0 noti">
+        <ul>
+            <li id="noti_Container">
+                <div id="noti_Counter"></div>   <!--SHOW NOTIFICATIONS COUNT.-->
+                <!--A CIRCLE LIKE BUTTON TO DISPLAY NOTIFICATION DROPDOWN.-->
+                <div id="noti_Button"></div>
+
+                <!--THE NOTIFICAIONS DROPDOWN BOX.-->
+                <div id="notifications">
+                    <h3 class="notifications-center">Notifications</h3>
+                    <div id="notificationsArea" class="overflow-auto container-fluid no-padding" style="height:300px;"></div>
+                    <div class="seeAll notifications-center"></div>
+                </div>
+            </li>
+        </ul>
+    </div>
 </nav>
 <div id="wrapper">
     <!-- Sidebar -->
