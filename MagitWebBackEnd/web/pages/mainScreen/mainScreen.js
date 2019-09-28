@@ -346,29 +346,11 @@ function forkRepository(event) {
                 $('#forkRepoModal #forkButton').prop('disabled', true);
                 $("#forkRepoModal").modal('toggle');
                 //setTimeout(function(){$("#forkRepoModal").modal('toggle')},2600);
-                $().toastmessage('showToast', {
-                    text     : 'Repository forked successfully!',
-                    sticky   : true,
-                    position : 'top-right',
-                    type     : 'success',
-                    closeText: '',
-                    close    : function () {
-                        console.log("toast is closed ...");
-                    }
-                });
+                successToast('Repository forked successfully!',false,6000);
             }
             else
                 //$("#forkMessage").addClass("alert-danger").removeClass("alert-success").empty().append("<h6>" + msg + "</h6>").fadeIn(500).delay(2000).fadeOut();
-            $().toastmessage('showToast', {
-                text     : msg,
-                sticky   : true,
-                position : 'top-right',
-                type     : 'error',
-                closeText: '',
-                close    : function () {
-                    console.log("toast is closed ...");
-                }
-            });
+                errorToast(msg,true);
             //  $("#result").text(r);
         }
     });
