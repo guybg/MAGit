@@ -80,4 +80,12 @@
         <servlet-name>CreateBranchServlet</servlet-name>
         <url-pattern>/pages/repositoryDetails/createbranch</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CreateRemoteBranchServlet</servlet-name>
+        <servlet-class>servlets.CreateRemoteBranchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateRemoteBranchServlet</servlet-name>
+        <url-pattern>/pages/repositoryDetails/createRemoteBranch</url-pattern>
+    </servlet-mapping>
 </web-app>

@@ -160,8 +160,4 @@ public class UserAccount {
         branchInfo.put("TrackingAfter",newBranch.getTrackingAfter());
         return branchInfo;
     }
-
-    public void createRemoteTrackingBranch(String branchName) throws RepositoryNotFoundException, BranchAlreadyExistsException, BranchNotFoundException, InvalidNameException, RemoteReferenceException, IOException {
-        engine.createRemoteTrackingBranch(branchName);
-    }
 }
