@@ -22,20 +22,6 @@ $(function() {
         })
 
     });
-    $("#create-rtb-btn").click(function() {
-        $.ajax({
-            type: 'GET',
-            url: buildUrlWithContextPath("createRtb"),
-            data: $(this).parent().parent().parent().attr('name'),
-            timeout: 2000,
-            error: function () {
-
-            },
-            success: function () {
-
-            }
-        })
-    });
     getRepositoryDetails();
 });
 var numOfBranches;
@@ -57,7 +43,7 @@ function getRepositoryDetails() {
             repositoryDetails = a;
             numOfBranches = repositoryDetails.Repository.branchesNum;
             $(".details-container").append(
-                "<div class='row-branches-info'></div>"
+                "<div class='row main-container'></div>"
             );
             $(".row-title").append(
                 "<div class='card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
@@ -71,7 +57,7 @@ function getRepositoryDetails() {
                 "</div>");
             delete repositoryDetails.Repository;
             for (var k in repositoryDetails) {
-                $(".row-branches-info").append(
+                $(".main-container").append(
                     "<div class='card card-branch' style='width: 50rem;background: rgba(255,196,157,0.74);'>" +
                     "<div class='card-body'>" +
                     "<h4 class='card-title'>Branch Name: " + k + "</h4>" +
@@ -150,13 +136,14 @@ function changeHead() {
         url: checkoutUrl,
         error : function (a) {
             if (a.responseText.includes("checkout into a remote branch")) {
-                $(".rtb-body").text(a.responseText);
-                $("#rtb-modal").attr('name', branchName).modal('show');
+                $('.modal-body-error').text("You are trying to checkout into a remote branch, this operation is forbidden." +
+                    " Please checkout by using a remote tracking branch instead.");
             }
             else {
                 $('#error-modal').modal('show');
-                $('.modal-body-error').text();
+                $('.modal-body-error').text(a.responseText);
             }
+            $('#error-modal').modal('show');
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
