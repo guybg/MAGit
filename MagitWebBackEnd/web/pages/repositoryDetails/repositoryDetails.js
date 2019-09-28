@@ -13,6 +13,7 @@ $(function() {
             error: function (a) {
                 $('.modal-body-error').text(a.responseText);
                 $('#error-modal').modal('show');
+
             },
             success: function(a) {
                 createBranchView($.parseJSON(a));
@@ -20,6 +21,20 @@ $(function() {
             }
         })
 
+    });
+    $("#create-rtb-btn").click(function() {
+        $.ajax({
+            type: 'GET',
+            url: buildUrlWithContextPath("createRtb"),
+            data: $(this).parent().parent().parent().attr('name'),
+            timeout: 2000,
+            error: function () {
+
+            },
+            success: function () {
+
+            }
+        })
     });
     getRepositoryDetails();
 });
@@ -135,8 +150,8 @@ function changeHead() {
         url: checkoutUrl,
         error : function (a) {
             if (a.responseText.includes("checkout into a remote branch")) {
-                $("#rtb-modal").text(a.responseText);
-                $("#rtb-modal").modal('show');
+                $(".rtb-body").text(a.responseText);
+                $("#rtb-modal").attr('name', branchName).modal('show');
             }
             else {
                 $('#error-modal').modal('show');
