@@ -46,8 +46,8 @@ function getRepositoryDetails() {
             $(".details-container").append(
                 "<div class='row main-container'></div>"
             );
-            $(".row-title").append(
-                "<div class='card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
+            $(".row-title").prepend(
+                "<div class='col-xl-6 col-sm-6 mb-6 square card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
                 "<div class='card-body'>" +
                 "<h4 class='card-title'>" + repositoryDetails.Repository.name + "</h4>" +
                 "<h6 class='card-subtitle mb-2 text-muted branches-count'>Number of Branches: " + $(".card-branch").length + "</h6>" +
