@@ -5,6 +5,8 @@ import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
 import com.magit.logic.system.objects.Branch;
+import com.magit.logic.system.objects.Commit;
+import com.magit.logic.system.objects.Repository;
 import com.magit.webLogic.utils.RepositoryUtils;
 import com.magit.webLogic.utils.notifications.AccountNotificationsManager;
 import com.magit.webLogic.utils.notifications.SingleNotification;
@@ -12,12 +14,13 @@ import com.magit.webLogic.utils.notifications.SingleNotification;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class UserAccount {
     @Expose(serialize = true)private String userName;
@@ -168,5 +171,32 @@ public class UserAccount {
         branchInfo.put("IsTracking",newBranch.getIsTracking().toString());
         branchInfo.put("TrackingAfter",newBranch.getTrackingAfter());
         return branchInfo;
+    }
+
+    public HashMap<String, HashMap<String,String>> getCommitsInfo(String id) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+        HashMap<String, HashMap<String,String>> commits = new HashMap<>();
+        Path pathToObjects = engines.get(id).getmRepositoryManager().getRepository().getObjectsFolderPath();
+        for (String sha1 : engines.get(id).guiGetAllCommitsOfRepository()) {
+            Commit currentCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjects.toString(), sha1));
+            commits.put(sha1, currentCommit.toHashMap());
+        }
+        List<String> branches = engines.get(id).getBranches().stream().map(b -> b.getBranchName()).collect(Collectors.toList());
+        String pathToBranches = engines.get(id).getmRepositoryManager().getRepository().getBranchDirectoryPath().toString();
+        for (String branchName : branches) {
+            Path pathToBranch = Paths.get(pathToBranches, branchName);
+            if (Files.notExists(pathToBranch))
+                continue;
+
+            File branchFile = new File(pathToBranch.toString());
+            String sha1 = Repository.readBranchContent(branchFile).get("sha1");
+            String branchesOfCommit = commits.get(sha1).get("Branches");
+            String valueToInsert = null;
+            if (branchesOfCommit.equals(""))
+                valueToInsert = branchName;
+            else
+                valueToInsert = String.format("%s, %s", branchesOfCommit, branchName);
+            commits.get(Repository.readBranchContent(branchFile).get("sha1")).put("Branches", valueToInsert);
+        }
+        return commits;
     }
 }

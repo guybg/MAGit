@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class Commit extends FileItem implements CommitRepresentative {
@@ -261,6 +262,16 @@ public class Commit extends FileItem implements CommitRepresentative {
         contentOfCommit.append(String.format("%s %s [%s]%s", linePrefix, "date/time", dateFormat.format(getCreationDate()), System.lineSeparator()));
 
         return contentOfCommit.toString();
+    }
+
+    public HashMap<String,String> toHashMap() {
+        HashMap<String,String> hashMap = new HashMap<>();
+        hashMap.put("Sha1", getSha1());
+        hashMap.put("Creator", mLastUpdater);
+        hashMap.put("Message", mCommitMessage);
+        hashMap.put("Date", mLastModified.toString());
+        hashMap.put("Branches", "");
+        return hashMap;
     }
 
     @Override

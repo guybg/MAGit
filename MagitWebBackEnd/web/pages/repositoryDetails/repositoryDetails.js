@@ -23,11 +23,27 @@ $(function() {
         })
 
     });
-    getRepositoryDetails();
+    $(".side-container").append(
+        "<table class='table table-hover'>" +
+        "<thead class='thead-dark'>" +
+        "<tr>" +
+        "<th scope='col'>#</th>" +
+        "<th scope='col'>Sha1</th>" +
+        "<th scope='col'>Creator</th>" +
+        "<th scope='col'>Message</th>" +
+        "<th scope='col'>Date</th>" +
+        "<th scope='col'>Pointed By</th>" +
+        "</tr>" +
+        "</thead>" +
+        "<tbody class='table-body'>" +
+        "</tbody>" +
+        "</table>)");
+    getRepositoryInfo();
+    getCommitsInfo();
 });
 var numOfBranches;
 
-function getRepositoryDetails() {
+function getRepositoryInfo() {
     var repositoryDetails;
     var id = window.location.href.split('=')[1];
     var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
@@ -141,25 +157,48 @@ function changeHead() {
         url: checkoutUrl,
         error : function (a) {
             if (a.responseText.includes("checkout into a remote branch")) {
-                //$('.modal-body-error').text("You are trying to checkout into a remote branch, this operation is forbidden." +
-                   // " Please checkout by using a remote tracking branch instead.");
                 errorToast("You are trying to checkout into a remote branch, this operation is forbidden." +
                     " Please checkout by using a remote tracking branch instead.",true);
             }
             else {
-               // $('#error-modal').modal('show');
-                //$('.modal-body-error').text(a.responseText);
                 errorToast(a.responseText,true)
             }
-           // $('#error-modal').modal('show');
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
-
         }
     })
 }
 
 function createBranch() {
     $('#create-branch-modal').modal('show');
+}
+
+function getCommitsInfo() {
+    $.ajax({
+        url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
+        data:{
+            'id': window.location.href.split('=')[1]
+            },
+        type: 'GET',
+        error: function (a) {
+
+        },
+        success: function(commitsInfo) {
+            var i = 0;
+            commitsInfo = $.parseJSON(commitsInfo);
+            for (var key in commitsInfo) {
+                $(".table-body").append(
+                    "<tr>"+
+                    "<th scope='row'>"+ (++i) +"</th>" +
+                    "<td>" + commitsInfo[key].Sha1 + "</td>" +
+                    "<td>" + commitsInfo[key].Creator + "</td>" +
+                    "<td>" + commitsInfo[key].Message + "</td>" +
+                    "<td>" + commitsInfo[key].Date + "</td>" +
+                    "<td>" + commitsInfo[key].Branches + "</td>" +
+                    "</tr>");
+            }
+        }
+        }
+    );
 }

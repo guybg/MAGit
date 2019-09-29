@@ -80,4 +80,12 @@
         <servlet-name>CreateBranchServlet</servlet-name>
         <url-pattern>/pages/repositoryDetails/createbranch</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CommitsInfoServlet</servlet-name>
+        <servlet-class>servlets.CommitsInfoServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CommitsInfoServlet</servlet-name>
+        <url-pattern>/pages/repositoryDetails/commitsInfo</url-pattern>
+    </servlet-mapping>
 </web-app>
