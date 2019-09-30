@@ -36,3 +36,11 @@ hr.style-four {
     background: #333;
     background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }
+
+.top-part{
+    background: #F8F9FA;
+}
+
+.bottom-part{
+    background: #F8F9FA;
+}

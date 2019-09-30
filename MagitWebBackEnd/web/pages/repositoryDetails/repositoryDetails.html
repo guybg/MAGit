@@ -55,7 +55,8 @@
                 <!--THE NOTIFICAIONS DROPDOWN BOX.-->
                 <div id="notifications">
                     <h3 class="notifications-center">Notifications</h3>
-                    <div id="notificationsArea" class="overflow-auto container-fluid no-padding" style="height:300px;"></div>
+                    <div id="notificationsArea" class="overflow-auto container-fluid no-padding"
+                         style="height:300px;"></div>
                     <div class="seeAll notifications-center"></div>
                 </div>
             </li>
@@ -93,43 +94,46 @@
                 </li>
                 <li class="breadcrumb-item active">Overview</li>
             </ol>
-            <div role="row"  id="main-container"></div>
+            <div role="row" id="main-container"></div>
             <div class="row" id="repository-upload"></div>
             <div class="row" id="repository-container"></div>
-            <div class="row container-fluid details-container">
-                <div class='row container-fluid row-title'>
-                    <div class="col-xl-6 col-sm-6 mb-6 square button-bar">
-                        <button type="button" class="btn btn-warning" id="create-branch-btn">
-                            <i class="fas fa-code-branch fa-3x"></i>
-                            <i>Create Branch</i>
-                        </button>
-                        <button type="button" class="btn btn-success btn-bar">
-                            <i class="fas fa-folder fa-3x"></i>
-                            <i>Update WC & Commit</i>
-                        </button>
-                        <button type="button" class="btn btn-info btn-bar">
-                            <i class="far fa-handshake fa-3x"></i>
-                            <i>Create Pull Request</i>
-                        </button>
-                        <button type="button" class="btn btn-secondary btn-bar">
-                            <i class="fas fa-tasks fa-3x"></i>
-                            <i>Manage Pull Request</i>
-                        </button>
+            <div class="container-fluid details-container"> <!-- -->
+                <div class="row">
+                    <div class='container-fluid top-part'>
+                        <div class="pb-2 border-top border-left border-right rounded-top row row-title">
+                            <div class="m-2 col-xl-5 col-sm-5 mb-5 square button-bar">
+                                <button type="button" class="btn btn-warning" id="create-branch-btn">
+                                    <i class="fas fa-code-branch fa-3x"></i>
+                                    <i>Create Branch</i>
+                                </button>
+                                <button type="button" class="btn btn-success btn-bar">
+                                    <i class="fas fa-folder fa-3x"></i>
+                                    <i>Update WC & Commit</i>
+                                </button>
+                                <button type="button" class="btn btn-info btn-bar">
+                                    <i class="far fa-handshake fa-3x"></i>
+                                    <i>Create Pull Request</i>
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-bar">
+                                    <i class="fas fa-tasks fa-3x"></i>
+                                    <i>Manage Pull Request</i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    <div class='pb-2 top-part border-bottom border-left border-right rounded-bottom container-fluid col-lg-12 overflow-auto'>
+                        <div class="p-2 row branches-container flex-row flex-lg-nowrap flex-md-nowrap"></div>
+                    </div>
+                    <div class="col-12"><br></bar></div>
+                    <div class="pt-2 bottom-part border rounded side-container jstree-container col-lg-12 overflow-auto"></div>
                 </div>
-                <div class='container col-lg-12 overflow-auto'>
-                    <div class="row branches-container flex-row flex-lg-nowrap flex-md-nowrap"></div>
-                </div>
-                <div class="col-12"><hr class="style-four"></div>
-                <div class="side-container jstree-container col-lg-12 overflow-auto">
-                </div>
-
             </div>
         </div>
     </div>
 
     <!--Error Modal-->
-    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+         aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -148,7 +152,8 @@
     </div>
 
     <!--Create Branch Modal-->
-    <div class="modal fade" id="create-branch-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="create-branch-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
