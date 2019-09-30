@@ -60,7 +60,7 @@ function getRepositoryInfo() {
             repositoryDetails = a;
             numOfBranches = repositoryDetails.Repository.branchesNum;
             $(".row-title").prepend(
-                "<div class='m-2 col-xl-5 col-sm-5 mb-5 square card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
+                "<div class='m-2 col-xl-5 col-sm-5 square card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
                 "<div class='card-body'>" +
                 "<h4 class='card-title'>" + repositoryDetails.Repository.name + "</h4>" +
                 "<h6 class='card-subtitle mb-2 text-muted branches-count'>Number of Branches: " + $(".card-branch").length + "</h6>" +
