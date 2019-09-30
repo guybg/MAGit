@@ -1,22 +1,20 @@
 .card-branch {
-    margin-top: 20px;
+
 }
 
 .main-container {
-    margin-top: 30px;
+
     overflow-y: auto;
     overflow-x: hidden;
-    height: 575px;
-    width: 52rem;
+
+
 }
 .buttons-column {
-    position: absolute;
-    left:575px;
-    top: 20px;
+    position: relative;
+
 }
 .btn-branch {
-    margin-top: 20px;
-    width:200px;
+
 }
 
 .button-bar {
@@ -24,13 +22,17 @@
 }
 
 .btn-bar {
-    width:260px;
+
 }
 
 .side-container{
-    position: absolute;
-    width: 48%;
-    left:51.5%;
-    top:22%;
-    height:700px
+    position: relative;
+
+}
+
+hr.style-four {
+    border: 0;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, #333, #ccc);
 }

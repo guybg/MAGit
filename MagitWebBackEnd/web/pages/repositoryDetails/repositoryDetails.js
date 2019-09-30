@@ -37,7 +37,7 @@ $(function() {
         "</thead>" +
         "<tbody class='table-body'>" +
         "</tbody>" +
-        "</table>)");
+        "</table>");
     getRepositoryInfo();
     getCommitsInfo();
 });
@@ -59,9 +59,6 @@ function getRepositoryInfo() {
             //"{branchesNum=2, commitMessage=changed Foo PSVM to say hello to tao tao, activeBranch=master, name=rep 1, commitDate=Sun Jun 09 20:25:10 IDT 2019}{"HEAD":{"mBranchName":"master","mPointedCommitSha1":{"mSha1Code":"9e10ad75f3f2b5eea8ab9ba42263e742239ffc4e"},"mIsRemote":false,"mTracking":false},"test":{"mBranchName":"test","mPointedCommitSha1":{"mSha1Code":"013855ca533c572d3a29940f08048aa1ea8823ff"},"mIsRemote":false,"mTracking":false},"master":{"mBranchName":"master","mPointedCommitSha1":{"mSha1Code":"9e10ad75f3f2b5eea8ab9ba42263e742239ffc4e"},"mIsRemote":false,"mTracking":false}}"
             repositoryDetails = a;
             numOfBranches = repositoryDetails.Repository.branchesNum;
-            $(".details-container").append(
-                "<div class='row main-container'></div>"
-            );
             $(".row-title").prepend(
                 "<div class='col-xl-6 col-sm-6 mb-6 square card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
                 "<div class='card-body'>" +
@@ -74,21 +71,25 @@ function getRepositoryInfo() {
                 "</div>");
             delete repositoryDetails.Repository;
             for (var k in repositoryDetails) {
-                $(".main-container").append(
-                    "<div class='card card-branch' style='width: 50rem;background: rgba(255,196,157,0.74);'>" +
-                    "<div class='card-body'>" +
-                    "<h4 class='card-title'>Branch Name: " + k + "</h4>" +
-                    "<h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + repositoryDetails[k].Commit+ "</h6>" +
-                    "<h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + repositoryDetails[k].IsTracking + "</h6>" +
-                    "<h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + repositoryDetails[k].IsRemote + "</h6>" +
-                    "<h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + repositoryDetails[k].TrackingAfter + "</h6>" +
-                    "</div>" +
-                    "<div class='buttons-column col-lg-4'>" +
-                    "<button type='button' class='btn btn-branch delete-btn btn-danger'>Delete Branch</button>" +
-                    "<div class='divider'></div>" +
-                    "<button type='button' class='btn btn-branch head-btn btn-info'>Checkout as Head</button>" +
-                    "</div>" +
-                    "</div>");
+                $(".branches-container").append(
+                    "<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
+                    "   <div class=\"container\"><!--change-->\n" +
+                    "      <div class=\"row\"><!--change-->" +
+                    "         <div class='col-lg-8 align-self-start card-body'>\n" +
+                    "            <h4 class='card-title'>Branch Name: " + k + "</h4>\n" +
+                    "            <h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + repositoryDetails[k].Commit+ "</h6>\n" +
+                    "            <h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + repositoryDetails[k].IsTracking + "</h6>\n" +
+                    "            <h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + repositoryDetails[k].IsRemote + "</h6>\n" +
+                    "            <h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + repositoryDetails[k].TrackingAfter + "</h6>\n" +
+                    "         </div>\n" +
+                    "         <div class='col-lg-4 align-self-center buttons-column'>\n" +
+                    "            <button type='button' class='btn btn-branch delete-btn btn-danger w-100 col align-self-end'>Delete Branch</button>\n" +
+                    "            <div class='divider'></div>\n" +
+                    "            <button type='button' class='btn btn-branch head-btn btn-info w-100 align-self-end'>Checkout as Head</button>\n" +
+                    "         </div>\n" +
+                    "      </div>\n" +
+                    "   </div>\n" +
+                    "</div>\n");
                 $(".card-branch").last().attr('name', k);
                 $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
             }
@@ -99,20 +100,24 @@ function getRepositoryInfo() {
 }
 
 function createBranchView(branchDetails) {
-    $(".main-container").append(
-        "<div class='card card-branch' style='width: 50rem;background: rgba(255,196,157,0.74);'>" +
-        "<div class='card-body'>" +
-        "<h4 class='card-title'>Branch Name: " + branchDetails.Name + "</h4>" +
-        "<h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + branchDetails.Commit+ "</h6>" +
-        "<h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + branchDetails.IsTracking + "</h6>" +
-        "<h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + branchDetails.IsRemote + "</h6>" +
-        "<h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + branchDetails.TrackingAfter + "</h6>" +
-        "</div>" +
-        "<div class='buttons-column col-lg-4'>" +
-        "<button type='button' class='btn btn-branch delete-btn btn-danger'>Delete Branch</button>" +
-        "<div class='divider'></div>" +
-        "<button type='button' class='btn btn-branch head-btn btn-info'>Checkout as Head</button>" +
-        "</div>" +
+    $(".branches-container").append(
+        "<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
+        "   <div class=\"container\"><!--change-->\n" +
+        "      <div class=\"row\"><!--change-->" +
+        "         <div class='col-lg-8 align-self-start card-body'>\n" +
+        "            <h4 class='card-title'>Branch Name: " + branchDetails.Name + "</h4>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + branchDetails.Commit+ "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + branchDetails.IsTracking + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + branchDetails.IsRemote + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + branchDetails.TrackingAfter + "</h6>\n" +
+        "         </div>\n" +
+        "         <div class='col-lg-4 align-self-center buttons-column'>\n" +
+        "            <button type='button' class='btn btn-branch delete-btn btn-danger w-100 col align-self-end'>Delete Branch</button>\n" +
+        "            <div class='divider'></div>\n" +
+        "            <button type='button' class='btn btn-branch head-btn btn-info w-100 align-self-end'>Checkout as Head</button>\n" +
+        "         </div>\n" +
+        "      </div>\n" +
+        "   </div>\n" +
         "</div>");
     $(".card-branch").last().attr('name', branchDetails.Name);
     $(".delete-btn").last().click(deleteBranch);
@@ -124,7 +129,7 @@ function deleteBranch() {
     var deleteBranchUrl = buildUrlWithContextPath("deleteBranch");
     var id = window.location.href.split('=')[1];
     var branch = $(this);
-    var branchName = $(this).parent().parent().attr('name');
+    var branchName =  $(this).parent().parent().parent().parent().attr('name');
     $.ajax( {
         data: {
             name: branchName,
@@ -138,7 +143,7 @@ function deleteBranch() {
             $('.modal-body-error').text(a.responseText);
         },
         success: function() {
-            branch.parent().parent().remove();
+            branch.parent().parent().parent().parent().remove();
             $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
         }
     })
@@ -147,7 +152,7 @@ function deleteBranch() {
 function changeHead() {
     var id = window.location.href.split('=')[1];
     var checkoutUrl = buildUrlWithContextPath("checkout");
-    var branchName = $(this).parent().parent().attr('name');
+    var branchName = $(this).parent().parent().parent().parent().attr('name');
     $.ajax( {
         data: {
             name: branchName,
