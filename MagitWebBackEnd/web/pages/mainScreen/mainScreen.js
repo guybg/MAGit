@@ -12,7 +12,34 @@ var notificationsversion = 0;
 var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
-    var repository = $("" +
+    var repository = $("<div class=\"col-xl-3 col-sm-12 col-md-6\">\n" +
+        "        <div class=\"card text-dark bg-light\">\n" +
+        "            <div class=\"card-header bg-dark text-center text-light\">"+details.name+"</div>\n" +
+        "            <div class=\"card-body\">\n" +
+        "                <h5 class=\"card-title\">Repository details</h5>\n" +
+        "                \n" +
+        "                <div class=\"col-xl-12 col-sm-12\">\n" +
+        "                    Active branch:" +
+        "                    <span class=\"text-wrap text-break font-weight-bold\">"+details.activeBranch+"</span>\n" +
+        "                </div>\n" +
+        "                <div class=\"col-xl-12 col-sm-12\">\n" +
+        "                    Branches:" +
+        "                    <span class=\"text-wrap text-break font-weight-bold\">"+details.branchesNum+"</span>\n" +
+        "                </div>\n" +
+        "                <div class=\"col-xl-12 col-sm-12\">\n" +
+        "                    Commit date:" +
+        "                    <span class=\"text-wrap text-break font-weight-bold\">"+details.commitDate+"</span>\n" +
+        "                </div>\n" +
+        "                <div class=\"col-xl-12 col-sm-12\">\n" +
+        "                    Commit message:" +
+        "                    <span class=\"text-wrap text-break font-weight-bold\">"+details.commitMessage+"</span>\n" +
+        "                </div>\n" +
+        "               <br>\n" +
+        "                <a " +"id="+ repoId+ " href=\"#\" class=\"btn btn-primary rep-details\">Manage</a>\n" +
+        "            </div>\n" +
+        "        </div>\n" +
+        "    </div>")
+    var repository1 = $("" +
         "<div class=\"col-xl-12 col-sm-12 mb-12\">" +
         "<div class=\"card text-dark bg-light\">\n" +
         "    <div id=\"card-header-edit\"  class=\"card-header bg-dark text-center text-light\"><h4>"+details.name+"</h4></div>\n" +
