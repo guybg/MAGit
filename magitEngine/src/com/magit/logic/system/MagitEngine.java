@@ -17,6 +17,7 @@ import com.magit.logic.utils.compare.Delta.DeltaFileItem;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
+import com.magit.logic.utils.file.WorkingCopyUtils;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
 import org.apache.commons.io.FileUtils;
@@ -413,6 +414,13 @@ public class MagitEngine {
         }
 
         return sha1sOfCommit;
+    }
+
+    public Tree getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        String pathToRepository = mRepositoryManager.getRepository().getRepositoryPath().toString();
+        Path pathToCommit = Paths.get(mRepositoryManager.getRepository().getObjectsFolderPath().toString(), sha1);
+        return WorkingCopyUtils.getWorkingCopyTreeFromCommit
+                (Commit.createCommitInstanceByPath(pathToCommit),pathToRepository);
     }
 }
 
