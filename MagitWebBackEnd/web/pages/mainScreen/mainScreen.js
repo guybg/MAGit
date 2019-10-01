@@ -598,9 +598,9 @@ function createNotificationEntry (entry){
    // entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
     return $("<div class=\"w-100 p-1 toast fade show toast-notification\">\n" +
         "                                    <div class=\"toast-header\">\n" +
-        "                                        <strong class=\"mr-auto\"><i class=\"fa fa-globe\"></i> "+entry.message+" </strong>\n" +
+        "                                        <strong class=\"mr-auto\"><i class=\"fa fa-globe\"></i> "+ entry.username+" </strong>\n" +
         "                                        <small class=\"text-muted\"> "+ new Date(entry.time).toLocaleString()+" </small>\n" +
         "                                    </div>\n" +
-        "                                    <div class=\"toast-body\"> "+ entry.username+" </div>\n" +
+        "                                    <div class=\"toast-body\"> "+entry.message+" </div>\n" +
         "                                </div>");
 }
