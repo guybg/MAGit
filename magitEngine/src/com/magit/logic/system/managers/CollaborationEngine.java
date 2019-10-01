@@ -152,7 +152,7 @@ public class CollaborationEngine {
     }
 
     public void createPullRequest(MagitEngine engineOfSender, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException {
-        PullRequest requestDetails = new PullRequest(engineOfSender.getCollaborationEngine().pullRequests.size() ,engineOfSender.getUserName(),targetBranchName,baseBranchName,new Date().toString(),message,PullRequestStatus.Open);
+        PullRequest requestDetails = new PullRequest(pullRequests.size() ,engineOfSender.getUserName(),targetBranchName,baseBranchName,new Date().toString(),message,PullRequestStatus.Open);
         engineOfSender.push(); // creates branch at receiver, rb, rtb at sender
         //MagitEngine engineOfReceiver = new MagitEngine();
         //engineOfReceiver.switchRepository(Paths.get(engineOfSender.getmRepositoryManager().getRepository().getRemoteReference().getLocation()).toString());
@@ -163,8 +163,14 @@ public class CollaborationEngine {
         pullRequests.get(requestId).setStatus(PullRequestStatus.Rejected);
     }
 
-    public void acceptPullRequest(MagitEngine engine, int requestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
-        engine.merge(pullRequests.get(requestId).targetBranch, false);
+    public void acceptPullRequest(MagitEngine engine, int requestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, BranchNotFoundException, RemoteBranchException, WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, WorkingCopyIsEmptyException, FastForwardException {
+        engine.switchRepository(engine.guiGetRepositoryPath());
+        engine.pickHeadBranch(pullRequests.get(requestId).baseBranch);
+        try {
+            engine.merge(pullRequests.get(requestId).targetBranch, false);
+        } catch (FastForwardException e) {
+            engine.commit("message");
+        }
         pullRequests.get(requestId).setStatus(PullRequestStatus.Closed);
     }
 
@@ -186,6 +192,34 @@ public class CollaborationEngine {
             this.date = date;
             this.message = message;
             this.status = status;
+        }
+
+        public String getRequestId() {
+            return requestId;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public String getTargetBranch() {
+            return targetBranch;
+        }
+
+        public String getBaseBranch() {
+            return baseBranch;
+        }
+
+        public String getDate() {
+            return date;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public PullRequestStatus getStatus() {
+            return status;
         }
 
         public void setStatus(PullRequestStatus status) {

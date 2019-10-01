@@ -33,6 +33,7 @@ public class PullRequestServlet extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response) {
         String action = request.getParameter("pr-action");
+        String applicantName = request.getParameter("applicant");
         String targetBranch = request.getParameter("target-branch");
         String baseBranch = request.getParameter("base-branch");
         String repositoryId = request.getParameter("repository-id");
@@ -48,10 +49,11 @@ public class PullRequestServlet extends HttpServlet {
             account = userManager.getUsers().get(usernameFromSession);
             remoteId = account.getRepositories().get(repositoryId).get("remote-id");
             remoteUserName = account.getRepositories().get(repositoryId).get("remote-user");
+            UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
             if (action.equals("pr-create")) {
-                UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
                 try {
                     account.createPullRequest(receiverUserAccount, remoteId, account.getRepositories().get(repositoryId).get("activeBranch"),baseBranch, message, repositoryId);
+                    receiverUserAccount.addNotification(account.getUserName(),"New pull request to repository with id: " + remoteId);
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (RepositoryNotFoundException e) {
@@ -75,7 +77,14 @@ public class PullRequestServlet extends HttpServlet {
                 }
             } else if (action.equals("pr-reject")) {
                 try {
-                    account.rejectPullRequest(Integer.parseInt(requestId));
+                    account.rejectPullRequest(repositoryId,Integer.parseInt(requestId));
+                    userManager.getUsers().get(applicantName).addNotification(account.getUserName(),"Pull request reject into repository with id " +repositoryId);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println("Pull request rejected");
+                        out.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } catch (UnhandledMergeException e) {
                     e.printStackTrace();
                 } catch (MergeNotNeededException e) {
@@ -91,22 +100,47 @@ public class PullRequestServlet extends HttpServlet {
                 }
             } else if (action.equals("pr-accept")) {
                 try {
+                    response.setContentType("test/html");
                     account.acceptPullRequest(repositoryId, Integer.parseInt(requestId));
+                    userManager.getUsers().get(applicantName).addNotification(account.getUserName(),"Pull request accepted into repository with id " +repositoryId);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println("Pull request accepted");
+                        out.flush();
+                    }
                 } catch (UnhandledMergeException e) {
                     e.printStackTrace();
                 } catch (MergeNotNeededException e) {
                     e.printStackTrace();
                 } catch (RepositoryNotFoundException e) {
                     e.printStackTrace();
-                } catch (MergeException e) {
+                } catch (UncommitedChangesException | MergeException | FastForwardException e) {
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(e.getMessage());
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                } catch (PreviousCommitsLimitExceededException e) {
                     e.printStackTrace();
-                } catch (UncommitedChangesException e) {
+                } catch (InvalidNameException e) {
                     e.printStackTrace();
-                } catch (FastForwardException e) {
+                } catch (RemoteBranchException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (BranchNotFoundException e) {
+                    e.printStackTrace();
+                } catch (WorkingCopyIsEmptyException e) {
+                    e.printStackTrace();
+                } catch (UnhandledConflictsException e) {
+                    e.printStackTrace();
+                } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {
                     e.printStackTrace();
                 }
             } else if (action.equals("pr-show")) {//show prs
-                Gson gson = new Gson();
+                    Gson gson = new Gson();
                 String prs = gson.toJson(account.getPullRequests(repositoryId));
                 try (PrintWriter out = response.getWriter()) {
                     out.println(prs);
