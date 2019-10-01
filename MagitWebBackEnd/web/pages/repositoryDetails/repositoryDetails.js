@@ -183,7 +183,6 @@ function changeHead() {
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
-            $(".side-container").empty();
             getCommitsInfo();
         }
     })
@@ -197,6 +196,7 @@ function createPr() {
 }
 
 function getCommitsInfo() {
+    $(".side-container").empty();
     $(".side-container").append(
         "<table class='table table-hover'>" +
         "<thead class='thead-dark'>" +
@@ -226,7 +226,7 @@ function getCommitsInfo() {
                 commitsInfo = $.parseJSON(commitsInfo);
                 for (var key in commitsInfo) {
                     $(".table-body").append(
-                        "<tr>" +
+                        "<tr onclick='createTreeView(this)' id=" + commitsInfo[key].Sha1 + ">" +
                         "<th scope='row'>" + (++i) + "</th>" +
                         "<td>" + commitsInfo[key].Sha1 + "</td>" +
                         "<td>" + commitsInfo[key].Creator + "</td>" +
@@ -351,6 +351,23 @@ function rejectPullRequest(pr) {
         error: function (prs) {},
         success: function(prs) {
             showPullRequests();
+        }
+    })
+}
+function createTreeView(tableRow) {
+    $.ajax({
+        url: buildUrlWithContextPath("createTreeView"),
+        data: {
+            'id': window.location.href.split('=')[1],
+            'sha1': tableRow.id
+        },
+        type: 'GET',
+        error : function() {
+
+        },
+        success: function(responseContent) {
+            console.log(responseContent);
+            var s = $.parseJSON(responseContent);
         }
     })
 }
