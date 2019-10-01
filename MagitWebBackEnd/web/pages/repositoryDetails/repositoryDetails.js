@@ -21,7 +21,6 @@ $(function() {
                 $('#create-branch-modal').modal('hide');
             }
         })
-
     });
     $(".side-container").append(
         "<table class='table table-hover'>" +
@@ -40,6 +39,33 @@ $(function() {
         "</table>");
     getRepositoryInfo();
     getCommitsInfo();
+
+    $("#manage-prs").click(function () {
+        showPullRequests();
+    })
+
+
+    $("#create-pr").click(createPr);
+    $('#create-pr-form').submit(function (e) {
+        e.preventDefault();
+        var id = window.location.href.split('=')[1];
+        createPullRequest($('#target-branch').val(),$('#base-branch').val(),$("#pr-create-message").val());
+       // $.ajax({
+       //     type: $(this).attr('method'),
+       //     url: $(this).attr('action'),
+       //     data: {branchName: $("#branch-name",this).val(), id: id},
+       //     timeout: 2000,
+       //     error: function (a) {
+       //         $('.modal-body-error').text(a.responseText);
+       //         $('#error-modal').modal('show');
+//
+       //     },
+       //     success: function(a) {
+       //         createPullRequest($.parseJSON(a));
+       //         $('#create-branch-modal').modal('hide');
+       //     }
+       // })
+    });
 });
 var numOfBranches;
 
@@ -68,6 +94,7 @@ function getRepositoryInfo() {
                 "<h6 class='card-subtitle mb-2 text-muted'>Last Commit Date: " + repositoryDetails.Repository.commitDate + "</h6>" +
                 "<h6 class='card-subtitle mb-2 text-muted'>Last Commit Message: " + repositoryDetails.Repository.commitMessage + "</h6>" +
                 "</div>" +
+                "<div id="+ repositoryDetails.Repository.id + " class='remote-id'></div>" +
                 "</div>");
             delete repositoryDetails.Repository;
             for (var k in repositoryDetails) {
@@ -178,32 +205,101 @@ function changeHead() {
 function createBranch() {
     $('#create-branch-modal').modal('show');
 }
+function createPr() {
+    $('#create-pr-modal').modal('show');
+}
 
 function getCommitsInfo() {
     $.ajax({
-        url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
-        data:{
-            'id': window.location.href.split('=')[1]
+            url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
+            data: {
+                'id': window.location.href.split('=')[1]
             },
-        type: 'GET',
-        error: function (a) {
+            type: 'GET',
+            error: function (a) {
 
-        },
-        success: function(commitsInfo) {
-            var i = 0;
-            commitsInfo = $.parseJSON(commitsInfo);
-            for (var key in commitsInfo) {
-                $(".table-body").append(
-                    "<tr>"+
-                    "<th scope='row'>"+ (++i) +"</th>" +
-                    "<td>" + commitsInfo[key].Sha1 + "</td>" +
-                    "<td>" + commitsInfo[key].Creator + "</td>" +
-                    "<td>" + commitsInfo[key].Message + "</td>" +
-                    "<td>" + commitsInfo[key].Date + "</td>" +
-                    "<td>" + commitsInfo[key].Branches + "</td>" +
-                    "</tr>");
+            },
+            success: function (commitsInfo) {
+                var i = 0;
+                commitsInfo = $.parseJSON(commitsInfo);
+                for (var key in commitsInfo) {
+                    $(".table-body").append(
+                        "<tr>" +
+                        "<th scope='row'>" + (++i) + "</th>" +
+                        "<td>" + commitsInfo[key].Sha1 + "</td>" +
+                        "<td>" + commitsInfo[key].Creator + "</td>" +
+                        "<td>" + commitsInfo[key].Message + "</td>" +
+                        "<td>" + commitsInfo[key].Date + "</td>" +
+                        "<td>" + commitsInfo[key].Branches + "</td>" +
+                        "</tr>");
+                }
             }
         }
-        }
     );
+}
+
+function createPullRequest(targetBranch, baseBranch, message) {
+    $.ajax({
+        url: buildUrlWithContextPath("pullrequest"),
+        data:{
+            'repository-id': window.location.href.split('=')[1],
+            'request-id' : "none",
+            'target-branch' : targetBranch,
+            'base-branch' : baseBranch,
+            'message' : message,
+            'pr-action' : "pr-create"
+        },
+        type: 'GET',
+        error: function (a) {},
+        success: function(a) {
+            showPullRequests();
+        }
+    })
+}
+
+function showPullRequests() {
+    $(".side-container").empty();
+    $.ajax({
+        type: $(this).attr('method'),
+        url: buildUrlWithContextPath("pullrequest"),
+        data:{
+            'repository-id': window.location.href.split('=')[1],
+            'request-id' : 'none',
+            'target-branch' : 'none',
+            'base-branch' : 'none',
+            'message' : "static for now",
+            'pr-action' : "pr-show"
+        },
+        type: 'GET',
+        error: function (prs) {},
+        success: function(prs) {
+            $(".side-container").append($("<div class='container'><div class='row pull-requests'></div></div>"))
+            $.each(prs || [], printPullRequest);
+        }
+    })
+}
+
+function printPullRequest(id, pr) {
+    pr = $("<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
+        "   <div class=\"container\"><!--change-->\n" +
+        "      <div class=\"row\"><!--change-->" +
+        "         <div class='col-lg-12 align-self-start card-body'>\n" +
+        "            <h4 class='card-title'>From: " + pr.userName + "</h4>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Target branch: " + pr.targetBranch+ "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Base branch: " + pr.baseBranch + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Date: " + pr.date + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Request message: " + pr.message + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Status: " + pr.status + "</h6>\n" +
+        "         </div>\n" +
+        "         <div class='col-lg-12 align-self-center buttons-column'>\n" +
+        "            <button type='button' class='btn btn-branch delete-btn btn-info w-100 col align-self-end'>Accept PR</button>\n" +
+        "            <div class='divider'></div>\n" +
+        "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end'>Reject PR</button>\n" +
+        "         </div>\n" +
+        "      </div>\n" +
+        "   </div>\n" +
+        "</div>");
+
+    $(".pull-requests").append(pr);
+
 }

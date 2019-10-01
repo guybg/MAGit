@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.Runnable.ImportRepositoryRunnable;
+import com.magit.logic.system.managers.CollaborationEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -69,6 +70,8 @@ public class UserAccount {
             engines.put(id, new MagitEngine());
             engines.get(id).updateUserName(userName);
             engines.get(id).switchRepository(Paths.get(userPath, id).toString());
+        }else{
+            engines.get(id).switchRepository(Paths.get(userPath, id).toString());
         }
     }
 
@@ -92,7 +95,14 @@ public class UserAccount {
                 loadRepository(id);
             MagitEngine engine = engines.get(id);
             String commitDate="No commit",commitMessage="No commit";
-            HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage, engine);
+            String remoteId = "none";
+            String remoteUserName = "";
+            if(engine.getmRepositoryManager().getRepository().getRemoteReference() !=null){
+                String location = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation();
+                remoteId = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation().split("\\\\")[3];
+                remoteUserName = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation().split("\\\\")[2];
+            }
+            HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage,remoteId,remoteUserName, engine);
             repositories.put(id, details);
         }
     }
@@ -109,7 +119,9 @@ public class UserAccount {
         engine1.switchRepository(clonedPath);
         repositories.put(serialNumber,RepositoryUtils.setRepositoryDetailsMap(cloneName,
                 repositoryToCLoneDetails.get("commitDate"),
-                repositoryToCLoneDetails.get("commitMessage"),engine1));
+                repositoryToCLoneDetails.get("commitMessage"),
+                repositoryToCLoneDetails.get("remote-id"),
+                repositoryToCLoneDetails.get("remote-user"),engine1));
     }
 
     public void setOnlineStatus(boolean status){
@@ -120,7 +132,8 @@ public class UserAccount {
         return online;
     }
 
-    public HashMap<String, HashMap<String,String>> getRepositoryInfo(String id) {
+    public HashMap<String, HashMap<String,String>> getRepositoryInfo(String id) throws IOException, InvalidNameException, ParseException, RepositoryNotFoundException {
+        loadRepository(id);
         return engines.get(id).getRepositoryInfo(repositories.get(id));
     }
 
@@ -198,5 +211,21 @@ public class UserAccount {
             commits.get(Repository.readBranchContent(branchFile).get("sha1")).put("Branches", valueToInsert);
         }
         return commits;
+    }
+
+    public void createPullRequest(UserAccount receiverUser,String engineIdOfReceiver, String targetBranchName,String baseBranchName,String message,String engineId) throws IOException, RepositoryNotFoundException, RemoteReferenceException, PushException, UnhandledMergeException, CommitNotFoundException, ParseException, UncommitedChangesException, RemoteBranchException, PreviousCommitsLimitExceededException {
+        receiverUser.engines.get(engineIdOfReceiver).createPullRequest(engines.get(engineId),targetBranchName,baseBranchName,message);
+    }
+
+    public void acceptPullRequest(String engineId,int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        engines.get(engineId).acceptPullRequest(pullRequestId);
+    }
+
+    public void rejectPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+       // collaborationEngine.rejectPullRequest(pullRequestId);
+    }
+
+    public ArrayList<CollaborationEngine.PullRequest> getPullRequests(String id){
+        return engines.get(id).getCollaborationEngine().getPullRequests();
     }
 }

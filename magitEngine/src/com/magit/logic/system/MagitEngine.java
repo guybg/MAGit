@@ -373,6 +373,22 @@ public class MagitEngine {
         }
         return repositoryInfo;
     }
+
+    public void createPullRequest(MagitEngine engineOfSender, String targetBranchName,String baseBranchName,String message) throws IOException, RepositoryNotFoundException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException {
+        collaborationEngine.createPullRequest(engineOfSender,targetBranchName,baseBranchName,message);
+    }
+
+    public void acceptPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        collaborationEngine.acceptPullRequest(this, pullRequestId);
+    }
+
+    public void rejectPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        collaborationEngine.rejectPullRequest(pullRequestId);
+    }
+
+    public CollaborationEngine getCollaborationEngine() {
+        return collaborationEngine;
+    }
 }
 
 

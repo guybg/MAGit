@@ -12,10 +12,27 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 public class CollaborationEngine {
+    ArrayList<PullRequest> pullRequests;
     private final String BLANK_SPACE = " \t\u00A0\u1680\u180e\u2000\u200a\u202f\u205f\u3000\u2800";
-    public void cloneRepository(String pathToMagitRepository, String destinationPath,String cloneName, BranchManager branchManager) throws IOException, IllegalPathException, CloneException, InvalidNameException {
+
+    public CollaborationEngine() {
+        this.pullRequests = new ArrayList<>();
+    }
+
+    public ArrayList<PullRequest> getPullRequests() {
+        return pullRequests;
+    }
+
+    public void addPullRequest(PullRequest pullRequest) {
+        this.pullRequests.add(pullRequest);
+    }
+
+    public void cloneRepository(String pathToMagitRepository, String destinationPath, String cloneName, BranchManager branchManager) throws IOException, IllegalPathException, CloneException, InvalidNameException {
         if(!isValid(pathToMagitRepository)){
             throw new CloneException("Source repository is invalid");
         }
@@ -134,5 +151,45 @@ public class CollaborationEngine {
                 && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, FileHandler.readFile(pathToHead.toString())));
     }
 
+    public void createPullRequest(MagitEngine engineOfSender, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException {
+        PullRequest requestDetails = new PullRequest(engineOfSender.getCollaborationEngine().pullRequests.size() ,engineOfSender.getUserName(),targetBranchName,baseBranchName,new Date().toString(),message,PullRequestStatus.Open);
+        engineOfSender.push(); // creates branch at receiver, rb, rtb at sender
+        //MagitEngine engineOfReceiver = new MagitEngine();
+        //engineOfReceiver.switchRepository(Paths.get(engineOfSender.getmRepositoryManager().getRepository().getRemoteReference().getLocation()).toString());
+        addPullRequest(requestDetails);
+    }
 
+    public void rejectPullRequest(int requestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        pullRequests.get(requestId).setStatus(PullRequestStatus.Rejected);
+    }
+
+    public void acceptPullRequest(MagitEngine engine, int requestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        engine.merge(pullRequests.get(requestId).targetBranch, false);
+        pullRequests.get(requestId).setStatus(PullRequestStatus.Closed);
+    }
+
+    private enum PullRequestStatus{Open, Closed, Rejected}
+    public class PullRequest{
+        String requestId;
+        String userName;
+        String targetBranch;
+        String baseBranch;
+        String date;
+        String message;
+        PullRequestStatus status;
+
+        public PullRequest(Integer requestId,String userName, String targetBranch, String baseBranch, String date, String message, PullRequestStatus status) {
+            this.requestId = requestId.toString();
+            this.userName = userName;
+            this.targetBranch = targetBranch;
+            this.baseBranch = baseBranch;
+            this.date = date;
+            this.message = message;
+            this.status = status;
+        }
+
+        public void setStatus(PullRequestStatus status) {
+            this.status = status;
+        }
+    }
 }

@@ -57,6 +57,12 @@ public class RepositoryDetailsServlet extends HttpServlet {
                 prepareRedirectAjaxResponse(request ,response, info);
             } catch (IOException e) {
                 e.printStackTrace();
+            } catch (InvalidNameException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            } catch (RepositoryNotFoundException e) {
+                e.printStackTrace();
             }
         }
     }
