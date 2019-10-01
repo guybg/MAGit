@@ -22,27 +22,12 @@ $(function() {
             }
         })
     });
-    $(".side-container").append(
-        "<table class='table table-hover'>" +
-        "<thead class='thead-dark'>" +
-        "<tr>" +
-        "<th scope='col'>#</th>" +
-        "<th scope='col'>Sha1</th>" +
-        "<th scope='col'>Creator</th>" +
-        "<th scope='col'>Message</th>" +
-        "<th scope='col'>Date</th>" +
-        "<th scope='col'>Pointed By</th>" +
-        "</tr>" +
-        "</thead>" +
-        "<tbody class='table-body'>" +
-        "</tbody>" +
-        "</table>");
     getRepositoryInfo();
-    getCommitsInfo();
 
     $("#manage-prs").click(function () {
         showPullRequests();
-    })
+    });
+    $("#create-commit-history").click(getCommitsInfo);
 
 
     $("#create-pr").click(createPr);
@@ -198,6 +183,8 @@ function changeHead() {
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
+            $(".side-container").empty();
+            getCommitsInfo();
         }
     })
 }
@@ -210,6 +197,21 @@ function createPr() {
 }
 
 function getCommitsInfo() {
+    $(".side-container").append(
+        "<table class='table table-hover'>" +
+        "<thead class='thead-dark'>" +
+        "<tr>" +
+        "<th scope='col'>#</th>" +
+        "<th scope='col'>Sha1</th>" +
+        "<th scope='col'>Creator</th>" +
+        "<th scope='col'>Message</th>" +
+        "<th scope='col'>Date</th>" +
+        "<th scope='col'>Pointed By</th>" +
+        "</tr>" +
+        "</thead>" +
+        "<tbody class='table-body'>" +
+        "</tbody>" +
+        "</table>");
     $.ajax({
             url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
             data: {
@@ -301,5 +303,4 @@ function printPullRequest(id, pr) {
         "</div>");
 
     $(".pull-requests").append(pr);
-
 }

@@ -16,6 +16,7 @@ import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.compare.Delta.DeltaFileItem;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
 import org.apache.commons.io.FileUtils;
@@ -388,6 +389,30 @@ public class MagitEngine {
 
     public CollaborationEngine getCollaborationEngine() {
         return collaborationEngine;
+    }
+
+    public ArrayList<String> getHeadBranchCommits() throws IOException {
+        ArrayList<String> sha1sOfCommit = new ArrayList<>();
+        LinkedList<String> sha1Queue = new LinkedList<>();
+        String sha1OfActiveBranch = mBranchManager.getActiveBranch().getPointedCommitSha1().toString();
+        String pathToObjectsFolder = mRepositoryManager.getRepository().getObjectsFolderPath().toString();
+        sha1Queue.add(sha1OfActiveBranch);
+        sha1sOfCommit.add(sha1OfActiveBranch);
+
+        while (!sha1Queue.isEmpty()) {
+            String currentCommitSha1 = sha1Queue.poll();
+            String commitFileContent = FileItemHandler.zipToString(pathToObjectsFolder, currentCommitSha1);
+            String previousCommitsHistory = commitFileContent.split(System.lineSeparator())[1];
+            String[] separatedCommitsLine = previousCommitsHistory.split(" = ");
+            if (separatedCommitsLine.length <= 1)
+                continue;
+            String sha1sToAdd = separatedCommitsLine[1];
+            List<String> sha1List = Arrays.asList(sha1sToAdd.split(";"));
+            sha1sOfCommit.addAll(sha1List);
+            sha1Queue.addAll(sha1List);
+        }
+
+        return sha1sOfCommit;
     }
 }
 
