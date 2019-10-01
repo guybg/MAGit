@@ -282,7 +282,7 @@ function showPullRequests() {
 }
 
 function printPullRequest(id, pr) {
-    pr = $("<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
+    pullRequest = $("<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
         "   <div class=\"container\"><!--change-->\n" +
         "      <div class=\"row\"><!--change-->" +
         "         <div class='col-lg-12 align-self-start card-body'>\n" +
@@ -294,17 +294,66 @@ function printPullRequest(id, pr) {
         "            <h6 class='card-subtitle mb-2 text-muted'>Status: " + pr.status + "</h6>\n" +
         "         </div>\n" +
         "         <div class='col-lg-12 align-self-center buttons-column'>\n" +
-        "            <button type='button' class='btn btn-branch delete-btn btn-info w-100 col align-self-end'>Accept PR</button>\n" +
+        "            <button type='button' class='btn btn-branch delete-btn btn-info w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
         "            <div class='divider'></div>\n" +
-        "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end'>Reject PR</button>\n" +
+        "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +
         "         </div>\n" +
         "      </div>\n" +
         "   </div>\n" +
         "</div>");
-
-    $(".pull-requests").append(pr);
+    //{requestId:pr.requestId,targetBranch:pr.targetBranch,baseBranch:pr.baseBranch,message:pr.message}
+    var requestId = pr.requestId;
+    var targetBranch = pr.targetBranch;
+    var baseBranch = pr.baseBranch;
+    var message = pr.message;
+    $('.acceptPullRequest',pullRequest).on('click',pr,acceptPullRequest);
+    $('.rejectPullRequest',pullRequest).on('click',pr,rejectPullRequest);
+    $(".pull-requests").append(pullRequest);
 }
 
+function acceptPullRequest(pr) {
+    $(".side-container").empty();
+    $.ajax({
+        type: $(this).attr('method'),
+        url: buildUrlWithContextPath("pullrequest"),
+        data:{
+            'applicant' : pr.data.userName,
+            'repository-id': window.location.href.split('=')[1],
+            'request-id' : pr.data.requestId,
+            'target-branch' : pr.data.targetBranch,
+            'base-branch' : pr.data.baseBranch,
+            'message' : pr.data.message,
+            'pr-action' : "pr-accept"
+        },
+        type: 'GET',
+        error: function (prs) {},
+        success: function(prs) {
+            showPullRequests();
+        }
+    })
+}
+
+function rejectPullRequest(pr) {
+    $(".side-container").empty();
+    $.ajax({
+        type: $(this).attr('method'),
+        url: buildUrlWithContextPath("pullrequest"),
+        data:{
+            'applicant' : pr.data.userName,
+            'repository-id': window.location.href.split('=')[1],
+            'request-id' : pr.data.requestId,
+            'target-branch' : pr.data.targetBranch,
+            'base-branch' : pr.data.baseBranch,
+            'message' : pr.data.message,
+            'pr-action' : "pr-reject"
+        },
+        type: 'GET',
+        error: function (prs) {},
+        success: function(prs) {
+            showPullRequests();
+        }
+    })
+}
 function createTreeView(tableRow) {
     $.ajax({
         url: buildUrlWithContextPath("createTreeView"),

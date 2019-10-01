@@ -42,6 +42,10 @@ public class UserAccount {
         engines = new HashMap<>();
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
         MagitEngine engine = new MagitEngine();
         String serialNumber = getFreeRepositoryId();
@@ -172,7 +176,7 @@ public class UserAccount {
         notificationsManager.updateLastUpdatedNotificationsVersion();
     }
 
-    public synchronized void addNotification(String message, String userName){
+    public synchronized void addNotification(String userName, String message){
         notificationsManager.addNotification(new SingleNotification(message, userName));
     }
 
@@ -222,12 +226,12 @@ public class UserAccount {
         receiverUser.engines.get(engineIdOfReceiver).createPullRequest(engines.get(engineId),targetBranchName,baseBranchName,message);
     }
 
-    public void acceptPullRequest(String engineId,int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+    public void acceptPullRequest(String engineId,int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException, InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, BranchNotFoundException, RemoteBranchException, WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, WorkingCopyIsEmptyException {
         engines.get(engineId).acceptPullRequest(pullRequestId);
     }
 
-    public void rejectPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
-       // collaborationEngine.rejectPullRequest(pullRequestId);
+    public void rejectPullRequest(String engineId,int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        engines.get(engineId).rejectPullRequest(pullRequestId);
     }
 
     public ArrayList<CollaborationEngine.PullRequest> getPullRequests(String id){

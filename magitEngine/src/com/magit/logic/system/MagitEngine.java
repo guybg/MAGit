@@ -380,7 +380,7 @@ public class MagitEngine {
         collaborationEngine.createPullRequest(engineOfSender,targetBranchName,baseBranchName,message);
     }
 
-    public void acceptPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+    public void acceptPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException, InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, BranchNotFoundException, RemoteBranchException, WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, WorkingCopyIsEmptyException {
         collaborationEngine.acceptPullRequest(this, pullRequestId);
     }
 
