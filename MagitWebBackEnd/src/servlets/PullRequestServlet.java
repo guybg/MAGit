@@ -52,7 +52,7 @@ public class PullRequestServlet extends HttpServlet {
             UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
             if (action.equals("pr-create")) {
                 try {
-                    account.createPullRequest(receiverUserAccount, remoteId, account.getRepositories().get(repositoryId).get("activeBranch"),baseBranch, message, repositoryId);
+                    account.createPullRequest(receiverUserAccount, remoteId, targetBranch,baseBranch, message, repositoryId);
                     receiverUserAccount.addNotification(account.getUserName(),"New pull request to repository with id: " + remoteId);
                 } catch (IOException e) {
                     e.printStackTrace();

@@ -22,27 +22,12 @@ $(function() {
             }
         })
     });
-    $(".side-container").append(
-        "<table class='table table-hover'>" +
-        "<thead class='thead-dark'>" +
-        "<tr>" +
-        "<th scope='col'>#</th>" +
-        "<th scope='col'>Sha1</th>" +
-        "<th scope='col'>Creator</th>" +
-        "<th scope='col'>Message</th>" +
-        "<th scope='col'>Date</th>" +
-        "<th scope='col'>Pointed By</th>" +
-        "</tr>" +
-        "</thead>" +
-        "<tbody class='table-body'>" +
-        "</tbody>" +
-        "</table>");
     getRepositoryInfo();
-    getCommitsInfo();
 
     $("#manage-prs").click(function () {
         showPullRequests();
-    })
+    });
+    $("#create-commit-history").click(getCommitsInfo);
 
 
     $("#create-pr").click(createPr);
@@ -50,21 +35,21 @@ $(function() {
         e.preventDefault();
         var id = window.location.href.split('=')[1];
         createPullRequest($('#target-branch').val(),$('#base-branch').val(),$("#pr-create-message").val());
-       // $.ajax({
-       //     type: $(this).attr('method'),
-       //     url: $(this).attr('action'),
-       //     data: {branchName: $("#branch-name",this).val(), id: id},
-       //     timeout: 2000,
-       //     error: function (a) {
-       //         $('.modal-body-error').text(a.responseText);
-       //         $('#error-modal').modal('show');
+        // $.ajax({
+        //     type: $(this).attr('method'),
+        //     url: $(this).attr('action'),
+        //     data: {branchName: $("#branch-name",this).val(), id: id},
+        //     timeout: 2000,
+        //     error: function (a) {
+        //         $('.modal-body-error').text(a.responseText);
+        //         $('#error-modal').modal('show');
 //
-       //     },
-       //     success: function(a) {
-       //         createPullRequest($.parseJSON(a));
-       //         $('#create-branch-modal').modal('hide');
-       //     }
-       // })
+        //     },
+        //     success: function(a) {
+        //         createPullRequest($.parseJSON(a));
+        //         $('#create-branch-modal').modal('hide');
+        //     }
+        // })
     });
 });
 var numOfBranches;
@@ -198,6 +183,8 @@ function changeHead() {
         },
         success: function() {
             $(".head-title").text("Head Branch: " + branchName);
+            $(".side-container").empty();
+            getCommitsInfo();
         }
     })
 }
@@ -210,6 +197,21 @@ function createPr() {
 }
 
 function getCommitsInfo() {
+    $(".side-container").append(
+        "<table class='table table-hover'>" +
+        "<thead class='thead-dark'>" +
+        "<tr>" +
+        "<th scope='col'>#</th>" +
+        "<th scope='col'>Sha1</th>" +
+        "<th scope='col'>Creator</th>" +
+        "<th scope='col'>Message</th>" +
+        "<th scope='col'>Date</th>" +
+        "<th scope='col'>Pointed By</th>" +
+        "</tr>" +
+        "</thead>" +
+        "<tbody class='table-body'>" +
+        "</tbody>" +
+        "</table>");
     $.ajax({
             url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
             data: {
