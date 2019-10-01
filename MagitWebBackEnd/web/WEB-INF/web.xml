@@ -96,4 +96,12 @@
         <servlet-name>PullRequestServlet</servlet-name>
         <url-pattern>/pullrequest</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CreateTreeViewServlet</servlet-name>
+        <servlet-class>servlets.CreateTreeViewServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateTreeViewServlet</servlet-name>
+        <url-pattern>/createTreeView</url-pattern>
+    </servlet-mapping>
 </web-app>

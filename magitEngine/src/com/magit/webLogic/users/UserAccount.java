@@ -8,6 +8,7 @@ import com.magit.logic.system.managers.CollaborationEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
+import com.magit.logic.system.objects.Tree;
 import com.magit.webLogic.utils.RepositoryUtils;
 import com.magit.webLogic.utils.notifications.AccountNotificationsManager;
 import com.magit.webLogic.utils.notifications.SingleNotification;
@@ -231,5 +232,9 @@ public class UserAccount {
 
     public ArrayList<CollaborationEngine.PullRequest> getPullRequests(String id){
         return engines.get(id).getCollaborationEngine().getPullRequests();
+    }
+
+    public Tree getTree(String id,String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        return engines.get(id).getTree(sha1);
     }
 }
