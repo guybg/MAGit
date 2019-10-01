@@ -191,10 +191,11 @@ public class UserAccount {
         return branchInfo;
     }
 
-    public HashMap<String, HashMap<String,String>> getCommitsInfo(String id) throws IOException, ParseException, PreviousCommitsLimitExceededException {
-        HashMap<String, HashMap<String,String>> commits = new HashMap<>();
+    public HashMap<String, HashMap<String,String>> getCommitsInfo(String id) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        LinkedHashMap<String, HashMap<String,String>> commits = new LinkedHashMap<>();
         Path pathToObjects = engines.get(id).getmRepositoryManager().getRepository().getObjectsFolderPath();
-        for (String sha1 : engines.get(id).getHeadBranchCommits()) {
+        ArrayList<String> sha1s = engines.get(id).getHeadBranchCommits();
+        for (String sha1 : sha1s) {
             Commit currentCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjects.toString(), sha1));
             commits.put(sha1, currentCommit.toHashMap());
         }

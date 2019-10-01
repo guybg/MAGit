@@ -153,6 +153,7 @@ public class CollaborationEngine {
 
     public void createPullRequest(MagitEngine engineOfSender, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException {
         PullRequest requestDetails = new PullRequest(pullRequests.size() ,engineOfSender.getUserName(),targetBranchName,baseBranchName,new Date().toString(),message,PullRequestStatus.Open);
+
         engineOfSender.push(); // creates branch at receiver, rb, rtb at sender
         //MagitEngine engineOfReceiver = new MagitEngine();
         //engineOfReceiver.switchRepository(Paths.get(engineOfSender.getmRepositoryManager().getRepository().getRemoteReference().getLocation()).toString());

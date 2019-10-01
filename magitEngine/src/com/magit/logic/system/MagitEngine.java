@@ -392,10 +392,12 @@ public class MagitEngine {
         return collaborationEngine;
     }
 
-    public ArrayList<String> getHeadBranchCommits() throws IOException {
+    public ArrayList<String> getHeadBranchCommits() throws IOException, CommitNotFoundException {
         ArrayList<String> sha1sOfCommit = new ArrayList<>();
         LinkedList<String> sha1Queue = new LinkedList<>();
         String sha1OfActiveBranch = mBranchManager.getActiveBranch().getPointedCommitSha1().toString();
+        if(sha1OfActiveBranch.isEmpty())
+            throw new CommitNotFoundException("Current branch has no commits to show.");
         String pathToObjectsFolder = mRepositoryManager.getRepository().getObjectsFolderPath().toString();
         sha1Queue.add(sha1OfActiveBranch);
         sha1sOfCommit.add(sha1OfActiveBranch);

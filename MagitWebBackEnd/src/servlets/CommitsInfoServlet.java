@@ -1,6 +1,7 @@
 package servlets;
 
 import com.google.gson.Gson;
+import com.magit.logic.exceptions.CommitNotFoundException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
@@ -34,10 +35,10 @@ public class CommitsInfoServlet extends HttpServlet {
         try {
             responseContent = gson.toJson(user.getCommitsInfo(repositoryId));
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
-        } catch (IOException | ParseException | PreviousCommitsLimitExceededException e) {
+        } catch (IOException | ParseException | PreviousCommitsLimitExceededException | CommitNotFoundException e) {
             responseContent = e.getMessage();
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        }finally {
+        } finally {
             try(PrintWriter out = response.getWriter()) {
                 out.write(responseContent);
             } catch (IOException e) {

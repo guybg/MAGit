@@ -197,21 +197,6 @@ function createPr() {
 
 function getCommitsInfo() {
     $(".side-container").empty();
-    $(".side-container").append(
-        "<table class='table table-hover'>" +
-        "<thead class='thead-dark'>" +
-        "<tr>" +
-        "<th scope='col'>#</th>" +
-        "<th scope='col'>Sha1</th>" +
-        "<th scope='col'>Creator</th>" +
-        "<th scope='col'>Message</th>" +
-        "<th scope='col'>Date</th>" +
-        "<th scope='col'>Pointed By</th>" +
-        "</tr>" +
-        "</thead>" +
-        "<tbody class='table-body'>" +
-        "</tbody>" +
-        "</table>");
     $.ajax({
             url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
             data: {
@@ -219,11 +204,26 @@ function getCommitsInfo() {
             },
             type: 'GET',
             error: function (a) {
-
+                errorToast(a.responseText);
             },
             success: function (commitsInfo) {
                 var i = 0;
                 commitsInfo = $.parseJSON(commitsInfo);
+                $(".side-container").append(
+                    "<table class='table table-hover'>" +
+                    "<thead class='thead-dark'>" +
+                    "<tr>" +
+                    "<th scope='col'>#</th>" +
+                    "<th scope='col'>Sha1</th>" +
+                    "<th scope='col'>Creator</th>" +
+                    "<th scope='col'>Message</th>" +
+                    "<th scope='col'>Date</th>" +
+                    "<th scope='col'>Pointed By</th>" +
+                    "</tr>" +
+                    "</thead>" +
+                    "<tbody class='table-body'>" +
+                    "</tbody>" +
+                    "</table>");
                 for (var key in commitsInfo) {
                     $(".table-body").append(
                         "<tr onclick='createTreeView(this)' id=" + commitsInfo[key].Sha1 + ">" +
@@ -254,6 +254,9 @@ function createPullRequest(targetBranch, baseBranch, message) {
         type: 'GET',
         error: function (a) {},
         success: function(a) {
+            if(a.includes('Please checkout into')){
+                errorToast(a);
+            }
             showPullRequests();
         }
     })
@@ -275,14 +278,14 @@ function showPullRequests() {
         type: 'GET',
         error: function (prs) {},
         success: function(prs) {
-            $(".side-container").append($("<div class='container'><div class='row pull-requests'></div></div>"))
+            $(".side-container").append($("<div class='container-fluid'><div class='row pull-requests pb-2'></div></div>"))
             $.each(prs || [], printPullRequest);
         }
     })
 }
 
 function printPullRequest(id, pr) {
-    pullRequest = $("<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
+    pullRequest = $("<div class='card card-branch col-lg-2 col-sm-12 col-md-12 text-dark bg-warning'>\n" +
         "   <div class=\"container\"><!--change-->\n" +
         "      <div class=\"row\"><!--change-->" +
         "         <div class='col-lg-12 align-self-start card-body'>\n" +
@@ -293,7 +296,7 @@ function printPullRequest(id, pr) {
         "            <h6 class='card-subtitle mb-2 text-muted'>Request message: " + pr.message + "</h6>\n" +
         "            <h6 class='card-subtitle mb-2 text-muted'>Status: " + pr.status + "</h6>\n" +
         "         </div>\n" +
-        "         <div class='col-lg-12 align-self-center buttons-column'>\n" +
+        "         <div class='col-lg-12 align-self-center buttons-column pb-2'>\n" +
         "            <button type='button' class='btn btn-branch delete-btn btn-info w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
         "            <div class='divider'></div>\n" +
         "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +

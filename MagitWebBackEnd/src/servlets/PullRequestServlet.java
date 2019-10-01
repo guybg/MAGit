@@ -52,8 +52,18 @@ public class PullRequestServlet extends HttpServlet {
             UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
             if (action.equals("pr-create")) {
                 try {
-                    account.createPullRequest(receiverUserAccount, remoteId, targetBranch,baseBranch, message, repositoryId);
-                    receiverUserAccount.addNotification(account.getUserName(),"New pull request to repository with id: " + remoteId);
+                    if(!targetBranch.equals(account.getRepositories().get(repositoryId).get("activeBranch"))){
+                        response.setContentType("test/html");
+                        try (PrintWriter out = response.getWriter()) {
+                            out.println("Please checkout into " + targetBranch + " and create the pull request again.");
+                            out.flush();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }else {
+                        account.createPullRequest(receiverUserAccount, remoteId, targetBranch, baseBranch, message, repositoryId);
+                        receiverUserAccount.addNotification(account.getUserName(), "New pull request to repository with id: " + remoteId);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (RepositoryNotFoundException e) {
