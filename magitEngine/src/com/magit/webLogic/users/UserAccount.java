@@ -193,10 +193,11 @@ public class UserAccount {
     public HashMap<String, HashMap<String,String>> getCommitsInfo(String id) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         HashMap<String, HashMap<String,String>> commits = new HashMap<>();
         Path pathToObjects = engines.get(id).getmRepositoryManager().getRepository().getObjectsFolderPath();
-        for (String sha1 : engines.get(id).guiGetAllCommitsOfRepository()) {
+        for (String sha1 : engines.get(id).getHeadBranchCommits()) {
             Commit currentCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjects.toString(), sha1));
             commits.put(sha1, currentCommit.toHashMap());
         }
+
         List<String> branches = engines.get(id).getBranches().stream().map(b -> b.getBranchName()).collect(Collectors.toList());
         String pathToBranches = engines.get(id).getmRepositoryManager().getRepository().getBranchDirectoryPath().toString();
         for (String branchName : branches) {
@@ -206,13 +207,16 @@ public class UserAccount {
 
             File branchFile = new File(pathToBranch.toString());
             String sha1 = Repository.readBranchContent(branchFile).get("sha1");
+            if (!commits.containsKey(sha1))
+                continue;
+
             String branchesOfCommit = commits.get(sha1).get("Branches");
             String valueToInsert = null;
             if (branchesOfCommit.equals(""))
                 valueToInsert = branchName;
             else
                 valueToInsert = String.format("%s, %s", branchesOfCommit, branchName);
-            commits.get(Repository.readBranchContent(branchFile).get("sha1")).put("Branches", valueToInsert);
+            commits.get(sha1).put("Branches", valueToInsert);
         }
         return commits;
     }

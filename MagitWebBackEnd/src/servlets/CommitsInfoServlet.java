@@ -30,16 +30,16 @@ public class CommitsInfoServlet extends HttpServlet {
         String repositoryId = request.getParameter("id");
 
         Gson gson = new Gson();
-        String responeContent = null;
+        String responseContent = null;
         try {
-            responeContent = gson.toJson(user.getCommitsInfo(repositoryId));
+            responseContent = gson.toJson(user.getCommitsInfo(repositoryId));
             response.setStatus(HttpServletResponse.SC_ACCEPTED);
         } catch (IOException | ParseException | PreviousCommitsLimitExceededException e) {
-            responeContent = e.getMessage();
+            responseContent = e.getMessage();
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }finally {
             try(PrintWriter out = response.getWriter()) {
-                out.write(responeContent);
+                out.write(responseContent);
             } catch (IOException e) {
                 e.printStackTrace();
             }
