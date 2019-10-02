@@ -416,24 +416,40 @@ function createTreeView(tableRow) {
     })
 }
 
+/*function createTreeView() {
+    $.ajax({
+        url: buildUrlWithContextPath("createTreeView"),
+        data: {
+            'id': window.location.href.split('=')[1],
+            'sha1': tableRow.id
+        },
+        type: 'GET',
+        error : function() {
+        },
+        success: function(responseContent) {
+            buildTree($.parseJSON(responseContent));
+        }
+    })
+}*/
+
 function buildTree(jsonContent) {
     $(".side-container").empty();
-    var parent = '#';
     var jsonTreeData = [];
     var nodeQueue = [];
-    nodeQueue.push(jsonContent);
+    nodeQueue.push({'node' : jsonContent, 'parent' : '#' });
     while (nodeQueue.length > 0) {
-        var currentNode = nodeQueue.shift();
-        jsonTreeData.push(
-            { "id" : currentNode.mSha1Code.mSha1Code, "parent" : parent, "text" : currentNode.mName}
-        );
-        if (typeof currentNode.mFiles === 'undefined')
+        var currentNodePair = nodeQueue.shift();
+        var jsonNode = { "id" : currentNodePair.node.mSha1Code.mSha1Code,
+            "parent" : currentNodePair.parent, "text" : currentNodePair.node.mName, "icon" : "jstree-folder"};
+        if (typeof currentNodePair.node.mFiles === 'undefined'){
+            jsonNode.icon = "jstree-file";
+            jsonTreeData.push(jsonNode);
             continue;
-
-        for (var i in currentNode.mFiles) {
-            nodeQueue.push(currentNode.mFiles[i]);
         }
-        parent = currentNode.mSha1Code.mSha1Code;
+        jsonTreeData.push(jsonNode);
+        for (var i = 0;i < currentNodePair.node.mFiles.length; i++) {
+            nodeQueue.push({ 'node': currentNodePair.node.mFiles[i], 'parent' : currentNodePair.node.mSha1Code.mSha1Code});
+        }
     }
     $(".side-container").append("<div class='jstree-container'></div>");
 
