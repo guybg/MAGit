@@ -369,8 +369,33 @@ function createTreeView(tableRow) {
 
         },
         success: function(responseContent) {
-            console.log(responseContent);
-            var s = $.parseJSON(responseContent);
+            buildTree($.parseJSON(responseContent));
         }
     })
+}
+
+function buildTree(jsonContent) {
+    $(".side-container").empty();
+    var parent = '#';
+    var jsonTreeData = [];
+    var nodeQueue = [];
+    nodeQueue.push(jsonContent);
+    while (nodeQueue.length > 0) {
+        var currentNode = nodeQueue.shift();
+        jsonTreeData.push(
+            { "id" : currentNode.mSha1Code.mSha1Code, "parent" : parent, "text" : currentNode.mName,}
+        );
+        if (typeof currentNode.mFiles === 'undefined')
+            continue;
+
+        for (var i in currentNode.mFiles) {
+            nodeQueue.push(currentNode.mFiles[i]);
+        }
+        parent = currentNode.mSha1Code.mSha1Code;
+    }
+    $(".side-container").append("<div class='jstree-container'></div>");
+
+    $(".jstree-container").jstree( { 'core' : {
+        'data' : jsonTreeData
+        }});
 }
