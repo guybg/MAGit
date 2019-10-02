@@ -20,7 +20,9 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -192,13 +194,16 @@ public class UserAccount {
         return branchInfo;
     }
 
-    public HashMap<String, HashMap<String,String>> getCommitsInfo(String id) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
-        LinkedHashMap<String, HashMap<String,String>> commits = new LinkedHashMap<>();
+    public TreeMap<Date, HashMap<String,String>> getCommitsInfo(String id) throws IOException, ParseException, PreviousCommitsLimitExceededException, CommitNotFoundException {
+        TreeMap<Date,HashMap<String,String>> treeMap = new TreeMap<>(Collections.reverseOrder());
+        HashMap<String, HashMap<String,String>> commits = new HashMap<>();
         Path pathToObjects = engines.get(id).getmRepositoryManager().getRepository().getObjectsFolderPath();
         ArrayList<String> sha1s = engines.get(id).getHeadBranchCommits();
         for (String sha1 : sha1s) {
             Commit currentCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjects.toString(), sha1));
-            commits.put(sha1, currentCommit.toHashMap());
+            HashMap<String,String> commitInfo = currentCommit.toHashMap();
+            commits.put(sha1, commitInfo);
+            treeMap.put(currentCommit.getCreationDate(), commitInfo);
         }
 
         List<String> branches = engines.get(id).getBranches().stream().map(b -> b.getBranchName()).collect(Collectors.toList());
@@ -221,7 +226,7 @@ public class UserAccount {
                 valueToInsert = String.format("%s, %s", branchesOfCommit, branchName);
             commits.get(sha1).put("Branches", valueToInsert);
         }
-        return commits;
+        return treeMap;
     }
 
     public void createPullRequest(UserAccount receiverUser,String engineIdOfReceiver, String targetBranchName,String baseBranchName,String message,String engineId) throws IOException, RepositoryNotFoundException, RemoteReferenceException, PushException, UnhandledMergeException, CommitNotFoundException, ParseException, UncommitedChangesException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException {
@@ -248,7 +253,7 @@ public class UserAccount {
         return engines.get(id).getCollaborationEngine().getPullRequests();
     }
 
-    public ArrayList<JsTreeItem> getTree(String id, String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public Tree getTree(String id, String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return engines.get(id).getTree(sha1);
     }
 

@@ -421,31 +421,11 @@ public class MagitEngine {
         return sha1sOfCommit;
     }
 
-    public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public Tree getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         String pathToRepository = mRepositoryManager.getRepository().getRepositoryPath().toString();
         Path pathToCommit = Paths.get(mRepositoryManager.getRepository().getObjectsFolderPath().toString(), sha1);
-        Gson gson = new Gson();
-        ArrayList<JsTreeItem> jstree = new ArrayList<>();
-        Tree tree = WorkingCopyUtils.getWorkingCopyTreeFromCommit(Commit.createCommitInstanceByPath(pathToCommit), pathToRepository);
-        createJsTreeFromWc(tree, jstree,"","root");
-        return jstree;
-        //return WorkingCopyUtils.getWorkingCopyTreeFromCommit
-          //      (Commit.createCommitInstanceByPath(pathToCommit),pathToRepository);
-    }
-
-    public void createJsTreeFromWc(FileItem wc, ArrayList<JsTreeItem> jstree, String path, String parent){
-        String fileName = "root";
-        if(wc.getName() != null){
-            fileName = wc.getName();
-        }
-        if(wc.getFileType() == FileType.FILE){
-            jstree.add(new JsTreeItem(fileName,parent, fileName,"jstree-file"));
-            return;
-        }
-        jstree.add(new JsTreeItem(fileName,fileName == "root" ? "#" : parent, fileName,"jstree-folder"));
-        for(FileItem item : ((Tree)wc).getFiles()){
-            createJsTreeFromWc(item,jstree,Paths.get(path,fileName).toString(),fileName);
-        }
+        return WorkingCopyUtils.getWorkingCopyTreeFromCommit
+                (Commit.createCommitInstanceByPath(pathToCommit),pathToRepository);
     }
 }
 
