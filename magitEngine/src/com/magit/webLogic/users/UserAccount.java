@@ -9,6 +9,7 @@ import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
 import com.magit.logic.system.objects.Tree;
+import com.magit.logic.utils.jstree.JsTreeItem;
 import com.magit.webLogic.utils.RepositoryUtils;
 import com.magit.webLogic.utils.notifications.AccountNotificationsManager;
 import com.magit.webLogic.utils.notifications.SingleNotification;
@@ -223,7 +224,7 @@ public class UserAccount {
         return commits;
     }
 
-    public void createPullRequest(UserAccount receiverUser,String engineIdOfReceiver, String targetBranchName,String baseBranchName,String message,String engineId) throws IOException, RepositoryNotFoundException, RemoteReferenceException, PushException, UnhandledMergeException, CommitNotFoundException, ParseException, UncommitedChangesException, RemoteBranchException, PreviousCommitsLimitExceededException {
+    public void createPullRequest(UserAccount receiverUser,String engineIdOfReceiver, String targetBranchName,String baseBranchName,String message,String engineId) throws IOException, RepositoryNotFoundException, RemoteReferenceException, PushException, UnhandledMergeException, CommitNotFoundException, ParseException, UncommitedChangesException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException {
         receiverUser.engines.get(engineIdOfReceiver).createPullRequest(engines.get(engineId),targetBranchName,baseBranchName,message);
     }
 
@@ -235,11 +236,22 @@ public class UserAccount {
         engines.get(engineId).rejectPullRequest(pullRequestId);
     }
 
+    public void push(String repositoryId) throws IOException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException {
+        engines.get(repositoryId).push();
+    }
+
+    public void pull(String repositoryId) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, FastForwardException, UncommitedChangesException, MergeNotNeededException, MergeException, UnhandledMergeException, ParseException, CommitNotFoundException, IOException, RemoteBranchException, RemoteReferenceException {
+        engines.get(repositoryId).pull();
+    }
+
     public ArrayList<CollaborationEngine.PullRequest> getPullRequests(String id){
         return engines.get(id).getCollaborationEngine().getPullRequests();
     }
 
-    public Tree getTree(String id,String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public ArrayList<JsTreeItem> getTree(String id, String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return engines.get(id).getTree(sha1);
     }
+
+
+
 }

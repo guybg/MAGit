@@ -97,6 +97,14 @@
         <url-pattern>/pullrequest</url-pattern>
     </servlet-mapping>
     <servlet>
+        <servlet-name>CollaborationServlet</servlet-name>
+        <servlet-class>servlets.CollaborationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CollaborationServlet</servlet-name>
+        <url-pattern>/collaboration</url-pattern>
+    </servlet-mapping>
+    <servlet>
         <servlet-name>CreateTreeViewServlet</servlet-name>
         <servlet-class>servlets.CreateTreeViewServlet</servlet-class>
     </servlet>

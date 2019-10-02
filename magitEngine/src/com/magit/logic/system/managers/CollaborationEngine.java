@@ -151,13 +151,19 @@ public class CollaborationEngine {
                 && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, FileHandler.readFile(pathToHead.toString())));
     }
 
-    public void createPullRequest(MagitEngine engineOfSender, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException {
+    public void createPullRequest(MagitEngine engineOfSender,Repository repositoryOfReceiver, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException, BranchNotFoundException {
         PullRequest requestDetails = new PullRequest(pullRequests.size() ,engineOfSender.getUserName(),targetBranchName,baseBranchName,new Date().toString(),message,PullRequestStatus.Open);
 
-        engineOfSender.push(); // creates branch at receiver, rb, rtb at sender
+        if(!repositoryOfReceiver.getBranches().containsKey(targetBranchName)){
+            throw new BranchNotFoundException(targetBranchName,"Please push target branch " + targetBranchName + " before creating pull request");
+        }
+        if(!repositoryOfReceiver.getBranches().containsKey(baseBranchName)){
+            throw new BranchNotFoundException(targetBranchName,"Base branch " + baseBranchName + " is not found at remoter repository.");
+        }
+        addPullRequest(requestDetails);
         //MagitEngine engineOfReceiver = new MagitEngine();
         //engineOfReceiver.switchRepository(Paths.get(engineOfSender.getmRepositoryManager().getRepository().getRemoteReference().getLocation()).toString());
-        addPullRequest(requestDetails);
+
     }
 
     public void rejectPullRequest(int requestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {

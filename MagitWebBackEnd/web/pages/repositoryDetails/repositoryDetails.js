@@ -51,6 +51,9 @@ $(function() {
         //     }
         // })
     });
+
+    $("#push").click(push);
+    $("#pull").click(pull);
 });
 var numOfBranches;
 
@@ -252,12 +255,11 @@ function createPullRequest(targetBranch, baseBranch, message) {
             'pr-action' : "pr-create"
         },
         type: 'GET',
-        error: function (a) {},
-        success: function(a) {
-            if(a.includes('Please checkout into')){
-                errorToast(a);
-            }
-            showPullRequests();
+        error: function (err) {
+            errorToast(err.responseText,false,3000);
+        },
+        success: function(msg) {
+            successToast(msg,false,3000);
         }
     })
 }
@@ -305,10 +307,6 @@ function printPullRequest(id, pr) {
         "   </div>\n" +
         "</div>");
     //{requestId:pr.requestId,targetBranch:pr.targetBranch,baseBranch:pr.baseBranch,message:pr.message}
-    var requestId = pr.requestId;
-    var targetBranch = pr.targetBranch;
-    var baseBranch = pr.baseBranch;
-    var message = pr.message;
     $('.acceptPullRequest',pullRequest).on('click',pr,acceptPullRequest);
     $('.rejectPullRequest',pullRequest).on('click',pr,rejectPullRequest);
     $(".pull-requests").append(pullRequest);
@@ -329,8 +327,12 @@ function acceptPullRequest(pr) {
             'pr-action' : "pr-accept"
         },
         type: 'GET',
-        error: function (prs) {},
-        success: function(prs) {
+        error: function (err) {
+            errorToast(err.responseText,false,3000);
+            showPullRequests();
+        },
+        success: function(msg) {
+            successToast(msg,false,3000);
             showPullRequests();
         }
     })
@@ -351,9 +353,49 @@ function rejectPullRequest(pr) {
             'pr-action' : "pr-reject"
         },
         type: 'GET',
-        error: function (prs) {},
-        success: function(prs) {
+        error: function (err) {
+            errorToast(err.responseText,false,3000);
             showPullRequests();
+        },
+        success: function(msg) {
+            successToast(msg,false,3000);
+            showPullRequests();
+        }
+    })
+}
+
+function pull() {
+    $.ajax({
+        type: $(this).attr('method'),
+        url: buildUrlWithContextPath("collaboration"),
+        data:{
+            'action' : 'pull',
+            'repository-id': window.location.href.split('=')[1],
+        },
+        type: 'GET',
+        error: function (err) {
+            errorToast(err.responseText,false,3000);
+        },
+        success: function(msg) {
+            successToast(msg,false, 3000);
+        }
+    })
+}
+
+function push() {
+    $.ajax({
+        type: $(this).attr('method'),
+        url: buildUrlWithContextPath("collaboration"),
+        data:{
+            'action' : 'push',
+            'repository-id': window.location.href.split('=')[1],
+        },
+        type: 'GET',
+        error: function (err) {
+            errorToast(err.responseText,false,3000);
+        },
+        success: function(msg) {
+            successToast(msg,false, 3000);
         }
     })
 }
@@ -369,8 +411,33 @@ function createTreeView(tableRow) {
 
         },
         success: function(responseContent) {
-            console.log(responseContent);
-            var s = $.parseJSON(responseContent);
+            buildTree($.parseJSON(responseContent));
         }
     })
+}
+
+function buildTree(jsonContent) {
+    $(".side-container").empty();
+    var parent = '#';
+    var jsonTreeData = [];
+    var nodeQueue = [];
+    nodeQueue.push(jsonContent);
+    while (nodeQueue.length > 0) {
+        var currentNode = nodeQueue.shift();
+        jsonTreeData.push(
+            { "id" : currentNode.mSha1Code.mSha1Code, "parent" : parent, "text" : currentNode.mName,}
+        );
+        if (typeof currentNode.mFiles === 'undefined')
+            continue;
+
+        for (var i in currentNode.mFiles) {
+            nodeQueue.push(currentNode.mFiles[i]);
+        }
+        parent = currentNode.mSha1Code.mSha1Code;
+    }
+    $(".side-container").append("<div class='jstree-container'></div>");
+
+    $(".jstree-container").jstree( { 'core' : {
+            'data' : jsonTreeData
+        }});
 }

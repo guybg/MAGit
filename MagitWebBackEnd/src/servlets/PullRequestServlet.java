@@ -44,7 +44,8 @@ public class PullRequestServlet extends HttpServlet {
         UserAccount account;
         String remoteId;
         String remoteUserName;
-        response.setContentType("application/json");
+        response.setContentType("text/html");
+        response.setStatus(HttpServletResponse.SC_ACCEPTED);
         synchronized (this) {
             account = userManager.getUsers().get(usernameFromSession);
             remoteId = account.getRepositories().get(repositoryId).get("remote-id");
@@ -52,38 +53,27 @@ public class PullRequestServlet extends HttpServlet {
             UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
             if (action.equals("pr-create")) {
                 try {
-                    if(!targetBranch.equals(account.getRepositories().get(repositoryId).get("activeBranch"))){
-                        response.setContentType("test/html");
-                        try (PrintWriter out = response.getWriter()) {
-                            out.println("Please checkout into " + targetBranch + " and create the pull request again.");
-                            out.flush();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }else {
-                        account.createPullRequest(receiverUserAccount, remoteId, targetBranch, baseBranch, message, repositoryId);
-                        receiverUserAccount.addNotification(account.getUserName(), "New pull request to repository with id: " + remoteId);
+                    account.createPullRequest(receiverUserAccount, remoteId, targetBranch,baseBranch, message, repositoryId);
+                    receiverUserAccount.addNotification(account.getUserName(),"New pull request to repository with id: " + remoteId);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println("Pull request created successfully.");
+                        out.flush();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (RepositoryNotFoundException e) {
-                    e.printStackTrace();
-                } catch (RemoteReferenceException e) {
-                    e.printStackTrace();
-                } catch (PushException e) {
-                    e.printStackTrace();
-                } catch (UnhandledMergeException e) {
-                    e.printStackTrace();
-                } catch (CommitNotFoundException e) {
-                    e.printStackTrace();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                } catch (UncommitedChangesException e) {
-                    e.printStackTrace();
-                } catch (RemoteBranchException e) {
-                    e.printStackTrace();
-                } catch (PreviousCommitsLimitExceededException e) {
-                    e.printStackTrace();
+                } catch (IOException | RepositoryNotFoundException | RemoteReferenceException | PushException | UnhandledMergeException | CommitNotFoundException | ParseException | UncommitedChangesException | RemoteBranchException | PreviousCommitsLimitExceededException e) {
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(e.getMessage());
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                } catch (BranchNotFoundException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(e.getMessage());
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             } else if (action.equals("pr-reject")) {
                 try {
@@ -95,18 +85,14 @@ public class PullRequestServlet extends HttpServlet {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                } catch (UnhandledMergeException e) {
-                    e.printStackTrace();
-                } catch (MergeNotNeededException e) {
-                    e.printStackTrace();
-                } catch (RepositoryNotFoundException e) {
-                    e.printStackTrace();
-                } catch (MergeException e) {
-                    e.printStackTrace();
-                } catch (UncommitedChangesException e) {
-                    e.printStackTrace();
-                } catch (FastForwardException e) {
-                    e.printStackTrace();
+                } catch (UnhandledMergeException | MergeNotNeededException | RepositoryNotFoundException | MergeException | UncommitedChangesException | FastForwardException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(e.getMessage());
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             } else if (action.equals("pr-accept")) {
                 try {
@@ -117,13 +103,8 @@ public class PullRequestServlet extends HttpServlet {
                         out.println("Pull request accepted");
                         out.flush();
                     }
-                } catch (UnhandledMergeException e) {
-                    e.printStackTrace();
-                } catch (MergeNotNeededException e) {
-                    e.printStackTrace();
-                } catch (RepositoryNotFoundException e) {
-                    e.printStackTrace();
-                } catch (UncommitedChangesException | MergeException | FastForwardException e) {
+                } catch (UnhandledMergeException | WorkingCopyStatusNotChangedComparedToLastCommitException | UnhandledConflictsException | WorkingCopyIsEmptyException | BranchNotFoundException | RemoteBranchException | InvalidNameException | RepositoryNotFoundException | MergeNotNeededException | UncommitedChangesException | MergeException | FastForwardException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(e.getMessage());
                         out.flush();
@@ -132,24 +113,13 @@ public class PullRequestServlet extends HttpServlet {
                     }
                 } catch (PreviousCommitsLimitExceededException e) {
                     e.printStackTrace();
-                } catch (InvalidNameException e) {
-                    e.printStackTrace();
-                } catch (RemoteBranchException e) {
-                    e.printStackTrace();
                 } catch (ParseException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (BranchNotFoundException e) {
-                    e.printStackTrace();
-                } catch (WorkingCopyIsEmptyException e) {
-                    e.printStackTrace();
-                } catch (UnhandledConflictsException e) {
-                    e.printStackTrace();
-                } catch (WorkingCopyStatusNotChangedComparedToLastCommitException e) {
-                    e.printStackTrace();
                 }
             } else if (action.equals("pr-show")) {//show prs
+                response.setContentType("application/json");
                     Gson gson = new Gson();
                 String prs = gson.toJson(account.getPullRequests(repositoryId));
                 try (PrintWriter out = response.getWriter()) {
