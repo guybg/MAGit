@@ -425,7 +425,7 @@ function buildTree(jsonContent) {
     while (nodeQueue.length > 0) {
         var currentNode = nodeQueue.shift();
         jsonTreeData.push(
-            { "id" : currentNode.mSha1Code.mSha1Code, "parent" : parent, "text" : currentNode.mName,}
+            { "id" : currentNode.mSha1Code.mSha1Code, "parent" : parent, "text" : currentNode.mName}
         );
         if (typeof currentNode.mFiles === 'undefined')
             continue;
