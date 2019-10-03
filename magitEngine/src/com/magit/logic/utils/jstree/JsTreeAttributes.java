@@ -8,4 +8,12 @@ public class JsTreeAttributes {
         this.content = content;
         this.path = path;
     }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getPath() {
+        return path;
+    }
 }

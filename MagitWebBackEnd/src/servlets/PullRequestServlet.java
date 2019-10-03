@@ -128,6 +128,30 @@ public class PullRequestServlet extends HttpServlet {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            } else if(action.equals("pr-diff")){
+                response.setContentType("application/json");
+                Gson gson = new Gson();
+                String diffTree = null;
+                try {
+                    diffTree = gson.toJson(account.getOverallCommitsDiff(targetBranch, baseBranch,repositoryId));
+                   // diffTree = gson.toJson(account.getPullRequestDifferencesJsTreeArray(repositoryId));
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(diffTree);
+                        out.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } catch (PreviousCommitsLimitExceededException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                } catch (RepositoryNotFoundException e) {
+                    e.printStackTrace();
+                } catch (CommitNotFoundException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

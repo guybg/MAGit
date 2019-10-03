@@ -24,6 +24,7 @@ import com.magit.logic.utils.jstree.JsTreeAttributes;
 import com.magit.logic.utils.jstree.JsTreeItem;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -268,6 +269,42 @@ public class MagitEngine {
         return mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit();
     }
 
+    public ArrayList<JsTreeItem> getJsTreeListOfDifferences(Map<FileStatus, SortedSet<Delta.DeltaFileItem>> diff){
+        SortedMap<String,JsTreeItem> items = new TreeMap<>();
+        items.put(guiGetRepositoryPath().toLowerCase(),new JsTreeItem("root","jstree-folder", new JsTreeAttributes("",guiGetRepositoryPath().toLowerCase())));
+        for(Map.Entry<FileStatus,SortedSet<Delta.DeltaFileItem>> entry : diff.entrySet()){
+            for(DeltaFileItem item : entry.getValue()){
+                if(items.values().stream().anyMatch(a -> a.getLi_attr().getPath().toLowerCase().equals(item.getFullPath().toLowerCase()))){
+                    continue;
+                }
+                Path path = Paths.get(item.getFullPath());
+                JsTreeItem file = new JsTreeItem(item.getFileName() + " ("+entry.getKey()+")","jstree-file",new JsTreeAttributes(item.getFileItem().getFileContent(),path.toString().toLowerCase()));
+                items.put(path.toString().toLowerCase(),file);
+                path = path.getParent();
+                while(!path.toString().toLowerCase().equals(guiGetRepositoryPath().toLowerCase())){
+                    Path finalPath = path;
+                    if(!items.values().stream().anyMatch(a -> a.getLi_attr().getPath().toLowerCase().equals(finalPath.toString().toLowerCase()))){
+                        JsTreeItem folder = new JsTreeItem(path.getFileName().toString(),"jstree-folder", new JsTreeAttributes("",path.toString().toLowerCase()));
+                        items.put(path.toString().toLowerCase(),folder);
+                    }
+                    path = path.getParent();
+                }
+            }
+        }
+        int id = 0;
+        for(Map.Entry<String,JsTreeItem> itemEntry : items.entrySet()){
+            itemEntry.getValue().setId(Integer.toString(id));
+            if(id == 0){
+                itemEntry.getValue().setParent("#");
+            }else{
+                itemEntry.getValue().setParent(items.get(Paths.get(itemEntry.getKey()).getParent().toString()).getId());
+            }
+            id++;
+        }
+
+        return new ArrayList<>(items.values());
+    }
+
     public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> getDifferencesBetweenTwoCommits(String sha1OfFirstCommit, String sha1OfSecondCommit) throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.checkDifferencesBetweenTwoCommits(sha1OfFirstCommit,sha1OfSecondCommit);
@@ -397,59 +434,29 @@ public class MagitEngine {
     }
 
     public ArrayList<String> getHeadBranchCommits() throws IOException, CommitNotFoundException {
-        ArrayList<String> sha1sOfCommit = new ArrayList<>();
-        LinkedList<String> sha1Queue = new LinkedList<>();
-        String sha1OfActiveBranch = mBranchManager.getActiveBranch().getPointedCommitSha1().toString();
-        if(sha1OfActiveBranch.isEmpty())
-            throw new CommitNotFoundException("Current branch has no commits to show.");
-        String pathToObjectsFolder = mRepositoryManager.getRepository().getObjectsFolderPath().toString();
-        sha1Queue.add(sha1OfActiveBranch);
-        sha1sOfCommit.add(sha1OfActiveBranch);
-
-        while (!sha1Queue.isEmpty()) {
-            String currentCommitSha1 = sha1Queue.poll();
-            String commitFileContent = FileItemHandler.zipToString(pathToObjectsFolder, currentCommitSha1);
-            String previousCommitsHistory = commitFileContent.split(System.lineSeparator())[1];
-            String[] separatedCommitsLine = previousCommitsHistory.split(" = ");
-            if (separatedCommitsLine.length <= 1)
-                continue;
-            String sha1sToAdd = separatedCommitsLine[1];
-            List<String> sha1List = Arrays.asList(sha1sToAdd.split(";"));
-            sha1sOfCommit.addAll(sha1List);
-            sha1Queue.addAll(sha1List);
-        }
-
-        return sha1sOfCommit;
+        return mRepositoryManager.getBranchCommits(mBranchManager.getActiveBranch().getBranchName());
     }
-
     public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
-        String pathToRepository = mRepositoryManager.getRepository().getRepositoryPath().toString();
-        Path pathToCommit = Paths.get(mRepositoryManager.getRepository().getObjectsFolderPath().toString(), sha1);
-        Gson gson = new Gson();
-        ArrayList<JsTreeItem> jstree = new ArrayList<>();
-        Tree tree = WorkingCopyUtils.getWorkingCopyTreeFromCommit(Commit.createCommitInstanceByPath(pathToCommit), pathToRepository);
-        createJsTreeFromWc(tree, jstree,pathToRepository,0,0);
-        return jstree;
+        return mRepositoryManager.getTree(sha1);
     }
 
-    public int createJsTreeFromWc(FileItem wc, ArrayList<JsTreeItem> jstree, String path, int parentId, Integer id){
-        String fileName = "root";
-        if(wc.getName() != null){
-            fileName = wc.getName();
-        }
-        if(wc.getFileType() == FileType.FILE){
-            JsTreeAttributes attr = new JsTreeAttributes(wc.getFileContent(),Paths.get(path,wc.getName()).toString());
-            jstree.add(new JsTreeItem(id.toString(), Integer.toString(parentId), fileName,"jstree-file",attr));
-            return id;
-        }
-        JsTreeAttributes attr = new JsTreeAttributes(wc.getFileContent(),fileName.equals("root") ? path : Paths.get(path,fileName).toString());
-        jstree.add(new JsTreeItem(id.toString(),fileName.equals("root") ? "#" : Integer.toString(parentId), fileName,"jstree-folder",attr));
-        parentId = id;
-        for(FileItem item : ((Tree)wc).getFiles()){
-            id++;
-            id = createJsTreeFromWc(item,jstree,Paths.get(path,fileName).toString(),parentId, id);
-        }
-        return id;
+    public ArrayList<JsTreeItem> getWorkingCopyStatusJsTree() throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException {
+        return getJsTreeListOfDifferences(getWorkingCopyStatusMap());
+    }
+
+    public ArrayList<String> getCommitsDeltaBetweenTwoBranches(String baseBranch, String targetBranch) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException, CommitNotFoundException {
+        return mRepositoryManager.getCommitsDeltaBetweenTwoBranches(baseBranch,targetBranch);
+    }
+
+    public ArrayList<JsTreeItem> getDiffrencesJsTreeBetweenTwoCommits(String sha1OfFirstCommit, String sha1OfSecondCommit) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException {
+        return getJsTreeListOfDifferences(getDifferencesBetweenTwoCommits(sha1OfFirstCommit,sha1OfSecondCommit));
+    }
+
+    public ArrayList<JsTreeItem> getOverallCommitsDiff(String baseBranch, String targetBranch) throws PreviousCommitsLimitExceededException, IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException {
+        return getJsTreeListOfDifferences(mRepositoryManager.getOverallCommitsDiff(baseBranch,targetBranch));
+    }
+    private void removeEntry(SortedSet<Delta.DeltaFileItem> totalEntry,Delta.DeltaFileItem itemToRemove){
+        totalEntry.remove(itemToRemove);
     }
 }
 

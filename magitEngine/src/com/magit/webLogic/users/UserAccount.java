@@ -260,6 +260,13 @@ public class UserAccount {
         return engines.get(id).getTree(sha1);
     }
 
+    public ArrayList<JsTreeItem> getPullRequestDifferencesJsTreeArray(String id) throws PreviousCommitsLimitExceededException, IOException, ParseException, RepositoryNotFoundException {
+        return engines.get(id).getWorkingCopyStatusJsTree();
+    }
+
+    public ArrayList<JsTreeItem> getOverallCommitsDiff(String target, String base, String repoId) throws PreviousCommitsLimitExceededException, IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException {
+        return engines.get(repoId).getOverallCommitsDiff(base ,target);
+    }
 
 
 }
