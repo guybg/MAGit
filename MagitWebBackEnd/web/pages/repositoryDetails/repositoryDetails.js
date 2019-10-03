@@ -168,6 +168,7 @@ function deleteBranch() {
 }
 
 function changeHead() {
+    emptyExtraContainerContentAndHide()
     var id = window.location.href.split('=')[1];
     var checkoutUrl = buildUrlWithContextPath("checkout");
     var branchName = $(this).parent().parent().parent().parent().attr('name');
@@ -202,6 +203,7 @@ function createPr() {
 }
 
 function getCommitsInfo() {
+    emptyExtraContainerContentAndHide()
     $(".side-container").empty();
     $.ajax({
             url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
@@ -232,7 +234,7 @@ function getCommitsInfo() {
                     "</table>");
                 for (var key in commitsInfo) {
                     $(".table-body").append(
-                        "<tr onclick='createTreeView(this)' id=" + commitsInfo[key].Sha1 + ">" +
+                        "<tr onclick='createTreeView(this, showCommit)' id=" + commitsInfo[key].Sha1 + ">" +
                         "<th scope='row'>" + (++i) + "</th>" +
                         "<td>" + commitsInfo[key].Sha1 + "</td>" +
                         "<td>" + commitsInfo[key].Creator + "</td>" +
@@ -268,6 +270,7 @@ function createPullRequest(targetBranch, baseBranch, message) {
 }
 
 function showPullRequests() {
+    emptyExtraContainerContentAndHide()
     $(".side-container").empty();
     $.ajax({
         type: $(this).attr('method'),
@@ -316,6 +319,7 @@ function printPullRequest(id, pr) {
 }
 
 function acceptPullRequest(pr) {
+    emptyExtraContainerContentAndHide()
     $(".side-container").empty();
     $.ajax({
         type: $(this).attr('method'),
@@ -342,6 +346,7 @@ function acceptPullRequest(pr) {
 }
 
 function rejectPullRequest(pr) {
+    emptyExtraContainerContentAndHide();
     $(".side-container").empty();
     $.ajax({
         type: $(this).attr('method'),
@@ -464,9 +469,8 @@ function createTreeView(tableRow) {
 //        }});
 //}
 
-function createTreeView(tableRow) {
-    $(".jstree-container").remove();
-
+function createTreeView(tableRow, moreOptionsFunction) {
+    $(".jstree-container").jstree('destroy');
     $.ajax({
         url: buildUrlWithContextPath("createTreeView"),
         data: {
@@ -478,10 +482,45 @@ function createTreeView(tableRow) {
         },
         success: function(responseContent) {
             console.log(responseContent);
-            $(".side-container").append("<div class='jstree-container'></div>");
+            $('.extra-container','#repositories').css('display', 'block');
+            $(".extra-container").append("<div class='jstree-container'></div>");
             $('.jstree-container').jstree({ 'core' : {
                     'data' : responseContent
                 } });
+            $('.jstree').on('loaded.jstree', function(e, data) {
+                // invoked after jstree has loaded
+                $('.jstree').jstree('open_node', '#0');});
+            moreOptionsFunction();
         }
     })
+}
+
+function addTextAreaWithContent(content,isReadOnly) {
+    $('div.text-area', '.extra-container').empty();
+    $('.extra-container').show();
+    $('.extra-container').append("<div class='mt-2 pt-2 border-top text-area'><span>File Content</span><textarea cols=\"60\" rows=\"20\" class=\"form-control mb-2\" spellcheck=\"false\"></textarea></div>");
+    $('textarea','.text-area').prop('readonly', isReadOnly);
+    $('textarea','.text-area').append(content);
+    $('textarea','.text-area').numberedtextarea();
+}
+
+
+function showCommit() {
+    $('.jstree').on("select_node.jstree", function (e, data) {
+        if(data.node.icon === 'jstree-folder') return;
+        emptyTextAreaAtExtraContainer();
+        addTextAreaWithContent($("#"+data.node.id).attr("content"),true)});
+
+    $('.jstree').on("destroy.jstree", function () {
+        emptyExtraContainerContentAndHide()});
+}
+
+function emptyTextAreaAtExtraContainer() {
+    $('div.text-area','.extra-container').remove();
+    $('.extra-container').hide();
+}
+
+function emptyExtraContainerContentAndHide() {
+    $('.extra-container').empty();
+    $('.extra-container').hide();
 }
