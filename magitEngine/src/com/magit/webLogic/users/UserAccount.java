@@ -260,6 +260,8 @@ public class UserAccount {
         return engines.get(id).getTree(sha1);
     }
 
-
+    public ArrayList<JsTreeItem> getTree(String id) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        return engines.get(id).getTree();
+    }
 
 }

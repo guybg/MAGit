@@ -425,7 +425,6 @@ public class MagitEngine {
     public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         String pathToRepository = mRepositoryManager.getRepository().getRepositoryPath().toString();
         Path pathToCommit = Paths.get(mRepositoryManager.getRepository().getObjectsFolderPath().toString(), sha1);
-        Gson gson = new Gson();
         ArrayList<JsTreeItem> jstree = new ArrayList<>();
         Tree tree = WorkingCopyUtils.getWorkingCopyTreeFromCommit(Commit.createCommitInstanceByPath(pathToCommit), pathToRepository);
         createJsTreeFromWc(tree, jstree,pathToRepository,0,0);
@@ -450,6 +449,16 @@ public class MagitEngine {
             id = createJsTreeFromWc(item,jstree,Paths.get(path,fileName).toString(),parentId, id);
         }
         return id;
+    }
+
+    public ArrayList<JsTreeItem> getTree() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        String pathToRepository = mRepositoryManager.getRepository().getRepositoryPath().toString();
+        ArrayList<JsTreeItem> jstree = new ArrayList<>();
+        WorkingCopyUtils wcUtils = new WorkingCopyUtils(pathToRepository, mUserName,new Date());
+        Tree wc = wcUtils.getWc();
+        wc.setName(null);
+        createJsTreeFromWc(wc, jstree ,pathToRepository,0,0);
+        return jstree;
     }
 }
 

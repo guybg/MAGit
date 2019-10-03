@@ -54,6 +54,7 @@ $(function() {
 
     $("#push").click(push);
     $("#pull").click(pull);
+    $("#manage-wc-commit").click(loadUpdateWcCommit);
 });
 var numOfBranches;
 
@@ -407,67 +408,6 @@ function push() {
         }
     })
 }
-function createTreeView(tableRow) {
-    $.ajax({
-        url: buildUrlWithContextPath("createTreeView"),
-        data: {
-            'id': window.location.href.split('=')[1],
-            'sha1': tableRow.id
-        },
-        type: 'GET',
-        error : function() {
-
-        },
-        success: function(responseContent) {
-            buildTree($.parseJSON(responseContent));
-        }
-    })
-}
-
-/*function createTreeView() {
-    $.ajax({
-        url: buildUrlWithContextPath("createTreeView"),
-        data: {
-            'id': window.location.href.split('=')[1],
-            'sha1': tableRow.id
-        },
-        type: 'GET',
-        error : function() {
-        },
-        success: function(responseContent) {
-            buildTree($.parseJSON(responseContent));
-        }
-    })
-}*/
-
-//function buildTree(jsonContent) {
-//    $(".side-container").empty();
-//    var jsonTreeData = [];
-//    var nodeQueue = [];
-//    var id = 0;
-//    nodeQueue.push({'node' : jsonContent, 'parent' : '#' });
-//    while (nodeQueue.length > 0) {
-//        var currentNodePair = nodeQueue.shift();
-//        var jsonNode = { "id" : id,
-//            "parent" : currentNodePair.parent, "text" : currentNodePair.node.mName, "icon" : "jstree-folder"};
-//        if (typeof currentNodePair.node.mFiles === 'undefined'){
-//            jsonNode.icon = "jstree-file";
-//            jsonTreeData.push(jsonNode);
-//            id++;
-//            continue;
-//        }
-//        jsonTreeData.push(jsonNode);
-//        for (var i = 0;i < currentNodePair.node.mFiles.length; i++) {
-//            nodeQueue.push({ 'node': currentNodePair.node.mFiles[i], 'parent' : id});
-//        }
-//        id++;
-//    }
-//    $(".side-container").append("<div class='jstree-container'></div>");
-//
-//    $(".jstree-container").jstree( { 'core' : {
-//            'data' : jsonTreeData
-//        }});
-//}
 
 function createTreeView(tableRow, moreOptionsFunction) {
     $(".jstree-container").jstree('destroy');
@@ -481,7 +421,6 @@ function createTreeView(tableRow, moreOptionsFunction) {
         error : function() {
         },
         success: function(responseContent) {
-            console.log(responseContent);
             $('.extra-container','#repositories').css('display', 'block');
             $(".extra-container").append("<div class='jstree-container'></div>");
             $('.jstree-container').jstree({ 'core' : {
@@ -523,4 +462,64 @@ function emptyTextAreaAtExtraContainer() {
 function emptyExtraContainerContentAndHide() {
     $('.extra-container').empty();
     $('.extra-container').hide();
+}
+
+function loadUpdateWcCommit() {
+    $('.side-container').empty();
+    $('.extra-container').empty();
+    $(".jstree-container").jstree('destroy');
+    $.ajax( {
+        url: buildUrlWithContextPath("createWcView"),
+        type: 'GET',
+        data : {
+            'id': window.location.href.split('=')[1]
+        },
+        error : function () {},
+        success: function (responseContent) {
+            $(".extra-container",'#repositories').css('display', 'block');
+            $(".extra-container").append("<div class='jstree-container'></div>").show();
+            $('.jstree-container').jstree({
+                'core': {
+                    'data': responseContent
+                },
+                'plugins' : ["contextmenu"], contextmenu: {items: getContextMenuLayout}
+            }).on('loaded.jstree', function (e, data) {
+                // invoked after jstree has loaded
+                $('.jstree').jstree('open_node', '#0');
+            });
+        }
+    });
+}
+
+function getContextMenuLayout(node) {
+    var items = {
+        createItem : {
+            label: "New File",
+            action: function() {}
+        },
+        createDir: {
+            label: "New Folder",
+            action: function() {}
+        },
+        renameItem : {
+            label : "Rename",
+            action : function() {
+                $(".jstree").jstree('set_text', node, "Dsadsad");
+            }
+        },
+        deleteItem : {
+            label: "Delete",
+            action: function() {}
+        }
+    };
+    if (node.icon === "jstree-file") {
+        delete items.createItem;
+        delete items.createDir;
+    }
+
+    return items;
+}
+
+function renameFile() {
+
 }
