@@ -89,7 +89,7 @@ public class ImportRepositoryRunnable implements Runnable{
             e.printStackTrace();
         }
 
-        HashMap<String, String> repositoryDetails = RepositoryUtils.setRepositoryDetailsMap(repositoryName, commitDate, commitMessage,"none","none", engine);
+        HashMap<String, String> repositoryDetails = RepositoryUtils.setRepositoryDetailsMap(repositoryName, commitDate, commitMessage,"none","none","none", engine);
 
 
         doAfter.accept(repositoryDetails);

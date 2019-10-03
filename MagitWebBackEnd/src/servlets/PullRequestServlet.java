@@ -48,8 +48,8 @@ public class PullRequestServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_ACCEPTED);
         synchronized (this) {
             account = userManager.getUsers().get(usernameFromSession);
-            remoteId = account.getRepositories().get(repositoryId).get("remote-id");
-            remoteUserName = account.getRepositories().get(repositoryId).get("remote-user");
+            remoteId = account.getRepositories().get(repositoryId).get("remoteId");
+            remoteUserName = account.getRepositories().get(repositoryId).get("remoteUser");
             UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
             if (action.equals("pr-create")) {
                 try {

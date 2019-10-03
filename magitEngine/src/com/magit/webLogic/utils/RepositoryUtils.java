@@ -8,7 +8,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 
 public class RepositoryUtils {
-    public synchronized static HashMap<String, String> setRepositoryDetailsMap(String repositoryName, String commitDate, String commitMessage,String remoteRepositoryId,String remoteUserName, MagitEngine engine) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    public synchronized static HashMap<String, String> setRepositoryDetailsMap(String repositoryName, String commitDate, String commitMessage,String remoteRepositoryId,String remoteUserName,String remoteRepositoryName, MagitEngine engine) throws IOException, ParseException, PreviousCommitsLimitExceededException {
         HashMap<String,String> repositoryDetails = new HashMap<>();
         String numberOfBranches = Integer.toString(engine.getmRepositoryManager().getBranches().size());
         repositoryDetails.put("name",repositoryName);
@@ -20,8 +20,9 @@ public class RepositoryUtils {
         }
         repositoryDetails.put("commitDate", commitDate);
         repositoryDetails.put("commitMessage", commitMessage);
-        repositoryDetails.put("remote-id", remoteRepositoryId);
-        repositoryDetails.put("remote-user", remoteUserName);
+        repositoryDetails.put("remoteId", remoteRepositoryId);
+        repositoryDetails.put("remoteUser", remoteUserName);
+        repositoryDetails.put("remoteName", remoteRepositoryName);
         return repositoryDetails;
     }
 }

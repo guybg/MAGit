@@ -81,8 +81,11 @@ function getRepositoryInfo() {
                 "<h6 class='card-subtitle mb-2 text-muted head-title'>Head Branch: " + repositoryDetails.Repository.activeBranch + "</h6>" +
                 "<h6 class='card-subtitle mb-2 text-muted'>Last Commit Date: " + repositoryDetails.Repository.commitDate + "</h6>" +
                 "<h6 class='card-subtitle mb-2 text-muted'>Last Commit Message: " + repositoryDetails.Repository.commitMessage + "</h6>" +
+                (repositoryDetails.Repository.remoteId === "none" ? "" :
+                    "<h6 class='card-subtitle mb-2 text-muted'>Remote name: " + repositoryDetails.Repository.remoteName + "</h6>" +
+                    "<h6 class='card-subtitle mb-2 text-muted'>Remote user: " + repositoryDetails.Repository.remoteUser + "</h6>") +
                 "</div>" +
-                "<div id="+ repositoryDetails.Repository.id + " class='remote-id'></div>" +
+                "<div id="+ repositoryDetails.Repository.id + " class='remoteId'></div>" +
                 "</div>");
             delete repositoryDetails.Repository;
             for (var k in repositoryDetails) {

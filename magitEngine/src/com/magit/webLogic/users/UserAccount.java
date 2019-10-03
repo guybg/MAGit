@@ -105,12 +105,14 @@ public class UserAccount {
             String commitDate="No commit",commitMessage="No commit";
             String remoteId = "none";
             String remoteUserName = "";
+            String remoteRepositoryName = "";
             if(engine.getmRepositoryManager().getRepository().getRemoteReference() !=null){
                 String location = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation();
                 remoteId = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation().split("\\\\")[3];
                 remoteUserName = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation().split("\\\\")[2];
+                remoteRepositoryName = engine.getmRepositoryManager().getRepository().getRemoteReference().getRepositoryName();
             }
-            HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage,remoteId,remoteUserName, engine);
+            HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage,remoteId,remoteUserName,remoteRepositoryName, engine);
             repositories.put(id, details);
         }
     }
@@ -128,8 +130,9 @@ public class UserAccount {
         repositories.put(serialNumber,RepositoryUtils.setRepositoryDetailsMap(cloneName,
                 repositoryToCLoneDetails.get("commitDate"),
                 repositoryToCLoneDetails.get("commitMessage"),
-                repositoryToCLoneDetails.get("remote-id"),
-                repositoryToCLoneDetails.get("remote-user"),engine1));
+                repositoryToCLoneDetails.get("remoteId"),
+                repositoryToCLoneDetails.get("remoteUser"),
+                repositoryToCLoneDetails.get("remoteName"),engine1));
     }
 
     public void setOnlineStatus(boolean status){
