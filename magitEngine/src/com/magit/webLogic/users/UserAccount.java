@@ -253,7 +253,7 @@ public class UserAccount {
         return engines.get(id).getCollaborationEngine().getPullRequests();
     }
 
-    public Tree getTree(String id, String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public ArrayList<JsTreeItem> getTree(String id, String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return engines.get(id).getTree(sha1);
     }
 

@@ -20,6 +20,7 @@ import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
 import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import com.magit.logic.utils.jstree.JsTreeAttributes;
 import com.magit.logic.utils.jstree.JsTreeItem;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
@@ -421,11 +422,34 @@ public class MagitEngine {
         return sha1sOfCommit;
     }
 
-    public Tree getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         String pathToRepository = mRepositoryManager.getRepository().getRepositoryPath().toString();
         Path pathToCommit = Paths.get(mRepositoryManager.getRepository().getObjectsFolderPath().toString(), sha1);
-        return WorkingCopyUtils.getWorkingCopyTreeFromCommit
-                (Commit.createCommitInstanceByPath(pathToCommit),pathToRepository);
+        Gson gson = new Gson();
+        ArrayList<JsTreeItem> jstree = new ArrayList<>();
+        Tree tree = WorkingCopyUtils.getWorkingCopyTreeFromCommit(Commit.createCommitInstanceByPath(pathToCommit), pathToRepository);
+        createJsTreeFromWc(tree, jstree,pathToRepository,0,0);
+        return jstree;
+    }
+
+    public int createJsTreeFromWc(FileItem wc, ArrayList<JsTreeItem> jstree, String path, int parentId, Integer id){
+        String fileName = "root";
+        if(wc.getName() != null){
+            fileName = wc.getName();
+        }
+        if(wc.getFileType() == FileType.FILE){
+            JsTreeAttributes attr = new JsTreeAttributes(wc.getFileContent(),Paths.get(path,wc.getName()).toString());
+            jstree.add(new JsTreeItem(id.toString(), Integer.toString(parentId), fileName,"jstree-file",attr));
+            return id;
+        }
+        JsTreeAttributes attr = new JsTreeAttributes(wc.getFileContent(),fileName.equals("root") ? path : Paths.get(path,fileName).toString());
+        jstree.add(new JsTreeItem(id.toString(),fileName.equals("root") ? "#" : Integer.toString(parentId), fileName,"jstree-folder",attr));
+        parentId = id;
+        for(FileItem item : ((Tree)wc).getFiles()){
+            id++;
+            id = createJsTreeFromWc(item,jstree,Paths.get(path,fileName).toString(),parentId, id);
+        }
+        return id;
     }
 }
 

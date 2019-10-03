@@ -432,31 +432,53 @@ function createTreeView(tableRow) {
     })
 }*/
 
-function buildTree(jsonContent) {
-    $(".side-container").empty();
-    var jsonTreeData = [];
-    var nodeQueue = [];
-    var id = 0;
-    nodeQueue.push({'node' : jsonContent, 'parent' : '#' });
-    while (nodeQueue.length > 0) {
-        var currentNodePair = nodeQueue.shift();
-        var jsonNode = { "id" : id,
-            "parent" : currentNodePair.parent, "text" : currentNodePair.node.mName, "icon" : "jstree-folder"};
-        if (typeof currentNodePair.node.mFiles === 'undefined'){
-            jsonNode.icon = "jstree-file";
-            jsonTreeData.push(jsonNode);
-            id++;
-            continue;
-        }
-        jsonTreeData.push(jsonNode);
-        for (var i = 0;i < currentNodePair.node.mFiles.length; i++) {
-            nodeQueue.push({ 'node': currentNodePair.node.mFiles[i], 'parent' : id});
-        }
-        id++;
-    }
-    $(".side-container").append("<div class='jstree-container'></div>");
+//function buildTree(jsonContent) {
+//    $(".side-container").empty();
+//    var jsonTreeData = [];
+//    var nodeQueue = [];
+//    var id = 0;
+//    nodeQueue.push({'node' : jsonContent, 'parent' : '#' });
+//    while (nodeQueue.length > 0) {
+//        var currentNodePair = nodeQueue.shift();
+//        var jsonNode = { "id" : id,
+//            "parent" : currentNodePair.parent, "text" : currentNodePair.node.mName, "icon" : "jstree-folder"};
+//        if (typeof currentNodePair.node.mFiles === 'undefined'){
+//            jsonNode.icon = "jstree-file";
+//            jsonTreeData.push(jsonNode);
+//            id++;
+//            continue;
+//        }
+//        jsonTreeData.push(jsonNode);
+//        for (var i = 0;i < currentNodePair.node.mFiles.length; i++) {
+//            nodeQueue.push({ 'node': currentNodePair.node.mFiles[i], 'parent' : id});
+//        }
+//        id++;
+//    }
+//    $(".side-container").append("<div class='jstree-container'></div>");
+//
+//    $(".jstree-container").jstree( { 'core' : {
+//            'data' : jsonTreeData
+//        }});
+//}
 
-    $(".jstree-container").jstree( { 'core' : {
-            'data' : jsonTreeData
-        }});
+function createTreeView(tableRow) {
+    $(".jstree-container").remove();
+
+    $.ajax({
+        url: buildUrlWithContextPath("createTreeView"),
+        data: {
+            'id': window.location.href.split('=')[1],
+            'sha1': tableRow.id
+        },
+        type: 'GET',
+        error : function() {
+        },
+        success: function(responseContent) {
+            console.log(responseContent);
+            $(".side-container").append("<div class='jstree-container'></div>");
+            $('.jstree-container').jstree({ 'core' : {
+                    'data' : responseContent
+                } });
+        }
+    })
 }
