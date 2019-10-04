@@ -24,7 +24,9 @@ public class RenameFileServlet extends HttpServlet {
         String path = request.getParameter("path");
         String id = request.getParameter("id");
         String newFileName = request.getParameter("newFileName");
-        user.renameFile(id, path, newFileName);
-        response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        if (user.renameFile(id, path, newFileName))
+            response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        else
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
     }
 }
