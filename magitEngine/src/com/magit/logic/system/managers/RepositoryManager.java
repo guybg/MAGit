@@ -367,7 +367,7 @@ public class RepositoryManager {
                 }
             }
         }
-        if(baseCurrentCommit!=null){
+        if(baseCurrentCommit!=null && totalDiff.containsKey(FileStatus.REMOVED)){
           SortedSet<Delta.DeltaFileItem> baseDeltaFileItems = WorkingCopyUtils.getDeltaFileItemSetFromCommit(baseCurrentCommit,mActiveRepository.getRepositoryPath().toString());
           for(Delta.DeltaFileItem deletedItem : totalDiff.get(FileStatus.REMOVED)){
               if(Objects.requireNonNull(baseDeltaFileItems).stream().noneMatch(a->a.getFullPath().toLowerCase().equals(deletedItem.getFullPath().toLowerCase()))){

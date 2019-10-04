@@ -417,7 +417,7 @@ public class MagitEngine {
         return repositoryInfo;
     }
 
-    public void createPullRequest(MagitEngine engineOfSender,String targetBranchName,String baseBranchName,String message) throws IOException, RepositoryNotFoundException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException {
+    public void createPullRequest(MagitEngine engineOfSender,String targetBranchName,String baseBranchName,String message) throws IOException, RepositoryNotFoundException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException, PullRequestException {
         collaborationEngine.createPullRequest(engineOfSender,this.mRepositoryManager.getRepository(),targetBranchName,baseBranchName,message);
     }
 

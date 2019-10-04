@@ -41,7 +41,10 @@ public class MergeEngine {
         oursCommitSha1 = repository.getBranches().get("HEAD").getPointedCommitSha1().toString();
         Commit oursCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, oursCommitSha1));
         Commit theirsCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, branchToBeMergedWith.getPointedCommitSha1().toString()));
-        theirCommitSha1 = theirsCommit.getSha1();
+        if (null == theirsCommit){
+            return;
+        }
+        theirCommitSha1 = Objects.requireNonNull(theirsCommit).getSha1();
         if(isHeadHasNoCommit()){
             handleFastForward(theirsCommit);
         }
@@ -49,7 +52,7 @@ public class MergeEngine {
         Commit ancestorCommit = Commit.createCommitInstanceByPath(Paths.get(pathToObjectsFolder, sha1OfAncestor));
         if (sha1OfAncestor.equals(""))
             return;
-        ancestorCommitSha1 = ancestorCommit.getSha1();
+        ancestorCommitSha1 = Objects.requireNonNull(ancestorCommit).getSha1();
 
 
 

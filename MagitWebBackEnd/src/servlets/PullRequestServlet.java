@@ -66,7 +66,7 @@ public class PullRequestServlet extends HttpServlet {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-                } catch (BranchNotFoundException e) {
+                } catch (BranchNotFoundException | PullRequestException e) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(e.getMessage());

@@ -303,14 +303,14 @@ function printPullRequest(id, pr) {
         "            <h6 class='card-subtitle mb-2 text-muted'>Base branch: " + pr.baseBranch + "</h6>\n" +
         "            <h6 class='card-subtitle mb-2 text-muted'>Date: " + pr.date + "</h6>\n" +
         "            <h6 class='card-subtitle mb-2 text-muted'>Request message: " + pr.message + "</h6>\n" +
-        "            <h6 class='card-subtitle mb-2 text-muted'>Status: " + pr.status + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Status: <span><span class="+ (pr.status === "Open" ? "'badge badge-success'" : (pr.status === "Rejected" ? "'badge badge-danger'" : "'badge badge-secondary'")) + ">" + pr.status + "</span></span></h6>\n" +
         "         </div>\n" +
         "         <div class='col-lg-12 align-self-center buttons-column pb-2'>\n" +
-        "            <button type='button' class='btn btn-branch delete-btn btn-success w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
-        "            <div class='divider'></div>\n" +
-        "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +
-        "            <div class='divider'></div>\n" +
-        "            <button type='button' class='btn btn-branch head-btn btn-info w-100 align-self-end examinePullRequestChanges' id="+ pr.requestId +">Examine changes</button>\n" +
+        (pr.status === "Open" ? "<button type='button' class='btn btn-branch delete-btn btn-success w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
+            "            <div class='divider'></div>\n" +
+            "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +
+            "            <div class='divider'></div>\n" +
+            "            <button type='button' class='btn btn-branch head-btn btn-info w-100 align-self-end examinePullRequestChanges' id="+ pr.requestId +">Examine changes</button>\n" : "") +
         "         </div>\n" +
         "      </div>\n" +
         "   </div>\n" +
