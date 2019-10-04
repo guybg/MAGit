@@ -24,6 +24,7 @@ public class CommitServlet extends HttpServlet {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount user = userManager.getUsers().get(usernameFromSession);
+        response.setContentType("text/html;charset=UTF-8");
         String id = request.getParameter("id");
         String inputFromUser = request.getParameter("inputFromUser");
         String responseContent = null;
