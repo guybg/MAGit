@@ -577,7 +577,7 @@ function createTreeView(tableRow, moreOptionsFunction) {
     })
 }
 
-function addTextAreaWithContent(content,isReadOnly, path) {
+function addTextAreaWithContent(content,isReadOnly, node) {
     $('div.text-area', '.extra-container').empty();
     $('.extra-container').show();
     $('.extra-container').append("<div class='mt-2 pt-2 border-top text-area'><span>File Content</span><textarea cols=\"60\" rows=\"20\" class=\"form-control mb-2\" spellcheck=\"false\"></textarea></div>");
@@ -586,7 +586,7 @@ function addTextAreaWithContent(content,isReadOnly, path) {
     $('textarea','.text-area').numberedtextarea();
     if (!isReadOnly) {
         $('textarea','.text-area').blur(saveContent);
-        $('textarea','.text-area').attr('path', path);
+        $('textarea','.text-area').attr('path', node.li_attr['path']).attr('nodeId', node.id);
     }
 }
 
@@ -595,7 +595,7 @@ function showCommit(isReadOnly) {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
-        addTextAreaWithContent($("#"+data.node.id).attr("content"),isReadOnly, data.node.li_attr['path'])
+        addTextAreaWithContent($("#"+data.node.id).attr("content"),isReadOnly, data.node)
     });
 
     $('.jstree').on("destroy.jstree", function () {
@@ -749,14 +749,19 @@ function createFolder(tree, node) {
 }
 
 function saveContent() {
+    var nodeId = $(this).attr('nodeId');
+    var value = $(this).val();
     $.ajax( {
         url: buildUrlWithContextPath('saveContent'),
         data: {
             'id' : window.location.href.split('=')[1],
             'path' : $(this).attr('path'),
-            'data' : $(this).val()
+            'data' : value
         },
-        type: 'POST'
+        type: 'POST',
+        success : function() {
+            $(".jstree").jstree(true).get_node(nodeId).li_attr['content'] = value;
+        }
     });
 }
 
