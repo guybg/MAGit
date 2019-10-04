@@ -437,7 +437,7 @@ public class MagitEngine {
         return mRepositoryManager.getBranchCommits(mBranchManager.getActiveBranch().getBranchName());
     }
     public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
-        return mRepositoryManager.getTree(sha1);
+        return mRepositoryManager.getJsTreeListByCommitSha1(sha1);
     }
 
     public ArrayList<JsTreeItem> getWorkingCopyStatusJsTree() throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException {
@@ -457,6 +457,10 @@ public class MagitEngine {
     }
     private void removeEntry(SortedSet<Delta.DeltaFileItem> totalEntry,Delta.DeltaFileItem itemToRemove){
         totalEntry.remove(itemToRemove);
+    }
+
+    public ArrayList<JsTreeItem> getTree() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        return mRepositoryManager.getCurrentWorkingCopyJsTree(mUserName);
     }
 }
 

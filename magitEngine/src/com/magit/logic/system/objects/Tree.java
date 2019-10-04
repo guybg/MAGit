@@ -119,5 +119,4 @@ public class Tree extends FileItem {
     public int getNumberOfFiles() {
         return (mFiles == null) ? 0 : mFiles.size();
     }
-
 }

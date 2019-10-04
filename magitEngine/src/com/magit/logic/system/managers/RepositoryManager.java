@@ -392,13 +392,22 @@ public class RepositoryManager {
         return id;
     }
 
-    public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public ArrayList<JsTreeItem> getJsTreeListByCommitSha1(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         String pathToRepository = getRepository().getRepositoryPath().toString();
         Path pathToCommit = Paths.get(getRepository().getObjectsFolderPath().toString(), sha1);
-        Gson gson = new Gson();
         ArrayList<JsTreeItem> jstree = new ArrayList<>();
         Tree tree = WorkingCopyUtils.getWorkingCopyTreeFromCommit(Commit.createCommitInstanceByPath(pathToCommit), pathToRepository);
         createJsTreeFromWc(tree, jstree,pathToRepository,0,0);
+        return jstree;
+    }
+
+    public ArrayList<JsTreeItem> getCurrentWorkingCopyJsTree(String userName) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        String pathToRepository = getRepository().getRepositoryPath().toString();
+        ArrayList<JsTreeItem> jstree = new ArrayList<>();
+        WorkingCopyUtils wcUtils = new WorkingCopyUtils(pathToRepository, userName,new Date());
+        Tree wc = wcUtils.getWc();
+        wc.setName(null);
+        createJsTreeFromWc(wc, jstree ,pathToRepository,0,0);
         return jstree;
     }
 
