@@ -697,29 +697,25 @@ function deleteFile(tree, node) {
 }
 
 function renameFile(tree, node) {
-    var isValidName = false;
-    while (!isValidName) {
-        var previousName = node.text;
-        tree.edit(node, "", function () {
-            var path = node.li_attr['path'];
-            $.ajax({
-                url: buildUrlWithContextPath("renameFile"),
-                data: {
-                    'id': window.location.href.split('=')[1],
-                    'path': path,
-                    'newFileName': path.replace(previousName, node.text)
-                },
-                type: 'POST',
-                error: function () {
-                    errorToast("Invalid file name", false, 3000);
-                },
-                success: function () {
-                    isValidName = true;
-                    node.li_attr['path'] = path.replace(previousName, node.text);
-                }
-            });
+    var previousName = node.text;
+    tree.edit(node, "", function () {
+        var path = node.li_attr['path'];
+        $.ajax({
+            url: buildUrlWithContextPath("renameFile"),
+            data: {
+                'id': window.location.href.split('=')[1],
+                'path': path,
+                'newFileName': path.replace(previousName, node.text)
+            },
+            type: 'POST',
+            error: function () {
+                errorToast("Invalid file name", false, 3000);
+            },
+            success: function () {
+                node.li_attr['path'] = path.replace(previousName, node.text);
+            }
         });
-    }
+    });
 }
 
 function createFile(tree, node) {
