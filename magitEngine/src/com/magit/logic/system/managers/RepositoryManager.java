@@ -396,7 +396,7 @@ public class RepositoryManager {
         parentId = id;
         for(FileItem item : ((Tree)wc).getFiles()){
             id++;
-            id = createJsTreeFromWc(item,jstree,Paths.get(path,fileName).toString(),parentId, id);
+            id = createJsTreeFromWc(item,jstree,fileName.equals("root") ? path : Paths.get(path,fileName).toString(),parentId, id);
         }
         return id;
     }
