@@ -49,10 +49,17 @@ public class CollaborationServlet extends HttpServlet {
                     out.write("Invalid action type.");
                 }
             }
-        } catch (IOException | ParseException | PreviousCommitsLimitExceededException | CommitNotFoundException | UnhandledMergeException | RepositoryNotFoundException | FastForwardException | MergeNotNeededException | MergeException | UncommitedChangesException | RemoteBranchException | PushException | RemoteReferenceException e) {
+        } catch (IOException | ParseException | PreviousCommitsLimitExceededException | CommitNotFoundException | UnhandledMergeException | RepositoryNotFoundException | FastForwardException | MergeException | UncommitedChangesException | RemoteBranchException | PushException | RemoteReferenceException e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             try(PrintWriter out = response.getWriter()) {
                 out.write(e.getMessage());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }catch (MergeNotNeededException e){
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            try(PrintWriter out = response.getWriter()) {
+                out.write("Local repository is up-to-date.");
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

@@ -248,7 +248,7 @@ public class UserAccount {
         engines.get(repositoryId).push();
     }
 
-    public void pull(String repositoryId) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, FastForwardException, UncommitedChangesException, MergeNotNeededException, MergeException, UnhandledMergeException, ParseException, CommitNotFoundException, IOException, RemoteBranchException, RemoteReferenceException {
+    public void pull(String repositoryId) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, FastForwardException, UncommitedChangesException, MergeException, UnhandledMergeException, ParseException, CommitNotFoundException, IOException, RemoteBranchException, RemoteReferenceException, MergeNotNeededException {
         engines.get(repositoryId).pull();
     }
 
@@ -260,8 +260,15 @@ public class UserAccount {
         return engines.get(id).getTree(sha1);
     }
 
+    public ArrayList<JsTreeItem> getPullRequestDifferencesJsTreeArray(String id) throws PreviousCommitsLimitExceededException, IOException, ParseException, RepositoryNotFoundException {
+        return engines.get(id).getWorkingCopyStatusJsTree();
+    }
+
+    public ArrayList<JsTreeItem> getOverallCommitsDiff(String target, String base, String repoId) throws PreviousCommitsLimitExceededException, IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException {
+        return engines.get(repoId).getOverallCommitsDiff(base ,target);
+    }
+
     public ArrayList<JsTreeItem> getTree(String id) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return engines.get(id).getTree();
     }
-
 }

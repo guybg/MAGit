@@ -178,6 +178,8 @@ public class CollaborationEngine {
         } catch (FastForwardException e) {
             engine.commit("message");
         }
+        if(!engine.headBranchHasMergeConflicts())
+            engine.commit("message");
         pullRequests.get(requestId).setStatus(PullRequestStatus.Closed);
     }
 

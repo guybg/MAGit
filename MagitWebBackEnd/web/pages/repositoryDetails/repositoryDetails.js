@@ -306,9 +306,11 @@ function printPullRequest(id, pr) {
         "            <h6 class='card-subtitle mb-2 text-muted'>Status: " + pr.status + "</h6>\n" +
         "         </div>\n" +
         "         <div class='col-lg-12 align-self-center buttons-column pb-2'>\n" +
-        "            <button type='button' class='btn btn-branch delete-btn btn-info w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
+        "            <button type='button' class='btn btn-branch delete-btn btn-success w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
         "            <div class='divider'></div>\n" +
         "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +
+        "            <div class='divider'></div>\n" +
+        "            <button type='button' class='btn btn-branch head-btn btn-info w-100 align-self-end examinePullRequestChanges' id="+ pr.requestId +">Examine changes</button>\n" +
         "         </div>\n" +
         "      </div>\n" +
         "   </div>\n" +
@@ -316,11 +318,12 @@ function printPullRequest(id, pr) {
     //{requestId:pr.requestId,targetBranch:pr.targetBranch,baseBranch:pr.baseBranch,message:pr.message}
     $('.acceptPullRequest',pullRequest).on('click',pr,acceptPullRequest);
     $('.rejectPullRequest',pullRequest).on('click',pr,rejectPullRequest);
+    $('.examinePullRequestChanges',pullRequest).on('click',pr,examinePullRequestChanges);
     $(".pull-requests").append(pullRequest);
 }
 
 function acceptPullRequest(pr) {
-    emptyExtraContainerContentAndHide()
+    emptyExtraContainerContentAndHide();
     $(".side-container").empty();
     $.ajax({
         type: $(this).attr('method'),
@@ -373,6 +376,55 @@ function rejectPullRequest(pr) {
     })
 }
 
+function examinePullRequestChanges(pr) {
+    emptyExtraContainerContentAndHide();
+    $.ajax({
+        type: $(this).attr('method'),
+        url: buildUrlWithContextPath("pullrequest"),
+        data:{
+            'applicant' : pr.data.userName,
+            'repository-id': window.location.href.split('=')[1],
+            'request-id' : pr.data.requestId,
+            'target-branch' : pr.data.targetBranch,
+            'base-branch' : pr.data.baseBranch,
+            'message' : pr.data.message,
+            'pr-action' : "pr-diff"
+        },
+        type: 'GET',
+        error: function (err) {
+            errorToast(err.responseText,false,3000);
+            showPullRequests();
+        },
+        success: function(msg) {
+
+            createTreeFromReadyJsTree(msg, showJsTreeFileInfo);
+        }
+    })
+}
+
+function createTreeFromReadyJsTree(jstreeArray, moreOptionsFunction) {
+    $(".jstree-container").jstree('destroy');
+    $('.extra-container','#repositories').css('display', 'block');
+    $(".extra-container").append("<div class='jstree-container'></div>");
+    $('.jstree-container').jstree({ 'core' : {
+            'data' : jstreeArray
+        } });
+    $('.jstree').on('loaded.jstree', function(e, data) {
+        // invoked after jstree has loaded
+        $('.jstree').jstree('open_node', '#0');});
+    moreOptionsFunction();
+}
+
+function showJsTreeFileInfo() {
+    $('.jstree').on("select_node.jstree", function (e, data) {
+        if(data.node.icon === 'jstree-folder') return;
+        emptyTextAreaAtExtraContainer();
+        addTextAreaWithContent($("#"+data.node.id).attr("content"),true)});
+
+    $('.jstree').on("destroy.jstree", function () {
+        emptyExtraContainerContentAndHide()});
+}
+
 function pull() {
     $.ajax({
         type: $(this).attr('method'),
@@ -408,6 +460,52 @@ function push() {
         }
     })
 }
+
+
+/*function createTreeView() {
+    $.ajax({
+        url: buildUrlWithContextPath("createTreeView"),
+        data: {
+            'id': window.location.href.split('=')[1],
+            'sha1': tableRow.id
+        },
+        type: 'GET',
+        error : function() {
+        },
+        success: function(responseContent) {
+            buildTree($.parseJSON(responseContent));
+        }
+    })
+}*/
+
+//function buildTree(jsonContent) {
+//    $(".side-container").empty();
+//    var jsonTreeData = [];
+//    var nodeQueue = [];
+//    var id = 0;
+//    nodeQueue.push({'node' : jsonContent, 'parent' : '#' });
+//    while (nodeQueue.length > 0) {
+//        var currentNodePair = nodeQueue.shift();
+//        var jsonNode = { "id" : id,
+//            "parent" : currentNodePair.parent, "text" : currentNodePair.node.mName, "icon" : "jstree-folder"};
+//        if (typeof currentNodePair.node.mFiles === 'undefined'){
+//            jsonNode.icon = "jstree-file";
+//            jsonTreeData.push(jsonNode);
+//            id++;
+//            continue;
+//        }
+//        jsonTreeData.push(jsonNode);
+//        for (var i = 0;i < currentNodePair.node.mFiles.length; i++) {
+//            nodeQueue.push({ 'node': currentNodePair.node.mFiles[i], 'parent' : id});
+//        }
+//        id++;
+//    }
+//    $(".side-container").append("<div class='jstree-container'></div>");
+//
+//    $(".jstree-container").jstree( { 'core' : {
+//            'data' : jsonTreeData
+//        }});
+//}
 
 function createTreeView(tableRow, moreOptionsFunction) {
     $(".jstree-container").jstree('destroy');
