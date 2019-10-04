@@ -429,7 +429,7 @@ function createTreeView(tableRow, moreOptionsFunction) {
             $('.jstree').on('loaded.jstree', function(e, data) {
                 // invoked after jstree has loaded
                 $('.jstree').jstree('open_node', '#0');});
-            moreOptionsFunction();
+            moreOptionsFunction(true);
         }
     })
 }
@@ -444,11 +444,11 @@ function addTextAreaWithContent(content,isReadOnly) {
 }
 
 
-function showCommit() {
+function showCommit(isReadOnly) {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
-        addTextAreaWithContent($("#"+data.node.id).attr("content"),true)});
+        addTextAreaWithContent($("#"+data.node.id).attr("content"),isReadOnly)});
 
     $('.jstree').on("destroy.jstree", function () {
         emptyExtraContainerContentAndHide()});
@@ -480,6 +480,7 @@ function loadUpdateWcCommit() {
             $(".extra-container").append("<div class='jstree-container'></div>").show();
             $('.jstree-container').jstree({
                 'core': {
+                    'check_callback': true,
                     'data': responseContent
                 },
                 'plugins' : ["contextmenu"], contextmenu: {items: getContextMenuLayout}
@@ -487,29 +488,39 @@ function loadUpdateWcCommit() {
                 // invoked after jstree has loaded
                 $('.jstree').jstree('open_node', '#0');
             });
+            showCommit(false);
         }
     });
 }
 
 function getContextMenuLayout(node) {
+    var tree = $(".jstree").jstree(true);
     var items = {
         createItem : {
             label: "New File",
-            action: function() {}
+            action: function() {
+                var newNode = tree.create_node(node, {icon: "jstree-file"});
+                tree.edit(newNode);
+            }
         },
         createDir: {
             label: "New Folder",
-            action: function() {}
+            action: function() {
+                var newFolder = tree.create_node(node, {icon: "jstree-folder"});
+                tree.edit(newFolder);
+            }
         },
         renameItem : {
             label : "Rename",
             action : function() {
-                $(".jstree").jstree('set_text', node, "Dsadsad");
+                tree.edit(node);
             }
         },
         deleteItem : {
             label: "Delete",
-            action: function() {}
+            action: function() {
+                tree.delete_node(node);
+            }
         }
     };
     if (node.icon === "jstree-file") {
@@ -518,8 +529,4 @@ function getContextMenuLayout(node) {
     }
 
     return items;
-}
-
-function renameFile() {
-
 }
