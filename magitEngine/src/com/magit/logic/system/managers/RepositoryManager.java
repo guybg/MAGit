@@ -328,8 +328,9 @@ public class RepositoryManager {
     public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> getOverallCommitsDiff(String baseBranch, String targetBranch) throws PreviousCommitsLimitExceededException, IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException {
         SortedMap<Date, Commit> orderedCommits = new TreeMap<>();
         Map<FileStatus, SortedSet<Delta.DeltaFileItem>> totalDiff = new HashMap<>();
+        Commit baseCurrentCommit = null;
         if(!getRepository().getBranches().get(baseBranch).getPointedCommitSha1().toString().isEmpty()){
-            Commit baseCurrentCommit = Commit.createCommitInstanceByPath(Paths.get(getRepository().getObjectsFolderPath().toString(),getRepository().getBranches().get(baseBranch).getPointedCommitSha1().toString()));
+            baseCurrentCommit = Commit.createCommitInstanceByPath(Paths.get(getRepository().getObjectsFolderPath().toString(),getRepository().getBranches().get(baseBranch).getPointedCommitSha1().toString()));
             orderedCommits.put(Objects.requireNonNull(baseCurrentCommit).getCreationDate(),baseCurrentCommit);
         }
 
@@ -365,6 +366,14 @@ public class RepositoryManager {
                     }
                 }
             }
+        }
+        if(baseCurrentCommit!=null){
+          SortedSet<Delta.DeltaFileItem> baseDeltaFileItems = WorkingCopyUtils.getDeltaFileItemSetFromCommit(baseCurrentCommit,mActiveRepository.getRepositoryPath().toString());
+          for(Delta.DeltaFileItem deletedItem : totalDiff.get(FileStatus.REMOVED)){
+              if(Objects.requireNonNull(baseDeltaFileItems).stream().noneMatch(a->a.getFullPath().toLowerCase().equals(deletedItem.getFullPath().toLowerCase()))){
+                  totalDiff.get(FileStatus.REMOVED).remove(deletedItem);
+              }
+          }
         }
         return totalDiff;
     }
