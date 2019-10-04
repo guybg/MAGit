@@ -49,8 +49,9 @@ public class UserAccount {
         return userName;
     }
 
-    public void addRepository(InputStream xml, Consumer<String> exceptionDelegate){
+    public void addRepository(InputStream xml, Consumer<String> exceptionDelegate) throws InvalidNameException {
         MagitEngine engine = new MagitEngine();
+        engine.updateUserName(userName);
         String serialNumber = getFreeRepositoryId();
         engines.put(serialNumber,engine);
         ImportRepositoryRunnable runnable = new ImportRepositoryRunnable(xml, engine, userPath, serialNumber, null, new Consumer<String>() {

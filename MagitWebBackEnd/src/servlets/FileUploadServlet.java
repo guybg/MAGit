@@ -4,6 +4,7 @@ import static constants.Constants.USER_UPLOADED_XML;
 // and http://docs.oracle.com/javaee/6/tutorial/doc/glraq.html
 
 import com.google.gson.Gson;
+import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import utils.ServletUtils;
@@ -53,18 +54,22 @@ public class FileUploadServlet extends HttpServlet {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount account = userManager.getUsers().get(usernameFromSession);
-        account.addRepository(inputStream, new Consumer<String>() {
-            @Override
-            public void accept(String s) {
-                String exceptionMessage = s;
-                try (PrintWriter out = response.getWriter()) {
-                    out.println(exceptionMessage);
-                    out.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
+        try {
+            account.addRepository(inputStream, new Consumer<String>() {
+                @Override
+                public void accept(String s) {
+                    String exceptionMessage = s;
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println(exceptionMessage);
+                        out.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
+        }
         //out.println(fileContent.toString());
     }
 
