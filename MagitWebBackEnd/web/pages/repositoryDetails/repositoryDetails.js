@@ -723,6 +723,10 @@ function createFile(tree, node) {
                 'path': path
             },
             type: 'POST',
+            error : function() {
+                errorToast("Couldn't create file", false, 3000);
+                tree.delete_node(child);
+            },
             success: function() {
                 child.li_attr['path'] = path;
                 child.li_attr['content'] =  "";

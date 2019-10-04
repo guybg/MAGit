@@ -289,8 +289,8 @@ public class UserAccount {
         engines.get(id).renameFile(path, newFileName);
     }
 
-    public void createFile(String id, String path) throws IOException {
-        engines.get(id).createFile(path);
+    public boolean createFile(String id, String path) throws IOException {
+        return engines.get(id).createFile(path);
     }
 
     public void createFolder(String id, String path) {

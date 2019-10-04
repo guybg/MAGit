@@ -481,11 +481,11 @@ public class MagitEngine {
         new File(path).renameTo(new File(newFileName));
     }
 
-    public void createFile(String path) throws IOException {
+    public boolean createFile(String path) throws IOException {
         if (Files.exists(Paths.get(path)))
-            return;
+            return false;
 
-        new File(path).createNewFile();
+        return new File(path).createNewFile();
     }
 
     public void createFolder(String path) {

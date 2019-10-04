@@ -25,8 +25,10 @@ public class CreateFileServlet extends HttpServlet {
         String path = request.getParameter("path");
         String id = request.getParameter("id");
         try {
-            user.createFile(id, path);
-            response.setStatus(HttpServletResponse.SC_ACCEPTED);
+            if (user.createFile(id, path))
+                response.setStatus(HttpServletResponse.SC_ACCEPTED);
+            else
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } catch (IOException ignored) {}
     }
 }
