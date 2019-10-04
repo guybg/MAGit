@@ -158,6 +158,14 @@ public class UserAccount {
         updateRepository(id);
     }
 
+    public void createRemoteTrackingBranch(String id,String remoteBranchName) throws RepositoryNotFoundException, BranchAlreadyExistsException, BranchNotFoundException, InvalidNameException, RemoteReferenceException, IOException {
+        engines.get(id).createRemoteTrackingBranch(remoteBranchName);
+    }
+
+    public void forcedChangeBranch(String id,String branchName) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        engines.get(id).forcedChangeBranch(branchName);
+    }
+
     public void setLastUpdatedNotificationsVersion(Integer notificationsVersion){
         notificationsManager.setLastUpdatedNotificationsVersion(notificationsVersion);
     }

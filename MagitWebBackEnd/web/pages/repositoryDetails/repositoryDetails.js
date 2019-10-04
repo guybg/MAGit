@@ -74,6 +74,7 @@ function getRepositoryInfo() {
             //"{branchesNum=2, commitMessage=changed Foo PSVM to say hello to tao tao, activeBranch=master, name=rep 1, commitDate=Sun Jun 09 20:25:10 IDT 2019}{"HEAD":{"mBranchName":"master","mPointedCommitSha1":{"mSha1Code":"9e10ad75f3f2b5eea8ab9ba42263e742239ffc4e"},"mIsRemote":false,"mTracking":false},"test":{"mBranchName":"test","mPointedCommitSha1":{"mSha1Code":"013855ca533c572d3a29940f08048aa1ea8823ff"},"mIsRemote":false,"mTracking":false},"master":{"mBranchName":"master","mPointedCommitSha1":{"mSha1Code":"9e10ad75f3f2b5eea8ab9ba42263e742239ffc4e"},"mIsRemote":false,"mTracking":false}}"
             repositoryDetails = a;
             numOfBranches = repositoryDetails.Repository.branchesNum;
+            $(".card-repo").remove();
             $(".row-title").prepend(
                 "<div class='m-2 col-xl-5 col-sm-5 square card card-repo' style='width: 50rem;background: rgba(202,255,240,0.74);'>" +
                 "<div class='card-body'>" +
@@ -89,6 +90,7 @@ function getRepositoryInfo() {
                 "<div id="+ repositoryDetails.Repository.id + " class='remoteId'></div>" +
                 "</div>");
             delete repositoryDetails.Repository;
+            $(".branches-container").empty();
             for (var k in repositoryDetails) {
                 $(".branches-container").append(
                     "<div class='card card-branch col-lg-3 col-sm-12 col-md-12' style='background: rgba(255,196,157,0.74);'>\n" +
@@ -176,26 +178,96 @@ function changeHead() {
     $.ajax( {
         data: {
             name: branchName,
-            id: id
+            id: id,
+            requestType: "switch-branch"
         },
         method: 'POST',
         url: checkoutUrl,
         error : function (a) {
-            if (a.responseText.includes("checkout into a remote branch")) {
-                errorToast("You are trying to checkout into a remote branch, this operation is forbidden." +
-                    " Please checkout by using a remote tracking branch instead.",true);
+            if (a.responseJSON.requestType === "remote-branch") {
+                showCreateRemoteBranchModal(branchName,a.responseJSON.msg);
+            }else if(a.responseJSON.requestType === "open-changes"){
+                showForceChangeBranchModal(branchName, a.responseJSON.msg);
             }
             else {
-                errorToast(a.responseText,true)
+                errorToast(a.responseJSON.msg,true)
             }
         },
-        success: function() {
+        success: function(a) {
+            successToast(a.msg,false);
             $(".head-title").text("Head Branch: " + branchName);
             getCommitsInfo();
         }
     })
 }
 
+function showForceChangeBranchModal(branchName,message) {
+    $('#yes-no-modal').on('show.bs.modal', function (event) {
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this);
+        modal.find('.modal-title').text('Are you sure?');
+        modal.find('#body-label').text(message);
+        modal.find('#generic-submit').off('click').click(branchName,forceChangeBranch);
+    });
+    $('#yes-no-modal').modal('show');
+}
+function showCreateRemoteBranchModal(branchName,message) {
+    $('#yes-no-modal').on('show.bs.modal', function (event) {
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this);
+        modal.find('.modal-title').text('Remote tracking branch creation');
+        modal.find('#body-label').text(message);
+        modal.find('#generic-submit').off('click').click(branchName,createRTB);
+    });
+    $('#yes-no-modal').modal('show');
+}
+function forceChangeBranch(branchName) {
+    var id = window.location.href.split('=')[1];
+    var checkoutUrl = buildUrlWithContextPath("checkout");
+    $.ajax( {
+        data: {
+            name: branchName.data,
+            id: id,
+            requestType: "force-checkout"
+        },
+        method: 'POST',
+        url: checkoutUrl,
+        error : function (a) {
+            errorToast(a.responseJSON.msg,true)
+        },
+        success: function(a) {
+            successToast(a.msg,false);
+            $(".head-title").text("Head Branch: " + branchName.data);
+            $('#yes-no-modal').modal('hide');
+            getCommitsInfo();
+        }
+    })
+}
+function createRTB(branchName) {
+    var id = window.location.href.split('=')[1];
+    var checkoutUrl = buildUrlWithContextPath("checkout");
+    $.ajax( {
+        data: {
+            name: branchName.data,
+            id: id,
+            requestType: "create-rtb"
+        },
+        method: 'POST',
+        url: checkoutUrl,
+        error : function (a) {
+            errorToast(a.responseJSON.msg,true);
+        },
+        success: function(a) {
+            successToast(a.msg,false);
+            $(".head-title").text("Head Branch: " + branchName.data);
+            $('#yes-no-modal').modal('hide');
+            getRepositoryInfo()
+            getCommitsInfo();
+        }
+    })
+}
 function createBranch() {
     $('#create-branch-modal').modal('show');
 }

@@ -175,14 +175,16 @@ public class CollaborationEngine {
 
     public void acceptPullRequest(MagitEngine engine, int requestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, BranchNotFoundException, RemoteBranchException, WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, WorkingCopyIsEmptyException, FastForwardException {
         engine.switchRepository(engine.guiGetRepositoryPath());
+        String headName = engine.getHeadBranchName();
         engine.pickHeadBranch(pullRequests.get(requestId).baseBranch);
         try {
             engine.merge(pullRequests.get(requestId).targetBranch, false);
+            if(!engine.headBranchHasMergeConflicts())
+                engine.commit("message");
         } catch (FastForwardException e) {
             engine.commit("message");
         }
-        if(!engine.headBranchHasMergeConflicts())
-            engine.commit("message");
+        engine.pickHeadBranch(headName);
         pullRequests.get(requestId).setStatus(PullRequestStatus.Closed);
     }
 
