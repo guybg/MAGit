@@ -29,7 +29,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -461,6 +464,39 @@ public class MagitEngine {
 
     public ArrayList<JsTreeItem> getTree() throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return mRepositoryManager.getCurrentWorkingCopyJsTree(mUserName);
+    }
+
+    public void deleteFile(String path) throws IOException {
+        File file = new File(path);
+        if (file.isDirectory())
+            FileUtils.deleteDirectory(new File(path));
+        else
+            FileUtils.deleteQuietly(file);
+    }
+
+    public void renameFile(String path, String newFileName) {
+        if (Files.notExists(Paths.get(path)))
+            return;
+
+        new File(path).renameTo(new File(newFileName));
+    }
+
+    public void createFile(String path) throws IOException {
+        if (Files.exists(Paths.get(path)))
+            return;
+
+        new File(path).createNewFile();
+    }
+
+    public void createFolder(String path) {
+        if (Files.exists(Paths.get(path)))
+            return;
+
+        new File(path).mkdirs();
+    }
+
+    public void saveContentToFile(String path, String data) throws IOException {
+        FileUtils.writeStringToFile(new File(path),data, StandardCharsets.UTF_8);
     }
 }
 

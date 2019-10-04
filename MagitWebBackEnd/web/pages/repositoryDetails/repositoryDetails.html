@@ -137,6 +137,10 @@
                                     <i class="fas fa-download fa-3x"></i>
                                     <i>Pull</i>
                                 </button>
+                                <button type="button" class="btn btn-light btn-bar" id='commit'>
+                                    <i class="fas fa-save fa-3x"></i>
+                                    <i>Commit</i>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -246,6 +250,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <input type="submit" form="create-pr-form" class="btn btn-primary" value="Ok">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Commit Message Modal-->
+    <div class="modal fade" id="commit-message-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Commit Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="commit-message-form" method="post" action="commit">
+                        <div class="form-group">
+                            <label for="commit-message" class="col-form-label">Please insert commit message:</label>
+                            <input type="text" class="form-control" name="commitMessage" id="commit-message" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input type="submit" form="commit-message-form" class="btn btn-primary" value="Ok">
                 </div>
             </div>
         </div>
