@@ -14,7 +14,6 @@ $(function() {
             error: function (a) {
                 $('.modal-body-error').text(a.responseText);
                 $('#error-modal').modal('show');
-
             },
             success: function(a) {
                 createBranchView($.parseJSON(a));
