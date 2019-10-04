@@ -232,7 +232,7 @@ public class UserAccount {
         return treeMap;
     }
 
-    public void createPullRequest(UserAccount receiverUser,String engineIdOfReceiver, String targetBranchName,String baseBranchName,String message,String engineId) throws IOException, RepositoryNotFoundException, RemoteReferenceException, PushException, UnhandledMergeException, CommitNotFoundException, ParseException, UncommitedChangesException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException {
+    public void createPullRequest(UserAccount receiverUser,String engineIdOfReceiver, String targetBranchName,String baseBranchName,String message,String engineId) throws IOException, RepositoryNotFoundException, RemoteReferenceException, PushException, UnhandledMergeException, CommitNotFoundException, ParseException, UncommitedChangesException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException, PullRequestException {
         receiverUser.engines.get(engineIdOfReceiver).createPullRequest(engines.get(engineId),targetBranchName,baseBranchName,message);
     }
 

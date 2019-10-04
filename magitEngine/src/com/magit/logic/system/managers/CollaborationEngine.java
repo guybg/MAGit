@@ -151,7 +151,7 @@ public class CollaborationEngine {
                 && Files.exists(Paths.get(pathToMagit.toString(), BRANCHES, FileHandler.readFile(pathToHead.toString())));
     }
 
-    public void createPullRequest(MagitEngine engineOfSender,Repository repositoryOfReceiver, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException, BranchNotFoundException {
+    public void createPullRequest(MagitEngine engineOfSender,Repository repositoryOfReceiver, String targetBranchName,String baseBranchName, String message) throws IOException, UnhandledMergeException, RemoteReferenceException, PushException, RemoteBranchException, CommitNotFoundException, ParseException, UncommitedChangesException, PreviousCommitsLimitExceededException, RepositoryNotFoundException, BranchNotFoundException, PullRequestException {
         PullRequest requestDetails = new PullRequest(pullRequests.size() ,engineOfSender.getUserName(),targetBranchName,baseBranchName,new Date().toString(),message,PullRequestStatus.Open);
 
         if(!repositoryOfReceiver.getBranches().containsKey(targetBranchName)){
@@ -159,6 +159,9 @@ public class CollaborationEngine {
         }
         if(!repositoryOfReceiver.getBranches().containsKey(baseBranchName)){
             throw new BranchNotFoundException(targetBranchName,"Base branch " + baseBranchName + " is not found at remoter repository.");
+        }
+        if(baseBranchName.equals(targetBranchName)){
+            throw new PullRequestException("Target branch and base branch should be different.");
         }
         addPullRequest(requestDetails);
         //MagitEngine engineOfReceiver = new MagitEngine();
