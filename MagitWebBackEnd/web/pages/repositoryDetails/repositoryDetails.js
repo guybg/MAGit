@@ -31,12 +31,14 @@ $(function() {
                 'inputFromUser' : $("#commit-message").val()
             },
             error: function (err) {
-                $('#commit-message-modal').hide();
-                errorToast(err, false, 3000);
+                $('#commit-message-modal').modal('hide');
+                errorToast(err.responseText, false, 3000);
+                getRepositoryInfo();
             },
             success: function(msg) {
-                $('#commit-message-modal').hide();
+                $('#commit-message-modal').modal('hide');
                 successToast(msg,false,3000);
+                getRepositoryInfo();
             }
         })
     });
