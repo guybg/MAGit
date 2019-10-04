@@ -271,4 +271,12 @@ public class UserAccount {
     public ArrayList<JsTreeItem> getTree(String id) throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return engines.get(id).getTree();
     }
+
+    public void deleteFile(String id, String path) {
+        engines.get(id).deleteFile(path);
+    }
+
+    public void renameFile(String id, String path, String newFileName) {
+        engines.get(id).renameFile(path, newFileName);
+    }
 }

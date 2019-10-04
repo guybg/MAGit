@@ -120,4 +120,20 @@
         <servlet-name>CreateWorkingCopyViewServlet</servlet-name>
         <url-pattern>/createWcView</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>DeleteFileServlet</servlet-name>
+        <servlet-class>servlets.DeleteFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DeleteFileServlet</servlet-name>
+        <url-pattern>/deleteFile</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>RenameFileServlet</servlet-name>
+        <servlet-class>servlets.RenameFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RenameFileServlet</servlet-name>
+        <url-pattern>/renameFile</url-pattern>
+    </servlet-mapping>
 </web-app>

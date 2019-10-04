@@ -29,7 +29,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -461,6 +463,17 @@ public class MagitEngine {
 
     public ArrayList<JsTreeItem> getTree() throws ParseException, PreviousCommitsLimitExceededException, IOException {
         return mRepositoryManager.getCurrentWorkingCopyJsTree(mUserName);
+    }
+
+    public void deleteFile(String path) {
+        new File(path).delete();
+    }
+
+    public void renameFile(String path, String newFileName) {
+        if (Files.notExists(Paths.get(path)))
+            return;
+
+        new File(path).renameTo(new File(newFileName));
     }
 }
 

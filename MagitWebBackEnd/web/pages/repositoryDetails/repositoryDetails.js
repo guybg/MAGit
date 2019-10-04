@@ -611,13 +611,13 @@ function getContextMenuLayout(node) {
         renameItem : {
             label : "Rename",
             action : function() {
-                tree.edit(node);
+                renameFile(tree,node);
             }
         },
         deleteItem : {
             label: "Delete",
             action: function() {
-                tree.delete_node(node);
+                deleteFile(tree, node);
             }
         }
     };
@@ -627,4 +627,34 @@ function getContextMenuLayout(node) {
     }
 
     return items;
+}
+
+function deleteFile(tree, node) {
+    $('div.text-area').remove();
+    tree.delete_node(node);
+    $.ajax ({
+        url: buildUrlWithContextPath("deleteFile"),
+        data: {
+            'id' : window.location.href.split('=')[1],
+            'path': node.li_attr['path'].replace("\\root", "")
+        },
+        type: 'POST'
+    });
+}
+
+function renameFile(tree, node) {
+    var previousName = node.text;
+    var s = buildUrlWithContextPath("renameFile");
+    tree.edit(node,"", function () {
+        var path = node.li_attr['path'].replace("\\root", "");
+        $.ajax ({
+            url: buildUrlWithContextPath("renameFile"),
+            data: {
+                'id' : window.location.href.split('=')[1],
+                'path': path,
+                'newFileName': path.replace(previousName, node.text)
+            },
+            type: 'POST'
+        });
+    });
 }
