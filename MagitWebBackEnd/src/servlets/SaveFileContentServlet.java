@@ -11,20 +11,19 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class RenameFileServlet extends HttpServlet {
+public class SaveFileContentServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
     }
 
-    private void processRequest(HttpServletRequest request, HttpServletResponse response) {
+    private void processRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String usernameFromSession = SessionUtils.getUsername(request);
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount user = userManager.getUsers().get(usernameFromSession);
         String path = request.getParameter("path");
         String id = request.getParameter("id");
-        String newFileName = request.getParameter("newFileName");
-        user.renameFile(id, path, newFileName);
-        response.setStatus(HttpServletResponse.SC_ACCEPTED);
+        String data = request.getParameter("data");
+        user.saveContentToFile(id, path, data);
     }
 }

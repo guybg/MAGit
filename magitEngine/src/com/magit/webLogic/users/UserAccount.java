@@ -272,11 +272,27 @@ public class UserAccount {
         return engines.get(id).getTree();
     }
 
-    public void deleteFile(String id, String path) {
+    public void deleteFile(String id, String path) throws IOException {
         engines.get(id).deleteFile(path);
     }
 
     public void renameFile(String id, String path, String newFileName) {
         engines.get(id).renameFile(path, newFileName);
+    }
+
+    public void createFile(String id, String path) throws IOException {
+        engines.get(id).createFile(path);
+    }
+
+    public void createFolder(String id, String path) {
+        engines.get(id).createFolder(path);
+    }
+
+    public void saveContentToFile(String id, String path, String data) throws IOException {
+        engines.get(id).saveContentToFile(path, data);
+    }
+
+    public void commit(String id,String inputFromUser) throws WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, WorkingCopyIsEmptyException, FastForwardException {
+        engines.get(id).commit(inputFromUser);
     }
 }

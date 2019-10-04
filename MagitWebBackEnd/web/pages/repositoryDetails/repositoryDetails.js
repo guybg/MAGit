@@ -22,6 +22,25 @@ $(function() {
             }
         })
     });
+    $("#commit-message-form").submit(function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: $(this).attr('method'),
+            url: $(this).attr('action'),
+            data: {
+                'id' : window.location.href.split('=')[1],
+                'inputFromUser' : $("#commit-message").val()
+            },
+            error: function (err) {
+                $('#commit-message-modal').hide();
+                errorToast(err, false, 3000);
+            },
+            success: function(msg) {
+                $('#commit-message-modal').hide();
+                successToast(msg,false,3000);
+            }
+        })
+    });
     getRepositoryInfo();
 
     $("#manage-prs").click(function () {
@@ -55,6 +74,7 @@ $(function() {
     $("#push").click(push);
     $("#pull").click(pull);
     $("#manage-wc-commit").click(loadUpdateWcCommit);
+    $("#commit").click(commit);
 });
 var numOfBranches;
 
@@ -461,52 +481,6 @@ function push() {
     })
 }
 
-
-/*function createTreeView() {
-    $.ajax({
-        url: buildUrlWithContextPath("createTreeView"),
-        data: {
-            'id': window.location.href.split('=')[1],
-            'sha1': tableRow.id
-        },
-        type: 'GET',
-        error : function() {
-        },
-        success: function(responseContent) {
-            buildTree($.parseJSON(responseContent));
-        }
-    })
-}*/
-
-//function buildTree(jsonContent) {
-//    $(".side-container").empty();
-//    var jsonTreeData = [];
-//    var nodeQueue = [];
-//    var id = 0;
-//    nodeQueue.push({'node' : jsonContent, 'parent' : '#' });
-//    while (nodeQueue.length > 0) {
-//        var currentNodePair = nodeQueue.shift();
-//        var jsonNode = { "id" : id,
-//            "parent" : currentNodePair.parent, "text" : currentNodePair.node.mName, "icon" : "jstree-folder"};
-//        if (typeof currentNodePair.node.mFiles === 'undefined'){
-//            jsonNode.icon = "jstree-file";
-//            jsonTreeData.push(jsonNode);
-//            id++;
-//            continue;
-//        }
-//        jsonTreeData.push(jsonNode);
-//        for (var i = 0;i < currentNodePair.node.mFiles.length; i++) {
-//            nodeQueue.push({ 'node': currentNodePair.node.mFiles[i], 'parent' : id});
-//        }
-//        id++;
-//    }
-//    $(".side-container").append("<div class='jstree-container'></div>");
-//
-//    $(".jstree-container").jstree( { 'core' : {
-//            'data' : jsonTreeData
-//        }});
-//}
-
 function createTreeView(tableRow, moreOptionsFunction) {
     $(".jstree-container").jstree('destroy');
     $.ajax({
@@ -532,13 +506,17 @@ function createTreeView(tableRow, moreOptionsFunction) {
     })
 }
 
-function addTextAreaWithContent(content,isReadOnly) {
+function addTextAreaWithContent(content,isReadOnly, path) {
     $('div.text-area', '.extra-container').empty();
     $('.extra-container').show();
     $('.extra-container').append("<div class='mt-2 pt-2 border-top text-area'><span>File Content</span><textarea cols=\"60\" rows=\"20\" class=\"form-control mb-2\" spellcheck=\"false\"></textarea></div>");
     $('textarea','.text-area').prop('readonly', isReadOnly);
     $('textarea','.text-area').append(content);
     $('textarea','.text-area').numberedtextarea();
+    if (!isReadOnly) {
+        $('textarea','.text-area').blur(saveContent);
+        $('textarea','.text-area').attr('path', path);
+    }
 }
 
 
@@ -546,7 +524,8 @@ function showCommit(isReadOnly) {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
-        addTextAreaWithContent($("#"+data.node.id).attr("content"),isReadOnly)});
+        addTextAreaWithContent($("#"+data.node.id).attr("content"),isReadOnly, data.node.li_attr['path'])
+    });
 
     $('.jstree').on("destroy.jstree", function () {
         emptyExtraContainerContentAndHide()});
@@ -597,15 +576,13 @@ function getContextMenuLayout(node) {
         createItem : {
             label: "New File",
             action: function() {
-                var newNode = tree.create_node(node, {icon: "jstree-file"});
-                tree.edit(newNode);
+                createFile(tree,node);
             }
         },
         createDir: {
             label: "New Folder",
             action: function() {
-                var newFolder = tree.create_node(node, {icon: "jstree-folder"});
-                tree.edit(newFolder);
+                createFolder(tree,node);
             }
         },
         renameItem : {
@@ -636,7 +613,7 @@ function deleteFile(tree, node) {
         url: buildUrlWithContextPath("deleteFile"),
         data: {
             'id' : window.location.href.split('=')[1],
-            'path': node.li_attr['path'].replace("\\root", "")
+            'path': node.li_attr['path']
         },
         type: 'POST'
     });
@@ -644,9 +621,8 @@ function deleteFile(tree, node) {
 
 function renameFile(tree, node) {
     var previousName = node.text;
-    var s = buildUrlWithContextPath("renameFile");
     tree.edit(node,"", function () {
-        var path = node.li_attr['path'].replace("\\root", "");
+        var path = node.li_attr['path'];
         $.ajax ({
             url: buildUrlWithContextPath("renameFile"),
             data: {
@@ -654,7 +630,65 @@ function renameFile(tree, node) {
                 'path': path,
                 'newFileName': path.replace(previousName, node.text)
             },
-            type: 'POST'
+            type: 'POST',
+            success: function() {
+                node.li_attr['path'] = path.replace(previousName, node.text);
+            }
         });
     });
+}
+
+function createFile(tree, node) {
+    var newNodeId = tree.create_node(node, {icon: "jstree-file"});
+    var child = tree.get_node(newNodeId);
+    tree.edit(child, "",function() {
+        var path = node.li_attr['path'] + "\\" + child.text;
+        $.ajax ({
+            url: buildUrlWithContextPath("createFile"),
+            data: {
+                'id' : window.location.href.split('=')[1],
+                'path': path
+            },
+            type: 'POST',
+            success: function() {
+                child.li_attr['path'] = path;
+                child.li_attr['content'] =  "";
+            }
+        });
+    });
+}
+
+function createFolder(tree, node) {
+    var newNodeId = tree.create_node(node, {icon: "jstree-folder"});
+    var child = tree.get_node(newNodeId);
+    tree.edit(child, "",function() {
+        var path = node.li_attr['path'] + "\\" + child.text;
+        $.ajax ({
+            url: buildUrlWithContextPath("createFolder"),
+            data: {
+                'id' : window.location.href.split('=')[1],
+                'path': path
+            },
+            type: 'POST',
+            success: function() {
+                child.li_attr['path'] = path;
+            }
+        });
+    });
+}
+
+function saveContent() {
+    $.ajax( {
+        url: buildUrlWithContextPath('saveContent'),
+        data: {
+            'id' : window.location.href.split('=')[1],
+            'path' : $(this).attr('path'),
+            'data' : $(this).val()
+        },
+        type: 'POST'
+    });
+}
+
+function commit() {
+    $('#commit-message-modal').modal('show');
 }

@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class RenameFileServlet extends HttpServlet {
+public class CreateFolderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         processRequest(request, response);
@@ -23,8 +23,7 @@ public class RenameFileServlet extends HttpServlet {
         UserAccount user = userManager.getUsers().get(usernameFromSession);
         String path = request.getParameter("path");
         String id = request.getParameter("id");
-        String newFileName = request.getParameter("newFileName");
-        user.renameFile(id, path, newFileName);
+        user.createFolder(id, path);
         response.setStatus(HttpServletResponse.SC_ACCEPTED);
     }
 }

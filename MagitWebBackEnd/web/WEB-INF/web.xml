@@ -136,4 +136,36 @@
         <servlet-name>RenameFileServlet</servlet-name>
         <url-pattern>/renameFile</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>CreateFileServlet</servlet-name>
+        <servlet-class>servlets.CreateFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateFileServlet</servlet-name>
+        <url-pattern>/createFile</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>CreateFolderServlet</servlet-name>
+        <servlet-class>servlets.CreateFolderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CreateFolderServlet</servlet-name>
+        <url-pattern>/createFolder</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SaveFileContentServlet</servlet-name>
+        <servlet-class>servlets.SaveFileContentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SaveFileContentServlet</servlet-name>
+        <url-pattern>/saveContent</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>CommitServlet</servlet-name>
+        <servlet-class>servlets.CommitServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CommitServlet</servlet-name>
+        <url-pattern>/pages/repositoryDetails/commit</url-pattern>
+    </servlet-mapping>
 </web-app>
