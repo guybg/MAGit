@@ -698,7 +698,7 @@ function deleteFile(tree, node) {
 
 function renameFile(tree, node) {
     var previousName = node.text;
-    tree.edit(node, "", function () {
+    tree.edit(node, previousName, function () {
         var path = node.li_attr['path'];
         $.ajax({
             url: buildUrlWithContextPath("renameFile"),
@@ -710,6 +710,7 @@ function renameFile(tree, node) {
             type: 'POST',
             error: function () {
                 errorToast("Invalid file name", false, 3000);
+                tree.set_text(node, previousName);
             },
             success: function () {
                 node.li_attr['path'] = path.replace(previousName, node.text);
