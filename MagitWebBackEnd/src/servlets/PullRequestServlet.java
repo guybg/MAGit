@@ -59,7 +59,7 @@ public class PullRequestServlet extends HttpServlet {
                         out.println("Pull request created successfully.");
                         out.flush();
                     }
-                } catch (IOException | RepositoryNotFoundException | RemoteReferenceException | PushException | UnhandledMergeException | CommitNotFoundException | ParseException | UncommitedChangesException | RemoteBranchException | PreviousCommitsLimitExceededException e) {
+                } catch (UncommitedChangesException | IOException | RepositoryNotFoundException | RemoteReferenceException | PushException | UnhandledMergeException | CommitNotFoundException | ParseException | RemoteBranchException | PreviousCommitsLimitExceededException e) {
                     try (PrintWriter out = response.getWriter()) {
                         out.println(e.getMessage());
                         out.flush();
@@ -103,7 +103,7 @@ public class PullRequestServlet extends HttpServlet {
                         out.println("Pull request accepted");
                         out.flush();
                     }
-                } catch (UnhandledMergeException | WorkingCopyStatusNotChangedComparedToLastCommitException | UnhandledConflictsException | WorkingCopyIsEmptyException | BranchNotFoundException | RemoteBranchException | InvalidNameException | RepositoryNotFoundException | MergeNotNeededException | UncommitedChangesException | MergeException | FastForwardException e) {
+                } catch (UnhandledMergeException | WorkingCopyStatusNotChangedComparedToLastCommitException | UnhandledConflictsException | WorkingCopyIsEmptyException | BranchNotFoundException | RemoteBranchException | InvalidNameException | RepositoryNotFoundException | MergeNotNeededException | MergeException | FastForwardException e) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     try (PrintWriter out = response.getWriter()) {
                         out.println(e.getMessage());
@@ -117,6 +117,14 @@ public class PullRequestServlet extends HttpServlet {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
+                }catch (UncommitedChangesException e){
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println("There are unsaved changes, in order to accept the pull request, please commit your changes.");
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             } else if (action.equals("pr-show")) {//show prs
                 response.setContentType("application/json");
