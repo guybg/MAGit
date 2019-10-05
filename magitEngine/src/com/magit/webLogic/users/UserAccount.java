@@ -285,7 +285,7 @@ public class UserAccount {
         engines.get(id).deleteFile(path);
     }
 
-    public boolean renameFile(String id, String path, String newFileName) throws IOException {
+    public boolean renameFile(String id, String path, String newFileName) {
         return engines.get(id).renameFile(path, newFileName);
     }
 

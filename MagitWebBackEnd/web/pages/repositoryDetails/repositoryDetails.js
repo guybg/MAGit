@@ -700,12 +700,14 @@ function renameFile(tree, node) {
     var previousName = node.text;
     tree.edit(node, previousName, function () {
         var path = node.li_attr['path'];
+        node.li_attr['path'] = path;
+        var newPath = path.substring(0, path.lastIndexOf('\\')).concat('\\').concat(node.text);
         $.ajax({
             url: buildUrlWithContextPath("renameFile"),
             data: {
                 'id': window.location.href.split('=')[1],
                 'path': path,
-                'newFileName': path.replace(previousName, node.text)
+                'newFileName': newPath
             },
             type: 'POST',
             error: function () {
@@ -713,7 +715,7 @@ function renameFile(tree, node) {
                 tree.set_text(node, previousName);
             },
             success: function () {
-                node.li_attr['path'] = path.replace(previousName, node.text);
+                node.li_attr['path'] = newPath;
             }
         });
     });
