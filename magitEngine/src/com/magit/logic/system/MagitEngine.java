@@ -474,11 +474,11 @@ public class MagitEngine {
             FileUtils.deleteQuietly(file);
     }
 
-    public boolean renameFile(String path, String newFileName) {
+    public boolean renameFile(String path, String newFileName) throws IOException {
         if (Files.notExists(Paths.get(path)))
             return false;
-
-        return new File(path).renameTo(new File(newFileName));
+        boolean success = new File(path).renameTo(new File(newFileName));
+        return success;
     }
 
     public boolean createFile(String path) throws IOException {
