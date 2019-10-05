@@ -253,7 +253,7 @@ public class UserAccount {
         engines.get(engineId).rejectPullRequest(pullRequestId);
     }
 
-    public void push(String repositoryId) throws IOException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException {
+    public void push(String repositoryId) throws IOException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException, InvalidNameException, RepositoryNotFoundException {
         engines.get(repositoryId).push();
     }
 

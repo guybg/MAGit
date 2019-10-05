@@ -7,6 +7,7 @@ import com.magit.webLogic.users.UserManager;
 import utils.ServletUtils;
 import utils.SessionUtils;
 
+import javax.jws.soap.SOAPBinding;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -33,6 +34,10 @@ public class CollaborationServlet extends HttpServlet {
             if(action.equals("push")){
                 synchronized (getServletContext()){
                     user.push(repositoryId);
+                    String remoteId = user.getRepositories().get(repositoryId).get("remoteId");
+                    String remoteUser = user.getRepositories().get(repositoryId).get("remoteUser");
+                    UserAccount remoteUserAccount = userManager.getUsers().get(remoteUser);
+                    remoteUserAccount.loadRepository(remoteId);
                     try(PrintWriter out = response.getWriter()) {
                         out.write("Pushed successfully!");
                     }
@@ -63,6 +68,8 @@ public class CollaborationServlet extends HttpServlet {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+        } catch (InvalidNameException e) {
+            e.printStackTrace();
         }
     }
 

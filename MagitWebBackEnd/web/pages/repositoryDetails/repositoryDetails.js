@@ -84,7 +84,6 @@ $(function() {
 var numOfBranches;
 function hideRemoteRepositoryRelatedButtons(){
     $('#create-pr').hide();
-    $('#manage-prs').hide();
     $('#push').hide();
     $('#pull').hide();
 }
@@ -806,6 +805,8 @@ function saveContent() {
         type: 'POST',
         success : function() {
             node.li_attr['content'] = value;
+            successToast("File saved!", false,3000);
+            $('textarea','.text-area').prop('readonly', true);
         }
     });
 }
