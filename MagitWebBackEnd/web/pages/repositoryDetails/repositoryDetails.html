@@ -283,7 +283,32 @@
             </div>
         </div>
     </div>
-
+    <!--reject pr Message Modal-->
+    <div class="modal fade" id="reject-pr-message-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Commit Message</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="reject-pr-message-form" method="post" action="commit">
+                        <div class="form-group">
+                            <label for="reject-pr-message" class="col-form-label">Please insert reject reason:</label>
+                            <input type="text" class="form-control" name="commitMessage" id="reject-pr-message" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="reject-pr-message-send" class="btn btn-primary" value="Ok">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <footer class="sticky-footer">
         <div class="container my-auto">
             <div class="copyright text-center my-auto">

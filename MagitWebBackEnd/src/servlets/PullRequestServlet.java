@@ -77,8 +77,9 @@ public class PullRequestServlet extends HttpServlet {
                 }
             } else if (action.equals("pr-reject")) {
                 try {
+                    String rejectMessage = request.getParameter("reject-message");
                     account.rejectPullRequest(repositoryId,Integer.parseInt(requestId));
-                    userManager.getUsers().get(applicantName).addNotification(account.getUserName(),"Pull request reject into repository with id " +repositoryId);
+                    userManager.getUsers().get(applicantName).addNotification(account.getUserName(),"Pull request reject into repository with id " + repositoryId + " by " + usernameFromSession +"<br>" + "with reason: " + rejectMessage);
                     try (PrintWriter out = response.getWriter()) {
                         out.println("Pull request rejected");
                         out.flush();

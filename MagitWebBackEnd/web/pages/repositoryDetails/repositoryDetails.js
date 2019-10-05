@@ -456,10 +456,21 @@ function acceptPullRequest(pr) {
         }
     })
 }
-
 function rejectPullRequest(pr) {
+    $('#reject-pr-message-modal').on('show.bs.modal', function (event) {
+        // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+        // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+        var modal = $(this);
+        var rejectMessage = modal.find('#reject-pr-message').val();
+        modal.find('#reject-pr-message-send').off('click').click({pr: pr,modal :modal},sendRejectPullRequest);
+    });
+    $('#reject-pr-message-modal').modal('show');
+}
+function sendRejectPullRequest(params) {
     emptyExtraContainerContentAndHide();
     $(".side-container").empty();
+    var rejectMessage = params.data.modal.find('#reject-pr-message').val();
+    var pr = params.data.pr;
     $.ajax({
         type: $(this).attr('method'),
         url: buildUrlWithContextPath("pullrequest"),
@@ -470,7 +481,8 @@ function rejectPullRequest(pr) {
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
             'message' : pr.data.message,
-            'pr-action' : "pr-reject"
+            'pr-action' : "pr-reject",
+            'reject-message' : rejectMessage
         },
         type: 'GET',
         error: function (err) {
@@ -480,6 +492,7 @@ function rejectPullRequest(pr) {
         success: function(msg) {
             successToast(msg,false,3000);
             showPullRequests();
+            $('#reject-pr-message-modal').modal('hide');
         }
     })
 }
