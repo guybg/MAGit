@@ -1,13 +1,7 @@
-.card-branch {
-
-}
-
 .main-container {
 
     overflow-y: auto;
     overflow-x: hidden;
-
-
 }
 .buttons-column {
     position: relative;
@@ -19,10 +13,6 @@
 
 .button-bar {
     position: relative;
-}
-
-.btn-bar {
-
 }
 
 .side-container{
@@ -43,4 +33,8 @@ hr.style-four {
 
 .bottom-part{
     background: #F8F9FA;
+}
+
+#content-save-btn {
+    margin-right: 10px;
 }

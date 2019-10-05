@@ -512,7 +512,7 @@ function showJsTreeFileInfo() {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
-        addTextAreaWithContent(true, data.node)});
+        (true, data.node)});
 
     $('.jstree').on("destroy.jstree", function () {
         emptyExtraContainerContentAndHide()});
@@ -586,10 +586,7 @@ function addTextAreaWithContent(isReadOnly, node) {
     $('textarea','.text-area').prop('readonly', isReadOnly);
     $('textarea','.text-area').append(node.li_attr['content']);
     $('textarea','.text-area').numberedtextarea();
-    if (!isReadOnly) {
-        $('textarea','.text-area').blur(saveContent);
-        $('textarea','.text-area').attr('path', node.li_attr['path']).attr('nodeId', node.id);
-    }
+    $('textarea','.text-area').attr('path', node.li_attr['path']).attr('nodeId', node.id);
 }
 
 
@@ -638,7 +635,13 @@ function loadUpdateWcCommit() {
                 // invoked after jstree has loaded
                 $('.jstree').jstree('open_node', '#0');
             });
-            showCommit(false);
+            $(".extra-container").append("<button id='content-save-btn' class='col-lg-1 btn btn-success'>Save</button>" +
+                "<button id='content-edit-btn' class='col-lg-1 btn btn-secondary'>Edit</button>");
+            $("#content-edit-btn").click(function() {
+                $('textarea','.text-area').prop('readonly', false);
+            });
+            $("#content-save-btn").click(saveContent);
+            showCommit(true);
         }
     });
 }
@@ -700,12 +703,14 @@ function renameFile(tree, node) {
     var previousName = node.text;
     tree.edit(node, previousName, function () {
         var path = node.li_attr['path'];
+        var lastPartIndex = path.lastIndexOf('\\');
+        var newPath = path.substring(0, lastPartIndex) + "\\" + node.text;
         $.ajax({
             url: buildUrlWithContextPath("renameFile"),
             data: {
                 'id': window.location.href.split('=')[1],
                 'path': path,
-                'newFileName': path.replace(previousName, node.text)
+                'newFileName': newPath
             },
             type: 'POST',
             error: function () {
@@ -713,7 +718,7 @@ function renameFile(tree, node) {
                 tree.set_text(node, previousName);
             },
             success: function () {
-                node.li_attr['path'] = path.replace(previousName, node.text);
+                node.li_attr['path'] = newPath
             }
         });
     });
@@ -763,18 +768,19 @@ function createFolder(tree, node) {
 }
 
 function saveContent() {
-    var nodeId = $(this).attr('nodeId');
-    var value = $(this).val();
+    var nodeId = $('textarea','.text-area').attr('nodeId');
+    var value = $('textarea','.text-area').val();
+    var node = $(".jstree").jstree(true).get_node(nodeId);
     $.ajax( {
         url: buildUrlWithContextPath('saveContent'),
         data: {
             'id' : window.location.href.split('=')[1],
-            'path' : $(this).attr('path'),
+            'path' : node.li_attr['path'],
             'data' : value
         },
         type: 'POST',
         success : function() {
-            $(".jstree").jstree(true).get_node(nodeId).li_attr['content'] = value;
+            node.li_attr['content'] = value;
         }
     });
 }
