@@ -76,6 +76,10 @@ $(function() {
     $("#pull").click(pull);
     $("#manage-wc-commit").click(loadUpdateWcCommit);
     $("#commit").click(commit);
+    $("#back").click(function () {
+        window.location.href = "../mainScreen/mainScreen.html";
+        showRepositoriesPage();
+    });
 });
 var numOfBranches;
 
