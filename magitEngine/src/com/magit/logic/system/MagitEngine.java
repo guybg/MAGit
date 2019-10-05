@@ -477,7 +477,6 @@ public class MagitEngine {
     public boolean renameFile(String path, String newFileName) {
         if (Files.notExists(Paths.get(path)))
             return false;
-
         return new File(path).renameTo(new File(newFileName));
     }
 

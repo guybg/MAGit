@@ -512,7 +512,7 @@ function showJsTreeFileInfo() {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
-        (true, data.node)});
+        addTextAreaWithContent(false, data.node)});
 
     $('.jstree').on("destroy.jstree", function () {
         emptyExtraContainerContentAndHide()});
@@ -574,27 +574,40 @@ function createTreeView(tableRow, moreOptionsFunction) {
             $('.jstree').on('loaded.jstree', function(e, data) {
                 // invoked after jstree has loaded
                 $('.jstree').jstree('open_node', '#0');});
-            moreOptionsFunction(true);
+            moreOptionsFunction(false);
         }
     })
 }
 
-function addTextAreaWithContent(isReadOnly, node) {
+function addTextAreaWithContent(isWcTree, node) {
     $('div.text-area', '.extra-container').empty();
     $('.extra-container').show();
     $('.extra-container').append("<div class='mt-2 pt-2 border-top text-area'><span>File Content</span><textarea cols=\"60\" rows=\"20\" class=\"form-control mb-2\" spellcheck=\"false\"></textarea></div>");
-    $('textarea','.text-area').prop('readonly', isReadOnly);
+    $('textarea','.text-area').prop('readonly', true);
     $('textarea','.text-area').append(node.li_attr['content']);
     $('textarea','.text-area').numberedtextarea();
     $('textarea','.text-area').attr('path', node.li_attr['path']).attr('nodeId', node.id);
+    if (isWcTree) {
+        $(".extra-container").append(
+            "<button id='content-save-btn' class='col-lg-1 btn btn-success'>" +
+            "<i class='fas fa-save fa-2x'></i>" +
+            "<i>      Save</i></button>" +
+            "<button id='content-edit-btn' class='col-lg-1 btn btn-secondary'>" +
+            "<i class='fas fa-edit fa-2x'></i>" +
+            "<i>Edit</i></button>");
+        $("#content-edit-btn").click(function() {
+            $('textarea','.text-area').prop('readonly', false);
+        });
+        $("#content-save-btn").click(saveContent);
+    }
 }
 
 
-function showCommit(isReadOnly) {
+function showCommit(isWcTree) {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
-        addTextAreaWithContent(isReadOnly, data.node)
+        addTextAreaWithContent(isWcTree, data.node)
     });
 
     $('.jstree').on("destroy.jstree", function () {
@@ -604,6 +617,8 @@ function showCommit(isReadOnly) {
 function emptyTextAreaAtExtraContainer() {
     $('div.text-area','.extra-container').remove();
     $('.extra-container').hide();
+    $("#content-edit-btn").remove();
+    $("#content-save-btn").remove();
 }
 
 function emptyExtraContainerContentAndHide() {
@@ -635,12 +650,6 @@ function loadUpdateWcCommit() {
                 // invoked after jstree has loaded
                 $('.jstree').jstree('open_node', '#0');
             });
-            $(".extra-container").append("<button id='content-save-btn' class='col-lg-1 btn btn-success'>Save</button>" +
-                "<button id='content-edit-btn' class='col-lg-1 btn btn-secondary'>Edit</button>");
-            $("#content-edit-btn").click(function() {
-                $('textarea','.text-area').prop('readonly', false);
-            });
-            $("#content-save-btn").click(saveContent);
             showCommit(true);
         }
     });
