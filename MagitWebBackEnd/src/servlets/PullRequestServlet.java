@@ -99,7 +99,7 @@ public class PullRequestServlet extends HttpServlet {
                 try {
                     response.setContentType("test/html");
                     account.acceptPullRequest(repositoryId, Integer.parseInt(requestId));
-                    userManager.getUsers().get(applicantName).addNotification(account.getUserName(),"Pull request accepted into repository with id " +repositoryId);
+                    userManager.getUsers().get(applicantName).addNotification(account.getUserName(),"Pull request accepted into repository with id " +repositoryId + " by " + usernameFromSession);
                     try (PrintWriter out = response.getWriter()) {
                         out.println("Pull request accepted");
                         out.flush();
