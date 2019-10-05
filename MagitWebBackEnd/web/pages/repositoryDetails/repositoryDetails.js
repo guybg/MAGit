@@ -388,8 +388,12 @@ function showPullRequests() {
         type: 'GET',
         error: function (prs) {},
         success: function(prs) {
-            $(".side-container").append($("<div class='container-fluid'><div class='row pull-requests pb-2'></div></div>"))
-            $.each(prs || [], printPullRequest);
+            if(prs.length === 0){
+                 noticeToast("There are no Pull requests to show", false, 3000);
+            }else {
+                $(".side-container").append($("<div class='container-fluid'><div class='row pull-requests pb-2'></div></div>"))
+                $.each(prs || [], printPullRequest);
+            }
         }
     })
 }

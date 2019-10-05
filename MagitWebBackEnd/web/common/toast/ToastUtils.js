@@ -24,3 +24,17 @@ function errorToast(message, isSticky, time) {
         }
     });
 }
+
+function noticeToast(message, isSticky, time) {
+    $().toastmessage('showToast', {
+        text     : message,
+        sticky   : isSticky,
+        position : 'top-right',
+        type     : 'notice',
+        stayTime : time,
+        closeText: '',
+        close    : function () {
+            console.log("toast is closed ...");
+        }
+    });
+}

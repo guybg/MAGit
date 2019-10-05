@@ -12,9 +12,19 @@ var notificationsversion = 0;
 var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
+
+//<div class="card-header bg-dark align-baseline">
+//        <span class="mt-1 badge badge-primary badge-pill float-left text-left text-light" style="
+//    vertical-align: middle;
+//    ">5</span><div class="text-center text-light">i want you</div>
+//    </div>
     var repository = $("<div class=\"col-xl-3 col-sm-12 col-md-6\">\n" +
-        "        <div class=\"card text-dark bg-light\">\n" +
-        "            <div class=\"card-header bg-dark text-center text-light\">"+details.name+"</div>\n" +
+        "        <div class=\"mb-2 card border text-dark bg-light\">\n" +
+        "           <div class=\"card-header bg-dark align-baseline\">" +
+        "               <span class=\"mt-1 badge badge-primary badge-pill float-left text-left text-light\">" + repoId + "</span>\n" +
+        "               <div class=\"text-center text-light\">"+details.name+"</div>\n" +
+        "           </div>\n" +
+        //"            <div class=\"card-header bg-dark text-center text-light\">"+details.name+"</div>\n" +
         "            <div class=\"card-body\">\n" +
         "                <h5 class=\"card-title\">Repository details</h5>\n" +
         "                \n" +
