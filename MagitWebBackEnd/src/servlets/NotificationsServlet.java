@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import com.magit.webLogic.utils.notifications.SingleNotification;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import constants.Constants;
 import utils.ServletUtils;
 import utils.SessionUtils;
@@ -17,7 +18,17 @@ import java.io.PrintWriter;
 import java.util.List;
 
 public class NotificationsServlet extends HttpServlet {
-
+    private final String SIGN_UP_URL = "../signup/signup.html";
+    private void prepareRedirectAjaxResponse(HttpServletRequest request, HttpServletResponse response, String URL) throws IOException {
+        if (isAjax(request)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setHeader("Location", response.encodeRedirectURL(URL));
+            response.flushBuffer();
+        }
+    }
+    private boolean isAjax(HttpServletRequest request) {
+        return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
+    }
     private void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -25,7 +36,9 @@ public class NotificationsServlet extends HttpServlet {
         UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String username = SessionUtils.getUsername(request);
         if (username == null) {
-            response.sendRedirect(request.getContextPath() + "/index.html");
+            prepareRedirectAjaxResponse(request,response,SIGN_UP_URL);
+            return;
+            //response.sendRedirect(request.getContextPath() + "/index.html");
         }
 
         /*
@@ -48,14 +61,12 @@ public class NotificationsServlet extends HttpServlet {
         int unSeenMessages = 0;
         List<SingleNotification> notificationsEntries;
         UserAccount account;
-        synchronized (getServletContext()) {
-            account = userManager.getUsers().get(username);
-        }
 
         // log and create the response json string
 
         if(isGetNotifications){
             synchronized (getServletContext()){
+                account = userManager.getUsers().get(username);
                 unSeenMessages = account.getNumberOfNewNotifications();
             }
             try (PrintWriter out = response.getWriter()) {
@@ -64,6 +75,7 @@ public class NotificationsServlet extends HttpServlet {
             }
         }else {
             synchronized (getServletContext()) {
+                account = userManager.getUsers().get(username);
                 serverVersion = account.getNotificationsVersion();
                 notificationsEntries = account.getNotifications(version);
             }

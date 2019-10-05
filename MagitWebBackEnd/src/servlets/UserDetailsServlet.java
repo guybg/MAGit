@@ -46,13 +46,12 @@ public class UserDetailsServlet extends HttpServlet {
             response.setHeader("Location", response.encodeRedirectURL(URL));
             response.flushBuffer();
         }
-
     }
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        UserManager userManager = ServletUtils.getUserManager(getServletContext());
         String usernameFromSession = SessionUtils.getUsername(request);
+        UserManager userManager = ServletUtils.getUserManager(getServletContext());
         UserAccount account;
 
         synchronized (this) {

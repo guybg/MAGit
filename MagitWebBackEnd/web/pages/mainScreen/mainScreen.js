@@ -12,12 +12,6 @@ var notificationsversion = 0;
 var numOfNotifications = 0;
 // {"userName":"gh","repositories":{"banana":{"commitMessage":"msg..","name":"repo name","commitDate":"5/5/15","branchesNum":"5","activeBranch":"branch"}, ..}
 function createRepository(repoId, details){
-
-//<div class="card-header bg-dark align-baseline">
-//        <span class="mt-1 badge badge-primary badge-pill float-left text-left text-light" style="
-//    vertical-align: middle;
-//    ">5</span><div class="text-center text-light">i want you</div>
-//    </div>
     var repository = $("<div class=\"col-xl-3 col-sm-12 col-md-6\">\n" +
         "        <div class=\"mb-2 card border text-dark bg-light\">\n" +
         "           <div class=\"card-header bg-dark align-baseline\">" +
@@ -90,7 +84,6 @@ function createRepository(repoId, details){
     
 
 }
-
 
 function bs_input_file() {
     $(".input-file").before(
@@ -237,7 +230,6 @@ function showRepositories() {
         url: USER_DETAILS_URL,
         timeout: 2000,
         error: function() {
-
         },
         success: function(msg) {
             $("#repository-container").empty();
@@ -502,6 +494,7 @@ $(function (){
                 }
             },
             error: function(error) {
+                window.location.href = error.getResponseHeader("Location");
             }
         });
     },1500);
