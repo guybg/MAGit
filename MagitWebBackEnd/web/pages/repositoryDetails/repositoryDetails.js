@@ -81,6 +81,7 @@ $(function() {
         window.location.href = "../mainScreen/mainScreen.html";
         showRepositoriesPage();
     });
+    loadUpdateWcCommit();
 });
 var numOfBranches;
 function hideRemoteRepositoryRelatedButtons(){
@@ -231,7 +232,7 @@ function changeHead(name) {
         success: function(a) {
             successToast(a.msg,false);
             $(".head-title").text("Head Branch: " + branchName);
-            getCommitsInfo();
+            loadUpdateWcCommit();
         }
     })
 }
