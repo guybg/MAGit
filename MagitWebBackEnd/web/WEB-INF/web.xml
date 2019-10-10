@@ -173,4 +173,12 @@
         <servlet-name>CommitServlet</servlet-name>
         <url-pattern>/pages/repositoryDetails/commit</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>OpenChangesServlet</servlet-name>
+        <servlet-class>servlets.OpenChangesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OpenChangesServlet</servlet-name>
+        <url-pattern>/openchanges</url-pattern>
+    </servlet-mapping>
 </web-app>

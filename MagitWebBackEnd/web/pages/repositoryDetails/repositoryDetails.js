@@ -42,6 +42,7 @@ $(function() {
             }
         })
     });
+    setInterval(getRepositoryInfo,2000);
     getRepositoryInfo();
 
     $("#manage-prs").click(function () {
@@ -656,6 +657,14 @@ function emptyExtraContainerContentAndHide() {
 
 function loadUpdateWcCommit() {
     $('.side-container').empty();
+    $('.side-container').append('<div class="pb-2"><button type="button" class="btn btn-dark" onclick="loadUpdateWcCommit()">\n' +
+        '                                    <i class="fas fa-folder fa-3x"></i>\n' +
+        '                                    <i>Update working copy</i>\n' +
+        '                                </button>\n' +
+        '                                <button type="button" class="btn btn-success btn-bar" onclick="showOpenChangesTree()">\n' +
+        '                                    <i class="fas fa-folder-plus fa-3x"></i>\n' +
+        '                                    <i>Open changes tree</i>\n' +
+        '                                </button></div>')
     $('.extra-container').empty();
     $(".jstree-container").jstree('destroy');
     $.ajax( {
@@ -679,6 +688,20 @@ function loadUpdateWcCommit() {
                 $('.jstree').jstree('open_node', '#0');
             });
             showCommit(true);
+        }
+    });
+}
+
+function showOpenChangesTree() {
+    $.ajax( {
+        url: buildUrlWithContextPath("openchanges"),
+        type: 'POST',
+        data : {
+            'id': window.location.href.split('=')[1]
+        },
+        error : function () {},
+        success: function (responseContent) {
+            createTreeFromReadyJsTree(responseContent, showJsTreeFileInfo);
         }
     });
 }

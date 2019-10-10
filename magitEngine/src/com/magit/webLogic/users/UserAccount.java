@@ -304,4 +304,8 @@ public class UserAccount {
     public void commit(String id,String inputFromUser) throws WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, ParseException, PreviousCommitsLimitExceededException, IOException, RepositoryNotFoundException, WorkingCopyIsEmptyException, FastForwardException {
         engines.get(id).commit(inputFromUser);
     }
+
+    public ArrayList<JsTreeItem> getWorkingCopyStatusJsTree(String id) throws PreviousCommitsLimitExceededException, IOException, ParseException, RepositoryNotFoundException {
+        return engines.get(id).getWorkingCopyStatusJsTree();
+    }
 }

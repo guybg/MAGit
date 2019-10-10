@@ -5,6 +5,7 @@ import com.fxgraph.graph.Model;
 import com.magit.controllers.BranchesHistoryScreenController;
 import com.magit.logic.enums.FileStatus;
 import com.magit.logic.exceptions.*;
+import com.magit.logic.system.MagitEngine;
 import com.magit.logic.system.objects.Branch;
 import com.magit.logic.system.objects.Commit;
 import com.magit.logic.system.objects.Repository;
@@ -236,8 +237,30 @@ public class BranchManager {
 
         if(activeRepository.getBranches().get(branchNameToDelete).getIsRemote())
             throw new RemoteBranchException("Remote branches cannot be deleted.",branchNameToDelete);
+
+        if(activeRepository.getBranches().get(branchNameToDelete).getIsTracking()){
+            MagitEngine engine = new MagitEngine();
+            try {
+                engine.switchRepository(activeRepository.getRemoteReference().getLocation());
+                engine.deleteBranch(branchNameToDelete);
+                deleteRemoteBranch(branchNameToDelete, activeRepository);
+            } catch (ParseException | RepositoryNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+
         FileUtils.deleteQuietly(Paths.get(activeRepository.getBranchDirectoryPath().toString(), branchNameToDelete).toFile());
         activeRepository.getBranches().remove(branchNameToDelete);
+    }
+
+    private void deleteRemoteBranch(String remoteTrackingBranchName, Repository activeRepository) throws FileNotFoundException, BranchNotFoundException {
+        String remoteBranchName = String.join("\\",activeRepository.getRemoteReference().getRepositoryName(),remoteTrackingBranchName);
+        if (Files.notExists(activeRepository.getHeadPath()))
+            throw new FileNotFoundException("Head file not found, repository is invalid.");
+        if (!activeRepository.getBranches().containsKey(remoteBranchName))
+            throw new BranchNotFoundException(remoteBranchName, "Branch '" + remoteBranchName + "' cannot be deleted, because it does not exist at current repository.");
+        FileUtils.deleteQuietly(Paths.get(activeRepository.getBranchDirectoryPath().toString(), remoteBranchName).toFile());
+        activeRepository.getBranches().remove(remoteBranchName);
     }
 
     public String pickHeadBranch(String wantedBranchName, Repository activeRepository,
