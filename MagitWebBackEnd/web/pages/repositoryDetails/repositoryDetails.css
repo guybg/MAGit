@@ -39,8 +39,14 @@ hr.style-four {
     margin-right: 10px;
 }
 
-
-
+.btn-commit{
+    color: white;
+    background: rgba(101, 0, 238, 0.59);
+}
+.btn-commit:hover{
+    color: white;
+    background: #9a00ff;
+}
 
 
 

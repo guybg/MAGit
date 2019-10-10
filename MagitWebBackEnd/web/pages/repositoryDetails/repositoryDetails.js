@@ -146,9 +146,9 @@ function getRepositoryInfo() {
                     "</div>\n");
                 $(".card-branch").last().attr('name', k);
                 $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
+                $(".delete-btn").last().click(k,deleteBranch);
+                $(".head-btn").last().click(k,changeHead);
             }
-            $(".delete-btn").click(deleteBranch);
-            $(".head-btn").click(changeHead);
         }
     });
 }
@@ -174,16 +174,17 @@ function createBranchView(branchDetails) {
         "   </div>\n" +
         "</div>");
     $(".card-branch").last().attr('name', branchDetails.Name);
-    $(".delete-btn").last().click(deleteBranch);
-    $(".head-btn").last().click(changeHead);
+    $(".delete-btn").last().click(k,deleteBranch);
+    $(".head-btn").last().click(k,changeHead);
     $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
 }
 
-function deleteBranch() {
+function deleteBranch(name) {
     var deleteBranchUrl = buildUrlWithContextPath("deleteBranch");
     var id = window.location.href.split('=')[1];
     var branch = $(this);
-    var branchName =  $(this).parent().parent().parent().parent().attr('name');
+    //var branchName =  $(this).parent().parent().parent().parent().attr('name');
+    branchName = name.data;
     $.ajax( {
         data: {
             name: branchName,
@@ -203,11 +204,12 @@ function deleteBranch() {
     })
 }
 
-function changeHead() {
-    emptyExtraContainerContentAndHide()
+function changeHead(name) {
+    emptyExtraContainerContentAndHide();
     var id = window.location.href.split('=')[1];
     var checkoutUrl = buildUrlWithContextPath("checkout");
-    var branchName = $(this).parent().parent().parent().parent().attr('name');
+    //var branchName = $(this).parent().parent().parent().parent().attr('name');
+    branchName = name.data;
     $.ajax( {
         data: {
             name: branchName,
@@ -370,13 +372,14 @@ function createPullRequest(targetBranch, baseBranch, message) {
             errorToast(err.responseText,false,3000);
         },
         success: function(msg) {
+            $('#create-pr-modal').modal('hide');
             successToast(msg,false,3000);
         }
     })
 }
 
 function showPullRequests() {
-    emptyExtraContainerContentAndHide()
+    emptyExtraContainerContentAndHide();
     $(".side-container").empty();
     $.ajax({
         type: $(this).attr('method'),
@@ -395,7 +398,7 @@ function showPullRequests() {
             if(prs.length === 0){
                  noticeToast("There are no Pull requests to show", false, 3000);
             }else {
-                $(".side-container").append($("<div class='container-fluid'><div class='row pull-requests pb-2'></div></div>"))
+                $(".side-container").append($("<div class='container-fluid'><div class='row pull-requests pb-2'></div></div>"));
                 $.each(prs || [], printPullRequest);
             }
         }
@@ -403,7 +406,7 @@ function showPullRequests() {
 }
 
 function printPullRequest(id, pr) {
-    pullRequest = $("<div class='card card-branch col-lg-2 col-sm-12 col-md-12 text-dark bg-warning'>\n" +
+    var pullRequest = $("<div class='card card-branch col-lg-2 col-sm-12 col-md-12 text-dark bg-warning'>\n" +
         "   <div class=\"container\"><!--change-->\n" +
         "      <div class=\"row\"><!--change-->" +
         "         <div class='col-lg-12 align-self-start card-body'>\n" +
@@ -415,11 +418,11 @@ function printPullRequest(id, pr) {
         "            <h6 class='card-subtitle mb-2 text-muted'>Status: <span><span class="+ (pr.status === "Open" ? "'badge badge-success'" : (pr.status === "Rejected" ? "'badge badge-danger'" : "'badge badge-secondary'")) + ">" + pr.status + "</span></span></h6>\n" +
         "         </div>\n" +
         "         <div class='col-lg-12 align-self-center buttons-column pb-2'>\n" +
-        (pr.status === "Open" ? "<button type='button' class='btn btn-branch delete-btn btn-success w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
+        (pr.status === "Open" ? "<button type='button' class='btn btn-success w-100 col align-self-end acceptPullRequest' id="+ pr.requestId +">Accept PR</button>\n" +
             "            <div class='divider'></div>\n" +
-            "            <button type='button' class='btn btn-branch head-btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +
+            "            <button type='button' class='btn btn-danger w-100 align-self-end rejectPullRequest' id="+ pr.requestId +">Reject PR</button>\n" +
             "            <div class='divider'></div>\n" +
-            "            <button type='button' class='btn btn-branch head-btn btn-info w-100 align-self-end examinePullRequestChanges' id="+ pr.requestId +">Examine changes</button>\n" : "") +
+            "            <button type='button' class='btn btn-info w-100 align-self-end examinePullRequestChanges' id="+ pr.requestId +">Examine changes</button>\n" : "") +
         "         </div>\n" +
         "      </div>\n" +
         "   </div>\n" +
@@ -518,7 +521,6 @@ function examinePullRequestChanges(pr) {
             showPullRequests();
         },
         success: function(msg) {
-
             createTreeFromReadyJsTree(msg, showJsTreeFileInfo);
         }
     })
@@ -632,7 +634,7 @@ function addTextAreaWithContent(isWcTree, node) {
 }
 
 
-function showCommit(isWcTree) {
+function  showCommit(isWcTree) {
     $('.jstree').on("select_node.jstree", function (e, data) {
         if(data.node.icon === 'jstree-folder') return;
         emptyTextAreaAtExtraContainer();
