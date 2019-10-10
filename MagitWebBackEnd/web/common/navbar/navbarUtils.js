@@ -16,7 +16,7 @@ $(function () {
     });
 });
 $(function () {
-    if(localStorage["pageState"] === ""){
+    if(localStorage["pageState"] === "" || localStorage["pageState"] === undefined){
         saveState("#username")
     }
     $("#username").click(userNameClicked);
