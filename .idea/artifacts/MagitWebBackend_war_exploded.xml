@@ -17,6 +17,8 @@
           <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/fxgraph-0.0.3.jar" />
           <element id="file-copy" path="$PROJECT_DIR$/magitEngine/lib/AncestorFinder.jar" />
           <element id="library" level="project" name="AncestorFinder" />
+          <element id="library" level="project" name="gson-2.11" />
+          <element id="library" level="project" name="gson-2.1" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="MagitWebBackend/web/Web" />
