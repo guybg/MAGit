@@ -36,7 +36,7 @@
     <script src="../mainScreen/mainScreen.js"></script>
     <script src="sb-admin.min.js"></script>
     <script src="repositoryDetails.js"></script>
-
+    <script src="../chatroom/chatroom.js"></script>
     <!-- jstree -->
     <link rel="stylesheet" href="../../common/jsTree/themes/default/style.min.css"/>
     <script src="../../common/jsTree/jstree.min.js"></script>
@@ -317,6 +317,41 @@
         </div>
     </footer>
 </div>
+<div class="container fixed-bottom">
+    <div class="row chat-window col-xs-5 col-md-3" id="chat_window_1" style="margin-left:10px;">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="d-flex panel-heading top-bar">
+                    <div class="col-md-8 col-xs-8">
+                        <h3 id="chat-name" class="panel-title"><span class="fas fa-comment"></span> Chat</h3>
+                    </div>
+                    <div class="col-md-4 col-xs-4" style="text-align: right;">
+                        <a href="#"><span id="minim_chat_window" class="fas fa-minus"></span></a>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row panel-body">
+                        <div id="userslist" class="col-3 msg_container_base">
+                            <span>Online users:</span>
+                        </div>
+                        <div id="chatarea" class="col-9 msg_container_base">
+                        </div>
+                    </div>
+                </div>
 
+
+
+                <div class="panel-footer panel-body">
+                    <div class="input-group">
+                        <input id="btn-input" type="text" class="form-control input-sm chat_input" placeholder="Write your message here..."/>
+                        <span class="d-flex input-group-btn ml-2">
+                        <button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
