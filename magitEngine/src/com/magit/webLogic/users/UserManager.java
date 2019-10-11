@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class UserManager {
 
@@ -26,8 +28,9 @@ public class UserManager {
     public synchronized Map<String, UserAccount> getUsers() {
         return Collections.unmodifiableMap(usersMap);
     }
-    public synchronized Set<String> getUsersAsList() {
-        return Collections.unmodifiableMap(usersMap).keySet();
+    public synchronized Set<String> getOnlineUsersAsList() {
+
+        return Collections.unmodifiableSet(usersMap.entrySet().stream().filter(a->a.getValue().isOnline()).map(Map.Entry::getKey).collect(Collectors.toSet()));
     }
 
     public boolean isUserExists(String username) {
