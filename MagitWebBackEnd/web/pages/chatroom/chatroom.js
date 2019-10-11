@@ -2,7 +2,7 @@ var chatVersion = 0;
 var refreshRate = 2000; //milli seconds
 var USER_LIST_URL = buildUrlWithContextPath("userslist");
 var CHAT_LIST_URL = buildUrlWithContextPath("chat");
-
+var SEND_CHAT_URL = buildUrlWithContextPath("sendchat");
 //users = a list of usernames, essentially an array of javascript strings:
 // ["moshe","nachum","nachche"...]
 function refreshUsersList(users) {
@@ -33,12 +33,22 @@ function appendToChatArea(entries) {
 
 function appendChatEntry(index, entry){
     var entryElement = createChatEntry(entry);
-    $("#chatarea").append(entryElement).append("<br>");
+
+    $("#chatarea").append(entryElement);
 }
 
 function createChatEntry (entry){
     entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
-    return $("<span class=\"success\">").append(entry.username + "> " + entry.chatString);
+    var finalHtmlEntry = $(($("#username").text().substring($("#username").text().indexOf(" ")+1, $("#username").text().lastIndexOf(".")) === entry.username ?
+        "<div class=\"balon2 p-2 m-0 w-100 d-flex align-items-start flex-column\">\n":
+        "<div class=\"balon1 p-2 m-0 w-100 d-flex align-items-end flex-column\">\n") +
+        "                                    <a class=\"text-break w-100\">"+entry.chatString+"</a>\n" +
+        ($("#username").text().substring($("#username").text().indexOf(" ")+1, $("#username").text().lastIndexOf(".")) === entry.username ?
+            "                                    <span class=\"\">"+entry.username+"</span>\n" :
+            "                                    <span class=\"float-right\">"+entry.username+"</span>\n")
+            +
+        "                            </div>");
+    return finalHtmlEntry;
 }
 
 function ajaxUsersList() {
@@ -94,10 +104,10 @@ function ajaxChatContent() {
 //and not actually submit the form
 $(function() { // onload...do
     //add a function to the submit event
-    $("#chatform").submit(function() {
+    $("#btn-chat").click(function() {
         $.ajax({
-            data: $(this).serialize(),
-            url: this.action,
+            data: {"userstring": $('#btn-input').val()},
+            url: SEND_CHAT_URL,
             timeout: 2000,
             error: function() {
                 console.error("Failed to submit");

@@ -26,6 +26,9 @@ public class UserManager {
     public synchronized Map<String, UserAccount> getUsers() {
         return Collections.unmodifiableMap(usersMap);
     }
+    public synchronized Set<String> getUsersAsList() {
+        return Collections.unmodifiableMap(usersMap).keySet();
+    }
 
     public boolean isUserExists(String username) {
         return usersMap.containsKey(username);

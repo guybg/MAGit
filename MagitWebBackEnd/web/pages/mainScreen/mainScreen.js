@@ -500,6 +500,7 @@ $(function (){
     },1500);
 });
 
+
 $(document).ready(function () {
     // ANIMATEDLY DISPLAY THE NOTIFICATION COUNTER.
     $(".toast").toast();
@@ -540,6 +541,27 @@ $(document).ready(function () {
         return false;       // DO NOTHING WHEN CONTAINER IS CLICKED.
     });
 });
+
+$(function () {
+    $('#minim_chat_window').on('click', function (e) {
+        var $this = $(this);
+        if (!$this.hasClass('panel-collapsed')) {
+            $this.parents('.panel').find('.panel-body').slideUp();
+            $this.addClass('panel-collapsed');
+            $this.removeClass('fa-minus').addClass('fa-plus');
+        } else {
+            $this.parents('.panel').find('.panel-body').slideDown();
+            $this.removeClass('panel-collapsed');
+            $this.removeClass('fa-plus').addClass('fa-minus');
+        }
+    });
+    $('.icon_close').on('click', function (e) {
+        //$(this).parent().parent().parent().parent().remove();
+        $( "#chat_window_1" ).remove();
+    });
+
+});
+
 
 function ajaxNotificationsContent() {
     $.ajax({
@@ -607,3 +629,5 @@ function createNotificationEntry (entry){
         "                                    <div class=\"toast-body\"> "+entry.message+" </div>\n" +
         "                                </div>");
 }
+
+

@@ -181,4 +181,28 @@
         <servlet-name>OpenChangesServlet</servlet-name>
         <url-pattern>/openchanges</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>ChatServlet</servlet-name>
+        <servlet-class>servlets.ChatServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ChatServlet</servlet-name>
+        <url-pattern>/chat</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>UsersListServlet</servlet-name>
+        <servlet-class>servlets.UsersListServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>UsersListServlet</servlet-name>
+        <url-pattern>/userslist</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>SendChatServlet</servlet-name>
+        <servlet-class>servlets.SendChatServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SendChatServlet</servlet-name>
+        <url-pattern>/sendchat</url-pattern>
+    </servlet-mapping>
 </web-app>

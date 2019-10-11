@@ -11,4 +11,7 @@ public class Constants {
     public static final int INT_PARAMETER_ERROR = Integer.MIN_VALUE;
 
     public static final Boolean BOOLEAN_PARAMETER_ERROR = Boolean.FALSE;
+
+    public static final String CHAT_PARAMETER = "userstring";
+    public static final String CHAT_VERSION_PARAMETER = "chatversion";
 }

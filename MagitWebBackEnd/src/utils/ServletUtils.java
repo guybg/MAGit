@@ -4,6 +4,7 @@ package utils;
 //import engine.users.UserManager;
 
 import com.magit.logic.system.MagitEngine;
+import com.magit.webLogic.chat.ChatManager;
 import com.magit.webLogic.users.UserManager;
 
 import javax.servlet.ServletContext;
@@ -65,4 +66,14 @@ public class ServletUtils {
         }
         return BOOLEAN_PARAMETER_ERROR;
     }
+
+    public static ChatManager getChatManager(ServletContext servletContext) {
+        synchronized (chatManagerLock) {
+            if (servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME) == null) {
+                servletContext.setAttribute(CHAT_MANAGER_ATTRIBUTE_NAME, new ChatManager());
+            }
+        }
+        return (ChatManager) servletContext.getAttribute(CHAT_MANAGER_ATTRIBUTE_NAME);
+    }
+
 }
