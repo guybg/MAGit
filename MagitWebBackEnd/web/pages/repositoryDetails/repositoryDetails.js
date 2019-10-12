@@ -5,7 +5,7 @@ $(function() {
     $("#create-branch-btn").click(createBranch);
     $('#create-branch-form').submit(function (e) {
         e.preventDefault();
-        var id = window.location.href.split('=')[1];
+        var id = window.location.href.split('=')[1].substring(0,1);
         $.ajax({
             type: $(this).attr('method'),
             url: $(this).attr('action'),
@@ -27,7 +27,7 @@ $(function() {
             type: $(this).attr('method'),
             url: $(this).attr('action'),
             data: {
-                'id' : window.location.href.split('=')[1],
+                'id' : window.location.href.split('=')[1].substring(0,1),
                 'inputFromUser' : $("#commit-message").val()
             },
             error: function (err) {
@@ -54,7 +54,7 @@ $(function() {
     $("#create-pr").click(createPr);
     $('#create-pr-form').submit(function (e) {
         e.preventDefault();
-        var id = window.location.href.split('=')[1];
+        var id = window.location.href.split('=')[1].substring(0,1);
         createPullRequest($('#target-branch').val(),$('#base-branch').val(),$("#pr-create-message").val());
         // $.ajax({
         //     type: $(this).attr('method'),
@@ -91,7 +91,7 @@ function hideRemoteRepositoryRelatedButtons(){
 }
 function getRepositoryInfo() {
     var repositoryDetails;
-    var id = window.location.href.split('=')[1];
+    var id = window.location.href.split('=')[1].substring(0,1);
     var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
     $.ajax( {
         type: 'GET',
@@ -182,7 +182,7 @@ function createBranchView(branchDetails) {
 
 function deleteBranch(name) {
     var deleteBranchUrl = buildUrlWithContextPath("deleteBranch");
-    var id = window.location.href.split('=')[1];
+    var id = window.location.href.split('=')[1].substring(0,1);
     var branch = $(this);
     //var branchName =  $(this).parent().parent().parent().parent().attr('name');
     branchName = name.data;
@@ -207,7 +207,7 @@ function deleteBranch(name) {
 
 function changeHead(name) {
     emptyExtraContainerContentAndHide();
-    var id = window.location.href.split('=')[1];
+    var id = window.location.href.split('=')[1].substring(0,1);
     var checkoutUrl = buildUrlWithContextPath("checkout");
     //var branchName = $(this).parent().parent().parent().parent().attr('name');
     branchName = name.data;
@@ -260,7 +260,7 @@ function showCreateRemoteBranchModal(branchName,message) {
     $('#yes-no-modal').modal('show');
 }
 function forceChangeBranch(branchName) {
-    var id = window.location.href.split('=')[1];
+    var id = window.location.href.split('=')[1].substring(0,1);
     var checkoutUrl = buildUrlWithContextPath("checkout");
     $.ajax( {
         data: {
@@ -282,7 +282,7 @@ function forceChangeBranch(branchName) {
     })
 }
 function createRTB(branchName) {
-    var id = window.location.href.split('=')[1];
+    var id = window.location.href.split('=')[1].substring(0,1);
     var checkoutUrl = buildUrlWithContextPath("checkout");
     $.ajax( {
         data: {
