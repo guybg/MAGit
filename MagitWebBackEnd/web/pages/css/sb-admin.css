@@ -10953,6 +10953,7 @@ body.sidebar-toggled footer.sticky-footer {
   padding: 0 10px 10px;
   max-height:300px;
   overflow-x:hidden;
+  height: 300px;
 }
 .top-bar {
   background: #666;
@@ -11092,4 +11093,9 @@ body.sidebar-toggled footer.sticky-footer {
 
 #userslist{
   background: #c9c9c9;
+}
+
+.smiley-image {
+  width: 20px;
+  height: 20px;
 }

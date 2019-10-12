@@ -38,7 +38,16 @@ function appendChatEntry(index, entry){
 }
 
 function createChatEntry (entry){
-    entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/smiley.png'/>");
+    entry.chatString = entry.chatString.replace (":)", "<img class='smiley-image' src='../../common/images/Smile.png'/>");
+    entry.chatString = entry.chatString.replace (":D", "<img class='smiley-image' src='../../common/images/happy.png'/>");
+    entry.chatString = entry.chatString.replace (":(", "<img class='smiley-image' src='../../common/images/Sad.png'/>");
+    entry.chatString = entry.chatString.replace (":|", "<img class='smiley-image' src='../../common/images/Neutral.png'/>");
+    entry.chatString = entry.chatString.replace (":P", "<img class='smiley-image' src='../../common/images/Tongue.png'/>");
+    entry.chatString = entry.chatString.replace (":,(", "<img class='smiley-image' src='../../common/images/Cry.png'/>");
+    entry.chatString = entry.chatString.replace (":*", "<img class='smiley-image' src='../../common/images/Kiss.png'/>");
+    entry.chatString = entry.chatString.replace (":O", "<img class='smiley-image' src='../../common/images/Shocked.png'/>");
+    entry.chatString = entry.chatString.replace (";)", "<img class='smiley-image' src='../../common/images/Wink.png'/>");
+
     var finalHtmlEntry = $(($("#username").text().substring($("#username").text().indexOf(" ")+1, $("#username").text().lastIndexOf(".")) === entry.username ?
         "<div class=\"balon2 p-2 m-0 w-100 d-flex align-items-start flex-column\">\n":
         "<div class=\"balon1 p-2 m-0 w-100 d-flex align-items-end flex-column\">\n") +
@@ -113,6 +122,7 @@ $(function() { // onload...do
                 console.error("Failed to submit");
             },
             success: function(r) {
+                $('#btn-input').val('');
                 //do not add the user string to the chat area
                 //since it's going to be retrieved from the server
                 //$("#result h1").text(r);

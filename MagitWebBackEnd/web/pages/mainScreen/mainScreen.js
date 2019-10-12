@@ -560,6 +560,14 @@ $(function () {
         $( "#chat_window_1" ).remove();
     });
 
+    $('#btn-input').keypress(function(event){
+
+        var keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode == '13'){
+            $('#btn-chat').click();
+        }
+
+    });
 });
 
 
