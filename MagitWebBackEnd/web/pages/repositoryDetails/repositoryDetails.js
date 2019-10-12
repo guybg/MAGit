@@ -1,3 +1,7 @@
+function getRepositoryId(){
+    return window.location.href.split('=')[1].substring(0,1);
+}
+
 $(function() {
     $( ".navbar-nav .nav-item").click(function() {
         window.location.href = "../mainScreen/mainScreen.html";
@@ -5,7 +9,7 @@ $(function() {
     $("#create-branch-btn").click(createBranch);
     $('#create-branch-form').submit(function (e) {
         e.preventDefault();
-        var id = window.location.href.split('=')[1].substring(0,1);
+        var id = getRepositoryId();
         $.ajax({
             type: $(this).attr('method'),
             url: $(this).attr('action'),
@@ -27,7 +31,7 @@ $(function() {
             type: $(this).attr('method'),
             url: $(this).attr('action'),
             data: {
-                'id' : window.location.href.split('=')[1].substring(0,1),
+                'id' : getRepositoryId(),
                 'inputFromUser' : $("#commit-message").val()
             },
             error: function (err) {
@@ -54,7 +58,7 @@ $(function() {
     $("#create-pr").click(createPr);
     $('#create-pr-form').submit(function (e) {
         e.preventDefault();
-        var id = window.location.href.split('=')[1].substring(0,1);
+        var id = getRepositoryId();
         createPullRequest($('#target-branch').val(),$('#base-branch').val(),$("#pr-create-message").val());
         // $.ajax({
         //     type: $(this).attr('method'),
@@ -91,7 +95,7 @@ function hideRemoteRepositoryRelatedButtons(){
 }
 function getRepositoryInfo() {
     var repositoryDetails;
-    var id = window.location.href.split('=')[1].substring(0,1);
+    var id = getRepositoryId();
     var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
     $.ajax( {
         type: 'GET',
@@ -182,7 +186,7 @@ function createBranchView(branchDetails) {
 
 function deleteBranch(name) {
     var deleteBranchUrl = buildUrlWithContextPath("deleteBranch");
-    var id = window.location.href.split('=')[1].substring(0,1);
+    var id = getRepositoryId();
     var branch = $(this);
     //var branchName =  $(this).parent().parent().parent().parent().attr('name');
     branchName = name.data;
@@ -207,7 +211,7 @@ function deleteBranch(name) {
 
 function changeHead(name) {
     emptyExtraContainerContentAndHide();
-    var id = window.location.href.split('=')[1].substring(0,1);
+    var id = getRepositoryId();
     var checkoutUrl = buildUrlWithContextPath("checkout");
     //var branchName = $(this).parent().parent().parent().parent().attr('name');
     branchName = name.data;
@@ -260,7 +264,7 @@ function showCreateRemoteBranchModal(branchName,message) {
     $('#yes-no-modal').modal('show');
 }
 function forceChangeBranch(branchName) {
-    var id = window.location.href.split('=')[1].substring(0,1);
+    var id = getRepositoryId();
     var checkoutUrl = buildUrlWithContextPath("checkout");
     $.ajax( {
         data: {
@@ -282,7 +286,7 @@ function forceChangeBranch(branchName) {
     })
 }
 function createRTB(branchName) {
-    var id = window.location.href.split('=')[1].substring(0,1);
+    var id = getRepositoryId();
     var checkoutUrl = buildUrlWithContextPath("checkout");
     $.ajax( {
         data: {
@@ -317,7 +321,7 @@ function getCommitsInfo() {
     $.ajax({
             url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
             data: {
-                'id': window.location.href.split('=')[1].substring(0,1)
+                'id': getRepositoryId()
             },
             type: 'GET',
             error: function (a) {
@@ -361,7 +365,7 @@ function createPullRequest(targetBranch, baseBranch, message) {
     $.ajax({
         url: buildUrlWithContextPath("pullrequest"),
         data:{
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
             'request-id' : "none",
             'target-branch' : targetBranch,
             'base-branch' : baseBranch,
@@ -386,7 +390,7 @@ function showPullRequests() {
         type: $(this).attr('method'),
         url: buildUrlWithContextPath("pullrequest"),
         data:{
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
             'request-id' : 'none',
             'target-branch' : 'none',
             'base-branch' : 'none',
@@ -443,7 +447,7 @@ function acceptPullRequest(pr) {
         url: buildUrlWithContextPath("pullrequest"),
         data:{
             'applicant' : pr.data.userName,
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
             'request-id' : pr.data.requestId,
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
@@ -481,7 +485,7 @@ function sendRejectPullRequest(params) {
         url: buildUrlWithContextPath("pullrequest"),
         data:{
             'applicant' : pr.data.userName,
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
             'request-id' : pr.data.requestId,
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
@@ -509,7 +513,7 @@ function examinePullRequestChanges(pr) {
         url: buildUrlWithContextPath("pullrequest"),
         data:{
             'applicant' : pr.data.userName,
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
             'request-id' : pr.data.requestId,
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
@@ -556,7 +560,7 @@ function pull() {
         url: buildUrlWithContextPath("collaboration"),
         data:{
             'action' : 'pull',
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
         },
         type: 'GET',
         error: function (err) {
@@ -574,7 +578,7 @@ function push() {
         url: buildUrlWithContextPath("collaboration"),
         data:{
             'action' : 'push',
-            'repository-id': window.location.href.split('=')[1].substring(0,1),
+            'repository-id': getRepositoryId(),
         },
         type: 'GET',
         error: function (err) {
@@ -591,7 +595,7 @@ function createTreeView(tableRow, moreOptionsFunction) {
     $.ajax({
         url: buildUrlWithContextPath("createTreeView"),
         data: {
-            'id': window.location.href.split('=')[1].substring(0,1),
+            'id': getRepositoryId(),
             'sha1': tableRow.id
         },
         type: 'GET',
@@ -674,7 +678,7 @@ function loadUpdateWcCommit() {
         url: buildUrlWithContextPath("createWcView"),
         type: 'GET',
         data : {
-            'id': window.location.href.split('=')[1].substring(0,1)
+            'id': getRepositoryId()
         },
         error : function () {},
         success: function (responseContent) {
@@ -700,7 +704,7 @@ function showOpenChangesTree() {
         url: buildUrlWithContextPath("openchanges"),
         type: 'POST',
         data : {
-            'id': window.location.href.split('=')[1].substring(0,1)
+            'id': getRepositoryId()
         },
         error : function () {},
         success: function (responseContent) {
@@ -755,7 +759,7 @@ function deleteFile(tree, node) {
     $.ajax ({
         url: buildUrlWithContextPath("deleteFile"),
         data: {
-            'id' : window.location.href.split('=')[1].substring(0,1),
+            'id' : getRepositoryId(),
             'path': node.li_attr['path']
         },
         type: 'POST'
@@ -771,7 +775,7 @@ function renameFile(tree, node) {
         $.ajax({
             url: buildUrlWithContextPath("renameFile"),
             data: {
-                'id': window.location.href.split('=')[1].substring(0,1),
+                'id': getRepositoryId(),
                 'path': path,
                 'newFileName': newPath
             },
@@ -795,7 +799,7 @@ function createFile(tree, node) {
         $.ajax ({
             url: buildUrlWithContextPath("createFile"),
             data: {
-                'id' : window.location.href.split('=')[1].substring(0,1),
+                'id' : getRepositoryId(),
                 'path': path
             },
             type: 'POST',
@@ -819,7 +823,7 @@ function createFolder(tree, node) {
         $.ajax ({
             url: buildUrlWithContextPath("createFolder"),
             data: {
-                'id' : window.location.href.split('=')[1].substring(0,1),
+                'id' : getRepositoryId(),
                 'path': path
             },
             type: 'POST',
@@ -837,7 +841,7 @@ function saveContent() {
     $.ajax( {
         url: buildUrlWithContextPath('saveContent'),
         data: {
-            'id' : window.location.href.split('=')[1].substring(0,1),
+            'id' : getRepositoryId(),
             'path' : node.li_attr['path'],
             'data' : value
         },
