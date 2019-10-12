@@ -317,7 +317,7 @@ function getCommitsInfo() {
     $.ajax({
             url: buildUrlWithContextPath("pages/repositoryDetails/commitsInfo"),
             data: {
-                'id': window.location.href.split('=')[1]
+                'id': window.location.href.split('=')[1].substring(0,1)
             },
             type: 'GET',
             error: function (a) {
@@ -361,7 +361,7 @@ function createPullRequest(targetBranch, baseBranch, message) {
     $.ajax({
         url: buildUrlWithContextPath("pullrequest"),
         data:{
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
             'request-id' : "none",
             'target-branch' : targetBranch,
             'base-branch' : baseBranch,
@@ -386,7 +386,7 @@ function showPullRequests() {
         type: $(this).attr('method'),
         url: buildUrlWithContextPath("pullrequest"),
         data:{
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
             'request-id' : 'none',
             'target-branch' : 'none',
             'base-branch' : 'none',
@@ -443,7 +443,7 @@ function acceptPullRequest(pr) {
         url: buildUrlWithContextPath("pullrequest"),
         data:{
             'applicant' : pr.data.userName,
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
             'request-id' : pr.data.requestId,
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
@@ -481,7 +481,7 @@ function sendRejectPullRequest(params) {
         url: buildUrlWithContextPath("pullrequest"),
         data:{
             'applicant' : pr.data.userName,
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
             'request-id' : pr.data.requestId,
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
@@ -509,7 +509,7 @@ function examinePullRequestChanges(pr) {
         url: buildUrlWithContextPath("pullrequest"),
         data:{
             'applicant' : pr.data.userName,
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
             'request-id' : pr.data.requestId,
             'target-branch' : pr.data.targetBranch,
             'base-branch' : pr.data.baseBranch,
@@ -556,7 +556,7 @@ function pull() {
         url: buildUrlWithContextPath("collaboration"),
         data:{
             'action' : 'pull',
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
         },
         type: 'GET',
         error: function (err) {
@@ -574,7 +574,7 @@ function push() {
         url: buildUrlWithContextPath("collaboration"),
         data:{
             'action' : 'push',
-            'repository-id': window.location.href.split('=')[1],
+            'repository-id': window.location.href.split('=')[1].substring(0,1),
         },
         type: 'GET',
         error: function (err) {
@@ -591,7 +591,7 @@ function createTreeView(tableRow, moreOptionsFunction) {
     $.ajax({
         url: buildUrlWithContextPath("createTreeView"),
         data: {
-            'id': window.location.href.split('=')[1],
+            'id': window.location.href.split('=')[1].substring(0,1),
             'sha1': tableRow.id
         },
         type: 'GET',
@@ -700,7 +700,7 @@ function showOpenChangesTree() {
         url: buildUrlWithContextPath("openchanges"),
         type: 'POST',
         data : {
-            'id': window.location.href.split('=')[1]
+            'id': window.location.href.split('=')[1].substring(0,1)
         },
         error : function () {},
         success: function (responseContent) {
@@ -755,7 +755,7 @@ function deleteFile(tree, node) {
     $.ajax ({
         url: buildUrlWithContextPath("deleteFile"),
         data: {
-            'id' : window.location.href.split('=')[1],
+            'id' : window.location.href.split('=')[1].substring(0,1),
             'path': node.li_attr['path']
         },
         type: 'POST'
@@ -771,7 +771,7 @@ function renameFile(tree, node) {
         $.ajax({
             url: buildUrlWithContextPath("renameFile"),
             data: {
-                'id': window.location.href.split('=')[1],
+                'id': window.location.href.split('=')[1].substring(0,1),
                 'path': path,
                 'newFileName': newPath
             },
@@ -795,7 +795,7 @@ function createFile(tree, node) {
         $.ajax ({
             url: buildUrlWithContextPath("createFile"),
             data: {
-                'id' : window.location.href.split('=')[1],
+                'id' : window.location.href.split('=')[1].substring(0,1),
                 'path': path
             },
             type: 'POST',
@@ -819,7 +819,7 @@ function createFolder(tree, node) {
         $.ajax ({
             url: buildUrlWithContextPath("createFolder"),
             data: {
-                'id' : window.location.href.split('=')[1],
+                'id' : window.location.href.split('=')[1].substring(0,1),
                 'path': path
             },
             type: 'POST',
@@ -837,7 +837,7 @@ function saveContent() {
     $.ajax( {
         url: buildUrlWithContextPath('saveContent'),
         data: {
-            'id' : window.location.href.split('=')[1],
+            'id' : window.location.href.split('=')[1].substring(0,1),
             'path' : node.li_attr['path'],
             'data' : value
         },
