@@ -674,7 +674,7 @@ function loadUpdateWcCommit() {
         url: buildUrlWithContextPath("createWcView"),
         type: 'GET',
         data : {
-            'id': window.location.href.split('=')[1]
+            'id': window.location.href.split('=')[1].substring(0,1)
         },
         error : function () {},
         success: function (responseContent) {
