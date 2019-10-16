@@ -1,5 +1,6 @@
 package com.magit.webLogic.users;
 
+import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.logic.exceptions.PreviousCommitsLimitExceededException;
 import com.magit.logic.system.MagitEngine;
 
@@ -17,7 +18,8 @@ public class UserManager {
         usersMap = new HashMap<>();
     }
 
-    public synchronized void addUser(String username, UserAccount account) {
+    public synchronized void addUser(String username, UserAccount account) throws InvalidNameException {
+        new MagitEngine().updateUserName(username);
         usersMap.put(username.toLowerCase(), account);
     }
 

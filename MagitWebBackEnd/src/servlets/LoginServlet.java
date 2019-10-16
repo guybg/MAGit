@@ -1,5 +1,6 @@
 package servlets;
 
+import com.magit.logic.exceptions.InvalidNameException;
 import com.magit.webLogic.users.UserAccount;
 import com.magit.webLogic.users.UserManager;
 import constants.Constants;
@@ -107,7 +108,15 @@ public class LoginServlet extends HttpServlet {
                                //add the new user to the users list
                                account = new UserAccount(usernameFromParameter);
 
-                               userManager.addUser(usernameFromParameter, account);
+                               try {
+                                   userManager.addUser(usernameFromParameter, account);
+                               } catch (InvalidNameException e) {
+                                   String errorMessage = e.getMessage();
+                                   try (PrintWriter out = response.getWriter()) {
+                                       out.print(errorMessage);
+                                       out.flush();
+                                   }
+                               }
                            }else{
                                account = userManager.getUsers().get(usernameFromParameter);
                            }
