@@ -74,7 +74,7 @@ public class MagitEngine {
 
     public void updateUserName(String userNameToSet) throws InvalidNameException {
         if (StringUtils.containsOnly(userNameToSet, BLANK_SPACE) || userNameToSet.isEmpty() || !userNameToSet.matches("^[a-zA-Z0-9]*$"))
-            throw new InvalidNameException("Username should contain only alphanumeric character from A–Za-z or 0–9 or any symbol that is not a blank space.");
+            throw new InvalidNameException("Username should contain only alphanumeric characters from A–Za-z or 0–9 or any symbol that is not a blank space.");
         mUserName = userNameToSet;
     }
 
