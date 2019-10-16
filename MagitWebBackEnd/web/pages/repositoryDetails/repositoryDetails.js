@@ -17,8 +17,9 @@ $(function() {
             data: {branchName: $("#branch-name",this).val(), id: id},
             timeout: 2000,
             error: function (a) {
-                $('.modal-body-error').text(a.responseText);
-                $('#error-modal').modal('show');
+                //$('.modal-body-error').text(a.responseText);
+                errorToast(a.responseText,false,3000);
+                //$('#error-modal').modal('show');
             },
             success: function(a) {
                 $('#create-branch-modal').modal('hide');
