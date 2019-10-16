@@ -149,7 +149,7 @@ public class UserAccount {
         return engines.get(id).getRepositoryInfo(repositories.get(id));
     }
 
-    public void deleteBranch(String branchName,String id) throws RemoteBranchException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, IOException, ParseException, PreviousCommitsLimitExceededException, InvalidNameException {
+    public void deleteBranch(String branchName,String id) throws RemoteBranchException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, IOException, ParseException, PreviousCommitsLimitExceededException, InvalidNameException, BranchDeletedRemotelyException {
         engines.get(id).deleteBranch(branchName);
         updateRepository(id);
     }

@@ -205,6 +205,7 @@ function deleteBranch(name) {
         success: function() {
             branch.parent().parent().parent().parent().remove();
             $(".branches-count").text("Number of Branches: " + $(".card-branch").length);
+            successToast("Branch deleted successfully!",false,3000);
         }
     })
 }

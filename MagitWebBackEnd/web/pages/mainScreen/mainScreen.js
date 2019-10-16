@@ -148,9 +148,9 @@ function uploadAjaxSubmit() {
     });
 };
 
-function userNameClicked() {
+function userNameClicked() { ////////////// todo remove
     stopShowingRepositories();
-    saveState("#username");
+    saveState("#repositoriesbutton");
     emptyContainers();
     $("#main-container").append(
         "      <div class=\"my-3 p-3 bg-light rounded box-shadow\">\n" +
@@ -495,6 +495,7 @@ $(function (){
             },
             error: function(error) {
                 window.location.href = error.getResponseHeader("Location");
+                localStorage["pageState"] = "";
             }
         });
     },1500);
@@ -568,6 +569,8 @@ $(function () {
         }
 
     });
+    $('#minim_chat_window').parents('.panel').find('.panel-body').slideUp(0);
+    $('#minim_chat_window').removeClass('fa-minus').addClass('fa-plus');
 });
 
 

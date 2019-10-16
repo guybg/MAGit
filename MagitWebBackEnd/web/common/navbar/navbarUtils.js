@@ -17,9 +17,9 @@ $(function () {
 });
 $(function () {
     if(localStorage["pageState"] === "" || localStorage["pageState"] === undefined){
-        saveState("#username")
+        saveState("#repositoriesbutton")
     }
-    $("#username").click(userNameClicked);
+    //$("#username").click(userNameClicked);
     $("#repositoriesbutton").click(showRepositoriesPage);
     $("#users").click(showUsersPage);
     $("#logout").click(logout);
@@ -33,6 +33,9 @@ function bindNavClick(){
     $( ".navbar-nav .nav-item" ).bind( "click", function(event) {
         event.preventDefault();
         var clickedItem = $( this );
+        if(clickedItem.children().attr("id") === "username"){
+            return;
+        }
         $( ".navbar-nav .nav-item" ).each( function() {
             $( this ).removeClass( "active" );
         });
@@ -70,6 +73,7 @@ function logout() {
         },
         success: function () {}
     });
+    localStorage["pageState"] = "";
 }
 
 $(function() {

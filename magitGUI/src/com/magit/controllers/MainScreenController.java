@@ -509,6 +509,8 @@ public class MainScreenController implements Initializable, BasicController {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
+                } catch (BranchDeletedRemotelyException e) {
+                    e.printStackTrace();
                 }
                 ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
             }, true, "Are you sure?", "Deleting branch cannot be reverted", "Cancel");
@@ -918,6 +920,8 @@ public class MainScreenController implements Initializable, BasicController {
                     deleteBranchCotnroller.setError("Please enter valid name.");
                 } catch (RemoteBranchException e) {
                     deleteBranchCotnroller.setError(e.getMessage());
+                } catch (BranchDeletedRemotelyException e) {
+                    e.printStackTrace();
                 }
             } catch (ActiveBranchDeletedException ex) {
                 deleteBranchCotnroller.setError("Can't delete active branch");

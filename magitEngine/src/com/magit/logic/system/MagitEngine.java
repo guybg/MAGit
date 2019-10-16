@@ -220,7 +220,7 @@ public class MagitEngine {
     public ArrayList<Branch> getNonRemoteBranches(){
         return getBranches().stream().filter(b->b.getIsRemote().equals(false)).collect(Collectors.toCollection(ArrayList::new));
     }
-    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException {
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException, BranchDeletedRemotelyException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
