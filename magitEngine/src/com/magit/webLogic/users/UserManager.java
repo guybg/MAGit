@@ -18,7 +18,7 @@ public class UserManager {
     }
 
     public synchronized void addUser(String username, UserAccount account) {
-        usersMap.put(username, account);
+        usersMap.put(username.toLowerCase(), account);
     }
 
     public synchronized void removeUser(String username) {

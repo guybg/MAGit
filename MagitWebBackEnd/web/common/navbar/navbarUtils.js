@@ -29,17 +29,17 @@ $(function () {
     resumeState();
 });
 
-function bindNavClick(){
-    $( ".navbar-nav .nav-item" ).bind( "click", function(event) {
+function bindNavClick() {
+    $(".navbar-nav .nav-item").bind("click", function (event) {
         event.preventDefault();
-        var clickedItem = $( this );
-        if(clickedItem.children().attr("id") === "username"){
+        var clickedItem = $(this);
+        if (clickedItem.children().attr("id") === "username" || clickedItem.children().attr("id") === "userNameItem") {
             return;
         }
-        $( ".navbar-nav .nav-item" ).each( function() {
-            $( this ).removeClass( "active" );
+        $(".navbar-nav .nav-item").each(function () {
+            $(this).removeClass("active");
         });
-        clickedItem.addClass( "active" );
+        clickedItem.addClass("active");
     });
 }
 
@@ -56,6 +56,7 @@ function resumeState() {
     var resumeId = localStorage["pageState"];
     if(resumeId === "empty"){
         emptyContainers();
+        localStorage["pageState"] = "repositorydetails"
         return;
     }
     $(resumeId).trigger("click");

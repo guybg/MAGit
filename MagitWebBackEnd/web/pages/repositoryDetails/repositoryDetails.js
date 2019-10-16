@@ -4,7 +4,8 @@ function getRepositoryId(){
 
 $(function() {
     $( ".navbar-nav .nav-item").click(function() {
-        window.location.href = "../mainScreen/mainScreen.html";
+        if($(this).children().attr("id") !== "userNameItem")
+            window.location.href = "../mainScreen/mainScreen.html";
     });
     $("#create-branch-btn").click(createBranch);
     $('#create-branch-form').submit(function (e) {
@@ -136,10 +137,10 @@ function getRepositoryInfo() {
                     "      <div class=\"row\"><!--change-->" +
                     "         <div class='col-lg-8 align-self-start card-body'>\n" +
                     "            <h4 class='card-title'>Branch Name: " + k + "</h4>\n" +
-                    "            <h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + repositoryDetails[k].Commit+ "</h6>\n" +
-                    "            <h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + repositoryDetails[k].IsTracking + "</h6>\n" +
-                    "            <h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + repositoryDetails[k].IsRemote + "</h6>\n" +
-                    "            <h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + repositoryDetails[k].TrackingAfter + "</h6>\n" +
+                    "            <h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: <b>" + repositoryDetails[k].Commit+ "</b></h6>\n" +
+                    "            <h6 class='card-subtitle mb-2 text-muted'>Is Remote: <b>" + repositoryDetails[k].IsRemote + "</b></h6>\n" +
+                    (repositoryDetails[k].IsTracking === "true" ? "            <h6 class='card-subtitle mb-2 text-muted'>Tracking After: <b>" + repositoryDetails[k].TrackingAfter + "</b></h6>\n":
+                        "")+
                     "         </div>\n" +
                     "         <div class='col-lg-4 align-self-center buttons-column'>\n" +
                     "            <button type='button' class='btn btn-branch delete-btn btn-danger w-100 col align-self-end'>Delete Branch</button>\n" +
@@ -165,10 +166,10 @@ function createBranchView(branchDetails) {
         "      <div class=\"row\"><!--change-->" +
         "         <div class='col-lg-8 align-self-start card-body'>\n" +
         "            <h4 class='card-title'>Branch Name: " + branchDetails.Name + "</h4>\n" +
-        "            <h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: " + branchDetails.Commit+ "</h6>\n" +
-        "            <h6 class='card-subtitle mb-2 text-muted'>Is Tracking: " + branchDetails.IsTracking + "</h6>\n" +
-        "            <h6 class='card-subtitle mb-2 text-muted'>Is Remote: " + branchDetails.IsRemote + "</h6>\n" +
-        "            <h6 class='card-subtitle mb-2 text-muted'>Tracking After: " + branchDetails.TrackingAfter + "</h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Pointing Commit: <b>" + branchDetails.Commit+ "</b></h6>\n" +
+        "            <h6 class='card-subtitle mb-2 text-muted'>Is Remote: <b>" + branchDetails.IsRemote + "</b></h6>\n" +
+        (branchDetails.IsTracking === "true" ? "            <h6 class='card-subtitle mb-2 text-muted'>Tracking After: <b>" + branchDetails.TrackingAfter + "</b></h6>\n" :
+            "")+
         "         </div>\n" +
         "         <div class='col-lg-4 align-self-center buttons-column'>\n" +
         "            <button type='button' class='btn btn-branch delete-btn btn-danger w-100 col align-self-end'>Delete Branch</button>\n" +
@@ -565,7 +566,10 @@ function pull() {
         },
         type: 'GET',
         error: function (err) {
-            errorToast(err.responseText,false,3000);
+            noticeToast(err.responseText,false,3000);
+            if(err.responseText.includes("please commit")){
+                commit(true);
+            }
         },
         success: function(msg) {
             successToast(msg,false, 3000);
@@ -855,6 +859,18 @@ function saveContent() {
     });
 }
 
-function commit() {
+function commit(fastForward) {
+    if(typeof(fastForward) != "boolean")
+        fastForward = false;
+    if(fastForward){
+        $('#commit-message-modal #commit-message-form').hide();
+        $('#commit-message-modal').on('show.bs.modal', function() {
+            var modal = $(this);
+            modal.find("#commit-message").readOnly = true;
+            modal.find("#commit-message").val(" ");
+        })
+    }else{
+        $('#commit-message-modal #commit-message-form').show();
+    }
     $('#commit-message-modal').modal('show');
 }

@@ -11099,3 +11099,7 @@ body.sidebar-toggled footer.sticky-footer {
   width: 20px;
   height: 20px;
 }
+
+#logo{
+  color: white;
+}

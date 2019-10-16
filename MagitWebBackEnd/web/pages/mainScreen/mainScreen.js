@@ -433,9 +433,9 @@ function showRepositoriesPage() {
         <!-- COMPONENT START -->
         '<div class="form-group">'+
         '<div class="input-group input-file" name="Fichier1">' +
-        '<input type="text" class="form-control" placeholder="Choose a file..." />'+
+        '<input type="text" class="form-control" placeholder="Choose XML repository file..." />'+
         '<span class="input-group-btn">'+
-        '<button class="btn btn-secondary btn-choose" type="button">Choose</button>'+
+        '<button class="btn btn-secondary btn-choose" type="button">Browse</button>'+
         '</span>'+
         '</div>'+
         '</div>'+

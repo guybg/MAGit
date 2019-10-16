@@ -50,6 +50,8 @@ public class LoginServlet extends HttpServlet {
         if (usernameFromSession == null) {
             //user is not logged in yet
             String usernameFromParameter = request.getParameter(USERNAME);
+            if(usernameFromParameter !=null)
+                usernameFromParameter = usernameFromParameter.toLowerCase();
             if (usernameFromParameter == null || usernameFromParameter.isEmpty()) {
                 //no username in session and no username in parameter -
                 //redirect back to the index page
