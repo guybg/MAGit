@@ -21,8 +21,8 @@ $(function() {
                 $('#error-modal').modal('show');
             },
             success: function(a) {
-                createBranchView($.parseJSON(a));
                 $('#create-branch-modal').modal('hide');
+                createBranchView($.parseJSON(a));
             }
         })
     });
