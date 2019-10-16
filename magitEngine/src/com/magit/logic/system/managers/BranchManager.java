@@ -271,7 +271,6 @@ public class BranchManager {
                                  Map<FileStatus, SortedSet<Delta.DeltaFileItem>> changes) throws IOException, ParseException, BranchNotFoundException, UncommitedChangesException, PreviousCommitsLimitExceededException, RemoteBranchException {
         if (Files.notExists(Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName)))
             throw new BranchNotFoundException(wantedBranchName);
-
         String headFileContent = FileHandler.readFile(activeRepository.getHeadPath().toString());
         if (headFileContent.equals(wantedBranchName))
             return "Wanted branch is already active.";
@@ -287,7 +286,7 @@ public class BranchManager {
         return forcedChangeBranch(wantedBranchName, activeRepository);
     }
 
-    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitExceededException {
+    public String forcedChangeBranch(String wantedBranchName, Repository activeRepository) throws IOException, ParseException, PreviousCommitsLimitExceededException, RemoteBranchException {
         FileHandler.writeNewFile(activeRepository.getHeadPath().toString(), wantedBranchName);
         String wantedBranchSha1 = Repository.readBranchContent(
                 Paths.get(activeRepository.getBranchDirectoryPath().toString(), wantedBranchName).toFile()).get("sha1");
@@ -302,6 +301,9 @@ public class BranchManager {
             WorkingCopyUtils.unzipWorkingCopyFromCommit(branchLatestCommit,
                     activeRepository.getRepositoryPath().toString(),
                     activeRepository.getRepositoryPath().toString());
+        }
+        if(activeRepository.getBranches().get(wantedBranchName).getIsRemote()){
+            throw new RemoteBranchException("You are trying to checkout into a remote branch, this operation is forbidden, would you like to create a remote tracking branch instead?", wantedBranchName);
         }
         mActiveBranch = activeRepository.getBranches().get(wantedBranchName);
         activeRepository.getBranches().replace("HEAD", mActiveBranch);

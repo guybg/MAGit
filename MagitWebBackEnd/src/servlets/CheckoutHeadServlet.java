@@ -80,6 +80,17 @@ public class CheckoutHeadServlet extends HttpServlet {
                     successMessage(response,responseMessage,"switched branch successfully!");
                 } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
                     returnGenericMessage(response,responseMessage,e.getMessage());
+                } catch (RemoteBranchException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    responseMessage.put("requestType", "generic");
+                    responseMessage.put("msg", e.getMessage());
+                    String resp = gson.toJson(responseMessage);
+                    try (PrintWriter out = response.getWriter()) {
+                        out.write(resp);
+                        out.flush();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
                 }
         }
 

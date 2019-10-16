@@ -262,7 +262,7 @@ public class MagitEngine {
         return mRepositoryManager.getWorkingCopyStatus(mUserName);
     }
 
-    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitExceededException {
+    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitExceededException, RemoteBranchException {
         return mBranchManager.forcedChangeBranch(branchName,
                 mRepositoryManager.getRepository());
     }

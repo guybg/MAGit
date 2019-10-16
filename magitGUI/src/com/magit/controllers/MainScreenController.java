@@ -642,6 +642,8 @@ public class MainScreenController implements Initializable, BasicController {
                     engine.forcedChangeBranch(branchName);
                     branchNameProperty.setValue(branchName);
                 } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {
+                } catch (RemoteBranchException ex) {
+                    ex.printStackTrace();
                 }
                 Button button = (Button) event1.getSource();
                 ((Stage) (button.getScene().getWindow())).close();
@@ -982,6 +984,8 @@ public class MainScreenController implements Initializable, BasicController {
             ex.printStackTrace();
         } catch (PreviousCommitsLimitExceededException ex) {
             ex.printStackTrace();
+        } catch (RemoteBranchException e) {
+            e.printStackTrace();
         }
     }
 

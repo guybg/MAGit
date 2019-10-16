@@ -163,7 +163,7 @@ public class UserAccount {
         engines.get(id).createRemoteTrackingBranch(remoteBranchName);
     }
 
-    public void forcedChangeBranch(String id,String branchName) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+    public void forcedChangeBranch(String id,String branchName) throws ParseException, PreviousCommitsLimitExceededException, IOException, RemoteBranchException {
         engines.get(id).forcedChangeBranch(branchName);
     }
 
