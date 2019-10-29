@@ -35,7 +35,7 @@ public class DeleteBranchServlet extends HttpServlet {
         } catch (BranchDeletedRemotelyException e){
             String remoteUserName = user.getRepositories().get(id).get("remoteUser");
             UserAccount receiverUserAccount = userManager.getUsers().get(remoteUserName);
-            receiverUserAccount.addNotification(usernameFromSession, "I deleted your branch named " + e.getmBranchName()+".");
+            receiverUserAccount.addNotification(usernameFromSession, "I deleted your branch named " + e.getmBranchName()+" in repository with id "+ user.getRepositories().get(id).get("remoteId") + ".");
         }
         catch (Exception ex) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
