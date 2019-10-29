@@ -61,7 +61,7 @@ $(function() {
     $('#create-pr-form').submit(function (e) {
         e.preventDefault();
         var id = getRepositoryId();
-        createPullRequest($('#target-branch').val(),$('#base-branch').val(),$("#pr-create-message").val());
+        createPullRequest($('.target-branch option:selected').text(),$('.base-branch option:selected').text(),$("#pr-create-message").val());
         // $.ajax({
         //     type: $(this).attr('method'),
         //     url: $(this).attr('action'),
@@ -315,7 +315,35 @@ function createBranch() {
     $('#create-branch-modal').modal('show');
 }
 function createPr() {
+    var repositoryDetails;
+    var id = getRepositoryId();
+    var REPO_DETAILS_URL = buildUrlWithContextPath("repodetails");
     $('#create-pr-modal').modal('show');
+    $.ajax( {
+        type: 'GET',
+        data: {
+            'id' : id
+        },
+        url: REPO_DETAILS_URL,
+        timeout: 2000,
+        error : function () {},
+        success: function (a) {
+            //"{branchesNum=2, commitMessage=changed Foo PSVM to say hello to tao tao, activeBranch=master, name=rep 1, commitDate=Sun Jun 09 20:25:10 IDT 2019}{"HEAD":{"mBranchName":"master","mPointedCommitSha1":{"mSha1Code":"9e10ad75f3f2b5eea8ab9ba42263e742239ffc4e"},"mIsRemote":false,"mTracking":false},"test":{"mBranchName":"test","mPointedCommitSha1":{"mSha1Code":"013855ca533c572d3a29940f08048aa1ea8823ff"},"mIsRemote":false,"mTracking":false},"master":{"mBranchName":"master","mPointedCommitSha1":{"mSha1Code":"9e10ad75f3f2b5eea8ab9ba42263e742239ffc4e"},"mIsRemote":false,"mTracking":false}}"
+            repositoryDetails = a;
+            delete repositoryDetails.Repository;
+            $(".base-branch").empty();
+            $(".target-branch").empty();
+            for (var k in repositoryDetails) {
+                if(k.indexOf("\\") >= 0){
+                    k = k.substring(k.indexOf("\\") + 1);
+                    $(".base-branch").append("<option value="+k+">"+k+"</option>");
+                }else{
+                    $(".target-branch").append("<option value="+k+">"+k+"</option>");
+                }
+
+            }
+        }
+    });
 }
 
 function getCommitsInfo() {

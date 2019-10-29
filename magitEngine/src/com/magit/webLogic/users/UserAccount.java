@@ -49,6 +49,10 @@ public class UserAccount {
         return userName;
     }
 
+    public HashMap<String, Branch> getBranches(String repositoryId){
+        return engines.get(repositoryId).getmRepositoryManager().getRepository().getBranches();
+    }
+
     public void addRepository(InputStream xml, Consumer<String> exceptionDelegate) throws InvalidNameException {
         MagitEngine engine = new MagitEngine();
         engine.updateUserName(userName);
