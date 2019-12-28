@@ -14,10 +14,7 @@ import org.apache.commons.io.FileUtils;
 
 import javax.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -45,6 +42,18 @@ public class RepositoryXmlParser {
         StreamSource streamSource = new StreamSource(xmlStream);
 
         magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
+    }
+
+    public RepositoryXmlParser (InputStream xmlStream,String usernamePath, String serialNumber) throws JAXBException{
+        //checkIfXmlFile(xmlStream);
+
+        JAXBContext jaxbContext = JAXBContext.newInstance("com.magit.logic.system.XMLObjects");
+
+        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+        StreamSource streamSource = new StreamSource(xmlStream);
+
+        magitRepository = unmarshaller.unmarshal(streamSource, MagitRepository.class).getValue();
+        magitRepository.setLocation(Paths.get(usernamePath, serialNumber).toString());
     }
 
     public int getObjectsCount() {
@@ -86,12 +95,14 @@ public class RepositoryXmlParser {
     }
 
     public Integer createCommits() throws ParseException, PreviousCommitsLimitExceededException, IOException {
-        commits =  createCommitsInstances(magitRepository, treeMap);
+        commits = createCommitsInstances(magitRepository, treeMap);
         return commits.size();
     }
 
-   public void initializeRepository(){
+
+   public String initializeRepository(){
         this.repository =  new Repository(Paths.get(magitRepository.getLocation()).toString(), magitRepository.getName());
+        return magitRepository.getName();
     }
 
     public Integer createBranches(BranchManager branchManager){

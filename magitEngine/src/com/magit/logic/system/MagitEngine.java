@@ -1,11 +1,10 @@
 package com.magit.logic.system;
 
-import com.fxgraph.edges.Edge;
-import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.Model;
+import com.google.gson.Gson;
 import com.magit.controllers.BranchesHistoryScreenController;
-import com.magit.controllers.MainScreenController;
 import com.magit.logic.enums.FileStatus;
+import com.magit.logic.enums.FileType;
 import com.magit.logic.exceptions.*;
 import com.magit.logic.system.managers.BranchManager;
 import com.magit.logic.system.managers.CollaborationEngine;
@@ -19,19 +18,20 @@ import com.magit.logic.utils.compare.Delta;
 import com.magit.logic.utils.compare.Delta.DeltaFileItem;
 import com.magit.logic.utils.digest.Sha1;
 import com.magit.logic.utils.file.FileHandler;
+import com.magit.logic.utils.file.FileItemHandler;
 import com.magit.logic.utils.file.WorkingCopyUtils;
+import com.magit.logic.utils.jstree.JsTreeAttributes;
+import com.magit.logic.utils.jstree.JsTreeItem;
 import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
-import javafx.util.Pair;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import puk.team.course.magit.ancestor.finder.AncestorFinder;
-import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -39,7 +39,6 @@ import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class MagitEngine {
@@ -74,8 +73,8 @@ public class MagitEngine {
     }
 
     public void updateUserName(String userNameToSet) throws InvalidNameException {
-        if (StringUtils.containsOnly(userNameToSet, BLANK_SPACE) || userNameToSet.isEmpty())
-            throw new InvalidNameException("Username should contain at least one alphanumeric character from A–Z or 0–9 or any symbol that is not a blank space");
+        if (StringUtils.containsOnly(userNameToSet, BLANK_SPACE) || userNameToSet.isEmpty() || !userNameToSet.matches("^[a-zA-Z0-9]*$"))
+            throw new InvalidNameException("Username should contain only alphanumeric characters from A–Za-z or 0–9 or any symbol that is not a blank space.");
         mUserName = userNameToSet;
     }
 
@@ -94,10 +93,7 @@ public class MagitEngine {
 
     }
 
-    public void loadHeadBranchCommitFiles(String path, boolean forceCreation) throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
-        //RepositoryXmlParser parser = new RepositoryXmlParser();
-        //Repository repository = parser.parseXMLToRepository(path, mBranchManager, mUserName, forceCreation);
-        //mRepositoryManager.setActiveRepository(repository);
+    public void loadHeadBranchCommitFiles() throws JAXBException, IOException, ParseException, PreviousCommitsLimitExceededException, XmlFileException, IllegalPathException, RepositoryAlreadyExistsException {
         mRepositoryManager.unzipHeadBranchCommitWorkingCopy();
     }
 
@@ -194,9 +190,9 @@ public class MagitEngine {
         }
     }
 
-    public void createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
+    public Branch createNewBranch(String branchName) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
         repositoryNotFoundCheck();
-        mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),false,false,null);
+        return mBranchManager.createNewBranch(branchName, mRepositoryManager.getRepository(),false,false,null);
     }
 
     public void createNewBranch(String branchName, String sha1OfCommit) throws IOException, RepositoryNotFoundException, InvalidNameException, BranchAlreadyExistsException {
@@ -224,7 +220,7 @@ public class MagitEngine {
     public ArrayList<Branch> getNonRemoteBranches(){
         return getBranches().stream().filter(b->b.getIsRemote().equals(false)).collect(Collectors.toCollection(ArrayList::new));
     }
-    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException {
+    public void deleteBranch(String branchNameToDelete) throws IOException, ActiveBranchDeletedException, RepositoryNotFoundException, BranchNotFoundException, RemoteBranchException, BranchDeletedRemotelyException {
         repositoryNotFoundCheck();
         mBranchManager.deleteBranch(branchNameToDelete, mRepositoryManager.getRepository());
     }
@@ -266,7 +262,7 @@ public class MagitEngine {
         return mRepositoryManager.getWorkingCopyStatus(mUserName);
     }
 
-    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitExceededException {
+    public String forcedChangeBranch(String branchName) throws ParseException, IOException, PreviousCommitsLimitExceededException, RemoteBranchException {
         return mBranchManager.forcedChangeBranch(branchName,
                 mRepositoryManager.getRepository());
     }
@@ -274,6 +270,42 @@ public class MagitEngine {
     public Map<FileStatus, SortedSet<DeltaFileItem>> getWorkingCopyStatusMap() throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
         repositoryNotFoundCheck();
         return mRepositoryManager.checkDifferenceBetweenCurrentWCAndLastCommit();
+    }
+
+    public ArrayList<JsTreeItem> getJsTreeListOfDifferences(Map<FileStatus, SortedSet<Delta.DeltaFileItem>> diff){
+        SortedMap<String,JsTreeItem> items = new TreeMap<>();
+        items.put(guiGetRepositoryPath().toLowerCase(),new JsTreeItem("root","jstree-folder", new JsTreeAttributes("",guiGetRepositoryPath().toLowerCase())));
+        for(Map.Entry<FileStatus,SortedSet<Delta.DeltaFileItem>> entry : diff.entrySet()){
+            for(DeltaFileItem item : entry.getValue()){
+                if(items.values().stream().anyMatch(a -> a.getLi_attr().getPath().toLowerCase().equals(item.getFullPath().toLowerCase()))){
+                    continue;
+                }
+                Path path = Paths.get(item.getFullPath());
+                JsTreeItem file = new JsTreeItem(item.getFileName() + " ("+entry.getKey()+")","jstree-file",new JsTreeAttributes(item.getFileItem().getFileContent(),path.toString().toLowerCase()));
+                items.put(path.toString().toLowerCase(),file);
+                path = path.getParent();
+                while(!path.toString().toLowerCase().equals(guiGetRepositoryPath().toLowerCase())){
+                    Path finalPath = path;
+                    if(!items.values().stream().anyMatch(a -> a.getLi_attr().getPath().toLowerCase().equals(finalPath.toString().toLowerCase()))){
+                        JsTreeItem folder = new JsTreeItem(path.getFileName().toString(),"jstree-folder", new JsTreeAttributes("",path.toString().toLowerCase()));
+                        items.put(path.toString().toLowerCase(),folder);
+                    }
+                    path = path.getParent();
+                }
+            }
+        }
+        int id = 0;
+        for(Map.Entry<String,JsTreeItem> itemEntry : items.entrySet()){
+            itemEntry.getValue().setId(Integer.toString(id));
+            if(id == 0){
+                itemEntry.getValue().setParent("#");
+            }else{
+                itemEntry.getValue().setParent(items.get(Paths.get(itemEntry.getKey()).getParent().toString()).getId());
+            }
+            id++;
+        }
+
+        return new ArrayList<>(items.values());
     }
 
     public Map<FileStatus, SortedSet<Delta.DeltaFileItem>> getDifferencesBetweenTwoCommits(String sha1OfFirstCommit, String sha1OfSecondCommit) throws IOException, ParseException, RepositoryNotFoundException, PreviousCommitsLimitExceededException {
@@ -300,11 +332,7 @@ public class MagitEngine {
         try {
             workingCopyChangedComparedToCommit();
             mergeEngine.merge(mRepositoryManager.getRepository(), mRepositoryManager.getRepository().getBranches().get(branchName),pullOperation);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        } catch (PreviousCommitsLimitExceededException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (ParseException | PreviousCommitsLimitExceededException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -335,7 +363,8 @@ public class MagitEngine {
 
     public void activeBranchHasUnhandledMerge() throws UnhandledMergeException {
         if(mRepositoryManager.getRepository().headBranchHasUnhandledMerge())
-            throw new UnhandledMergeException("Unhandled merge, loading information.");
+            throw new UnhandledMergeException("Unhandled merge, please handle merge and commit changes.");
+            //throw new UnhandledMergeException("Unhandled merge, loading information.");
     }
 
     public boolean headBranchHasMergeConflicts(){
@@ -376,6 +405,98 @@ public class MagitEngine {
 
     public boolean activeBranchIsTrackingAfter(){
         return mBranchManager.activeBranchIsTrackingAfter();
+    }
+
+    public HashMap<String, HashMap<String, String>> getRepositoryInfo(HashMap<String, String> repDetails) {
+        HashMap<String, HashMap<String, String>> repositoryInfo = new HashMap<>();
+        repositoryInfo.put("Repository", repDetails);
+        for (Branch branch : getBranches()) {
+            repositoryInfo.put(branch.getBranchName(), new HashMap<>());
+            HashMap<String, String> branchInfo = repositoryInfo.get(branch.getBranchName());
+            branchInfo.put("Commit", branch.getPointedCommitSha1().toString());
+            branchInfo.put("IsTracking", branch.getIsTracking().toString());
+            branchInfo.put("IsRemote", branch.getIsRemote().toString());
+            branchInfo.put("TrackingAfter", branch.getTrackingAfter() == null ? "" : branch.getTrackingAfter());
+        }
+        return repositoryInfo;
+    }
+
+    public void createPullRequest(MagitEngine engineOfSender,String targetBranchName,String baseBranchName,String message) throws IOException, RepositoryNotFoundException, RemoteReferenceException, UncommitedChangesException, PushException, UnhandledMergeException, ParseException, CommitNotFoundException, RemoteBranchException, PreviousCommitsLimitExceededException, BranchNotFoundException, PullRequestException {
+        collaborationEngine.createPullRequest(engineOfSender,this.mRepositoryManager.getRepository(),targetBranchName,baseBranchName,message);
+    }
+
+    public void acceptPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException, InvalidNameException, ParseException, PreviousCommitsLimitExceededException, IOException, BranchNotFoundException, RemoteBranchException, WorkingCopyStatusNotChangedComparedToLastCommitException, UnhandledConflictsException, WorkingCopyIsEmptyException {
+        collaborationEngine.acceptPullRequest(this, pullRequestId);
+    }
+
+    public void rejectPullRequest(int pullRequestId) throws UnhandledMergeException, MergeNotNeededException, RepositoryNotFoundException, MergeException, UncommitedChangesException, FastForwardException {
+        collaborationEngine.rejectPullRequest(pullRequestId);
+    }
+
+    public CollaborationEngine getCollaborationEngine() {
+        return collaborationEngine;
+    }
+
+    public ArrayList<String> getHeadBranchCommits() throws IOException, CommitNotFoundException {
+        return mRepositoryManager.getBranchCommits(mBranchManager.getActiveBranch().getBranchName());
+    }
+    public ArrayList<JsTreeItem> getTree(String sha1) throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        return mRepositoryManager.getJsTreeListByCommitSha1(sha1);
+    }
+
+    public ArrayList<JsTreeItem> getWorkingCopyStatusJsTree() throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException {
+        return getJsTreeListOfDifferences(getWorkingCopyStatusMap());
+    }
+
+    public ArrayList<String> getCommitsDeltaBetweenTwoBranches(String baseBranch, String targetBranch) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException, CommitNotFoundException {
+        return mRepositoryManager.getCommitsDeltaBetweenTwoBranches(baseBranch,targetBranch);
+    }
+
+    public ArrayList<JsTreeItem> getDiffrencesJsTreeBetweenTwoCommits(String sha1OfFirstCommit, String sha1OfSecondCommit) throws PreviousCommitsLimitExceededException, RepositoryNotFoundException, ParseException, IOException {
+        return getJsTreeListOfDifferences(getDifferencesBetweenTwoCommits(sha1OfFirstCommit,sha1OfSecondCommit));
+    }
+
+    public ArrayList<JsTreeItem> getOverallCommitsDiff(String baseBranch, String targetBranch) throws PreviousCommitsLimitExceededException, IOException, CommitNotFoundException, ParseException, RepositoryNotFoundException {
+        return getJsTreeListOfDifferences(mRepositoryManager.getOverallCommitsDiff(baseBranch,targetBranch));
+    }
+    private void removeEntry(SortedSet<Delta.DeltaFileItem> totalEntry,Delta.DeltaFileItem itemToRemove){
+        totalEntry.remove(itemToRemove);
+    }
+
+    public ArrayList<JsTreeItem> getTree() throws ParseException, PreviousCommitsLimitExceededException, IOException {
+        return mRepositoryManager.getCurrentWorkingCopyJsTree(mUserName);
+    }
+
+    public void deleteFile(String path) throws IOException {
+        File file = new File(path);
+        if (file.isDirectory())
+            FileUtils.deleteDirectory(new File(path));
+        else
+            FileUtils.deleteQuietly(file);
+    }
+
+    public boolean renameFile(String path, String newFileName) {
+        if (Files.notExists(Paths.get(path)))
+            return false;
+        return new File(path).renameTo(new File(newFileName));
+    }
+
+    public boolean createFile(String path) throws IOException {
+        if (Files.exists(Paths.get(path)))
+            return false;
+
+        return new File(path).createNewFile();
+    }
+
+    public void createFolder(String path) {
+        if (Files.exists(Paths.get(path)))
+            return;
+
+        new File(path).mkdirs();
+    }
+
+    public void saveContentToFile(String path, String data) throws IOException {
+        FileUtils.writeStringToFile(new File(path),data, StandardCharsets.UTF_8);
     }
 }
 

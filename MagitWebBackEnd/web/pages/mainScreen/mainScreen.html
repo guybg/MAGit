@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Magit Main</title>
+
+    <!-- ------------important!!!------------>
+    <link href="../css/sb-admin.css" rel="stylesheet">
+    <link href="mainScreen.css" rel="stylesheet">
+    <link href="../css/notifications.css" rel="stylesheet">
+    <link type="text/css" href="../../common/toast/css/jquery.toastmessage.css" rel="stylesheet">
+    <!-- Bootstrap core JavaScript-->
+    <script src="../../common/utils/jquery/jquery.min.js"></script>
+    <script src="../../common/utils/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../common/toast/jquery.toastmessage.js"></script>
+    <script src="../../common/toast/ToastUtils.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="../../common/utils/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Page level plugin JavaScript-->
+    <script src="../../common/utils/chart.js/Chart.min.js"></script>
+    <script src="../../common/utils/datatables/jquery.dataTables.js"></script>
+    <script src="../../common/utils/datatables/dataTables.bootstrap4.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="../css/sb-admin.min.js"></script>
+    <link href="../../common/fontawesome/css/all.min.css" rel="stylesheet" type="text/css">
+    <script src="../../common/context-path-helper.js"></script>
+    <script src="../../common/contentRelated/ContentUtils.js"></script>
+    <script src="../../common/navbar/navbarUtils.js"></script>
+
+    <!-- --------/important---------------->
+
+
+    <script src="mainScreen.js"></script>
+    <script src="../chatroom/chatroom.js"></script>
+</head>
+<body id="page-top">
+<div class="toast-container toast-position-top-right"></div>
+<nav class="navbar navbar-expand navbar-dark bg-dark static-top">
+    <a class="navbar-brand mr-1" id="logo">Magit Hub</a>
+            <div class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0 noti">
+                <ul>
+                    <li id="noti_Container">
+                        <div id="noti_Counter"></div>   <!--SHOW NOTIFICATIONS COUNT.-->
+                        <!--A CIRCLE LIKE BUTTON TO DISPLAY NOTIFICATION DROPDOWN.-->
+                        <div id="noti_Button"></div>
+
+                        <!--THE NOTIFICAIONS DROPDOWN BOX.-->
+                        <div id="notifications">
+                            <h3 class="notifications-center">Notifications</h3>
+                            <div id="notificationsArea" class="overflow-auto container-fluid no-padding" style="height:300px;"></div>
+                            <div class="seeAll notifications-center"></div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+</nav>
+<div id="wrapper">
+    <!-- Sidebar -->
+    <ul class="sidebar navbar-nav">
+        <li class="nav-item">
+            <a id="username" class="nav-link">
+                <span>Hello </span>
+            </a>
+        </li>
+        <li class="nav-item active">
+            <a id="repositoriesbutton" class="nav-link" href="#">
+                <span>Repositories</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a id="users" class="nav-link" href="#">
+                <span>Users</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="logout">
+                <span>Logout</span></a>
+        </li>
+    </ul>
+    <div id="content-wrapper">
+        <div id="repositories" class="container-fluid">
+            <ol class="breadcrumb" id="back-bread">
+                <li class="breadcrumb-item">
+                    <button type="button" class="btn btn-bar align-middle" id='back'>
+                        <i class="fas fa-home fa-3x"></i>
+                        <i>Home</i>
+                    </button>
+                </li>
+            </ol>
+            <div role="row" id="main-container"></div>
+            <div class="row" id="repository-upload"></div>
+            <div class="row" id="repository-container"></div>
+        </div>
+        <div id="users-fluid" class="container-fluid">
+            <div class="row" id="users-container"></div>
+        </div>
+    </div>
+    <footer class="sticky-footer">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright © Magit Hub 2019</span>
+            </div>
+        </div>
+    </footer>
+</div>
+</div>
+
+
+<div class="container fixed-bottom">
+    <div class="row chat-window col-xs-5 col-md-3" id="chat_window_1" style="margin-left:10px;">
+        <div class="col-xs-12 col-md-12">
+            <div class="panel panel-default">
+                <div class="d-flex panel-heading top-bar">
+                    <div class="col-md-8 col-xs-8">
+                        <h3 id="chat-name" class="panel-title"><span class="fas fa-comment"></span> Chat</h3>
+                    </div>
+                    <div class="col-md-4 col-xs-4" style="text-align: right;">
+                        <a href="#"><span id="minim_chat_window" class="fas fa-minus panel-collapsed"></span></a>
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="row panel-body">
+                        <div id="userslist" class="col-3 msg_container_base">
+                            <span>Online users:</span>
+                        </div>
+                        <div id="chatarea" class="col-9 msg_container_base">
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="panel-footer panel-body">
+                    <div class="input-group">
+                        <input id="btn-input" type="text" class="form-control input-sm chat_input" placeholder="Write your message here..."/>
+                        <span class="d-flex input-group-btn ml-2">
+                        <button class="btn btn-primary btn-sm" id="btn-chat">Send</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

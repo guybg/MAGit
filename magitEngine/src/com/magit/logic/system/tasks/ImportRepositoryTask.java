@@ -15,6 +15,7 @@ import javafx.util.Duration;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.function.Supplier;
 
@@ -23,6 +24,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private int objectsCount = 0;
     private int currentObjectCount = 0;
     private String filePath = null;
+    private InputStream xml;
     private BranchManager branchManager;
     private RepositoryManager repositoryManager;
     private boolean forceCreation = false;
@@ -40,6 +42,18 @@ public class ImportRepositoryTask extends Task<Boolean> {
         this.repositoryManager = engine.getmRepositoryManager();
         this.engine = engine;
         this.pane = pane;
+        this.repositoryNameProperty = repositoryNameProperty;
+        this.repositoryPathProperty = repositoryPathProperty;
+        this.forceCreationRunnable = forceCreationRunnable;
+        this.doAfter = doAfter;
+    }
+
+    public ImportRepositoryTask(InputStream xml, MagitEngine engine, StringProperty repositoryNameProperty,StringProperty repositoryPathProperty,Runnable forceCreationRunnable,Runnable doAfter, boolean forceCreation) {
+        this.xml = xml;
+        this.branchManager = engine.getmBranchManager();
+        this.forceCreation = forceCreation;
+        this.repositoryManager = engine.getmRepositoryManager();
+        this.engine = engine;
         this.repositoryNameProperty = repositoryNameProperty;
         this.repositoryPathProperty = repositoryPathProperty;
         this.forceCreationRunnable = forceCreationRunnable;
@@ -78,7 +92,7 @@ public class ImportRepositoryTask extends Task<Boolean> {
         }
         try {
             updateMessage("Unzipping files...");
-            engine.loadHeadBranchCommitFiles(filePath, true);
+            engine.loadHeadBranchCommitFiles();
             updateProgress(currentObjectCount + 2, objectsCount);
         } catch (JAXBException | RepositoryAlreadyExistsException | IllegalPathException | XmlFileException | PreviousCommitsLimitExceededException | ParseException | IOException e) {
             e.printStackTrace();
@@ -112,7 +126,8 @@ public class ImportRepositoryTask extends Task<Boolean> {
     private void deleteProgressBar(){
         Platform.runLater(() -> {
             KeyFrame keyFrame = new KeyFrame(Duration.seconds(5), event -> {
-                pane.setVisible(false);
+                if(pane !=null)
+                    pane.setVisible(false);
                 doAfter.run();
             });
             Timeline timer = new Timeline(keyFrame);

@@ -126,4 +126,7 @@ public abstract class FileItem implements Comparator<FileItem>, Comparable<FileI
         return compare(this, o);
     }
 
+    public void setName(String name) {
+        mName = name;
+    }
 }

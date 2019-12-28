@@ -58,4 +58,8 @@ public class FileItemHandler {
             return new String(IOUtils.toByteArray(gzipInputStream));
         }
     }
+
+    public static String zipToString(String sourcePath, String sourceSha1) throws IOException {
+        return zipToString(sourcePath, new Sha1(sourceSha1,true));
+    }
 }

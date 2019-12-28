@@ -1,0 +1,56 @@
+.main-container {
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.buttons-column {
+    position: relative;
+
+}
+.btn-branch {
+
+}
+
+.button-bar {
+    position: relative;
+}
+
+.side-container{
+    position: relative;
+
+}
+
+hr.style-four {
+    border: 0;
+    height: 1px;
+    background: #333;
+    background-image: linear-gradient(to right, #ccc, #333, #ccc);
+}
+
+.top-part{
+    background: #F8F9FA;
+}
+
+.bottom-part{
+    background: #F8F9FA;
+}
+
+#content-save-btn {
+    margin-right: 10px;
+}
+
+.btn-commit{
+    color: white;
+    background: rgba(101, 0, 238, 0.59);
+}
+.btn-commit:hover{
+    color: white;
+    background: #9a00ff;
+}
+
+
+
+
+
+
+

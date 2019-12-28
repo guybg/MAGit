@@ -509,6 +509,8 @@ public class MainScreenController implements Initializable, BasicController {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
+                } catch (BranchDeletedRemotelyException e) {
+                    e.printStackTrace();
                 }
                 ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
             }, true, "Are you sure?", "Deleting branch cannot be reverted", "Cancel");
@@ -599,6 +601,8 @@ public class MainScreenController implements Initializable, BasicController {
     void onFetch(ActionEvent event) {
         try {
             engine.fetch();
+            PopupScreen popupScreen = new PopupScreen(stage,engine);
+            popupScreen.showErrorMessage("Fetch complete!");
         } catch (PreviousCommitsLimitExceededException | CommitNotFoundException | ParseException | IOException | RemoteReferenceException e) {
             PopupScreen popupScreen = new PopupScreen(stage, engine);
             try {
@@ -638,6 +642,8 @@ public class MainScreenController implements Initializable, BasicController {
                     engine.forcedChangeBranch(branchName);
                     branchNameProperty.setValue(branchName);
                 } catch (ParseException | IOException | PreviousCommitsLimitExceededException ignored) {
+                } catch (RemoteBranchException ex) {
+                    ex.printStackTrace();
                 }
                 Button button = (Button) event1.getSource();
                 ((Stage) (button.getScene().getWindow())).close();
@@ -916,6 +922,8 @@ public class MainScreenController implements Initializable, BasicController {
                     deleteBranchCotnroller.setError("Please enter valid name.");
                 } catch (RemoteBranchException e) {
                     deleteBranchCotnroller.setError(e.getMessage());
+                } catch (BranchDeletedRemotelyException e) {
+                    e.printStackTrace();
                 }
             } catch (ActiveBranchDeletedException ex) {
                 deleteBranchCotnroller.setError("Can't delete active branch");
@@ -976,6 +984,8 @@ public class MainScreenController implements Initializable, BasicController {
             ex.printStackTrace();
         } catch (PreviousCommitsLimitExceededException ex) {
             ex.printStackTrace();
+        } catch (RemoteBranchException e) {
+            e.printStackTrace();
         }
     }
 
