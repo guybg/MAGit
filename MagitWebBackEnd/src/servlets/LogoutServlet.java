@@ -8,11 +8,9 @@ import utils.ServletUtils;
 import utils.SessionUtils;
 import java.io.IOException;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
-public class LogoutServlet extends HttpServlet {
+public class LogoutServlet extends HttpServlet{
 
     private void prepareRedirectAjaxResponse(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (isAjax(request)) {
@@ -78,4 +76,5 @@ public class LogoutServlet extends HttpServlet {
     private boolean isAjax(HttpServletRequest request) {
         return "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
     }
+
 }

@@ -194,7 +194,7 @@ public class Repository implements Cloneable{
     }
 
     private void createHeadFile(String branchName) throws IOException {
-        Path path = Paths.get(mRepositoryLocation, ".magit", "Branches", "HEAD");
+        Path path = Paths.get(mRepositoryLocation, ".magit", "branches", "HEAD");
         File branchesPath = new File(path.getParent().toString());
         branchesPath.mkdirs();
         Files.createFile(path);

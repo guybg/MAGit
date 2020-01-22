@@ -26,6 +26,7 @@ import com.magit.logic.visual.node.CommitNode;
 import javafx.collections.ObservableList;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.bind.JAXBException;
@@ -468,6 +469,7 @@ public class MagitEngine {
     }
 
     public void deleteFile(String path) throws IOException {
+        path = convertPathBySystem(path);
         File file = new File(path);
         if (file.isDirectory())
             FileUtils.deleteDirectory(new File(path));
@@ -476,27 +478,33 @@ public class MagitEngine {
     }
 
     public boolean renameFile(String path, String newFileName) {
+        path = convertPathBySystem(path);
         if (Files.notExists(Paths.get(path)))
             return false;
         return new File(path).renameTo(new File(newFileName));
     }
 
     public boolean createFile(String path) throws IOException {
+        path = convertPathBySystem(path);
         if (Files.exists(Paths.get(path)))
             return false;
-
         return new File(path).createNewFile();
     }
 
     public void createFolder(String path) {
+        path = convertPathBySystem(path);
         if (Files.exists(Paths.get(path)))
             return;
-
         new File(path).mkdirs();
     }
 
     public void saveContentToFile(String path, String data) throws IOException {
+        path = convertPathBySystem(path);
         FileUtils.writeStringToFile(new File(path),data, StandardCharsets.UTF_8);
+    }
+
+    private String convertPathBySystem(String path){
+        return FilenameUtils.separatorsToSystem(path);
     }
 }
 

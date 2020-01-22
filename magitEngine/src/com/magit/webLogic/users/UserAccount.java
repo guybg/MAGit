@@ -17,6 +17,7 @@ import com.magit.webLogic.utils.notifications.SingleNotification;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,6 +26,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class UserAccount {
@@ -32,7 +34,7 @@ public class UserAccount {
     @Expose(serialize = true)private HashMap<String, HashMap<String,String>> repositories;
     @Expose(serialize = false) private HashMap<String,MagitEngine> engines;
     @Expose(serialize = true)private String userPath;
-    @Expose(serialize = true)static final String usersPath = "c:/magit-ex3";
+    @Expose(serialize = true)static final String usersPath = "magit-ex3";
     @Expose(serialize = true) private boolean online;
     @Expose(serialize = true) private AccountNotificationsManager notificationsManager;
 
@@ -113,8 +115,11 @@ public class UserAccount {
             String remoteRepositoryName = "";
             if(engine.getmRepositoryManager().getRepository().getRemoteReference() !=null){
                 String location = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation();
-                remoteId = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation().split("\\\\")[3];
-                remoteUserName = engine.getmRepositoryManager().getRepository().getRemoteReference().getLocation().split("\\\\")[2];
+                String pattern = Pattern.quote(System.getProperty("file.separator"));
+                String[] remoteDetails = location.split(pattern);
+                int remoteDetailsLength = remoteDetails.length - 1;
+                remoteId = remoteDetails[remoteDetailsLength];
+                remoteUserName = remoteDetails[remoteDetailsLength-1];
                 remoteRepositoryName = engine.getmRepositoryManager().getRepository().getRemoteReference().getRepositoryName();
             }
             HashMap<String,String> details = RepositoryUtils.setRepositoryDetailsMap(engine.getRepositoryName(), commitDate, commitMessage,remoteId,remoteUserName,remoteRepositoryName, engine);
@@ -126,9 +131,9 @@ public class UserAccount {
         HashMap<String,String> repositoryToCLoneDetails = accountToCloneFrom.getRepositories().get(repositoryIdToClone);
         String repositoryToCloneName = repositoryToCLoneDetails.get("name");
         MagitEngine engine1 = new MagitEngine();
-        String toClonePath = Paths.get("c:/magit-ex3", accountToCloneFrom.userName,repositoryIdToClone).toString();
+        String toClonePath = Paths.get("magit-ex3", accountToCloneFrom.userName,repositoryIdToClone).toString();
         String serialNumber = getFreeRepositoryId();
-        String clonedPath = Paths.get("c:/magit-ex3", userName,serialNumber).toString();
+        String clonedPath = Paths.get("magit-ex3", userName,serialNumber).toString();
 
         engine1.clone(toClonePath,clonedPath,cloneName);
         engine1.switchRepository(clonedPath);

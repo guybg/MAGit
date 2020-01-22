@@ -144,7 +144,7 @@ public class CollaborationEngine {
 
     public boolean isValid(String repositoryLocation) throws IOException {
         final Path pathToMagit = Paths.get(repositoryLocation,".magit"), pathToHead = Paths.get(repositoryLocation,".magit","branches","HEAD"), repositoryPath = Paths.get(repositoryLocation);
-        final String BRANCHES = "BRANCHES";
+        final String BRANCHES = "branches";
         return Files.exists(Paths.get(repositoryLocation)) &&
                 Files.exists(Paths.get(repositoryLocation)) && Files.exists(pathToMagit) && Files.exists(pathToHead) &&
                 !FileHandler.readFile(pathToHead.toString()).isEmpty()

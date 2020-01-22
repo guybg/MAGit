@@ -397,7 +397,7 @@ function showUsersPage() {
                 "      </div>\n" +
                 "      <div class=\"modal-footer\">\n" +
                 "        <button type=\"button\" class=\"btn btn-secondary\" data-dismiss=\"modal\">Close</button>\n" +
-                "        <button id=\"forkButton\" type=\"button\" class=\"btn btn-primary\">Fork</button>\n" +
+                "        <button id=\"forkButton\" type=\"button\" class=\"btn btn-primary\" value=\"Ok\">Fork</button>\n" +
                 "      </div>\n" +
                 "    </div>\n" +
                 "  </div>\n" +
@@ -413,7 +413,7 @@ function showUsersPage() {
                 var modal = $(this);
                 $('#forkRepoModal #forkButton').prop('disabled', false);
                 modal.find('.modal-title').text('Forking ' + repositoryName + ' from ' + userName);
-                modal.find('#forkButton').off('click').on('click',{userName: userName, repositoryId: id},forkRepository)
+                modal.find('#forkButton').off('click').on('click',{userName: userName, repositoryId: id},forkRepository);
             });
             $('#users-container').append(usersAccor);
 

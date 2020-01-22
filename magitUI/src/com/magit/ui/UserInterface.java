@@ -282,6 +282,8 @@ public class UserInterface {
             System.out.println(e.getMessage());
         } catch (RemoteBranchException e) {
             e.printStackTrace();
+        } catch (BranchDeletedRemotelyException e) {
+            e.printStackTrace();
         }
     }
 
@@ -377,6 +379,8 @@ public class UserInterface {
                     System.out.println(magitEngine.forcedChangeBranch(branchName));
                 } catch (PreviousCommitsLimitExceededException ex) {
                     System.out.println(e.getMessage());
+                } catch (RemoteBranchException ex) {
+                    ex.printStackTrace();
                 }
             }
         } catch (PreviousCommitsLimitExceededException e) {

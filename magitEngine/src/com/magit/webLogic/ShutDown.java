@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 
 public class ShutDown {
     public static void onShutDown(){
-        Path magitServerPath = Paths.get("c:/magit-ex3");
+        Path magitServerPath = Paths.get("magit-ex3");
         if(Files.exists(magitServerPath)){
             FileUtils.deleteQuietly(magitServerPath.toFile());
         }

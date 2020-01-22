@@ -120,7 +120,7 @@ public class RepositoryXmlParser {
         if (Files.exists(Paths.get(repositoryPath)) &&
                 Files.exists(Paths.get(repositoryPath, ".magit")) &&
                 Files.exists(Paths.get(repositoryPath, ".magit", "REPOSITORY_NAME")) &&
-                Files.exists((Paths.get(repositoryPath, ".magit", "Branches", "HEAD"))))
+                Files.exists((Paths.get(repositoryPath, ".magit", "branches", "HEAD"))))
             throw new RepositoryAlreadyExistsException("Functioning repository already exists at location " + repositoryPath + ".", repositoryPath);
         else if (Files.exists(Paths.get(repositoryPath)))
             throw new FileAlreadyExistsException("There is a non repository file at that location.");
